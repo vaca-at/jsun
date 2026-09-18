@@ -1,1 +1,420 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>진선여고 1학년 2학기 중간고사 대비 웹앱</title>
+  <style>
+    :root {
+      --primary: #8a4baf;
+      --primary-light: #f4ecf8;
+      --bg: #f8f9fa;
+      --text: #333;
+      --border: #e1e4e8;
+    }
 
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+
+    header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--primary-light); padding-bottom: 15px; }
+    h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 5px; }
+    
+    .nav-tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 10px 20px; border: none; background: none; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; font-weight: bold; color: #666; }
+    .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .filter-group { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    select, button, input, textarea { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; }
+    select { flex: 1; min-width: 140px; }
+    
+    button { background-color: var(--primary); color: white; border: none; cursor: pointer; transition: background 0.2s; font-weight: bold; }
+    button:hover { background-color: #733b93; }
+    .btn-secondary { background-color: #6c757d; }
+    .btn-secondary:hover { background-color: #5a6268; }
+    .btn-danger { background-color: #dc3545; }
+    .btn-danger:hover { background-color: #bd2130; }
+
+    .card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; margin-right: 5px; background: var(--primary-light); color: var(--primary); }
+
+    .options-group { display: flex; flex-direction: column; gap: 8px; margin: 15px 0; }
+    .option-btn { text-align: left; background: #fff; color: var(--text); border: 1px solid var(--border); padding: 12px; width: 100%; border-radius: 6px; }
+    .option-btn:hover { background: var(--primary-light); }
+
+    .result-msg { margin-top: 10px; font-weight: bold; }
+    .correct { color: #28a745; }
+    .incorrect { color: #dc3545; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; }
+
+    .q-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 10px 0; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>진선여고 1학년 2학기 중간고사 대비</h1>
+    <p>내신 기출 스타일 & 수능 대비 과목별 퀴즈 풀이</p>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('quiz')">문제 풀기</button>
+    <button class="tab-btn" onclick="switchTab('admin')">문제 관리 (관리자)</button>
+  </div>
+
+  <!-- 1. 문제 풀기 뷰 -->
+  <div id="quizView" class="view active">
+    <div class="filter-group">
+      <select id="filterSubject" onchange="loadQuiz()">
+        <option value="전체">전체 과목</option>
+        <option value="국어">국어</option>
+        <option value="수학">수학</option>
+        <option value="영어">영어</option>
+        <option value="통합사회">통합사회</option>
+        <option value="통합과학">통합과학</option>
+      </select>
+      <select id="filterDifficulty" onchange="loadQuiz()">
+        <option value="전체">전체 난이도</option>
+        <option value="내신 기본">내신 기본</option>
+        <option value="내신 심화">내신 심화</option>
+        <option value="수능 기본">수능 기본</option>
+        <option value="수능 심화">수능 심화</option>
+        <option value="수능 킬러">수능 킬러</option>
+      </select>
+    </div>
+
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- 2. 관리자 뷰 -->
+  <div id="adminView" class="view">
+    <div id="authSection" class="card">
+      <h3>관리자 인증</h3>
+      <p style="margin: 10px 0; font-size: 0.9rem; color: #666;">문제를 수정하거나 추가하려면 비밀번호를 입력하세요.</p>
+      <div style="display: flex; gap: 10px;">
+        <input type="password" id="adminPw" placeholder="비밀번호 입력">
+        <button onclick="checkAuth()">확인</button>
+      </div>
+    </div>
+
+    <div id="adminContent" style="display: none;">
+      <div class="card">
+        <h3 id="formTitle">새 문제 추가</h3>
+        <input type="hidden" id="editIndex" value="-1">
+        <div class="form-group" style="margin-top: 15px;">
+          <label>과목</label>
+          <select id="inputSubject">
+            <option value="국어">국어</option>
+            <option value="수학">수학</option>
+            <option value="영어">영어</option>
+            <option value="통합사회">통합사회</option>
+            <option value="통합과학">통합과학</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>난이도</label>
+          <select id="inputDifficulty">
+            <option value="내신 기본">내신 기본</option>
+            <option value="내신 심화">내신 심화</option>
+            <option value="수능 기본">수능 기본</option>
+            <option value="수능 심화">수능 심화</option>
+            <option value="수능 킬러">수능 킬러</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>문제 유형</label>
+          <select id="inputType" onchange="toggleOptionsInput()">
+            <option value="multiple">객관식</option>
+            <option value="ox">OX 퀴즈</option>
+            <option value="short">주관식/단답형</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>문제 지문 및 발문</label>
+          <textarea id="inputQuestion" rows="3"></textarea>
+        </div>
+        <div class="form-group" id="optionsInputGroup">
+          <label>보기 (쉼표로 구분)</label>
+          <input type="text" id="inputOptions" placeholder="예: 보기1, 보기2, 보기3, 보기4">
+        </div>
+        <div class="form-group">
+          <label>정답</label>
+          <input type="text" id="inputAnswer" placeholder="객관식은 번호(1-4) 또는 보기 텍스트, OX는 O/X, 주관식은 정답 텍스트">
+        </div>
+        <div class="form-group">
+          <label>해설</label>
+          <textarea id="inputExplanation" rows="2"></textarea>
+        </div>
+        <button onclick="saveQuestion()">저장하기</button>
+        <button class="btn-secondary" onclick="resetForm()">취소</button>
+      </div>
+
+      <div class="card">
+        <h3>등록된 문제 목록</h3>
+        <div id="questionList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 초기 sample 데이터 (진선여고 기출 스타일 및 수능 대비 문제 반영)
+  const defaultQuestions = [
+    {
+      subject: "국어",
+      difficulty: "내신 심화",
+      type: "multiple",
+      question: "[진선여고 기출 변형] 다음 중 음운 변동 현상이 나머지 넷과 다른 것은?",
+      options: ["1) 솜이불 [솜니불]", "2) 맨입 [맨닙]", "3) 국물 [궁물]", "4) 한여름 [한녀름]"],
+      answer: "3",
+      explanation: "3번 '국물'은 비음화 현상이며, 나머지는 모두 'ㄴ' 첨가 현상입니다."
+    },
+    {
+      subject: "수학",
+      difficulty: "내신 기본",
+      type: "short",
+      question: "원 x² + y² = 5 위의 점 (1, 2)에서의 접선의 방정식을 ax + 2y = c라 할 때, a + c의 값을 구하시오.",
+      options: [],
+      answer: "6",
+      explanation: "원 위의 점 (x1, y1)에서의 접선 공식은 x1*x + y1*y = r² 입니다. 1*x + 2y = 5이므로 a=1, c=5. 따라서 a+c=6입니다."
+    },
+    {
+      subject: "통합과학",
+      difficulty: "수능 기본",
+      type: "ox",
+      question: "산화 환원 반응에서 산소를 얻는 반응을 산화, 산소를 잃는 반응을 환원이라고 한다.",
+      options: ["O", "X"],
+      answer: "O",
+      explanation: "산소의 이동에 따른 산화 환원 정의의 기본 개념입니다."
+    },
+    {
+      subject: "수학",
+      difficulty: "수능 킬러",
+      type: "short",
+      question: "이차함수 f(x)가 모든 실수 x에 대해 f(1-x) = f(1+x)를 만족하고 최솟값이 -4일 때, f(3)=0이면 f(0)의 값을 구하시오.",
+      options: [],
+      answer: "-3",
+      explanation: "f(x)는 x=1에 대해 대칭이며 f(x)=a(x-1)²-4 형태입니다. f(3)=4a-4=0이므로 a=1. 따라서 f(x)=(x-1)²-4 이며 f(0)=1-4=-3 입니다."
+    }
+  ];
+
+  let questions = JSON.parse(localStorage.getItem('jinseon_questions')) || defaultQuestions;
+  let isAuthenticated = false;
+
+  function saveToLocalStorage() {
+    localStorage.setItem('jinseon_questions', JSON.stringify(questions));
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+    
+    if(tab === 'quiz') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('quizView').classList.add('active');
+      loadQuiz();
+    } else {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('adminView').classList.add('active');
+      if (isAuthenticated) renderAdminList();
+    }
+  }
+
+  // --- 퀴즈 풀기 기능 ---
+  function loadQuiz() {
+    const subject = document.getElementById('filterSubject').value;
+    const difficulty = document.getElementById('filterDifficulty').value;
+    const container = document.getElementById('quizContainer');
+    container.innerHTML = '';
+
+    const filtered = questions.filter(q => {
+      return (subject === '전체' || q.subject === subject) &&
+             (difficulty === '전체' || q.difficulty === difficulty);
+    });
+
+    if(filtered.length === 0) {
+      container.innerHTML = '<p style="text-align:center; color:#888;">조건에 맞는 문제가 없습니다. 관리자 메뉴에서 문제를 추가해 보세요!</p>';
+      return;
+    }
+
+    filtered.forEach((q, idx) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      let optionsHTML = '';
+      if(q.type === 'multiple') {
+        optionsHTML = `<div class="options-group">
+          ${q.options.map((opt, oIdx) => `<button class="option-btn" onclick="checkAnswer(${idx}, '${oIdx + 1}', this)">${opt}</button>`).join('')}
+        </div>`;
+      } else if(q.type === 'ox') {
+        optionsHTML = `<div class="options-group" style="flex-direction:row;">
+          <button class="option-btn" style="text-align:center;" onclick="checkAnswer(${idx}, 'O', this)">O</button>
+          <button class="option-btn" style="text-align:center;" onclick="checkAnswer(${idx}, 'X', this)">X</button>
+        </div>`;
+      } else {
+        optionsHTML = `<div style="margin: 15px 0; display:flex; gap:10px;">
+          <input type="text" id="shortAns_${idx}" placeholder="정답 입력">
+          <button onclick="checkShortAnswer(${idx})">제출</button>
+        </div>`;
+      }
+
+      card.innerHTML = `
+        <div>
+          <span class="badge">${q.subject}</span>
+          <span class="badge" style="background:#e8f4fd; color:#007bff;">${q.difficulty}</span>
+        </div>
+        <h4 style="margin-top:10px;">Q${idx + 1}. ${q.question}</h4>
+        ${optionsHTML}
+        <div id="result_${idx}" class="result-msg"></div>
+        <div id="exp_${idx}" style="display:none; margin-top:10px; padding:10px; background:#f1f3f5; border-radius:6px; font-size:0.9rem;">
+          <strong>해설:</strong> ${q.explanation}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function checkAnswer(qIdx, selected, btnEl) {
+    const q = questions[qIdx];
+    const resultDiv = document.getElementById(`result_${qIdx}`);
+    const expDiv = document.getElementById(`exp_${qIdx}`);
+
+    const isCorrect = selected.trim().toLowerCase() === q.answer.trim().toLowerCase() ||
+                      (q.type === 'multiple' && q.options[parseInt(selected)-1] && q.options[parseInt(selected)-1].startsWith(selected));
+
+    if(isCorrect) {
+      resultDiv.className = 'result-msg correct';
+      resultDiv.innerText = '정답입니다! 🎉';
+    } else {
+      resultDiv.className = 'result-msg incorrect';
+      resultDiv.innerText = `틀렸습니다. (바른 정답: ${q.answer})`;
+    }
+    expDiv.style.display = 'block';
+  }
+
+  function checkShortAnswer(qIdx) {
+    const inputVal = document.getElementById(`shortAns_${qIdx}`).value;
+    checkAnswer(qIdx, inputVal);
+  }
+
+  // --- 관리자 기능 ---
+  function checkAuth() {
+    const pw = document.getElementById('adminPw').value;
+    if(pw === 'jinseon') {
+      isAuthenticated = true;
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+      renderAdminList();
+    } else {
+      alert('비밀번호가 올바르지 않습니다.');
+    }
+  }
+
+  function toggleOptionsInput() {
+    const type = document.getElementById('inputType').value;
+    const group = document.getElementById('optionsInputGroup');
+    group.style.display = (type === 'multiple') ? 'block' : 'none';
+  }
+
+  function saveQuestion() {
+    const subject = document.getElementById('inputSubject').value;
+    const difficulty = document.getElementById('inputDifficulty').value;
+    const type = document.getElementById('inputType').value;
+    const question = document.getElementById('inputQuestion').value;
+    const answer = document.getElementById('inputAnswer').value;
+    const explanation = document.getElementById('inputExplanation').value;
+    const editIndex = parseInt(document.getElementById('editIndex').value);
+
+    if(!question || !answer) {
+      alert('문제 내용과 정답을 입력해 주세요.');
+      return;
+    }
+
+    let options = [];
+    if(type === 'multiple') {
+      options = document.getElementById('inputOptions').value.split(',').map(s => s.trim());
+    } else if(type === 'ox') {
+      options = ['O', 'X'];
+    }
+
+    const qData = { subject, difficulty, type, question, options, answer, explanation };
+
+    if(editIndex === -1) {
+      questions.push(qData);
+    } else {
+      questions[editIndex] = qData;
+    }
+
+    saveToLocalStorage();
+    resetForm();
+    renderAdminList();
+    alert('저장되었습니다.');
+  }
+
+  function renderAdminList() {
+    const list = document.getElementById('questionList');
+    list.innerHTML = '';
+
+    questions.forEach((q, idx) => {
+      const item = document.createElement('div');
+      item.className = 'q-item';
+      item.innerHTML = `
+        <div>
+          <strong>[${q.subject} / ${q.difficulty}]</strong> ${q.question.substring(0, 30)}...
+        </div>
+        <div>
+          <button style="padding:4px 8px; font-size:0.8rem;" onclick="editQuestion(${idx})">수정</button>
+          <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteQuestion(${idx})">삭제</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function editQuestion(idx) {
+    const q = questions[idx];
+    document.getElementById('editIndex').value = idx;
+    document.getElementById('inputSubject').value = q.subject;
+    document.getElementById('inputDifficulty').value = q.difficulty;
+    document.getElementById('inputType').value = q.type;
+    document.getElementById('inputQuestion').value = q.question;
+    document.getElementById('inputAnswer').value = q.answer;
+    document.getElementById('inputExplanation').value = q.explanation;
+    
+    toggleOptionsInput();
+    if(q.type === 'multiple') {
+      document.getElementById('inputOptions').value = q.options.join(', ');
+    }
+    
+    document.getElementById('formTitle').innerText = '문제 수정하기';
+  }
+
+  function deleteQuestion(idx) {
+    if(confirm('이 문제를 삭제하시겠습니까?')) {
+      questions.splice(idx, 1);
+      saveToLocalStorage();
+      renderAdminList();
+    }
+  }
+
+  function resetForm() {
+    document.getElementById('editIndex').value = '-1';
+    document.getElementById('inputQuestion').value = '';
+    document.getElementById('inputOptions').value = '';
+    document.getElementById('inputAnswer').value = '';
+    document.getElementById('inputExplanation').value = '';
+    document.getElementById('formTitle').innerText = '새 문제 추가';
+  }
+
+  // 초기화 로드
+  loadQuiz();
+</script>
+</body>
+</html>
