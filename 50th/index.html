@@ -525,17 +525,22 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 @media (max-width:1000px){.wrap.hero:has(.hb-side){grid-template-columns:auto 1fr}.hb-side{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.hb-side .hbn{flex:1 1 240px;width:auto}}
 @media (max-width:640px){.wrap.hero:has(.hb-side){grid-template-columns:1fr}}
 /* 2안: 오른쪽 퀵메뉴 */
-.quick{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:35;display:flex;flex-direction:column;gap:4px;width:96px;padding:12px 8px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -20px rgba(0,0,0,.45);text-align:center}
+.quick{position:fixed;right:18px;top:calc(50% + 34px);transform:translateY(-50%);z-index:45;max-height:calc(100vh - 90px);overflow-y:auto;scrollbar-width:none;display:flex;flex-direction:column;gap:4px;width:96px;padding:12px 8px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -20px rgba(0,0,0,.45);text-align:center}
 .q-title{padding-bottom:8px;border-bottom:1px solid var(--line);font-size:.72rem;font-weight:700;line-height:1.3;letter-spacing:.04em;color:var(--gold)}
-.quick .hbn{flex-direction:column;gap:6px;padding:10px 4px;border:none;border-radius:10px;background:none;text-align:center}
+.quick .hbn{flex-direction:column;gap:5px;padding:7px 4px;border:none;border-radius:10px;background:none;text-align:center}
 .quick .hbn:hover{transform:none;box-shadow:none;background:color-mix(in srgb,var(--gold) 10%,transparent)}
-.quick .hb-ic{width:40px;height:40px}
+.quick .hb-ic{width:36px;height:36px}
 .quick .hb-txt small,.quick .hb-txt em,.quick .hb-go,.quick .hbn::after{display:none}
 .quick .hb-txt b{font-family:var(--f-body);font-weight:700;font-size:.78rem;word-break:keep-all}
 .quick .hb-num,.quick .hb-num .hb-txt b{color:var(--ink)}
 .q-top{display:block;margin-top:4px;padding-top:8px;border-top:1px solid var(--line);font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-decoration:none}
+.quick .q-share{margin-top:4px;padding-top:12px;border-top:1px solid var(--line);border-radius:0 0 10px 10px}
+.quick .q-share .hb-ic{background:#FEE500}
+.quick .q-share .hb-ic svg{width:24px;height:21px}
+.quick .q-share:hover{background:color-mix(in srgb,#FEE500 22%,transparent)}
+@media (max-width:760px){.quick .q-share{margin-top:0;padding-top:10px;border-top:none;border-radius:10px}}
 @media (max-width:1300px){.quick{right:8px;width:84px}}
-@media (max-width:760px){.quick{top:auto;bottom:0;left:0;right:0;transform:none;width:auto;flex-direction:row;justify-content:space-around;padding:6px;border-radius:14px 14px 0 0}.q-title,.q-top{display:none}.quick .hbn{flex:1}body .admin-fab{bottom:96px}body{padding-bottom:88px}}
+@media (max-width:760px){.quick{top:auto;bottom:0;left:0;right:0;transform:none;width:auto;flex-direction:row;justify-content:space-around;padding:6px;border-radius:14px 14px 0 0}.q-title,.q-top{display:none}.quick .hbn{flex:1}body .admin-fab{bottom:112px}body{padding-bottom:88px}}
 /* 3안: 기념 사업 아래 가로 띠 배너 */
 .hb-band{padding:56px 0}
 .hb-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
@@ -811,7 +816,7 @@ dialog.lightbox::backdrop{background:transparent}
 .gala-acts .btn{flex:1}
 .me-state{margin-left:auto;align-self:center;font-size:.8rem;color:var(--muted)}
 
-.admin-fab{position:fixed;right:12px;bottom:12px;z-index:50;cursor:pointer;font-size:.72rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.65}
+.admin-fab{position:fixed;left:12px;bottom:12px;z-index:50;cursor:pointer;font-size:.72rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.65}
 .admin-fab:hover{opacity:1}
 .is-admin .admin-fab{background:var(--accent);color:var(--on-accent);border-color:var(--accent);opacity:1}
 
@@ -921,7 +926,6 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="#projects">기념 사업 보기</a>
           <a class="btn btn-lg btn-line" href="#donate">기부로 함께하기</a>
-          <button class="kakao-btn" type="button" data-share><svg viewBox="0 0 40 34" aria-hidden="true"><path d="M20 2C10.6 2 3 7.9 3 15.2c0 4.6 3 8.6 7.6 10.9l-1.6 5.6c-.1.5.4.8.8.6l6.6-4.4c1.2.2 2.4.3 3.6.3 9.4 0 17-5.9 17-13.2S29.4 2 20 2z" fill="#fff"/><text x="20" y="18.6" text-anchor="middle" font-size="9.2" font-weight="800" font-family="Arial,sans-serif" fill="#3B1E1E">TALK</text></svg>카카오톡 공유</button>
         </div>
       </div>
     </div>
@@ -1029,6 +1033,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <button class="hbn hb-press" type="button" data-hist="press"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg></span><span class="hb-txt"><small>Press</small><b>언론 속 진선</b><em>신문·방송에 소개된 진선</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-gal" type="button" data-open="gal"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></span><span class="hb-txt"><small>Gallery</small><b>추억 갤러리</b><em>사진 보기 · 사진 제보</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-gb" type="button" data-open="gb"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="hb-txt"><small>Guestbook</small><b>축하 방명록</b><em>축하 글 보기 · 남기기</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn q-share" type="button" data-share aria-label="카카오톡으로 공유"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 40 34"><path d="M20 2C10.6 2 3 7.9 3 15.2c0 4.6 3 8.6 7.6 10.9l-1.6 5.6c-.1.5.4.8.8.6l6.6-4.4c1.2.2 2.4.3 3.6.3 9.4 0 17-5.9 17-13.2S29.4 2 20 2z" fill="#3B1E1E"/><text x="20" y="18.6" text-anchor="middle" font-size="9.2" font-weight="800" font-family="Arial,sans-serif" fill="#FEE500">TALK</text></svg></span><span class="hb-txt"><b>카카오톡 공유</b></span></button>
   <a class="q-top" href="#top">TOP ↑</a>
 </nav>
 
