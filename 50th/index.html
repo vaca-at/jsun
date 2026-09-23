@@ -116,36 +116,37 @@ button{font:inherit;color:inherit}
 h2{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.75rem,3.4vw,2.4rem);line-height:1.25;margin:0 0 8px}
 .note{color:var(--muted);margin:0 0 22px}
 
-.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.tile{position:relative;overflow:hidden;cursor:pointer;text-align:left;background:var(--tile-bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px 16px;min-height:188px;display:flex;flex-direction:column;justify-content:space-between;gap:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .2s,border-color .2s,box-shadow .2s}
-.tile::before{content:"";position:absolute;left:0;top:0;width:100%;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
-.tile:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));transform:translateY(-4px);box-shadow:0 14px 30px -14px color-mix(in srgb,var(--accent) 55%,transparent)}
-.tile:hover::before{transform:scaleX(1)}
-.tile-head{display:flex;flex-direction:column;gap:14px}
-.tile-icon{width:46px;height:46px;border-radius:calc(var(--radius-sm) + 6px);display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent);transition:background .2s,color .2s}
-.tile-icon svg{width:24px;height:24px}
-.tile:hover .tile-icon{background:var(--accent);color:var(--on-accent)}
-.tile-no{position:absolute;right:16px;top:10px;font-family:var(--f-head);font-weight:var(--head-w);font-size:2.8rem;line-height:1;color:var(--accent-2);opacity:.25;letter-spacing:-.03em;pointer-events:none}
-.tile-title{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.2rem;line-height:1.35}
-/* 제목 2줄, 메모 3줄 높이로 고정해 모든 카드의 칸 위치를 맞춘다 */
-.tile-title{min-height:2.7em}
-.tile-memo{min-height:calc(3.53rem + 24px);box-sizing:border-box}
+/* ───────── 기념 사업 카드 (이중 액자 · 금박 번호 · 가는 화살표) ───────── */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+.tile{position:relative;display:flex;flex-direction:column;gap:16px;padding:26px 26px 20px;text-align:left;cursor:pointer;background:var(--tile-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--gold) 24%,var(--line));border-radius:var(--radius);box-shadow:0 12px 30px -28px rgba(0,0,0,.5);transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s,border-color .35s}
+.tile::after{content:"";position:absolute;inset:5px;border:1px solid color-mix(in srgb,var(--gold) 13%,transparent);border-radius:max(0px,calc(var(--radius) - 3px));pointer-events:none;transition:border-color .35s}
+.tile:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--gold) 55%,var(--line));box-shadow:0 26px 44px -30px color-mix(in srgb,var(--accent) 65%,transparent)}
+.tile:hover::after{border-color:color-mix(in srgb,var(--gold) 38%,transparent)}
+.tile-top{display:flex;align-items:center;gap:12px}
+.tile-no{font-family:var(--f-head);font-weight:700;font-size:1.05rem;letter-spacing:.1em;font-variant-numeric:lining-nums tabular-nums;color:var(--gold)}
+.tile-rule{flex:1;height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--gold) 55%,transparent),transparent)}
+.tile-icon{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);color:var(--gold);transition:background .35s,color .35s,border-color .35s}
+.tile-icon svg{width:19px;height:19px}
+.tile:hover .tile-icon{background:var(--gold);border-color:var(--gold);color:var(--tile-bg)}
+.tile-title{min-height:2.8em;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.22rem;line-height:1.4}
+.tile-memo{display:flex;flex-direction:column;min-height:6.1rem;font-size:.84rem;line-height:1.45}
+.tile-memo span{display:flex;gap:12px;padding:6px 0;border-top:1px solid var(--line)}
+.tile-memo span:last-child{border-bottom:1px solid var(--line)}
+.tile-memo em{flex:none;min-width:4.6em;font-style:normal;font-size:.74rem;font-weight:700;letter-spacing:.06em;color:var(--gold)}
+.tile-memo b{font-weight:400;color:var(--ink)}
 .tile-memo.none{justify-content:center;color:var(--muted);font-size:.8rem}
-.tile-memo{display:flex;flex-direction:column;gap:3px;margin-top:-4px;padding:9px 11px;border-radius:var(--radius-sm);background:color-mix(in srgb,var(--gold) 8%,transparent);font-size:.84rem;line-height:1.4}
-.tile-memo span{display:flex;gap:10px}
-.tile-memo em{flex:none;min-width:4.2em;font-style:normal;color:var(--muted)}
-.tile-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px dashed var(--line)}
-.tile-status{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 10px;border-radius:999px;color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)}
-.tile-status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.tile-status.ready{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);font-weight:600}
-.tile-arrow{width:18px;height:18px;color:var(--muted);transition:transform .2s,color .2s}
-.tile:hover .tile-arrow{transform:translateX(4px);color:var(--accent)}
-body[data-theme="lotus"] .tile::before{transform:scaleX(1);background:var(--accent-2)}
-body[data-theme="lotus"] .tile:hover::before{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
-body[data-theme="album"] .tile{border:none;box-shadow:0 2px 8px rgba(60,40,20,.22);padding:16px 16px 26px}
-body[data-theme="album"] .tile:nth-child(odd){transform:rotate(-1.2deg)}
-body[data-theme="album"] .tile:nth-child(even){transform:rotate(1deg)}
-body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-4px);box-shadow:0 12px 24px rgba(60,40,20,.28)}
+.tile-foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tile-status{display:inline-flex;align-items:center;gap:7px;font-size:.74rem;letter-spacing:.12em;color:var(--muted)}
+.tile-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#F08A24;box-shadow:0 0 0 3px color-mix(in srgb,#F08A24 22%,transparent)}
+.tile-status.ready{color:var(--accent);font-weight:700}
+.tile-status.ready::before{background:#2E9E5B;box-shadow:0 0 0 3px color-mix(in srgb,#2E9E5B 22%,transparent)}
+.tile-more{display:inline-flex;align-items:center;gap:8px;font-size:.76rem;letter-spacing:.1em;color:var(--muted);transition:color .3s}
+.tile-more svg{width:30px;height:10px;transition:transform .3s}
+.tile:hover .tile-more{color:var(--accent)}
+.tile:hover .tile-more svg{transform:translateX(5px)}
+body[data-theme="album"] .tile:nth-child(odd){transform:rotate(-.8deg)}
+body[data-theme="album"] .tile:nth-child(even){transform:rotate(.7deg)}
+body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-4px)}
 
 /* ───────── 기부금 전광판 (한 화면 30명) ───────── */
 .summary{display:flex;flex-wrap:wrap;gap:36px;margin:0 0 20px}
@@ -201,9 +202,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .gnb.scrolled{border-bottom-color:var(--line);box-shadow:0 8px 22px -14px rgba(0,0,0,.3)}
 .gnb-in{display:flex;align-items:center;gap:12px 28px;height:68px}
 .brand{display:flex;align-items:center;gap:10px;flex:none;color:var(--ink);text-decoration:none}
-.brand-mark{position:relative;flex:none;display:block;width:48px;height:46px;color:var(--gold)}
-.brand-mark b{position:absolute;left:0;right:0;top:-3px;text-align:center;font-family:var(--f-head);font-weight:700;font-size:19px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.brand-mark svg{position:absolute;left:0;top:17px;width:48px;height:30px}
+.brand-mark{position:relative;flex:none;display:block;width:48px;height:44px;color:var(--gold)}
+.brand-mark b{position:absolute;left:0;right:0;top:2px;text-align:center;font-family:var(--f-head);font-weight:700;font-size:19px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand-mark svg{position:absolute;left:0;top:20px;width:48px;height:26px}
 .site-foot .brand-mark{color:color-mix(in srgb,var(--gold) 55%,#fff)}
 .brand-txt{display:flex;flex-direction:column;line-height:1.25}
 .brand-txt b{font-size:1.02rem}
@@ -222,17 +223,21 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
   radial-gradient(55% 75% at 12% 45%,color-mix(in srgb,var(--gold) 17%,transparent),transparent 70%),
   radial-gradient(45% 60% at 92% 8%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 70%),
   linear-gradient(180deg,var(--surface),var(--bg))}
-.hero-deco{position:absolute;left:-130px;top:50%;width:740px;height:740px;color:var(--gold);opacity:.2;pointer-events:none;transform:translateY(-50%);animation:spin 200s linear infinite}
-@keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+.hero-deco{position:absolute;left:50%;top:50%;width:820px;height:820px;color:var(--gold);opacity:.2;pointer-events:none;transform:translate(-50%,-50%);animation:spin 200s linear infinite}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
 .hero-band .hero,.hero-band .hero-stats{position:relative;z-index:1}
+/* 대표 화면: 50과 제목 묶음을 가운데로 모아 좌우 균형 */
+.hero-band .wrap.hero{grid-template-columns:auto minmax(0,560px);justify-content:center;column-gap:56px}
+@media (max-width:640px){.hero-band .wrap.hero{grid-template-columns:minmax(0,1fr);justify-content:stretch}}
 .hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
 .btn-lg{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:999px;font-size:1rem;text-decoration:none}
 .btn-primary.btn-lg{box-shadow:0 10px 24px -12px var(--accent)}
 .btn-line{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--ink) 28%,transparent)}
 .btn-line:hover{color:var(--accent);border-color:var(--accent)}
-.hero-stats{list-style:none;margin:30px 0 0;padding:20px 0 0;display:flex;border-top:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
+.hero-stats{list-style:none;margin:30px 0 0;padding:20px 0 0;display:flex;justify-content:center;border-top:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
 .hero-stats li{display:flex;flex-direction:column;gap:2px;padding:2px 22px;border-left:1px solid var(--line)}
 .hero-stats li:first-child{padding-left:0;border-left:none}
+.hero-stats li:only-child{align-items:center;text-align:center;padding:0}
 .hero-stats b{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.4rem,3vw,2rem);line-height:1.2;font-variant-numeric:tabular-nums}
 .hero-stats li:first-child b{background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .hero-stats span{font-size:.8rem;color:var(--muted)}
@@ -396,9 +401,6 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 
 /* A안: 기념 사업을 크게 */
 .layout-a .menu-grid{gap:18px}
-.layout-a .tile{padding:26px 24px 18px}
-.layout-a .tile-icon{width:52px;height:52px}
-.layout-a .tile-title{font-size:1.3rem}
 
 
 
@@ -533,6 +535,20 @@ dialog [data-close]:focus-visible{outline:2px solid var(--gold);outline-offset:2
 .gb-wall .gb-sign::before{content:"";position:absolute;left:0;top:50%;width:24px;height:1px;background:var(--gold)}
 .gb-wall time{font-size:.75rem;letter-spacing:.04em;color:var(--muted)}
 .gb-wall .board-empty{column-span:all}
+
+/* ───────── 언론 속 진선 ───────── */
+.press-lead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;margin:0 0 16px;color:var(--muted);font-size:.9rem}
+.press-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.press{position:relative;display:flex;flex-direction:column;gap:8px;padding:22px 22px 18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 12px 26px -22px rgba(0,0,0,.5);transition:transform .2s,box-shadow .2s,border-color .2s}
+.press:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--gold) 50%,var(--line));box-shadow:0 18px 32px -22px rgba(0,0,0,.55)}
+.press::before{content:"";position:absolute;left:22px;right:22px;top:0;height:3px;background:var(--foil)}
+.press-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.78rem;color:var(--muted)}
+.press-tag{padding:2px 10px;border-radius:999px;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent);font-weight:700}
+.press-hl{margin:6px 0 0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.9rem;line-height:1.15;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.press h4{margin:0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.08rem;line-height:1.45}
+.press p.sum{margin:0;flex:1;font-size:.88rem;line-height:1.7;color:var(--muted)}
+.press-go{align-self:flex-start;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);width:100%;font-size:.85rem;font-weight:700;color:var(--accent);text-decoration:none}
+.press-go:hover{text-decoration:underline}
 
 /* ───────── 추억 갤러리 ───────── */
 .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:170px;grid-auto-flow:dense;gap:10px}
@@ -886,6 +902,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <button class="hbn hb-tl" type="button" data-hist="tl"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="hb-txt"><small>History</small><b>50년 발자취</b><em>1976년 첫 삽부터 개교 50주년까지</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-lead" type="button" data-hist="lead"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="hb-txt"><small>Leaders</small><b>진선을 이끈 분들</b><em>역대 교장 · 이사장</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-num" type="button" data-hist="num"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 16v-5M12 16V7M17 16v-8"/></svg></span><span class="hb-txt"><small>In Numbers</small><b>숫자로 보는 50년</b><em>졸업생·입학생·교직원 기록</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn hb-press" type="button" data-hist="press"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg></span><span class="hb-txt"><small>Press</small><b>언론 속 진선</b><em>신문·방송에 소개된 진선</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-gal" type="button" data-open="gal"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></span><span class="hb-txt"><small>Gallery</small><b>추억 갤러리</b><em>사진 보기 · 사진 제보</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <button class="hbn hb-gb" type="button" data-open="gb"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="hb-txt"><small>Guestbook</small><b>축하 방명록</b><em>축하 글 보기 · 남기기</em></span><span class="hb-go" aria-hidden="true">→</span></button>
   <a class="q-top" href="#top">TOP ↑</a>
@@ -977,7 +994,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
           <label class="fld">은행<input id="fBank" placeholder="예: 카카오뱅크" maxlength="20"></label>
           <label class="fld">계좌번호<input id="fNumber" placeholder="예: 3333-00-0000000" maxlength="30" inputmode="numeric" required></label>
           <label class="fld">예금주<input id="fHolder" placeholder="예: 홍길동" maxlength="20"></label>
-          <label class="fld">단체명 (선택)<input id="fOrg" placeholder="예: 진선여고 개교 50주년 추진위원회" maxlength="40"></label>
+          <label class="fld">통장명 (선택)<input id="fOrg" placeholder="예: 진선여고 개교50주년 후원금" maxlength="40"></label>
           <label class="fld">안내 문구 (선택)<input id="fNote" placeholder="예: 입금자명 뒤에 기수를 적어 주세요 (홍길동11)" maxlength="60"></label>
           <div class="editor-actions">
             <button class="btn btn-primary" type="submit">저장</button>
@@ -1096,6 +1113,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <button role="tab" id="htab-tl" aria-controls="hpanel-tl" aria-selected="true" data-h="tl">50년 발자취</button>
         <button role="tab" id="htab-lead" aria-controls="hpanel-lead" aria-selected="false" data-h="lead" tabindex="-1">진선을 이끈 분들</button>
         <button role="tab" id="htab-num" aria-controls="hpanel-num" aria-selected="false" data-h="num" tabindex="-1">숫자로 보는 50년</button>
+        <button role="tab" id="htab-press" aria-controls="hpanel-press" aria-selected="false" data-h="press" tabindex="-1">언론 속 진선</button>
       </div>
     <button class="btn btn-sm" data-close autofocus>닫기</button>
   </div>
@@ -1118,6 +1136,11 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 
     <div class="h-panel" id="hpanel-num" role="tabpanel" aria-labelledby="htab-num" hidden>
       <ul class="num-grid" id="numGrid"></ul>
+    </div>
+
+    <div class="h-panel" id="hpanel-press" role="tabpanel" aria-labelledby="htab-press" hidden>
+      <p class="press-lead"><span>신문과 방송에 소개된 진선의 순간들입니다. 제목을 누르면 기사 원문으로 이동합니다.</span><span>소개할 기사가 있다면 <a class="contact-mail"></a>로 알려 주세요.</span></p>
+      <div class="press-list" id="pressList"></div>
     </div>
 
   </div>
@@ -1265,7 +1288,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <li>관리자는 게시에 알맞지 않은 사진(개인정보 노출, 저작권 침해 우려 등)을 싣지 않을 수 있습니다.</li>
       </ul>
       <h4>제7조 (저작권)</h4>
-      <p>누리집에 실린 글과 자료의 저작권은 진선여자고등학교에 있습니다.</p>
+      <p>누리집에 실린 글과 자료의 저작권은 진선여자고등학교에 있습니다. "언론 속 진선"의 기사는 각 언론사에 저작권이 있으며, 제목과 짧은 소개만 싣고 원문 링크로 안내합니다.</p>
       <h4>제8조 (책임의 한계)</h4>
       <ul>
         <li>연결된 외부 사이트(학교 홈페이지, 학교법인 회당학원, 총동문회 네이버 밴드 등)의 내용은 각 사이트의 방침을 따릅니다.</li>
@@ -1293,7 +1316,7 @@ const firebaseConfig = {
 const ADMIN_EMAIL = "anstjsdud@sen.go.kr";
 const CONTACT_EMAIL = ADMIN_EMAIL;   // 푸터·개인정보처리방침에 보이는 문의 메일
 /* 관리자 모드 '후원 계좌'에서 한 번도 저장하지 않았을 때 보이는 계좌 (저장하면 그 값이 우선) */
-const DEFAULT_ACCOUNT = {bank:"카카오뱅크", number:"3333-35-2849815", holder:"조O해", org:"단체명", note:""};
+const DEFAULT_ACCOUNT = {bank:"카카오뱅크", number:"3333-35-2849815", holder:"조O해", org:"진선여고 개교50주년 후원금", note:""};
 const PREFIX = "jinsun50_";          // 다른 웹앱과 컬렉션이 섞이지 않도록 붙이는 이름표
 const DEMO = firebaseConfig.apiKey.startsWith("여기에");
 
@@ -1388,6 +1411,21 @@ const CHAIRS = [
   [27, "송귀영", "2021.01.13", "2023.01.21"]
 ];
 /* 숫자로 보는 진선 50년: value 를 채우면 숫자가 올라가며 보이고, null 이면 '준비중' */
+/* 언론 속 진선: 새 기사는 여기에 한 줄씩 더하면 된다 (최신순으로 자동 정렬). 기사 사진은 저작권 때문에 싣지 않고 원문 링크만 둔다 */
+const PRESS = [
+  {date:"2026.02.09", outlet:"불교방송(BBS)", tag:"입시", hl:"서울대 30명",
+   title:"서울대 합격자 전국 여고 중 1위 진선여고, 졸업식 개최",
+   sum:"제47회 졸업식에서 321명이 졸업했습니다. 서울대 30명으로 전국 일반계 여고 중 1위, 연세대 31명·고려대 40명이 합격했습니다.",
+   url:"https://news.bbsi.co.kr/news/articleView.html?idxno=4066264"},
+  {date:"2022.11.01", outlet:"불교방송(BBS)", tag:"방송", hl:"놀면 뭐하니",
+   title:"진선여고 '놀면 뭐하니'와 함께 3년 만에 체육대회",
+   sum:"MBC '놀면 뭐하니'의 유재석·정준하·하하가 찾아와 교사들과 피구·줄다리기·계주를 함께했습니다. 코로나 이후 3년 만에 열린 체육대회입니다.",
+   url:"https://news.bbsi.co.kr/news/articleView.html?idxno=3086735"},
+  {date:"2012.05.08", outlet:"머니투데이", tag:"화제", hl:"김연아 교생",
+   title:"김연아, 서울 진선여고서 8일부터 교생실습 시작",
+   sum:"'피겨 여왕' 김연아가 고려대 체육교육과 교생실습을 진선여고에서 4주 동안 했습니다. 첫날 회당기념관에서 언론에 공개됐습니다.",
+   url:"https://www.mt.co.kr/society/2012/05/08/2012050808511103121"}
+];
 const NUMBERS = [
   {label:"누적 졸업생",   unit:"명",   value:null},
   {label:"누적 입학생",   unit:"명",   value:null},
@@ -1691,16 +1729,17 @@ function renderMenus(){
   $("#menuGrid").innerHTML = MENUS.map((m, i) => {
     const has = (state.menus[m.id] || "").trim();
     return `<button class="tile" data-id="${m.id}">
-      <span class="tile-no" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
-      <span class="tile-head">
-        <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg></span>
-        <span class="tile-title">${esc(m.title)}</span>
-        ${m.memo ? `<span class="tile-memo">${m.memo.map(([k, v]) => `<span><em>${esc(k)}</em>${esc(v)}</span>`).join("")}</span>`
-                 : `<span class="tile-memo none">세부 일정은 추후 안내합니다</span>`}
+      <span class="tile-top">
+        <span class="tile-no" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+        <span class="tile-rule" aria-hidden="true"></span>
+        <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg></span>
       </span>
+      <span class="tile-title">${esc(m.title)}</span>
+      ${m.memo ? `<span class="tile-memo">${m.memo.map(([k, v]) => `<span><em>${esc(k)}</em><b>${esc(v)}</b></span>`).join("")}</span>`
+               : `<span class="tile-memo none">세부 일정은 추후 안내합니다</span>`}
       <span class="tile-foot">
-        <span class="tile-status ${has ? "ready" : ""}">${has ? "안내 보기" : "준비중"}</span>
-        <svg class="tile-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <span class="tile-status ${has ? "ready" : ""}">${has ? "안내 있음" : "준비중"}</span>
+        <span class="tile-more">자세히<svg viewBox="0 0 30 10" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 5h27M24 1.5 28 5l-4 3.5"/></svg></span>
       </span>
     </button>`;
   }).join("");
@@ -2038,6 +2077,16 @@ function renderLeaders(){
   $("#principals").style.gridTemplateRows = `repeat(${Math.ceil(principals.length / 2)}, auto)`;
   $("#chairs").style.gridTemplateRows = `repeat(${Math.ceil(CHAIRS.length / 2)}, auto)`;
 }
+function renderPress(){
+  const list = [...PRESS].sort((a, b) => b.date.localeCompare(a.date));
+  $("#pressList").innerHTML = list.map(p => `<article class="press">
+      <div class="press-top"><span class="press-tag">${esc(p.tag)}</span><span>${esc(p.outlet)} · ${esc(p.date)}</span></div>
+      <p class="press-hl">${esc(p.hl)}</p>
+      <h4>${esc(p.title)}</h4>
+      <p class="sum">${esc(p.sum)}</p>
+      <a class="press-go" href="${esc(p.url)}" target="_blank" rel="noopener">기사 원문 보기 ↗</a>
+    </article>`).join("");
+}
 function renderNumbers(){
   $("#numGrid").innerHTML = NUMBERS.map(x => `<li><span class="lbl">${esc(x.label)}</span>${
     x.value == null ? `<b class="tbd">준비중</b><span class="sub">학교 자료를 모으고 있습니다</span>`
@@ -2315,7 +2364,7 @@ async function exportExcel(){
 buildPicks();
 const local = loadLocal();
 applyStyle(local?.theme, local?.font);
-renderMenus(); renderDonations(); renderTimeline(); renderLeaders(); renderNumbers(); renderDday(); initHomepage(); initHistoryTabs();
+renderMenus(); renderDonations(); renderTimeline(); renderLeaders(); renderNumbers(); renderPress(); renderDday(); initHomepage(); initHistoryTabs();
 document.body.classList.add("layout-" + LAYOUT);
 $("#adminEmail").value = ADMIN_EMAIL;
 document.querySelectorAll(".contact-mail").forEach(a => { a.href = "mailto:" + CONTACT_EMAIL; a.textContent = CONTACT_EMAIL; });
