@@ -222,6 +222,12 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .brand-txt{display:flex;flex-direction:column;justify-content:space-between;height:44px;line-height:1}
 .brand-txt b{display:block;font-size:1.3rem;line-height:26px;letter-spacing:-.01em}
 .brand-txt small{display:block;font-size:.72rem;line-height:15px;font-weight:700;letter-spacing:.08em;color:var(--gold)}
+/* 머리글: 로고 칸과 글 칸(두 줄)을 같은 높이로 나란히, 위아래 가운데 맞춤 (연꽃은 svg 윗부분만 보이므로 top 으로 자리 잡음) */
+.gnb .brand{height:auto;gap:10px}
+.gnb .brand-mark{width:52px;height:46px}
+.gnb .brand-mark b{top:7px;font-size:27px;line-height:27px}
+.gnb .brand-mark svg{top:30px;bottom:auto;width:52px;height:30px}
+.gnb .brand-txt{height:auto;justify-content:center;gap:3px}
 .gnb-menu{display:flex;gap:2px;margin-left:auto}
 .gnb-menu a{position:relative;padding:8px 13px;color:var(--ink);text-decoration:none;font-size:.95rem;white-space:nowrap}
 .gnb-menu a::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;border-radius:2px;background:var(--gold);transform:scaleX(0);transition:transform .2s}
