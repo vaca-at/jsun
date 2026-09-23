@@ -278,8 +278,6 @@ footer.site-foot{margin-top:56px;padding:30px 0 90px;border-top:1px solid var(--
 .mini-bar{display:inline-block;height:8px;vertical-align:middle;margin-right:8px;border-radius:0 4px 4px 0;background:var(--accent)}
 .scroll-y{max-height:420px;overflow:auto}
 .stats-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px;font-size:.8rem;color:var(--muted)}
-.demo-note{margin:0 0 14px;padding:12px 16px;border:1px solid color-mix(in srgb,#C62828 35%,transparent);border-radius:var(--radius);background:color-mix(in srgb,#C62828 8%,var(--surface));font-size:.88rem}
-.demo-note b{color:#C62828}
 .dash-empty{text-align:center;color:var(--muted);padding:48px 0}
 .acc-grid{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:16px;align-items:start}
 .me-grid{display:grid;grid-template-columns:minmax(230px,320px) 1fr;gap:14px;align-items:start}
@@ -338,6 +336,11 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 .mgr-table td input:not([type=checkbox]){width:100%;min-width:80px;padding:5px 8px}
 .mgr-table tr.editing td{background:var(--bg)}
 .mgr-table .acts{display:flex;gap:4px}
+.mgr-table .ck{width:36px;text-align:center}
+.mgr-table .ck input{width:17px;height:17px;cursor:pointer;accent-color:var(--accent)}
+.mgr-table tr.sel td{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.btn-danger{background:#C62828;color:#fff;border-color:#C62828}
+.btn-danger:hover{border-color:#8E1B1B;background:#A51F1F}
 .mgr-table .name-edit{display:flex;gap:8px;align-items:center}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
@@ -455,6 +458,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <div class="mgr-tools">
           <p class="mgr-sum" id="mgrSum"></p>
           <input id="mgrSearch" type="search" placeholder="이름이나 메모로 찾기" aria-label="이름이나 메모로 찾기">
+          <button class="btn btn-danger" id="mgrDelSel" hidden>선택 삭제</button>
           <button class="btn btn-primary" id="mgrExport">엑셀로 저장</button>
         </div>
         <form class="mgr-add" id="mgrAdd">
@@ -468,6 +472,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <div class="table-wrap">
           <table class="mgr-table">
             <thead><tr id="mgrHead">
+              <th class="ck"><input type="checkbox" id="mgrAll" aria-label="보이는 내역 모두 선택"></th>
               <th data-key="no"><button>번호</button></th>
               <th data-key="date"><button>등록일</button></th>
               <th data-key="real"><button>실명</button></th>
@@ -646,12 +651,12 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 <script type="module">
 /* ═════════ 1. Firebase 설정 (Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사) ═════════ */
 const firebaseConfig = {
-  apiKey: "여기에_API_KEY",
+  apiKey: "AIzaSyA3CxawUPIfGeBWyffsNbCSM3ymjKHLH6o",
   authDomain: "moon-d528d.firebaseapp.com",
   projectId: "moon-d528d",
   storageBucket: "moon-d528d.firebasestorage.app",
-  messagingSenderId: "여기에_SENDER_ID",
-  appId: "여기에_APP_ID"
+  messagingSenderId: "126636401536",
+  appId: "1:126636401536:web:25b8a8296ec42b86f99765"
 };
 const ADMIN_EMAIL = "anstjsdud@sen.go.kr";
 const CONTACT_EMAIL = ADMIN_EMAIL;   // 푸터·개인정보처리방침에 보이는 문의 메일
@@ -814,38 +819,6 @@ function watchSections(){
   }, {threshold:[0, .1, .25, .5, .75, 1]});
   document.querySelectorAll("[data-track]").forEach(s => io.observe(s));
 }
-/* 미리보기 모드에서 대시보드를 채워 보여 줄 가짜 접속 기록 */
-function demoVisits(){
-  let seed = 7;
-  const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
-  const pick = (arr, w) => { let x = rnd() * w.reduce((a, b) => a + b, 0); for(let i = 0; i < arr.length; i++){ if((x -= w[i]) < 0) return arr[i]; } return arr[0]; };
-  const now = Date.now(), out = [];
-  for(let i = 0; i < 360; i++){
-    const t = new Date(now - Math.floor(Math.pow(rnd(), 1.6) * 30) * 86400000);
-    t.setHours(pick([7,8,10,12,13,15,18,19,20,21,22,23], [2,3,2,4,3,2,4,6,8,9,7,3]), Math.floor(rnd() * 60), 0, 0);
-    if(t.getTime() > now) t.setTime(now - Math.floor(rnd() * 3600000));
-    const dev = pick(["휴대폰","컴퓨터","태블릿"], [68,26,6]);
-    const os = dev === "컴퓨터" ? pick(["Windows","Mac"], [80,20]) : pick(["Android","iOS"], [55,45]);
-    const br = dev === "컴퓨터" ? pick(["크롬","엣지","웨일"], [60,25,15])
-             : pick(os === "iOS" ? ["사파리","카카오톡 안","크롬"] : ["삼성 인터넷","카카오톡 안","크롬"], [45,35,20]);
-    const dur = Math.round(pick([6,20,45,90,200,480], [14,22,24,20,14,6]) * (0.6 + rnd() * 0.8));
-    const menus = {}, opens = {};
-    let left = dur * 0.55;
-    MENUS.forEach((m, k) => {
-      if(left > 5 && rnd() < [.35,.3,.28,.25,.22,.3,.18,.26][k]){
-        const sec = Math.round(Math.min(left, 8 + rnd() * 50));
-        menus[m.id] = sec; opens[m.id] = rnd() < .15 ? 2 : 1; left -= sec;
-      }
-    });
-    const rest = dur - Object.values(menus).reduce((a, b) => a + b, 0);
-    out.push({id:"v" + i, vid:"dv" + Math.floor(rnd() * 240), dev, os, br,
-      w: dev === "휴대폰" ? "400~599" : dev === "태블릿" ? "600~899" : "1280~",
-      d: ymdDash(t), h: t.getHours(), startMs: t.getTime(), lastMs: t.getTime() + dur * 1000, dur, menus, opens,
-      secs: {top: Math.round(rest * .3), menus: Math.round(rest * .35), donate: Math.round(rest * .35)},
-      ref: pick(["직접 방문","카카오톡","네이버","jinseon.sen.hs.kr","인스타그램"], [40,30,12,12,6])});
-  }
-  return out;
-}
 
 /* ═════════ 4. 데이터 연결 ═════════ */
 async function firebaseApi(){
@@ -874,6 +847,13 @@ async function firebaseApi(){
       else   b.set(r, {...pub, createdAtMs: Date.now(), createdAt: fs.serverTimestamp()});
       if(realName) b.set(ref("donors_private", r.id), {realName});
       await b.commit();
+    },
+    removeDonations: async ids => {
+      for(let i = 0; i < ids.length; i += 200){
+        const b = fs.writeBatch(db);
+        ids.slice(i, i + 200).forEach(id => { b.delete(ref("donations", id)); b.delete(ref("donors_private", id)); });
+        await b.commit();
+      }
     },
     removeDonation: async id => {
       const b = fs.writeBatch(db);
@@ -912,7 +892,7 @@ function demoApi(){
   }));
   let priv = {};
   let settings = {account: {...DEFAULT_ACCOUNT}};
-  let visits = demoVisits();
+  let visits = [];   // 미리보기 모드에서는 방문 기록을 남기지 않는다
   const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); L.p.forEach(f => f({...priv})); L.s.forEach(f => f({...settings})); };
   L.p = []; L.s = [];
   return {
@@ -932,6 +912,7 @@ function demoApi(){
       emit();
     },
     removeDonation: async id => { dons = dons.filter(d => d.id !== id); delete priv[id]; emit(); },
+    removeDonations: async ids => { const s = new Set(ids); dons = dons.filter(d => !s.has(d.id)); ids.forEach(id => delete priv[id]); emit(); },
     saveSettings: async o => { settings = {...settings, ...o}; emit(); },
     login: async () => L.a.forEach(f => f(true)),
     logout: async () => L.a.forEach(f => f(false)),
@@ -941,7 +922,7 @@ function demoApi(){
 
 /* ═════════ 5. 화면 그리기 ═════════ */
 const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null,
-  priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:"",
+  priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:"", sel:new Set(),
   view:"site", tab:"stats", period:"7", visits:[], account:null, meId:null, meDirty:false};
 
 function renderMenus(){
@@ -1097,8 +1078,8 @@ function colChart(items){
 }
 function renderStats(){
   const rows = state.visits, box = $("#statsBody"), now = new Date();
-  $("#statsTime").textContent = `${now.getHours()}시 ${String(now.getMinutes()).padStart(2,"0")}분 기준` + (DEMO ? " · 미리보기용 예시 데이터" : "");
-  if(!rows.length){ box.innerHTML = `<p class="dash-empty">이 기간에는 접속 기록이 없습니다.</p>`; return; }
+  $("#statsTime").textContent = `${now.getHours()}시 ${String(now.getMinutes()).padStart(2,"0")}분 기준`;
+  if(!rows.length){ box.innerHTML = `<p class="dash-empty">${DEMO ? "아직 Firebase를 연결하지 않아 방문 기록이 쌓이지 않습니다.<br>연결하면 그때부터 실제 방문자가 집계됩니다." : "이 기간에는 접속 기록이 없습니다."}</p>`; return; }
 
   const total = rows.length;
   const count = n => `${n.toLocaleString("ko-KR")}회 · ${pct(n, total)}%`;
@@ -1138,7 +1119,7 @@ function renderStats(){
 
   const recent = [...rows].sort((a, b) => b.startMs - a.startMs).slice(0, 60);
 
-  box.innerHTML = (DEMO ? `<p class="demo-note"><b>예시 데이터입니다.</b> 아직 Firebase를 연결하지 않아 실제 방문 기록이 아니라 화면 확인용 가짜 숫자를 보여 줍니다. 연결하면 실제 방문자만 집계됩니다.</p>` : "") + `
+  box.innerHTML = `
     <div class="kpis">
       ${kpi('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', "방문", total.toLocaleString("ko-KR") + "회",
             state.period === "today" ? "오늘 들어온 횟수" : `하루 평균 ${(total / days).toFixed(1)}회`)}
@@ -1249,6 +1230,13 @@ function mgrRows(useSearch){
     return (c || a.no - b.no) * dir;
   });
 }
+function mgrSelUI(rows = mgrRows(true)){
+  const picked = rows.filter(d => state.sel.has(d.id)).length;
+  $("#mgrAll").checked = rows.length > 0 && picked === rows.length;
+  $("#mgrAll").indeterminate = picked > 0 && picked < rows.length;
+  $("#mgrDelSel").hidden = !state.sel.size;
+  $("#mgrDelSel").textContent = `선택 삭제 (${state.sel.size}건)`;
+}
 function renderMgr(){
   if(state.view !== "dash" || state.tab !== "donate") return;
   const all = state.donations;
@@ -1263,9 +1251,12 @@ function renderMgr(){
     th.querySelector("button").textContent = label + th.querySelector("button").dataset.arrow;
   });
   const rows = mgrRows(true);
+  state.sel = new Set([...state.sel].filter(id => all.some(d => d.id === id)));
+  mgrSelUI(rows);
   $("#mgrBody").innerHTML = rows.length ? rows.map(d => {
     const real = state.priv[d.id] || "";
     if(d.id === state.editId) return `<tr class="editing" data-id="${d.id}">
+      <td class="ck"></td>
       <td class="dim">${d.no}</td>
       <td class="dim">${fmtDate(d.createdAtMs)}</td>
       <td colspan="2"><div class="name-edit">
@@ -1276,7 +1267,9 @@ function renderMgr(){
       <td><input data-f="memo" value="${esc(d.memo || "")}" maxlength="30" aria-label="메모"></td>
       <td><div class="acts"><button class="btn btn-sm btn-primary" data-act="save">저장</button><button class="btn btn-sm" data-act="cancel">취소</button></div></td>
     </tr>`;
-    return `<tr data-id="${d.id}">
+    const on = state.sel.has(d.id);
+    return `<tr data-id="${d.id}"${on ? ' class="sel"' : ""}>
+      <td class="ck"><input type="checkbox" data-sel ${on ? "checked" : ""} aria-label="${esc(d.name)} ${won(d.amount)} 선택"></td>
       <td class="dim">${d.no}</td>
       <td class="dim">${fmtDate(d.createdAtMs)}</td>
       <td>${real ? esc(real) : '<span class="dim">없음</span>'}</td>
@@ -1285,7 +1278,7 @@ function renderMgr(){
       <td>${esc(d.memo || "")}</td>
       <td><div class="acts"><button class="btn btn-sm" data-act="edit">수정</button><button class="btn btn-sm" data-act="del">삭제</button></div></td>
     </tr>`;
-  }).join("") : `<tr><td colspan="7" class="dim" style="text-align:center;padding:28px">${state.search ? "찾는 내역이 없습니다." : "아직 등록된 기부 내역이 없습니다. 위 칸에 입력해 추가하세요."}</td></tr>`;
+  }).join("") : `<tr><td colspan="8" class="dim" style="text-align:center;padding:28px">${state.search ? "찾는 내역이 없습니다." : "아직 등록된 기부 내역이 없습니다. 위 칸에 입력해 추가하세요."}</td></tr>`;
 }
 function publicName(real, anon, fallback){
   if(anon) return "익명";
@@ -1460,6 +1453,25 @@ $("#mgrHead").addEventListener("click", e => {
   renderMgr();
 });
 $("#mgrSearch").addEventListener("input", e => { state.search = e.target.value.trim(); renderMgr(); });
+/* 체크박스로 여러 건 한꺼번에 삭제 */
+$("#mgrBody").addEventListener("change", e => {
+  if(!e.target.matches("[data-sel]")) return;
+  const tr = e.target.closest("tr");
+  e.target.checked ? state.sel.add(tr.dataset.id) : state.sel.delete(tr.dataset.id);
+  tr.classList.toggle("sel", e.target.checked);
+  mgrSelUI();
+});
+$("#mgrAll").addEventListener("change", e => {
+  mgrRows(true).forEach(d => e.target.checked ? state.sel.add(d.id) : state.sel.delete(d.id));
+  renderMgr();
+});
+$("#mgrDelSel").addEventListener("click", async () => {
+  const ids = [...state.sel];
+  const sum = state.donations.filter(d => state.sel.has(d.id)).reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  if(!confirm(`선택한 ${ids.length}건 (${won(sum)})을 삭제할까요? 되돌릴 수 없습니다.`)) return;
+  try{ await api.removeDonations(ids); state.sel.clear(); state.editId = null; renderMgr(); toast(`${ids.length}건을 삭제했습니다`); }
+  catch(err){ toast("삭제하지 못했습니다 (" + (err.code || err.message) + ")"); }
+});
 $("#mgrExport").addEventListener("click", exportExcel);
 $("#mgrAdd").addEventListener("submit", async e => {
   e.preventDefault();
