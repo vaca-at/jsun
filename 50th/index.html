@@ -541,10 +541,18 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .quick .q-share .hb-ic{background:#FEE500}
 .quick .q-share .hb-ic svg{width:24px;height:21px}
 .quick .q-share:hover{background:color-mix(in srgb,#FEE500 22%,transparent)}
-@media (max-width:760px){.quick .q-share{margin-top:0;padding-top:10px;border-top:none;border-radius:10px}}
 @media (max-width:1300px){.quick{right:8px;width:84px}}
 @media (min-width:761px){.quick{zoom:.8}}
-@media (max-width:760px){.quick{top:auto;bottom:0;left:0;right:0;transform:none;width:auto;flex-direction:row;justify-content:space-around;padding:6px;border-radius:14px 14px 0 0}.q-title,.q-top{display:none}.quick .hbn{flex:1}body .admin-fab{bottom:112px}body{padding-bottom:88px}}
+/* 휴대폰: 카카오톡 공유·링크 복사만 오른쪽 아래 알약으로 (히스토리 등은 상단 메뉴로) */
+@media (max-width:760px){
+  .quick{top:auto;bottom:14px;left:auto;right:14px;transform:none;width:auto;max-height:none;flex-direction:row;gap:4px;padding:5px;border-radius:999px;box-shadow:0 12px 28px -12px rgba(0,0,0,.45)}
+  .q-title,.q-top,.quick .hbn:not(.q-share):not(.q-link){display:none}
+  .quick .hbn{flex:none;width:auto;flex-direction:row;gap:0;padding:0;border-radius:50%}
+  .quick{overflow:visible}
+  .quick .hb-txt{display:none}
+  .quick .hb-ic{width:44px;height:44px}
+  .quick .q-share,.quick .q-link{margin:0;padding:0;border:none}
+}
 /* 3안: 기념 사업 아래 가로 띠 배너 */
 .hb-band{padding:56px 0}
 .hb-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
