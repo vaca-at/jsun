@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -58,9 +57,20 @@ button{font:inherit;color:inherit}
 .demo-banner{background:var(--accent-2);color:#111;font-size:.85rem;text-align:center;padding:8px 12px}
 .topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding:16px 0}
 .school{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.1rem}
-.style-bar{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
-.style-group{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
-.style-group>span{font-size:.78rem;color:var(--muted);margin-right:2px}
+.style-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.style-group{display:flex;align-items:center;gap:2px;padding:3px 4px 3px 10px;background:var(--surface);border:1px solid var(--line);border-radius:999px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.style-group>.gi{width:16px;height:16px;color:var(--muted);margin-right:4px;flex:none}
+.style-group .pick{position:relative;width:30px;height:30px;padding:0;border:none;background:transparent;justify-content:center;border-radius:50%;transition:background .15s,box-shadow .15s}
+.style-group .pick:hover{background:var(--line)}
+.style-group .dot{width:20px;height:20px;border:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)}
+#themePicks .pick[aria-pressed="true"]{background:transparent;box-shadow:inset 0 0 0 2px var(--accent)}
+#fontPicks .pick{font-size:1.05rem;line-height:1}
+#fontPicks .pick[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+.icon-btn{cursor:pointer;width:38px;height:38px;padding:0;border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:50%;position:relative}
+.icon-btn:hover{color:var(--accent);border-color:var(--accent)}
+.icon-btn svg{width:18px;height:18px;display:block;margin:auto}
+[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translate(-50%,-4px);background:var(--ink);color:var(--bg);font-family:var(--f-body);font-size:.75rem;line-height:1.3;white-space:nowrap;padding:5px 9px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:20}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translate(-50%,0)}
 .pick{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 10px;border-radius:999px;font-size:.8rem;display:inline-flex;align-items:center;gap:6px}
 .pick[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
@@ -82,16 +92,28 @@ h2{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.7rem;line-hei
 .note{color:var(--muted);margin:0 0 22px}
 
 .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.tile{cursor:pointer;text-align:left;background:var(--tile-bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px 16px;min-height:136px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;transition:transform .15s,border-color .15s}
-.tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tile{position:relative;overflow:hidden;cursor:pointer;text-align:left;background:var(--tile-bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px 16px;min-height:188px;display:flex;flex-direction:column;justify-content:space-between;gap:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);transition:transform .2s,border-color .2s,box-shadow .2s}
+.tile::before{content:"";position:absolute;left:0;top:0;width:100%;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+.tile:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));transform:translateY(-4px);box-shadow:0 14px 30px -14px color-mix(in srgb,var(--accent) 55%,transparent)}
+.tile:hover::before{transform:scaleX(1)}
+.tile-head{display:flex;flex-direction:column;gap:14px}
+.tile-icon{width:46px;height:46px;border-radius:calc(var(--radius-sm) + 6px);display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 10%,transparent);color:var(--accent);transition:background .2s,color .2s}
+.tile-icon svg{width:24px;height:24px}
+.tile:hover .tile-icon{background:var(--accent);color:var(--on-accent)}
+.tile-no{position:absolute;right:16px;top:10px;font-family:var(--f-head);font-weight:var(--head-w);font-size:2.8rem;line-height:1;color:var(--accent-2);opacity:.25;letter-spacing:-.03em;pointer-events:none}
 .tile-title{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.2rem;line-height:1.35}
-.tile-status{font-size:.85rem;color:var(--muted)}
-.tile-status.ready{color:var(--accent);font-weight:600}
-body[data-theme="lotus"] .tile{border-left:5px solid var(--accent-2)}
-body[data-theme="album"] .tile{border:none;box-shadow:0 2px 8px rgba(60,40,20,.22);padding:16px 16px 24px}
+.tile-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px dashed var(--line)}
+.tile-status{display:inline-flex;align-items:center;gap:6px;font-size:.78rem;padding:3px 10px;border-radius:999px;color:var(--muted);background:color-mix(in srgb,var(--muted) 12%,transparent)}
+.tile-status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tile-status.ready{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);font-weight:600}
+.tile-arrow{width:18px;height:18px;color:var(--muted);transition:transform .2s,color .2s}
+.tile:hover .tile-arrow{transform:translateX(4px);color:var(--accent)}
+body[data-theme="lotus"] .tile::before{transform:scaleX(1);background:var(--accent-2)}
+body[data-theme="lotus"] .tile:hover::before{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+body[data-theme="album"] .tile{border:none;box-shadow:0 2px 8px rgba(60,40,20,.22);padding:16px 16px 26px}
 body[data-theme="album"] .tile:nth-child(odd){transform:rotate(-1.2deg)}
 body[data-theme="album"] .tile:nth-child(even){transform:rotate(1deg)}
-body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-2px)}
+body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-4px);box-shadow:0 12px 24px rgba(60,40,20,.28)}
 
 /* ───────── 기부금 전광판 (한 화면 30명) ───────── */
 .summary{display:flex;flex-wrap:wrap;gap:36px;margin:0 0 20px}
@@ -179,9 +201,9 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <header class="topbar">
     <span class="school">진선여자고등학교</span>
     <div class="style-bar">
-      <div class="style-group" id="themePicks" role="group" aria-label="디자인 선택"><span>디자인</span></div>
-      <div class="style-group" id="fontPicks" role="group" aria-label="글꼴 선택"><span>글꼴</span></div>
-      <button class="pick admin-only" id="saveDefault">모두의 기본값으로 저장</button>
+      <div class="style-group" id="themePicks" role="group" aria-label="디자인 선택"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 1 10-10c0 2.8-2.2 4-4 4h-2a2 2 0 0 0-1.5 3.3A1.6 1.6 0 0 1 12 22z"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"/><circle cx="12" cy="7" r="1.2" fill="currentColor"/><circle cx="16.5" cy="10.5" r="1.2" fill="currentColor"/></svg></div>
+      <div class="style-group" id="fontPicks" role="group" aria-label="글꼴 선택"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V5h16v2M12 5v14M9 19h6"/></svg></div>
+      <button class="icon-btn admin-only" id="saveDefault" aria-label="모두의 기본값으로 저장" data-tip="모두의 기본값으로 저장"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></button>
     </div>
   </header>
 
@@ -320,14 +342,22 @@ const DEMO = firebaseConfig.apiKey.startsWith("여기에");
 
 /* ═════════ 2. 메뉴 (내용은 관리자 모드에서 입력) ═════════ */
 const MENUS = [
-  {id:"overseas",      title:"50주년 기념 교직원 해외연수"},
-  {id:"history-hall",  title:"진선여고 역사 홀"},
-  {id:"book",          title:"진선 50년사 책 발간"},
-  {id:"anniversary",   title:"개교기념일 행사"},
-  {id:"festival",      title:"축제(연화제)"},
-  {id:"alumni-night",  title:"진선인의 밤(총동문회)"},
-  {id:"souvenir",      title:"기념품 준비"},
-  {id:"video-contest", title:"개교 50주년 기념 홍보 동영상 제작 대회"}
+  {id:"overseas",      title:"50주년 기념 교직원 해외연수",
+   icon:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'},
+  {id:"history-hall",  title:"진선여고 역사 홀",
+   icon:'<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>'},
+  {id:"book",          title:"진선 50년사 책 발간",
+   icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5M9 7h7"/>'},
+  {id:"anniversary",   title:"개교기념일 행사",
+   icon:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01"/>'},
+  {id:"festival",      title:"축제(연화제)",
+   icon:'<path d="M12 3l1.9 5.8L20 10.5l-6.1 1.7L12 18l-1.9-5.8L4 10.5l6.1-1.7z"/><path d="M19 17v4M17 19h4M5 3v3M3.5 4.5h3"/>'},
+  {id:"alumni-night",  title:"진선인의 밤(총동문회)",
+   icon:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'},
+  {id:"souvenir",      title:"기념품 준비",
+   icon:'<path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>'},
+  {id:"video-contest", title:"개교 50주년 기념 홍보 동영상 제작 대회",
+   icon:'<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>'}
 ];
 
 const THEMES = [
@@ -448,11 +478,18 @@ const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false
   priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:""};
 
 function renderMenus(){
-  $("#menuGrid").innerHTML = MENUS.map(m => {
+  $("#menuGrid").innerHTML = MENUS.map((m, i) => {
     const has = (state.menus[m.id] || "").trim();
     return `<button class="tile" data-id="${m.id}">
-      <span class="tile-title">${esc(m.title)}</span>
-      <span class="tile-status ${has ? "ready" : ""}">${has ? "안내 보기" : "준비중"}</span>
+      <span class="tile-no" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+      <span class="tile-head">
+        <span class="tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg></span>
+        <span class="tile-title">${esc(m.title)}</span>
+      </span>
+      <span class="tile-foot">
+        <span class="tile-status ${has ? "ready" : ""}">${has ? "안내 보기" : "준비중"}</span>
+        <svg class="tile-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
     </button>`;
   }).join("");
 }
@@ -501,9 +538,9 @@ function renderDonations(){
 }
 function buildPicks(){
   $("#themePicks").insertAdjacentHTML("beforeend", THEMES.map(t =>
-    `<button class="pick" data-theme="${t.id}" aria-pressed="false"><span class="dot" style="background:linear-gradient(135deg,${t.c[0]} 50%,${t.c[1]} 50%)"></span>${t.name}</button>`).join(""));
+    `<button class="pick" data-theme="${t.id}" aria-pressed="false" aria-label="${t.name}" data-tip="${t.name}"><span class="dot" style="background:linear-gradient(135deg,${t.c[0]} 50%,${t.c[1]} 50%)"></span></button>`).join(""));
   $("#fontPicks").insertAdjacentHTML("beforeend", FONTS.map(f =>
-    `<button class="pick" data-font="${f.id}" aria-pressed="false" style="font-family:${f.head}">${f.name}</button>`).join(""));
+    `<button class="pick" data-font="${f.id}" aria-pressed="false" aria-label="${f.name}" data-tip="${f.name}" style="font-family:${f.head}">가</button>`).join(""));
 }
 function applyStyle(theme, font){
   theme = validTheme(theme); font = validFont(font);
