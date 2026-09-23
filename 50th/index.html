@@ -183,6 +183,21 @@ textarea{width:100%;min-height:240px;resize:vertical;line-height:1.6}
 /* ───────── 홈페이지 틀 (상단 메뉴·대표 화면·구역·푸터) ───────── */
 html{scroll-behavior:smooth}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.util{position:relative;z-index:45;background:var(--surface);border-bottom:1px solid var(--line);font-size:.8rem}
+.util-in{display:flex;align-items:center;justify-content:space-between;gap:6px 16px;min-height:44px;padding-top:4px;padding-bottom:4px}
+.util-links{display:flex;gap:16px}
+.util-links a{color:var(--muted);text-decoration:none}
+.util-links a:hover{color:var(--accent)}
+.util-style{display:flex;align-items:center;gap:6px}
+.util-lbl{color:var(--muted);font-weight:600;margin-left:6px}
+.util .style-group{padding:2px 4px;box-shadow:none}
+.util .style-group .pick{width:28px;height:28px}
+.util .style-group .dot{width:18px;height:18px}
+@media (max-width:640px){
+  .util-links{display:none}
+  .util-in{justify-content:center}
+  .util-lbl{display:none}
+}
 .gnb{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .2s,box-shadow .2s}
 .gnb.scrolled{border-bottom-color:var(--line);box-shadow:0 8px 22px -14px rgba(0,0,0,.3)}
 .gnb-in{display:flex;align-items:center;gap:12px 28px;height:68px}
@@ -196,14 +211,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .gnb-menu a::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;border-radius:2px;background:var(--gold);transform:scaleX(0);transition:transform .2s}
 .gnb-menu a:hover::after,.gnb-menu a.on::after{transform:scaleX(1)}
 .gnb-menu a.on{color:var(--accent);font-weight:700}
-.gnb-tools{position:relative;flex:none}
-.style-panel{position:absolute;right:0;top:calc(100% + 10px);z-index:50;display:flex;flex-direction:column;gap:6px;padding:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 40px -16px rgba(0,0,0,.35)}
-.style-panel[hidden]{display:none}
-.style-panel p{margin:4px 2px 0;font-size:.75rem;font-weight:700;color:var(--muted)}
-.style-panel .style-group{box-shadow:none}
 @media (max-width:860px){
   .gnb-in{flex-wrap:wrap;height:auto;padding-top:10px;gap:4px 12px}
-  .gnb-tools{margin-left:auto}
   .gnb-menu{order:3;width:calc(100% + 16px);margin:0 -8px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
   .gnb-menu a{font-size:.9rem;padding:8px 10px}
 }
@@ -544,6 +553,20 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 <div id="demoBanner" class="demo-banner" hidden>미리보기 모드입니다. Firebase 설정값을 넣기 전이라 입력한 내용은 저장되지 않습니다.</div>
 
 <div class="site" id="site">
+  <div class="util">
+    <div class="wrap util-in">
+      <nav class="util-links" aria-label="관련 사이트">
+        <a href="https://jinseon.sen.hs.kr/" target="_blank" rel="noopener">진선여자고등학교 ↗</a>
+        <a href="https://hoedang.uu.ac.kr/" target="_blank" rel="noopener">학교법인 회당학원 ↗</a>
+      </nav>
+      <div class="util-style" aria-label="화면 꾸미기">
+        <span class="util-lbl">디자인</span>
+        <div class="style-group" id="themePicks" role="group" aria-label="디자인 선택"></div>
+        <span class="util-lbl">글꼴</span>
+        <div class="style-group" id="fontPicks" role="group" aria-label="글꼴 선택"></div>
+      </div>
+    </div>
+  </div>
   <header class="gnb" id="gnb">
     <div class="wrap gnb-in">
       <a class="brand" href="#top" aria-label="진선여자고등학교 개교 50주년 처음으로">
@@ -553,15 +576,6 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <nav class="gnb-menu" aria-label="주요 메뉴">
         <a href="#projects">기념 사업</a><a href="#history">50년 발자취</a><a href="#donate">기부</a><a href="#gallery">갤러리</a><a href="#guest">방명록</a>
       </nav>
-      <div class="gnb-tools">
-        <button class="icon-btn" id="styleBtn" aria-expanded="false" aria-controls="stylePanel" aria-label="화면 꾸미기" data-tip="화면 꾸미기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 1 10-10c0 2.8-2.2 4-4 4h-2a2 2 0 0 0-1.5 3.3A1.6 1.6 0 0 1 12 22z"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"/><circle cx="12" cy="7" r="1.2" fill="currentColor"/><circle cx="16.5" cy="10.5" r="1.2" fill="currentColor"/></svg></button>
-        <div class="style-panel" id="stylePanel" hidden>
-          <p>디자인</p>
-          <div class="style-group" id="themePicks" role="group" aria-label="디자인 선택"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 1 10-10c0 2.8-2.2 4-4 4h-2a2 2 0 0 0-1.5 3.3A1.6 1.6 0 0 1 12 22z"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor"/><circle cx="12" cy="7" r="1.2" fill="currentColor"/><circle cx="16.5" cy="10.5" r="1.2" fill="currentColor"/></svg></div>
-          <p>글꼴</p>
-          <div class="style-group" id="fontPicks" role="group" aria-label="글꼴 선택"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7V5h16v2M12 5v14M9 19h6"/></svg></div>
-        </div>
-      </div>
     </div>
   </header>
 
@@ -1135,7 +1149,7 @@ const FONTS = [
   {id:"yuntaeng", name:"윤탱 + 나눔펜 + 개구", head:"'OwnglyphYuntaeng','Nanum Pen Script',cursive"}
 ];
 const DEFAULT_STYLE = {theme:"navy", font:"batang"};
-const LOCAL_KEY = "jinsun50-style-v2";
+const LOCAL_KEY = "jinsun50-style-v3";   // 기본값(네이비와 골드 + 고운바탕)으로 모두 되돌리려고 v3로 올림
 const PAGE_SIZE = 30;          // 전광판 한 화면에 보이는 인원
 const ROTATE_MS = 8000;        // 30명이 넘으면 8초마다 다음 화면으로
 
@@ -1731,12 +1745,6 @@ function initHomepage(){
     links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === cur));
   };
   addEventListener("scroll", onScroll, {passive: true}); onScroll();
-  /* 화면 꾸미기 (디자인·글꼴) 펼침 */
-  const btn = $("#styleBtn"), panel = $("#stylePanel");
-  const setOpen = on => { panel.hidden = !on; btn.setAttribute("aria-expanded", on); };
-  btn.addEventListener("click", e => { e.stopPropagation(); setOpen(panel.hidden); });
-  document.addEventListener("click", e => { if(!panel.hidden && !e.target.closest(".gnb-tools")) setOpen(false); });
-  document.addEventListener("keydown", e => { if(e.key === "Escape" && !panel.hidden){ setOpen(false); btn.focus(); } });
   /* 구역이 화면에 들어오면 부드럽게 나타나기 */
   const items = document.querySelectorAll(".sec-head, .menu-grid, .tl, .leaders, .num-grid, #accountSlot, .summary, .board, .gal-grid, .gb-form, .gb-list");
   if(!("IntersectionObserver" in window)) return;
