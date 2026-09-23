@@ -147,6 +147,26 @@ h2{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.75rem,3
 body[data-theme="album"] .tile:nth-child(odd){transform:rotate(-.8deg)}
 body[data-theme="album"] .tile:nth-child(even){transform:rotate(.7deg)}
 body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-4px)}
+/* 휴대폰: 기념 사업 2개씩 4줄, 간단히 */
+@media (max-width:600px){
+  .menu-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .tile{gap:9px;padding:16px 13px 13px}
+  .tile::after{inset:4px}
+  .tile-top{gap:8px}
+  .tile-no{font-size:.86rem;letter-spacing:.06em}
+  .tile-icon{width:30px;height:30px}
+  .tile-icon svg{width:15px;height:15px}
+  .tile-title{min-height:4.2em;font-size:.97rem;line-height:1.4;word-break:keep-all}
+  .tile-memo{min-height:0;font-size:.74rem}
+  .tile-memo span{flex-direction:column;gap:0;padding:5px 0}
+  .tile-memo span:nth-child(n+2){display:none}
+  .tile-memo span:first-child{border-bottom:1px solid var(--line)}
+  .tile-memo em{min-width:0;font-size:.68rem}
+  .tile-memo.none{font-size:.72rem}
+  .tile-status{gap:5px;font-size:.68rem;letter-spacing:.04em}
+  .tile-more{gap:0;font-size:0}
+  .tile-more svg{width:22px}
+}
 
 /* ───────── 기부금 전광판 (한 화면 30명) ───────── */
 .summary{display:flex;flex-wrap:wrap;gap:36px;margin:0 0 20px}
