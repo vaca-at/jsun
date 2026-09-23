@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>진선여자고등학교 개교 50주년</title>
+<meta name="description" content="진선여자고등학교 개교 50주년(1977–2027) 기념 누리집 · 기념 사업, 기부금 현황, 추억 갤러리, 축하 방명록">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="진선여자고등학교 개교 50주년">
+<meta property="og:title" content="진선여자고등학교 개교 50주년 · 진선의 50년, 함께 기록합니다">
+<meta property="og:description" content="1977–2027 개교 50주년 기념 사업, 기부금 현황, 추억 갤러리, 축하 방명록을 한곳에서 만나 보세요.">
+<meta property="og:url" content="https://jinseon50th.com/">
+<meta property="og:image" content="https://jinseon50th.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Jua&family=Gowun+Dodum&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&family=Nanum+Pen+Script&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
@@ -291,6 +301,37 @@ body{--lotus:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' v
   .tl-more{padding-left:0}
 }
 
+/* ───────── 후원 계좌 (공식 모금 안내형) ───────── */
+.donate-box{--d-main:var(--accent);--d-gold:var(--gold);position:relative;margin:0 0 26px;padding:26px 28px 22px;background:var(--tile-bg);color:var(--ink);border:1px solid color-mix(in srgb,var(--d-gold) 45%,transparent);border-top:4px solid var(--d-main);border-radius:10px;box-shadow:0 20px 40px -34px rgba(0,0,0,.5)}
+.donate-head{display:flex;align-items:center;gap:16px;padding-bottom:18px;border-bottom:1px dashed color-mix(in srgb,var(--d-gold) 60%,transparent)}
+.donate-seal{flex:0 0 58px;height:58px;border-radius:50%;border:2px solid var(--d-gold);outline:1px solid var(--d-gold);outline-offset:3px;display:flex;align-items:center;justify-content:center;font-family:var(--f-head);font-weight:800;font-size:1.25rem;color:var(--d-main)}
+.donate-seal small{margin:-8px 0 0 1px;font-size:.6rem}
+.donate-title{flex:1;min-width:0}
+.donate-kicker{margin:0 0 4px;font-size:.72rem;font-weight:700;letter-spacing:.12em;color:var(--d-gold)}
+.donate-title h3{margin:0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.3rem;color:var(--d-main)}
+.donate-org{margin:4px 0 0;font-size:.9rem;opacity:.8}
+.donate-badge{flex:0 0 auto;padding:5px 10px;border:1.5px solid var(--d-main);border-radius:4px;font-size:.78rem;font-weight:700;color:var(--d-main);transform:rotate(-4deg)}
+.donate-info{margin:18px 0 0}
+.donate-info .row{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid color-mix(in srgb,var(--d-gold) 25%,transparent)}
+.donate-info dt{font-size:.85rem;opacity:.7}
+.donate-info dd{margin:0;font-weight:600}
+.donate-info .acct{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-family:var(--f-head);font-size:1.35rem;letter-spacing:.03em;font-variant-numeric:tabular-nums}
+.donate-info .sub{font-weight:400;font-size:.82rem;opacity:.65}
+.copy-btn{padding:6px 12px;border:none;border-radius:6px;background:var(--d-main);color:var(--on-accent);font-family:var(--f-body);font-size:.8rem;font-weight:600;letter-spacing:0;cursor:pointer;transition:background .2s}
+.copy-btn.done{background:var(--d-gold);color:#fff}
+.donate-notes{margin:16px 0 0;padding:12px 14px 12px 30px;border-radius:6px;background:color-mix(in srgb,var(--d-gold) 10%,transparent);font-size:.82rem;line-height:1.7}
+.donate-contact{margin:12px 0 0;font-size:.8rem;opacity:.7;text-align:right}
+.donate-contact a{color:inherit}
+.pv-box .donate-box{margin:0}
+@media (max-width:560px){
+  .donate-box{padding:20px 18px}
+  .donate-head{flex-wrap:wrap}
+  .donate-badge{order:-1;margin-left:auto}
+  .donate-info .row{grid-template-columns:1fr;gap:4px}
+  .donate-info .acct{font-size:1.2rem}
+  .donate-contact{text-align:left}
+}
+
 /* ───────── 기부금 현황 (후원 계좌 · 합계 · 감사의 벽) ───────── */
 .account{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px 26px;margin:0 0 26px;padding:26px 30px;background:linear-gradient(135deg,var(--tile-bg),color-mix(in srgb,var(--gold) 7%,var(--tile-bg)));border:1px solid color-mix(in srgb,var(--gold) 38%,var(--line));border-radius:var(--radius);box-shadow:0 20px 40px -34px rgba(0,0,0,.55)}
 .account::before{content:"";position:absolute;inset:6px;border:1px solid color-mix(in srgb,var(--gold) 18%,transparent);border-radius:max(0px,calc(var(--radius) - 3px));pointer-events:none}
@@ -488,6 +529,11 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .hist-dlg .dlg-head .eyebrow{margin-bottom:2px}
 .hist-dlg .h-tabs{margin-left:auto}
 .hist-dlg .dlg-body{padding-top:22px}
+/* 탭을 옮겨도 창 크기가 바뀌지 않게 높이 고정, 내용은 창 안에서 스크롤 */
+dialog.hist-dlg{height:min(86vh,900px);overflow:hidden}
+dialog.hist-dlg[open]{display:flex;flex-direction:column}
+.hist-dlg .dlg-head{flex:none}
+.hist-dlg .dlg-body{flex:1;min-height:0;overflow:auto}
 
 /* 축하 방명록: 왼쪽 글쓰기 · 오른쪽 게시글 */
 .gb-2col{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;align-items:start}
@@ -597,6 +643,13 @@ dialog [data-close]:focus-visible{outline:2px solid var(--gold);outline-offset:2
 .press p.sum{margin:0;flex:1;font-size:.88rem;line-height:1.7;color:var(--muted)}
 .press-go{align-self:flex-start;margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);width:100%;font-size:.85rem;font-weight:700;color:var(--accent);text-decoration:none}
 .press-go:hover{text-decoration:underline}
+
+/* ───────── 카카오톡 공유 버튼 ───────── */
+.kakao-btn{display:inline-flex;align-items:center;gap:10px;padding:9px 22px 9px 12px;border:none;border-radius:999px;background:#3B1E1E;color:#fff;font-weight:700;font-size:1rem;letter-spacing:.02em;cursor:pointer;box-shadow:0 10px 22px -14px rgba(59,30,30,.9);transition:transform .2s,background .2s}
+.kakao-btn:hover{transform:translateY(-2px);background:#52292A}
+.kakao-btn svg{width:34px;height:29px;flex:none}
+.foot-bottom .kakao-btn{padding:6px 16px 6px 8px;font-size:.82rem}
+.foot-bottom .kakao-btn svg{width:26px;height:22px}
 
 /* ───────── 추억 갤러리 ───────── */
 .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:170px;grid-auto-flow:dense;gap:10px}
@@ -849,6 +902,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <div class="hero-cta">
           <a class="btn btn-primary btn-lg" href="#projects">기념 사업 보기</a>
           <a class="btn btn-lg btn-line" href="#donate">기부로 함께하기</a>
+          <button class="kakao-btn" type="button" data-share><svg viewBox="0 0 40 34" aria-hidden="true"><path d="M20 2C10.6 2 3 7.9 3 15.2c0 4.6 3 8.6 7.6 10.9l-1.6 5.6c-.1.5.4.8.8.6l6.6-4.4c1.2.2 2.4.3 3.6.3 9.4 0 17-5.9 17-13.2S29.4 2 20 2z" fill="#fff"/><text x="20" y="18.6" text-anchor="middle" font-size="9.2" font-weight="800" font-family="Arial,sans-serif" fill="#3B1E1E">TALK</text></svg>카카오톡 공유</button>
         </div>
       </div>
     </div>
@@ -942,6 +996,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <nav class="foot-links" aria-label="약관">
         <button class="strong" data-policy="privacy">개인정보처리방침</button><span aria-hidden="true">·</span><button data-policy="terms">이용약관</button>
       </nav>
+      <button class="kakao-btn" type="button" data-share><svg viewBox="0 0 40 34" aria-hidden="true"><path d="M20 2C10.6 2 3 7.9 3 15.2c0 4.6 3 8.6 7.6 10.9l-1.6 5.6c-.1.5.4.8.8.6l6.6-4.4c1.2.2 2.4.3 3.6.3 9.4 0 17-5.9 17-13.2S29.4 2 20 2z" fill="#fff"/><text x="20" y="18.6" text-anchor="middle" font-size="9.2" font-weight="800" font-family="Arial,sans-serif" fill="#3B1E1E">TALK</text></svg>카카오톡 공유</button>
       <span>© 2026 진선여자고등학교. All rights reserved.</span>
     </div>
   </footer>
@@ -1043,9 +1098,9 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <form class="panel" id="accForm">
           <label class="fld">은행<input id="fBank" placeholder="예: 카카오뱅크" maxlength="20"></label>
           <label class="fld">계좌번호<input id="fNumber" placeholder="예: 3333-00-0000000" maxlength="30" inputmode="numeric" required></label>
-          <label class="fld">예금주<input id="fHolder" placeholder="예: 홍길동" maxlength="20"></label>
-          <label class="fld">통장명 (선택)<input id="fOrg" placeholder="예: 진선여고 개교50주년 후원금" maxlength="40"></label>
-          <label class="fld">안내 문구 (선택)<input id="fNote" placeholder="예: 입금자명 뒤에 기수를 적어 주세요 (홍길동11)" maxlength="60"></label>
+          <label class="fld">관리 위원 (실제 예금주)<input id="fHolder" placeholder="예: 조O해" maxlength="20"></label>
+          <label class="fld">계좌 명의 (위원회 이름)<input id="fOrg" placeholder="예: 개교50주년준비위원회" maxlength="40"></label>
+          <label class="fld">추가 안내 (선택)<input id="fNote" placeholder="예: 입금자명 뒤에 기수를 적어 주세요 (홍길동11)" maxlength="60"></label>
           <div class="editor-actions">
             <button class="btn btn-primary" type="submit">저장</button>
             <button class="btn" type="button" id="accHide">첫 화면에서 내리기</button>
@@ -1297,6 +1352,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <ul>
         <li>Google Firebase: 기부 내역·방문 기록·방명록·사진 저장 (서버가 국외에 있을 수 있습니다)</li>
         <li>Google Fonts: 글꼴 불러오기</li>
+        <li>카카오 JavaScript SDK: '카카오톡 공유' 버튼을 누를 때만 불러와 공유 창을 엽니다 (이 누리집은 공유 과정에서 개인정보를 받지 않습니다)</li>
       </ul>
       <h4>7. 브라우저 저장 공간</h4>
       <p>고른 디자인·글꼴, 기기 구분용 임의 값, 방명록·사진 제보를 마지막으로 보낸 시각(연속 작성 방지용)을 이용자의 브라우저에 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 함께 지워집니다.</p>
@@ -1366,7 +1422,7 @@ const firebaseConfig = {
 const ADMIN_EMAIL = "anstjsdud@sen.go.kr";
 const CONTACT_EMAIL = ADMIN_EMAIL;   // 푸터·개인정보처리방침에 보이는 문의 메일
 /* 관리자 모드 '후원 계좌'에서 한 번도 저장하지 않았을 때 보이는 계좌 (저장하면 그 값이 우선) */
-const DEFAULT_ACCOUNT = {bank:"카카오뱅크", number:"3333-35-2849815", holder:"조O해", org:"진선여고 개교50주년 후원금", note:""};
+const DEFAULT_ACCOUNT = {bank:"카카오뱅크", number:"3333-35-2849815", holder:"조O해", org:"개교50주년준비위원회", note:""};
 const PREFIX = "jinsun50_";          // 다른 웹앱과 컬렉션이 섞이지 않도록 붙이는 이름표
 const DEMO = firebaseConfig.apiKey.startsWith("여기에");
 
@@ -2019,16 +2075,31 @@ function renderStats(){
 /* ─── 후원 계좌 ─── */
 function accountHTML(a){
   if(!a || !a.number) return "";
-  return `<div class="account">
-    <span class="acc-ic" aria-hidden="true">${svgI('<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>')}</span>
-    <div class="acc-body">
-      <span class="acc-label">후원 계좌${a.org ? `<span class="acc-org">${esc(a.org)}</span>` : ""}</span>
-      <b class="acc-num">${esc(a.number)}</b>
-      <span class="acc-meta">${esc(a.bank || "")}${a.holder ? `${a.bank ? " · " : ""}예금주 <b>${esc(a.holder)}</b>` : ""}</span>
-      ${a.note ? `<span class="acc-note">${esc(a.note)}</span>` : ""}
+  const owner = a.org || "개교50주년준비위원회";
+  const notes = [
+    a.holder ? `이체 시 받는 분 이름이 관리 위원 명의(${esc(a.holder)})로 표시될 수 있습니다.` : "",
+    "입금자명에 이름과 기수(예: 김진선11기)를 적어 주시면 확인이 빠릅니다.",
+    "모금 현황은 이 페이지의 기부금 전광판에서 투명하게 공개됩니다.",
+    a.note ? esc(a.note) : ""
+  ].filter(Boolean);
+  return `<section class="donate-box" aria-label="후원 계좌 안내">
+    <div class="donate-head">
+      <div class="donate-seal" aria-hidden="true">50<small>th</small></div>
+      <div class="donate-title">
+        <p class="donate-kicker">JINSEON 50TH ANNIVERSARY · 공식 후원 안내</p>
+        <h3>개교 50주년 기념사업 후원 계좌</h3>
+        <p class="donate-org">진선여자고등학교 ${esc(owner)}</p>
+      </div>
+      <span class="donate-badge">공식 모금</span>
     </div>
-    <button class="btn acc-copy" type="button" data-copy="${esc(a.number)}">${svgI('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>')}계좌번호 복사</button>
-  </div>`;
+    <dl class="donate-info">
+      <div class="row"><dt>입금 은행</dt><dd>${esc(a.bank || "")}</dd></div>
+      <div class="row"><dt>계좌번호</dt><dd class="acct"><span>${esc(a.number)}</span><button type="button" class="copy-btn" data-copy="${esc(a.number)}">계좌번호 복사</button></dd></div>
+      <div class="row"><dt>계좌 명의</dt><dd>${esc(owner)}${a.holder ? ` <span class="sub">(위원회 관리 계좌 · ${esc(a.holder)})</span>` : ""}</dd></div>
+    </dl>
+    <ul class="donate-notes">${notes.map(n => `<li>${n}</li>`).join("")}</ul>
+    <p class="donate-contact">문의 · 진선여고 ${esc(owner)} · <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a></p>
+  </section>`;
 }
 function renderAccount(){ $("#accountSlot").innerHTML = accountHTML(state.account); renderDonSummary(); }
 const ACC_FIELDS = {bank:"#fBank", number:"#fNumber", holder:"#fHolder", org:"#fOrg", note:"#fNote"};
@@ -2598,11 +2669,43 @@ $("#subAdmin").addEventListener("click", async e => {
   }catch(err){ b.disabled = false; toast("처리하지 못했습니다 (" + (err.code || err.message) + ")"); }
 });
 
+/* 카카오톡 공유: 카카오 개발자 JavaScript 키를 넣으면 버튼을 누를 때 바로 카카오톡 공유 창이 열린다.
+   키가 없으면 휴대폰은 공유 창(카카오톡 선택), PC는 링크 복사로 안내한다. */
+const KAKAO_JS_KEY = "";
+const SHARE = {url:"https://jinseon50th.com/", title:"진선여자고등학교 개교 50주년",
+  text:"진선의 50년, 함께 기록합니다 · 기념 사업 · 기부금 현황 · 추억 갤러리 · 축하 방명록", image:"https://jinseon50th.com/og.png"};
+async function shareKakao(){
+  if(KAKAO_JS_KEY){
+    try{
+      if(!window.Kakao) await new Promise((res, rej) => { const s = document.createElement("script"); s.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
+      if(!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
+      const link = {mobileWebUrl: SHARE.url, webUrl: SHARE.url};
+      Kakao.Share.sendDefault({objectType:"feed", content:{title: SHARE.title, description: SHARE.text, imageUrl: SHARE.image, link}, buttons:[{title:"누리집 보기", link}]});
+      return;
+    }catch(e){ console.warn("카카오 공유", e); }
+  }
+  if(navigator.share && matchMedia("(pointer: coarse)").matches){
+    try{ await navigator.share({title: SHARE.title, text: SHARE.text, url: SHARE.url}); return; }
+    catch(e){ if(e.name === "AbortError") return; }
+  }
+  try{ await navigator.clipboard.writeText(SHARE.url); toast("링크를 복사했습니다. 카카오톡 대화창에 붙여 넣어 주세요"); }
+  catch{ prompt("아래 링크를 복사해 카카오톡으로 보내 주세요", SHARE.url); }
+}
+document.addEventListener("click", e => { if(e.target.closest("[data-share]")) shareKakao(); });
+
 /* 계좌번호 복사 */
 document.addEventListener("click", async e => {
   const b = e.target.closest("[data-copy]"); if(!b) return;
-  try{ await navigator.clipboard.writeText(b.dataset.copy); toast("계좌번호를 복사했습니다"); }
-  catch{ toast("복사하지 못했습니다. 계좌번호를 길게 눌러 복사해 주세요"); }
+  const done = () => {
+    if(!b.classList.contains("copy-btn")) return;
+    const t = b.textContent; b.textContent = "복사됨 ✓"; b.classList.add("done");
+    setTimeout(() => { b.textContent = t; b.classList.remove("done"); }, 1600);
+  };
+  try{ await navigator.clipboard.writeText(b.dataset.copy); done(); toast("계좌번호를 복사했습니다"); }
+  catch{
+    try{ const ta = document.createElement("textarea"); ta.value = b.dataset.copy; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove(); done(); toast("계좌번호를 복사했습니다"); }
+    catch{ toast("복사하지 못했습니다. 계좌번호를 길게 눌러 복사해 주세요"); }
+  }
 });
 
 /* ─── 대시보드 ─── */
