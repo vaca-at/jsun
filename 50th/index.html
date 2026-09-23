@@ -1,1 +1,548 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>진선여자고등학교 개교 50주년</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Jua&family=Gowun+Dodum&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&family=Nanum+Pen+Script&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ▼ 온글잎 윤탱체: 눈누에서 복사한 @font-face 코드를 아래에 붙여넣으세요.
+   붙여넣기 전에는 '나눔펜'으로 대신 표시됩니다. (font-family 이름: 'OwnglyphYuntaeng') */
+
+
+/* ───────── 디자인 4가지 ───────── */
+:root, body[data-theme="navy"]{
+  --bg:#F3F5F9;--surface:#FFFFFF;--tile-bg:#FFFFFF;--ink:#13233F;--muted:#5A6782;
+  --accent:#1F3A6B;--accent-2:#B8923A;--on-accent:#FFFFFF;--line:#D6DCE6;--hero50:#B8923A;
+  --board-bg:#13233F;--board-ink:#FFFFFF;--board-amt:#E2C27A;--board-line:rgba(255,255,255,.14);
+  --radius:6px;--radius-sm:4px;--bg-img:none;
+}
+body[data-theme="lotus"]{
+  --bg:#F1F6EF;--surface:#FFFFFF;--tile-bg:#FFFFFF;--ink:#1E3326;--muted:#5E7466;
+  --accent:#B0245A;--accent-2:#4E8A5E;--on-accent:#FFFFFF;--line:#D3E2D2;--hero50:#B0245A;
+  --board-bg:#1E3326;--board-ink:#FFFFFF;--board-amt:#F59BBE;--board-line:rgba(255,255,255,.14);
+  --radius:14px;--radius-sm:10px;--bg-img:none;
+}
+body[data-theme="night"]{
+  --bg:#0D1330;--surface:#172048;--tile-bg:#141C42;--ink:#ECEEFF;--muted:#A9B0D6;
+  --accent:#FFC857;--accent-2:#7FD1FF;--on-accent:#0D1330;--line:#2C3670;--hero50:#FFC857;
+  --board-bg:#070B1F;--board-ink:#ECEEFF;--board-amt:#FFC857;--board-line:rgba(127,209,255,.2);
+  --radius:12px;--radius-sm:8px;
+  --bg-img:radial-gradient(1.4px 1.4px at 12% 18%, #fff 50%, transparent 51%),radial-gradient(1px 1px at 38% 62%, #cfd6ff 50%, transparent 51%),radial-gradient(1.6px 1.6px at 71% 27%, #fff 50%, transparent 51%),radial-gradient(1px 1px at 86% 78%, #fff 50%, transparent 51%),radial-gradient(1.2px 1.2px at 55% 90%, #cfd6ff 50%, transparent 51%);
+}
+body[data-theme="album"]{
+  --bg:#E6DBC8;--surface:#F5EEE1;--tile-bg:#FFFDF8;--ink:#3A2B1F;--muted:#7A6652;
+  --accent:#7A4E2D;--accent-2:#B38A4E;--on-accent:#FFFFFF;--line:#D2C3A8;--hero50:#7A4E2D;
+  --board-bg:#3A2B1F;--board-ink:#F5EEE1;--board-amt:#E0B878;--board-line:rgba(245,238,225,.16);
+  --radius:2px;--radius-sm:2px;--bg-img:none;
+}
+
+/* ───────── 글꼴 조합 4가지 (제목 / 본문) ───────── */
+:root, body[data-font="batang"]{--f-head:'Gowun Batang',serif;--f-body:'Gowun Batang',serif;--head-w:700}
+body[data-font="jua"]{--f-head:'Jua',sans-serif;--f-body:'Gowun Dodum',sans-serif;--head-w:400}
+body[data-font="blackhan"]{--f-head:'Black Han Sans',sans-serif;--f-body:'Noto Sans KR',sans-serif;--head-w:400}
+body[data-font="yuntaeng"]{--f-head:'OwnglyphYuntaeng','Nanum Pen Script',cursive;--f-body:'Gaegu',cursive;--head-w:400;font-size:18px}
+
+/* ───────── 기본 레이아웃 ───────── */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background-color:var(--bg);background-image:var(--bg-img);background-attachment:fixed;color:var(--ink);font-family:var(--f-body);line-height:1.65;font-size:16px;word-break:keep-all}
+a{color:var(--accent)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent-2);outline-offset:2px}
+
+.demo-banner{background:var(--accent-2);color:#111;font-size:.85rem;text-align:center;padding:8px 12px}
+.topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px 16px;padding:16px 0}
+.school{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.1rem}
+.style-bar{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.style-group{display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.style-group>span{font-size:.78rem;color:var(--muted);margin-right:2px}
+.pick{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 10px;border-radius:999px;font-size:.8rem;display:inline-flex;align-items:center;gap:6px}
+.pick[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;border-radius:var(--radius-sm);font-size:.92rem}
+.btn:hover{border-color:var(--accent)}
+.btn-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn-sm{padding:4px 10px;font-size:.8rem}
+
+.hero{display:grid;grid-template-columns:auto 1fr;gap:32px;align-items:end;padding:28px 0 48px;border-bottom:1px solid var(--line)}
+.big50{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(7rem,24vw,15rem);line-height:.8;color:var(--hero50);letter-spacing:-.04em}
+.kicker{margin:0 0 6px;color:var(--accent);font-weight:600}
+.hero h1{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(2rem,5.2vw,3.3rem);line-height:1.15;margin:0 0 14px}
+.lead{color:var(--muted);max-width:30em;margin:0}
+@media (max-width:640px){.hero{grid-template-columns:1fr;gap:10px;padding-top:16px}}
+
+section.block{padding:44px 0 8px}
+h2{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.7rem;line-height:1.25;margin:0 0 6px}
+.note{color:var(--muted);margin:0 0 22px}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.tile{cursor:pointer;text-align:left;background:var(--tile-bg);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px 16px;min-height:136px;display:flex;flex-direction:column;justify-content:space-between;gap:14px;transition:transform .15s,border-color .15s}
+.tile:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tile-title{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.2rem;line-height:1.35}
+.tile-status{font-size:.85rem;color:var(--muted)}
+.tile-status.ready{color:var(--accent);font-weight:600}
+body[data-theme="lotus"] .tile{border-left:5px solid var(--accent-2)}
+body[data-theme="album"] .tile{border:none;box-shadow:0 2px 8px rgba(60,40,20,.22);padding:16px 16px 24px}
+body[data-theme="album"] .tile:nth-child(odd){transform:rotate(-1.2deg)}
+body[data-theme="album"] .tile:nth-child(even){transform:rotate(1deg)}
+body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-2px)}
+
+/* ───────── 기부금 전광판 (한 화면 30명) ───────── */
+.summary{display:flex;flex-wrap:wrap;gap:36px;margin:0 0 20px}
+.summary b{display:block;font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.2;color:var(--accent);font-variant-numeric:tabular-nums}
+.summary span{color:var(--muted);font-size:.9rem}
+.board{background:var(--board-bg);color:var(--board-ink);border-radius:var(--radius);padding:14px}
+.board-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.sortbar,.pager{display:flex;align-items:center;gap:6px}
+.board .pick{background:transparent;color:var(--board-ink);border-color:var(--board-line)}
+.board .pick[aria-pressed="true"]{background:var(--board-amt);color:var(--board-bg);border-color:var(--board-amt)}
+.pager span{font-size:.85rem;opacity:.8;font-variant-numeric:tabular-nums;min-width:4.5em;text-align:center}
+.board-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+@media (max-width:900px){.board-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cell{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--board-line);border-radius:var(--radius-sm);min-height:52px}
+.cell .no{grid-row:1/3;font-size:.75rem;opacity:.55;min-width:1.9em;font-variant-numeric:tabular-nums}
+.cell .nm{font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .am{color:var(--board-amt);font-size:.9rem;line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cell.blank{border-style:dashed;opacity:.28}
+.cell .x{position:absolute;top:2px;right:2px;cursor:pointer;border:none;background:rgba(255,255,255,.15);color:var(--board-ink);width:20px;height:20px;border-radius:50%;font-size:.75rem;line-height:1}
+.board-empty{text-align:center;padding:40px 0;opacity:.7}
+
+.admin-only{display:none!important}
+.is-admin .admin-only{display:revert!important}
+.admin-form{margin-top:14px;padding:14px;border:1px dashed var(--accent);border-radius:var(--radius)}
+.admin-form .row{display:flex;flex-wrap:wrap;gap:8px}
+.admin-form input{flex:1 1 140px}
+.admin-form p{margin:8px 0 0;font-size:.82rem;color:var(--muted)}
+
+input,textarea{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--ink)}
+textarea{width:100%;min-height:240px;resize:vertical;line-height:1.6}
+
+footer{padding:56px 0 80px;color:var(--muted);font-size:.85rem;text-align:center}
+
+.admin-fab{position:fixed;right:12px;bottom:12px;z-index:50;cursor:pointer;font-size:.72rem;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);opacity:.65}
+.admin-fab:hover{opacity:1}
+.is-admin .admin-fab{background:var(--accent);color:var(--on-accent);border-color:var(--accent);opacity:1}
+
+dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:0;width:min(660px,calc(100% - 24px));max-height:86vh}
+dialog::backdrop{background:rgba(10,15,30,.5)}
+.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+.dlg-head h3{margin:0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.4rem;line-height:1.3}
+.dlg-body{padding:18px 22px 22px}
+.content{white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{color:var(--muted);text-align:center;padding:32px 0}
+.editor{margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+.editor-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.login-form label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+.login-form input{width:100%}
+.err{color:#C62828;font-size:.85rem;min-height:1.3em;margin:8px 0 0}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body data-theme="navy" data-font="batang">
+
+<div id="demoBanner" class="demo-banner" hidden>미리보기 모드입니다. Firebase 설정값을 넣기 전이라 입력한 내용은 저장되지 않습니다.</div>
+
+<div class="wrap">
+  <header class="topbar">
+    <span class="school">진선여자고등학교</span>
+    <div class="style-bar">
+      <div class="style-group" id="themePicks" role="group" aria-label="디자인 선택"><span>디자인</span></div>
+      <div class="style-group" id="fontPicks" role="group" aria-label="글꼴 선택"><span>글꼴</span></div>
+      <button class="pick admin-only" id="saveDefault">모두의 기본값으로 저장</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="big50" aria-hidden="true">50</div>
+    <div>
+      <p class="kicker">개교 50주년 기념</p>
+      <h1>진선의 50년,<br>함께 기록합니다</h1>
+      <p class="lead">반세기 동안 이어 온 배움과 우정을 돌아보고, 다음 50년을 함께 준비하는 기념 사업을 소개합니다.</p>
+    </div>
+  </section>
+
+  <section class="block" aria-labelledby="menuTitle">
+    <h2 id="menuTitle">기념 사업</h2>
+    <p class="note">항목을 누르면 자세한 안내를 볼 수 있습니다.</p>
+    <div class="menu-grid" id="menuGrid"></div>
+  </section>
+
+  <section class="block" aria-labelledby="donateTitle">
+    <h2 id="donateTitle">기부금 현황</h2>
+    <p class="note">개교 50주년을 위해 마음을 보태 주신 분들께 감사드립니다.</p>
+    <div class="summary">
+      <div><b id="sumTotal">0원</b><span>모인 금액</span></div>
+      <div><b id="sumCount">0명</b><span>참여해 주신 분</span></div>
+    </div>
+
+    <div class="board" id="board">
+      <div class="board-top">
+        <div class="sortbar" role="group" aria-label="정렬">
+          <button class="pick" data-sort="reg" aria-pressed="true">등록순</button>
+          <button class="pick" data-sort="amt" aria-pressed="false">금액순</button>
+        </div>
+        <div class="pager" id="pager" hidden>
+          <button class="pick" id="prevPage" aria-label="이전 30명">이전</button>
+          <span id="pageInfo">1 / 1</span>
+          <button class="pick" id="nextPage" aria-label="다음 30명">다음</button>
+        </div>
+      </div>
+      <div id="boardBody"></div>
+    </div>
+
+    <form class="admin-form admin-only" id="donateForm">
+      <div class="row">
+        <input id="dName" placeholder="이름 (예: 김진선)" required maxlength="20" aria-label="이름">
+        <input id="dAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="금액 (원)" required aria-label="금액">
+        <button class="btn btn-primary" type="submit">기부 내역 추가</button>
+      </div>
+      <p>이름은 김*선처럼 가운데를 가린 형태로만 저장됩니다. '익명'이라고 입력하면 익명으로 표시됩니다.</p>
+    </form>
+  </section>
+
+  <footer>진선여자고등학교 개교 50주년 기념 누리집</footer>
+</div>
+
+<button class="admin-fab" id="adminFab">관리자</button>
+
+<dialog id="menuDialog" aria-labelledby="menuDlgTitle">
+  <div class="dlg-head">
+    <h3 id="menuDlgTitle"></h3>
+    <button class="btn btn-sm" data-close>닫기</button>
+  </div>
+  <div class="dlg-body">
+    <div id="menuContent"></div>
+    <div class="editor admin-only">
+      <label for="menuEditor" style="font-size:.85rem;color:var(--muted)">내용 입력 (주소를 넣으면 자동으로 링크가 됩니다)</label>
+      <textarea id="menuEditor"></textarea>
+      <div class="editor-actions">
+        <button class="btn btn-primary" id="menuSave">저장</button>
+        <button class="btn" id="menuClear">준비중으로 되돌리기</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="loginDialog" aria-labelledby="loginTitle">
+  <div class="dlg-head">
+    <h3 id="loginTitle">관리자 로그인</h3>
+    <button class="btn btn-sm" data-close>닫기</button>
+  </div>
+  <form class="dlg-body login-form" id="loginForm">
+    <label for="adminEmail">관리자 계정</label>
+    <input id="adminEmail" readonly>
+    <label for="adminPw">비밀번호</label>
+    <input id="adminPw" type="password" autocomplete="current-password" required>
+    <p class="err" id="loginErr"></p>
+    <button class="btn btn-primary" type="submit" style="width:100%;margin-top:6px">로그인</button>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script type="module">
+/* ═════════ 1. Firebase 설정 (Firebase 콘솔 > 프로젝트 설정 > 내 앱 에서 복사) ═════════ */
+const firebaseConfig = {
+  apiKey: "여기에_API_KEY",
+  authDomain: "moon-d528d.firebaseapp.com",
+  projectId: "moon-d528d",
+  storageBucket: "moon-d528d.firebasestorage.app",
+  messagingSenderId: "여기에_SENDER_ID",
+  appId: "여기에_APP_ID"
+};
+const ADMIN_EMAIL = "anstjsdud@sen.go.kr";
+const PREFIX = "jinsun50_";          // 다른 웹앱과 컬렉션이 섞이지 않도록 붙이는 이름표
+const DEMO = firebaseConfig.apiKey.startsWith("여기에");
+
+/* ═════════ 2. 메뉴 (내용은 관리자 모드에서 입력) ═════════ */
+const MENUS = [
+  {id:"overseas",      title:"50주년 기념 교직원 해외연수"},
+  {id:"history-hall",  title:"진선여고 역사 홀"},
+  {id:"book",          title:"진선 50년사 책 발간"},
+  {id:"anniversary",   title:"개교기념일 행사"},
+  {id:"festival",      title:"축제(연화제)"},
+  {id:"alumni-night",  title:"진선인의 밤(총동문회)"},
+  {id:"souvenir",      title:"기념품 준비"},
+  {id:"video-contest", title:"개교 50주년 기념 홍보 동영상 제작 대회"}
+];
+
+const THEMES = [
+  {id:"navy",  name:"네이비와 골드",  c:["#1F3A6B","#B8923A"]},
+  {id:"lotus", name:"연화",          c:["#B0245A","#4E8A5E"]},
+  {id:"night", name:"밤하늘",        c:["#0D1330","#FFC857"]},
+  {id:"album", name:"동문 앨범",      c:["#7A4E2D","#E6DBC8"]}
+];
+const FONTS = [
+  {id:"batang",   name:"고운바탕",           head:"'Gowun Batang',serif"},
+  {id:"jua",      name:"주아 + 고운돋움",     head:"'Jua',sans-serif"},
+  {id:"blackhan", name:"검은고딕 + 노토산스", head:"'Black Han Sans',sans-serif"},
+  {id:"yuntaeng", name:"윤탱 + 나눔펜 + 개구", head:"'OwnglyphYuntaeng','Nanum Pen Script',cursive"}
+];
+const DEFAULT_STYLE = {theme:"navy", font:"batang"};
+const LOCAL_KEY = "jinsun50-style-v2";
+const PAGE_SIZE = 30;          // 전광판 한 화면에 보이는 인원
+const ROTATE_MS = 8000;        // 30명이 넘으면 8초마다 다음 화면으로
+
+/* ═════════ 3. 도우미 ═════════ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const linkify = t => esc(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+const won = n => (Number(n)||0).toLocaleString("ko-KR") + "원";
+const validTheme = t => THEMES.some(x => x.id === t) ? t : DEFAULT_STYLE.theme;
+const validFont  = f => FONTS.some(x => x.id === f) ? f : DEFAULT_STYLE.font;
+function maskName(raw){
+  const n = raw.trim().replace(/\s+/g,"");
+  if(!n || n === "익명") return "익명";
+  const c = [...n];
+  if(c.length === 1) return c[0];
+  if(c.length === 2) return c[0] + "*";
+  return c[0] + "*".repeat(c.length - 2) + c[c.length - 1];
+}
+let toastTimer;
+function toast(msg){
+  const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2400);
+}
+function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)); }catch{ return null; } }
+function saveLocal(v){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(v)); }catch{} }
+
+/* ═════════ 4. 데이터 연결 ═════════ */
+async function firebaseApi(){
+  const V = "10.12.2";
+  const [{initializeApp}, fs, au] = await Promise.all([
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`),
+    import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`)
+  ]);
+  const app = initializeApp(firebaseConfig);
+  const db = fs.getFirestore(app);
+  const auth = au.getAuth(app);
+  const col = n => fs.collection(db, PREFIX + n);
+  const ref = (n, id) => fs.doc(db, PREFIX + n, id);
+  const fail = e => toast("데이터를 불러오지 못했습니다 (" + (e.code || e.message) + ")");
+  return {
+    watchMenus: cb => fs.onSnapshot(col("menus"), s => { const o={}; s.forEach(d => o[d.id] = d.data().body || ""); cb(o); }, fail),
+    watchDonations: cb => fs.onSnapshot(fs.query(col("donations"), fs.orderBy("createdAtMs","asc")), s => cb(s.docs.map(d => ({id:d.id, ...d.data()}))), fail),
+    watchSettings: cb => fs.onSnapshot(ref("settings","app"), s => cb(s.exists() ? s.data() : null), fail),
+    saveMenu: (id, body) => fs.setDoc(ref("menus", id), {body, updatedAt: fs.serverTimestamp()}),
+    addDonation: (name, amount) => fs.addDoc(col("donations"), {name, amount, createdAtMs: Date.now(), createdAt: fs.serverTimestamp()}),
+    removeDonation: id => fs.deleteDoc(ref("donations", id)),
+    saveSettings: o => fs.setDoc(ref("settings","app"), o, {merge:true}),
+    login: pw => au.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pw),
+    logout: () => au.signOut(auth),
+    onAuth: cb => au.onAuthStateChanged(auth, u => cb(!!u && u.email === ADMIN_EMAIL))
+  };
+}
+function demoApi(){
+  const L = {m:[], d:[], a:[]};
+  let menus = {};
+  const sur = "김이박최정강조윤장임한오서신권황안송류홍".split("");
+  const last = "선희준아진민서연지수현은영".split("");
+  let dons = Array.from({length:42}, (_, i) => ({
+    id:"s"+i, createdAtMs:i,
+    name: i % 11 === 5 ? "익명" : sur[i % sur.length] + "*" + last[(i*7) % last.length],
+    amount: [100000,200000,300000,500000,1000000,50000][(i*5) % 6]
+  }));
+  const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); };
+  return {
+    watchMenus: cb => { L.m.push(cb); cb({...menus}); },
+    watchDonations: cb => { L.d.push(cb); cb([...dons]); },
+    watchSettings: cb => cb(null),
+    saveMenu: async (id, b) => { menus[id] = b; emit(); },
+    addDonation: async (n, a) => { dons.push({id:"d"+Date.now(), name:n, amount:a, createdAtMs:Date.now()}); emit(); },
+    removeDonation: async id => { dons = dons.filter(d => d.id !== id); emit(); },
+    saveSettings: async () => {},
+    login: async () => L.a.forEach(f => f(true)),
+    logout: async () => L.a.forEach(f => f(false)),
+    onAuth: cb => { L.a.push(cb); cb(false); }
+  };
+}
+
+/* ═════════ 5. 화면 그리기 ═════════ */
+const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null};
+
+function renderMenus(){
+  $("#menuGrid").innerHTML = MENUS.map(m => {
+    const has = (state.menus[m.id] || "").trim();
+    return `<button class="tile" data-id="${m.id}">
+      <span class="tile-title">${esc(m.title)}</span>
+      <span class="tile-status ${has ? "ready" : ""}">${has ? "안내 보기" : "준비중"}</span>
+    </button>`;
+  }).join("");
+}
+function renderMenuContent(){
+  if(!state.openId) return;
+  const body = (state.menus[state.openId] || "").trim();
+  $("#menuContent").innerHTML = body
+    ? `<div class="content">${linkify(body)}</div>`
+    : `<p class="empty">준비 중입니다.<br>내용이 정해지면 이곳에 안내합니다.</p>`;
+}
+function openMenu(id){
+  const m = MENUS.find(x => x.id === id); if(!m) return;
+  state.openId = id;
+  $("#menuDlgTitle").textContent = m.title;
+  $("#menuEditor").value = state.menus[id] || "";
+  renderMenuContent();
+  $("#menuDialog").showModal();
+}
+function renderDonations(){
+  const list = state.donations.map((d, i) => ({...d, no: i + 1}));
+  const total = list.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  $("#sumTotal").textContent = won(total);
+  $("#sumCount").textContent = list.length.toLocaleString("ko-KR") + "명";
+
+  if(!list.length){
+    $("#boardBody").innerHTML = `<p class="board-empty">아직 등록된 기부 내역이 없습니다.</p>`;
+    $("#pager").hidden = true; state.pages = 1; return;
+  }
+  const rows = state.sort === "amt" ? [...list].sort((a, b) => b.amount - a.amount || a.no - b.no) : list;
+  state.pages = Math.ceil(rows.length / PAGE_SIZE);
+  if(state.page >= state.pages) state.page = 0;
+  const slice = rows.slice(state.page * PAGE_SIZE, (state.page + 1) * PAGE_SIZE);
+
+  let cells = slice.map(d => `<div class="cell">
+      <span class="no">${d.no}</span>
+      <span class="nm">${esc(d.name)}</span>
+      <span class="am">${won(d.amount)}</span>
+      <button class="x admin-only" data-del="${d.id}" aria-label="${esc(d.name)} 기부 내역 삭제">×</button>
+    </div>`).join("");
+  for(let i = slice.length; i < PAGE_SIZE; i++) cells += `<div class="cell blank" aria-hidden="true"></div>`;
+  $("#boardBody").innerHTML = `<div class="board-grid">${cells}</div>`;
+
+  $("#pager").hidden = state.pages <= 1;
+  $("#pageInfo").textContent = `${state.page + 1} / ${state.pages}`;
+}
+function buildPicks(){
+  $("#themePicks").insertAdjacentHTML("beforeend", THEMES.map(t =>
+    `<button class="pick" data-theme="${t.id}" aria-pressed="false"><span class="dot" style="background:linear-gradient(135deg,${t.c[0]} 50%,${t.c[1]} 50%)"></span>${t.name}</button>`).join(""));
+  $("#fontPicks").insertAdjacentHTML("beforeend", FONTS.map(f =>
+    `<button class="pick" data-font="${f.id}" aria-pressed="false" style="font-family:${f.head}">${f.name}</button>`).join(""));
+}
+function applyStyle(theme, font){
+  theme = validTheme(theme); font = validFont(font);
+  document.body.dataset.theme = theme;
+  document.body.dataset.font = font;
+  document.querySelectorAll("#themePicks .pick").forEach(b => b.setAttribute("aria-pressed", b.dataset.theme === theme));
+  document.querySelectorAll("#fontPicks .pick").forEach(b => b.setAttribute("aria-pressed", b.dataset.font === font));
+}
+function setAdmin(on){
+  state.isAdmin = on;
+  document.body.classList.toggle("is-admin", on);
+  $("#adminFab").textContent = on ? "관리자 모드 끄기" : "관리자";
+}
+
+/* ═════════ 6. 시작 ═════════ */
+buildPicks();
+const local = loadLocal();
+applyStyle(local?.theme, local?.font);
+renderMenus(); renderDonations();
+$("#adminEmail").value = ADMIN_EMAIL;
+if(DEMO) $("#demoBanner").hidden = false;
+
+let api;
+try{ api = DEMO ? demoApi() : await firebaseApi(); }
+catch(e){ toast("Firebase를 불러오지 못해 미리보기 모드로 실행합니다"); api = demoApi(); $("#demoBanner").hidden = false; }
+
+api.watchMenus(o => { state.menus = o; renderMenus(); renderMenuContent(); });
+api.watchDonations(d => { state.donations = d; renderDonations(); });
+api.watchSettings(s => {
+  state.defaults = s;
+  if(!loadLocal() && s?.theme) applyStyle(s.theme, s.font);
+});
+api.onAuth(setAdmin);
+
+/* 30명이 넘으면 전광판처럼 자동으로 다음 화면 */
+setInterval(() => {
+  if(state.pages > 1 && !state.paused){ state.page = (state.page + 1) % state.pages; renderDonations(); }
+}, ROTATE_MS);
+const board = $("#board");
+board.addEventListener("mouseenter", () => state.paused = true);
+board.addEventListener("mouseleave", () => state.paused = false);
+board.addEventListener("focusin",  () => state.paused = true);
+board.addEventListener("focusout", () => state.paused = false);
+
+/* ═════════ 7. 이벤트 ═════════ */
+$("#menuGrid").addEventListener("click", e => { const b = e.target.closest(".tile"); if(b) openMenu(b.dataset.id); });
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => b.closest("dialog").close()));
+$("#menuDialog").addEventListener("close", () => { state.openId = null; });
+
+$("#menuSave").addEventListener("click", async () => {
+  try{ await api.saveMenu(state.openId, $("#menuEditor").value); toast("저장했습니다"); }
+  catch(e){ toast("저장하지 못했습니다 (" + (e.code || e.message) + ")"); }
+});
+$("#menuClear").addEventListener("click", async () => {
+  if(!confirm("이 메뉴의 내용을 지우고 '준비중'으로 되돌릴까요?")) return;
+  try{ await api.saveMenu(state.openId, ""); $("#menuEditor").value = ""; toast("준비중으로 되돌렸습니다"); }
+  catch(e){ toast("되돌리지 못했습니다 (" + (e.code || e.message) + ")"); }
+});
+
+document.querySelector(".sortbar").addEventListener("click", e => {
+  const b = e.target.closest("[data-sort]"); if(!b) return;
+  state.sort = b.dataset.sort; state.page = 0;
+  document.querySelectorAll(".sortbar .pick").forEach(x => x.setAttribute("aria-pressed", x === b));
+  renderDonations();
+});
+$("#prevPage").addEventListener("click", () => { state.page = (state.page - 1 + state.pages) % state.pages; renderDonations(); });
+$("#nextPage").addEventListener("click", () => { state.page = (state.page + 1) % state.pages; renderDonations(); });
+
+$("#boardBody").addEventListener("click", async e => {
+  const b = e.target.closest("[data-del]"); if(!b) return;
+  if(!confirm("이 기부 내역을 삭제할까요?")) return;
+  try{ await api.removeDonation(b.dataset.del); toast("삭제했습니다"); }
+  catch(err){ toast("삭제하지 못했습니다 (" + (err.code || err.message) + ")"); }
+});
+$("#donateForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const name = maskName($("#dName").value);
+  const amount = Math.round(Number($("#dAmount").value));
+  if(!(amount > 0)){ toast("금액을 1원 이상으로 입력하세요"); return; }
+  try{ await api.addDonation(name, amount); e.target.reset(); toast(`${name} ${won(amount)} 추가했습니다`); }
+  catch(err){ toast("추가하지 못했습니다 (" + (err.code || err.message) + ")"); }
+});
+
+$("#adminFab").addEventListener("click", async () => {
+  if(state.isAdmin){ if(confirm("관리자 모드를 끌까요?")) { await api.logout(); toast("관리자 모드를 껐습니다"); } return; }
+  $("#loginErr").textContent = ""; $("#adminPw").value = "";
+  $("#loginDialog").showModal(); $("#adminPw").focus();
+});
+$("#loginForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  try{ await api.login($("#adminPw").value); $("#loginDialog").close(); toast("관리자 모드를 켰습니다"); }
+  catch(err){
+    const c = err.code || "";
+    $("#loginErr").textContent =
+      c.includes("invalid-credential") || c.includes("wrong-password") ? "비밀번호가 맞지 않습니다." :
+      c.includes("too-many-requests") ? "시도가 너무 많습니다. 잠시 후 다시 해 보세요." :
+      "로그인하지 못했습니다 (" + (c || err.message) + ")";
+  }
+});
+
+$("#themePicks").addEventListener("click", e => {
+  const b = e.target.closest("[data-theme]"); if(!b) return;
+  applyStyle(b.dataset.theme, document.body.dataset.font);
+  saveLocal({theme:b.dataset.theme, font:document.body.dataset.font});
+});
+$("#fontPicks").addEventListener("click", e => {
+  const b = e.target.closest("[data-font]"); if(!b) return;
+  applyStyle(document.body.dataset.theme, b.dataset.font);
+  saveLocal({theme:document.body.dataset.theme, font:b.dataset.font});
+});
+$("#saveDefault").addEventListener("click", async () => {
+  try{
+    await api.saveSettings({theme:document.body.dataset.theme, font:document.body.dataset.font});
+    toast("모든 방문자의 기본 디자인으로 저장했습니다");
+  }catch(e){ toast("저장하지 못했습니다 (" + (e.code || e.message) + ")"); }
+});
+</script>
+</body>
+</html>
