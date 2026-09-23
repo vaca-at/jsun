@@ -169,26 +169,6 @@ body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-4px)}
 }
 
 /* ───────── 기부금 전광판 (한 화면 30명) ───────── */
-.summary{display:flex;flex-wrap:wrap;gap:36px;margin:0 0 20px}
-.summary b{display:block;font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.2;color:var(--accent);font-variant-numeric:tabular-nums}
-.summary span{color:var(--muted);font-size:.9rem}
-.board{background:var(--board-bg);color:var(--board-ink);border-radius:var(--radius);padding:14px}
-.board-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
-.sortbar,.pager{display:flex;align-items:center;gap:6px}
-.board .pick{background:transparent;color:var(--board-ink);border-color:var(--board-line)}
-.board .pick[aria-pressed="true"]{background:var(--board-amt);color:var(--board-bg);border-color:var(--board-amt)}
-.pager span{font-size:.85rem;opacity:.8;font-variant-numeric:tabular-nums;min-width:4.5em;text-align:center}
-.board-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
-@media (max-width:900px){.board-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media (max-width:560px){.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.cell{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--board-line);border-radius:var(--radius-sm);min-height:52px}
-.cell .no{grid-row:1/4;font-size:.75rem;opacity:.55;min-width:1.9em;font-variant-numeric:tabular-nums}
-.cell .nm{font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cell .memo{font-size:.72rem;line-height:1.25;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cell .am{color:var(--board-amt);font-size:.9rem;line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap}
-.cell.blank{border-style:dashed;opacity:.28}
-.cell .x{position:absolute;top:2px;right:2px;cursor:pointer;border:none;background:rgba(255,255,255,.15);color:var(--board-ink);width:20px;height:20px;border-radius:50%;font-size:.75rem;line-height:1}
-.board-empty{text-align:center;padding:40px 0;opacity:.7}
 
 .admin-only{display:none!important}
 .is-admin .admin-only{display:revert!important}
@@ -311,19 +291,57 @@ body{--lotus:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' v
   .tl-more{padding-left:0}
 }
 
-/* ───────── 후원 계좌 ───────── */
-.account{position:relative;overflow:hidden;display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px;margin:0 0 22px;padding:18px 20px 18px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
-.account::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--foil)}
-.acc-ic{flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
+/* ───────── 기부금 현황 (후원 계좌 · 합계 · 감사의 벽) ───────── */
+.account{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px 26px;margin:0 0 26px;padding:26px 30px;background:linear-gradient(135deg,var(--tile-bg),color-mix(in srgb,var(--gold) 7%,var(--tile-bg)));border:1px solid color-mix(in srgb,var(--gold) 38%,var(--line));border-radius:var(--radius);box-shadow:0 20px 40px -34px rgba(0,0,0,.55)}
+.account::before{content:"";position:absolute;inset:6px;border:1px solid color-mix(in srgb,var(--gold) 18%,transparent);border-radius:max(0px,calc(var(--radius) - 3px));pointer-events:none}
+.acc-ic{position:relative;flex:none;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;border:1px solid color-mix(in srgb,var(--gold) 55%,transparent);color:var(--gold)}
 .acc-ic svg{width:26px;height:26px}
-.acc-body{flex:1 1 240px;display:flex;flex-direction:column;gap:2px;min-width:0}
-.acc-label{font-size:.75rem;color:var(--gold);font-weight:700;letter-spacing:.12em}
-.acc-num{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.35rem,4vw,1.8rem);line-height:1.25;font-variant-numeric:tabular-nums;letter-spacing:.02em;overflow-wrap:anywhere}
-.acc-meta{font-size:.92rem}
-.acc-meta b{font-weight:700}
+.acc-body{min-width:0;display:flex;flex-direction:column;gap:4px}
+.acc-label{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:.72rem;font-weight:700;letter-spacing:.2em;color:var(--gold)}
+.acc-org{padding:2px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);letter-spacing:.04em;font-size:.74rem;color:var(--ink);font-weight:600}
+.acc-num{font-family:var(--f-head);font-weight:700;font-size:clamp(1.6rem,4.4vw,2.35rem);line-height:1.2;letter-spacing:.05em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.acc-meta{font-size:.9rem;color:var(--muted)}
+.acc-meta b{font-weight:700;color:var(--ink)}
 .acc-note{font-size:.8rem;color:var(--muted)}
-.acc-copy{flex:none;display:inline-flex;align-items:center;gap:6px}
+.acc-copy{position:relative;flex:none;display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:999px;border:1px solid color-mix(in srgb,var(--gold) 60%,transparent);background:transparent;color:var(--gold);font-weight:700;letter-spacing:.04em;transition:background .25s,color .25s}
+.acc-copy:hover{background:var(--gold);color:var(--tile-bg)}
 .acc-copy svg{width:16px;height:16px}
+@media (max-width:640px){.account{grid-template-columns:minmax(0,1fr);justify-items:center;text-align:center;padding:24px 18px}.acc-body{align-items:center}.acc-label{justify-content:center}}
+.summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0 0 26px;border-top:1px solid color-mix(in srgb,var(--gold) 32%,transparent);border-bottom:1px solid color-mix(in srgb,var(--gold) 32%,transparent)}
+.summary>div{display:flex;flex-direction:column-reverse;align-items:center;gap:4px;padding:18px 10px;text-align:center}
+.summary>div+div{border-left:1px solid color-mix(in srgb,var(--gold) 25%,transparent)}
+.summary span{font-size:.72rem;font-weight:700;letter-spacing:.22em;color:var(--gold)}
+.summary b{font-family:var(--f-head);font-weight:700;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.15;font-variant-numeric:tabular-nums;color:var(--ink)}
+.summary>div:first-child b{color:var(--gold)}
+.board{position:relative;padding:22px 22px 20px;border-radius:var(--radius);color:var(--board-ink);background:radial-gradient(70% 120% at 100% 0%,color-mix(in srgb,var(--board-amt) 16%,transparent),transparent 60%),var(--board-bg);box-shadow:0 30px 60px -42px rgba(0,0,0,.75)}
+.board::after{content:"";position:absolute;inset:7px;border:1px solid color-mix(in srgb,var(--board-amt) 22%,transparent);border-radius:max(0px,calc(var(--radius) - 3px));pointer-events:none}
+.board-top{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin:4px 4px 16px}
+.wall-title{display:flex;flex-direction:column;line-height:1.3}
+.wall-title span{font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--board-amt)}
+.wall-title b{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.15rem;color:#fff}
+.board-ctl{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.sortbar,.pager{display:flex;align-items:center;gap:4px}
+.pager[hidden]{display:none}
+.sortbar{padding:3px;border:1px solid var(--board-line);border-radius:999px}
+.board .pick{padding:5px 14px;border:1px solid transparent;border-radius:999px;background:transparent;color:var(--board-ink);font-size:.78rem}
+.board .pick[aria-pressed="true"]{background:var(--board-amt);color:var(--board-bg);border-color:var(--board-amt);font-weight:700}
+.pager .pick{border-color:var(--board-line)}
+.pager span{min-width:4.5em;text-align:center;font-size:.8rem;opacity:.8;font-variant-numeric:tabular-nums}
+.board-grid{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+@media (max-width:900px){.board-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cell{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:center;min-height:56px;padding:8px 12px;border:1px solid color-mix(in srgb,var(--board-amt) 18%,transparent);border-radius:6px;background:color-mix(in srgb,#fff 3%,transparent);transition:border-color .25s,background .25s}
+.cell:hover{border-color:color-mix(in srgb,var(--board-amt) 50%,transparent);background:color-mix(in srgb,var(--board-amt) 7%,transparent)}
+.cell .no{grid-row:1/4;min-width:1.9em;font-size:.72rem;color:var(--board-amt);opacity:.8;font-variant-numeric:tabular-nums}
+.cell .nm{font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .memo{font-size:.72rem;line-height:1.25;opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .am{font-size:.9rem;line-height:1.3;color:var(--board-amt);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cell.blank{border-style:dashed;background:none;opacity:.25}
+.cell .x{position:absolute;top:2px;right:2px;width:20px;height:20px;border:none;border-radius:50%;background:rgba(255,255,255,.15);color:var(--board-ink);font-size:.75rem;line-height:1;cursor:pointer}
+.wall-empty{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:52px 16px 48px;text-align:center}
+.wall-empty i{width:40px;height:40px;background:var(--board-amt);-webkit-mask:var(--lotus) center/contain no-repeat;mask:var(--lotus) center/contain no-repeat;opacity:.9}
+.wall-empty b{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.15rem;color:#fff}
+.wall-empty span{font-size:.85rem;color:color-mix(in srgb,var(--board-ink) 70%,transparent)}
 
 /* ───────── 푸터 ───────── */
 footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg);color:var(--foot-ink);font-size:.86rem}
@@ -674,7 +692,6 @@ dialog.lightbox::backdrop{background:transparent}
 .scroll-y{max-height:420px;overflow:auto}
 .stats-foot{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px;font-size:.8rem;color:var(--muted)}
 .dash-empty{text-align:center;color:var(--muted);padding:48px 0}
-.acc-grid{display:grid;grid-template-columns:minmax(280px,420px) 1fr;gap:16px;align-items:start}
 .me-grid{display:grid;grid-template-columns:minmax(230px,320px) 1fr;gap:14px;align-items:start}
 @media (max-width:760px){.acc-grid,.me-grid{grid-template-columns:1fr}}
 .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;font-size:.85rem;color:var(--muted)}
@@ -852,6 +869,8 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       </div>
       <div class="board" id="board">
         <div class="board-top">
+          <div class="wall-title"><span>Wall of Thanks</span><b>마음을 보태 주신 분들</b></div>
+          <div class="board-ctl">
           <div class="sortbar" role="group" aria-label="정렬">
             <button class="pick" data-sort="reg" aria-pressed="true">등록순</button>
             <button class="pick" data-sort="amt" aria-pressed="false">금액순</button>
@@ -860,6 +879,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
             <button class="pick" id="prevPage" aria-label="이전 30명">이전</button>
             <span id="pageInfo">1 / 1</span>
             <button class="pick" id="nextPage" aria-label="다음 30명">다음</button>
+          </div>
           </div>
         </div>
         <div id="boardBody"></div>
@@ -1788,7 +1808,7 @@ function renderDonations(){
   renderDonSummary();
 
   if(!list.length){
-    $("#boardBody").innerHTML = `<p class="board-empty">아직 등록된 기부 내역이 없습니다.</p>`;
+    $("#boardBody").innerHTML = `<div class="wall-empty"><i aria-hidden="true"></i><b>첫 번째 마음을 기다리고 있습니다</b><span>후원 계좌로 보내 주신 마음은 확인 후 이곳에 새겨집니다.</span></div>`;
     $("#pager").hidden = true; state.pages = 1; return;
   }
   const rows = state.sort === "amt" ? [...list].sort((a, b) => b.amount - a.amount || a.no - b.no) : list;
@@ -1993,7 +2013,7 @@ function accountHTML(a){
   return `<div class="account">
     <span class="acc-ic" aria-hidden="true">${svgI('<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>')}</span>
     <div class="acc-body">
-      <span class="acc-label">후원 계좌${a.org ? " · " + esc(a.org) : ""}</span>
+      <span class="acc-label">후원 계좌${a.org ? `<span class="acc-org">${esc(a.org)}</span>` : ""}</span>
       <b class="acc-num">${esc(a.number)}</b>
       <span class="acc-meta">${esc(a.bank || "")}${a.holder ? `${a.bank ? " · " : ""}예금주 <b>${esc(a.holder)}</b>` : ""}</span>
       ${a.note ? `<span class="acc-note">${esc(a.note)}</span>` : ""}
