@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>진선여자고등학교 개교 50주년</title>
-<meta name="description" content="1977~2027 진선여자고등학교 개교 50주년 기념 누리집 · 기념 사업, 기부금 현황, 추억 갤러리, 축하 방명록">
+<meta name="description" content="1977 ~ 2027 진선여자고등학교 개교 50주년 기념 누리집 · 기념 사업, 기부금 현황, 추억 갤러리, 축하 방명록">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="진선여자고등학교 개교 50주년">
 <meta property="og:title" content="진선여자고등학교 개교 50주년 · 진선의 50년, 함께 기록합니다">
 <meta property="og:description" content="기념 사업 안내, 기부금 현황, 추억 갤러리, 방명록">
 <meta property="og:url" content="https://jinseon50th.com/">
-<meta property="og:image" content="https://jinseon50th.com/og-v2.png">
+<meta property="og:image" content="https://jinseon50th.com/og-v3.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
@@ -826,7 +826,10 @@ dialog.lightbox::backdrop{background:transparent}
 
 dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);padding:0;width:min(660px,calc(100% - 24px));max-height:86vh}
 dialog::backdrop{background:rgba(10,15,30,.5)}
-.dlg-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+.dlg-head{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:20px 22px 14px;border-bottom:1px solid var(--line);background:var(--surface)}
+/* 닫기 버튼: ✕ 표시 + 스크롤해도 오른쪽 위에 그대로 */
+.btn[data-close]{display:inline-flex;align-items:center;gap:6px;flex:none}
+.btn[data-close]::before{content:"";width:12px;height:12px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M1 1l10 10M11 1L1 11%27 stroke=%27black%27 stroke-width=%271.8%27 stroke-linecap=%27round%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 12 12%27%3E%3Cpath d=%27M1 1l10 10M11 1L1 11%27 stroke=%27black%27 stroke-width=%271.8%27 stroke-linecap=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
 .dlg-head h3{margin:0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.4rem;line-height:1.3}
 .dlg-body{padding:18px 22px 22px}
 .content{white-space:pre-wrap;overflow-wrap:anywhere}
@@ -924,7 +927,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     <div class="wrap hero">
       <div class="big50" aria-hidden="true">50</div>
       <div>
-        <p class="kicker">개교 50주년 기념 <span class="yr">1977 — 2027</span></p>
+        <p class="kicker">개교 50주년 기념 <span class="yr">1977 ~ 2027</span></p>
         <h1>진선의 <em>50년</em>,<br>함께 기록합니다</h1>
         <p class="lead">반세기 동안 이어 온 배움과 우정을 돌아보고, 다음 50년을 함께 준비하는 기념 사업을 소개합니다.</p>
         <div class="hero-cta">
@@ -2725,7 +2728,7 @@ $("#subAdmin").addEventListener("click", async e => {
    키가 없으면 휴대폰은 공유 창(카카오톡 선택), PC는 링크 복사로 안내한다. */
 const KAKAO_JS_KEY = "6753c93841703eb4a00a32208e3c1eca";   // 카카오 개발자 앱 1586520의 JavaScript 키 (공개용)
 const SHARE = {url:"https://jinseon50th.com/", title:"진선여자고등학교 개교 50주년",
-  text:"기념 사업 안내, 기부금 현황, 추억 갤러리, 방명록", image:"https://jinseon50th.com/og-v2.png"};
+  text:"기념 사업 안내, 기부금 현황, 추억 갤러리, 방명록", image:"https://jinseon50th.com/og-v3.png"};
 async function shareKakao(){
   if(KAKAO_JS_KEY){
     try{
