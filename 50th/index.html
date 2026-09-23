@@ -306,6 +306,48 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .policy th{background:var(--bg);white-space:nowrap}
 .policy .dim{color:var(--muted);font-size:.84rem}
 
+/* ───────── 진선을 이끈 분들 ───────── */
+.leaders{margin-top:56px;padding-top:40px;border-top:1px solid var(--line)}
+.sub-title{margin:0 0 20px;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.4rem}
+.leader-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:760px){.leader-grid{grid-template-columns:1fr}}
+.leader-col{padding:20px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.leader-col h4{display:flex;align-items:baseline;gap:8px;margin:0 0 12px;padding-bottom:10px;border-bottom:2px solid var(--gold);font-size:1rem}
+.leader-col h4 small{font-weight:400;font-size:.78rem;color:var(--muted)}
+.leader-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}
+.leader-list li{display:grid;grid-template-columns:3.2em 1fr auto;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.leader-list .n{color:var(--gold);font-weight:700;font-size:.8rem;font-variant-numeric:tabular-nums}
+.leader-list .yr{color:var(--muted);font-size:.78rem;font-variant-numeric:tabular-nums}
+.leader-list li.tbd b{font-weight:400;color:var(--muted);font-size:.84rem}
+.leader-note{margin:12px 0 0;font-size:.8rem;color:var(--muted)}
+
+/* ───────── 숫자로 보는 진선 50년 (짙은 구역) ───────── */
+.band-dark{background:radial-gradient(60% 90% at 85% 0%,color-mix(in srgb,var(--gold) 22%,transparent),transparent 70%),var(--board-bg);color:var(--board-ink)}
+.band-dark h2{color:#fff}
+.band-dark .note{color:color-mix(in srgb,var(--board-ink) 70%,transparent)}
+.num-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--board-line);border:1px solid var(--board-line);border-radius:var(--radius);overflow:hidden}
+@media (max-width:760px){.num-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.num-grid li{display:flex;flex-direction:column;gap:6px;padding:26px 24px;background:var(--board-bg)}
+.num-grid .lbl{font-size:.85rem;color:color-mix(in srgb,var(--board-ink) 72%,transparent)}
+.num-grid b{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.15;font-variant-numeric:tabular-nums;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.num-grid b small{font-size:.5em;margin-left:2px}
+.num-grid b.tbd{display:inline-flex;align-self:flex-start;align-items:center;gap:6px;padding:4px 12px;border:1px dashed color-mix(in srgb,var(--board-ink) 40%,transparent);border-radius:999px;font-family:var(--f-body);font-size:.85rem;font-weight:600;background:none;-webkit-text-fill-color:currentColor;color:color-mix(in srgb,var(--board-ink) 75%,transparent)}
+.num-grid .sub{font-size:.75rem;color:color-mix(in srgb,var(--board-ink) 55%,transparent)}
+
+/* ───────── 사진 제보 ───────── */
+.sec-head-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px}
+.sub-form{display:flex;flex-direction:column;gap:2px}
+.sub-drop{display:grid;place-items:center;min-height:170px;margin-bottom:14px;padding:14px;border:2px dashed var(--line);border-radius:var(--radius);background:var(--bg);text-align:center;color:var(--muted);font-size:.85rem;cursor:pointer;overflow:hidden}
+.sub-drop:hover{border-color:var(--accent)}
+.sub-drop b{color:var(--accent);font-size:1rem}
+.sub-drop img{max-width:100%;max-height:260px;border-radius:var(--radius-sm)}
+.sub-agree{align-items:flex-start;white-space:normal;margin:6px 0;line-height:1.5;font-size:.85rem}
+.sub-agree input{margin-top:3px;flex:none}
+.sub-help{margin:4px 0 12px;font-size:.8rem;color:var(--muted)}
+.sub-wait{margin-bottom:26px;padding:16px;border:1px solid #E0A100;border-radius:var(--radius);background:color-mix(in srgb,#E0A100 7%,var(--surface))}
+.sub-wait-title{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:1rem}
+.gala .by{font-size:.8rem;color:var(--muted)}
+
 /* ───────── 추억 갤러리 ───────── */
 .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:170px;grid-auto-flow:dense;gap:10px}
 @media (min-width:700px){.gal-grid .ph:first-child{grid-column:span 2;grid-row:span 2}}
@@ -579,6 +621,22 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <button class="btn" id="tlToggle" aria-expanded="false"></button>
         <a class="fav" href="https://jinseon.sen.hs.kr/77443/subMenu.do" target="_blank" rel="noopener">학교 홈페이지 연혁 ↗</a>
       </div>
+
+      <div class="leaders">
+        <h3 class="sub-title">진선을 이끈 분들</h3>
+        <div class="leader-grid">
+          <div class="leader-col"><h4>역대 교장</h4><ol class="leader-list" id="principals"></ol></div>
+          <div class="leader-col"><h4>역대 이사장 <small>학교법인 회당학원</small></h4><ol class="leader-list" id="chairs"></ol></div>
+        </div>
+        <p class="leader-note">학교 홈페이지 연혁에 실린 분을 먼저 모셨습니다. '확인 중'인 분은 자료를 확인하는 대로 채워 넣겠습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-dark" id="numbers" aria-labelledby="numTitle" data-track="numbers">
+    <div class="wrap">
+      <header class="sec-head"><span class="eyebrow">In Numbers</span><h2 id="numTitle">숫자로 보는 진선 50년</h2><p class="note">반세기 동안 쌓아 온 진선의 기록을 숫자로 정리하고 있습니다.</p></header>
+      <ul class="num-grid" id="numGrid"></ul>
     </div>
   </section>
 
@@ -609,7 +667,10 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 
   <section class="band band-alt" id="gallery" aria-labelledby="galTitle" data-track="gallery">
     <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">Gallery</span><h2 id="galTitle">추억 갤러리</h2><p class="note">사진으로 돌아보는 진선의 50년. 사진을 누르면 크게 볼 수 있습니다.</p></header>
+      <header class="sec-head sec-head-row">
+        <div><span class="eyebrow">Gallery</span><h2 id="galTitle">추억 갤러리</h2><p class="note">사진으로 돌아보는 진선의 50년. 사진을 누르면 크게 볼 수 있습니다.</p></div>
+        <button class="btn btn-primary btn-lg" id="subOpen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>추억 사진 제보하기</button>
+      </header>
       <div class="gal-grid" id="galGrid"></div>
     </div>
   </section>
@@ -684,7 +745,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <button class="dash-tab" role="tab" data-tab="account" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg>후원 계좌</button>
       <button class="dash-tab" role="tab" data-tab="menus" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>기념 사업</button>
       <button class="dash-tab" role="tab" data-tab="guest" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>방명록<span class="tab-badge" id="gbBadge" hidden></span></button>
-      <button class="dash-tab" role="tab" data-tab="gallery" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>갤러리</button>
+      <button class="dash-tab" role="tab" data-tab="gallery" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg>갤러리<span class="tab-badge" id="subBadge" hidden></span></button>
       <button class="dash-tab" role="tab" data-tab="settings" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>사이트 설정</button>
     </nav>
   </header>
@@ -795,6 +856,11 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
           사진 올리기<input type="file" id="galFile" accept="image/*" multiple hidden>
         </label>
       </div>
+      <div class="sub-wait" id="subWait" hidden>
+        <h3 class="sub-wait-title">제보 대기 <span class="tab-badge" id="subCount"></span></h3>
+        <div class="gala-grid" id="subAdmin"></div>
+      </div>
+      <h3 class="sub-wait-title">갤러리에 실린 사진</h3>
       <div class="gala-grid" id="galAdmin"></div>
     </section>
 
@@ -854,6 +920,26 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <button class="lb-nav lb-next" id="lbNext" aria-label="다음 사진">›</button>
 </dialog>
 
+<dialog id="submitDialog" aria-labelledby="subTitle">
+  <div class="dlg-head">
+    <h3 id="subTitle">추억 사진 제보</h3>
+    <button class="btn btn-sm" data-close>닫기</button>
+  </div>
+  <form class="dlg-body sub-form" id="subForm">
+    <label class="sub-drop">
+      <input type="file" id="subFile" accept="image/*" hidden>
+      <img id="subPrev" alt="고른 사진 미리 보기" hidden>
+      <span id="subHint"><b>사진 고르기</b><br>JPG·PNG 한 장, 자동으로 알맞은 크기로 줄여 보냅니다</span>
+    </label>
+    <label class="fld">시기<input id="subPeriod" maxlength="20" placeholder="예: 1985년 체육대회"></label>
+    <label class="fld">설명<input id="subCaption" maxlength="60" placeholder="예: 3학년 5반 친구들과 운동장에서"></label>
+    <label class="fld">보내는 분 (선택)<input id="subBy" maxlength="20" placeholder="예: 9기 김진선"></label>
+    <label class="chk sub-agree"><input type="checkbox" id="subAgree"> 제가 찍었거나 게시해도 되는 사진이며, 사진에 나온 분들의 동의를 받아 누리집 게시에 동의합니다.</label>
+    <p class="sub-help">관리자 확인 후 갤러리에 실립니다. 이름표·연락처 등 개인정보가 보이는 사진은 싣지 않습니다.</p>
+    <button class="btn btn-primary" type="submit" style="width:100%">제보하기</button>
+  </form>
+</dialog>
+
 <dialog id="policyDialog" aria-labelledby="policyTitle">
   <div class="dlg-head">
     <h3 id="policyTitle"></h3>
@@ -868,6 +954,8 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <tr><td>방문 기록</td><td>기기 종류, 운영체제, 브라우저, 화면 너비 구간, 방문 날짜·시각, 머문 시간, 열어 본 메뉴와 머문 시간, 들어온 경로(사이트 주소), 기기 구분용 임의 값<br><span class="dim">이름·연락처·IP 주소는 저장하지 않습니다.</span></td><td>누리집 방문 시 자동 수집</td></tr>
         <tr><td>기부자</td><td>성명, 기부 금액, 메모(기수 등)</td><td>기부 확인 후 관리자가 입력</td></tr>
         <tr><td>방명록</td><td>이용자가 적은 이름(또는 기수), 축하 메시지, 작성 시각</td><td>이용자가 직접 입력</td></tr>
+        <tr><td>사진 제보</td><td>사진, 시기·설명, 보내는 분 이름 또는 기수(선택), 제보 시각<br><span class="dim">사진에 나온 분의 얼굴 등이 함께 담길 수 있습니다.</span></td><td>이용자가 직접 올림</td></tr>
+        <tr><td>역대 교장·이사장</td><td>대수, 성명, 취임 연도</td><td>학교 홈페이지에 공개된 학교 연혁에서 옮겨 적음</td></tr>
         <tr><td>관리자</td><td>이메일 주소</td><td>관리자 계정 등록</td></tr>
       </table>
       <h4>2. 처리 목적</h4>
@@ -875,6 +963,8 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <li>방문 기록: 누리집 이용 통계를 내어 화면과 안내를 고치는 데 씁니다.</li>
         <li>기부자 정보: 기부금 현황 게시, 감사 인사, 기념 사업 기록 보존에 씁니다.</li>
         <li>방명록: 관리자 확인 후 누리집에 축하 메시지를 게시합니다. 적은 이름은 그대로 공개되므로 연락처 등은 적지 마세요.</li>
+        <li>사진 제보: 관리자 확인 후 추억 갤러리에 게시합니다. 게시하지 않기로 한 사진은 바로 지웁니다.</li>
+        <li>역대 교장·이사장: 학교의 역사를 기록하고 알리는 데 씁니다.</li>
       </ul>
       <h4>3. 기부자 이름의 공개 범위</h4>
       <p>기부금 현황 전광판에는 <b>김*선</b>처럼 가운데 글자를 가린 이름이나 '익명'만 보입니다. 실명은 관리자만 볼 수 있는 곳에 따로 저장합니다.</p>
@@ -883,18 +973,19 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <li>방문 기록: 수집한 날부터 1년이 지나거나 기념 사업이 끝나면 지체 없이 지웁니다.</li>
         <li>기부자 정보: 개교 50주년 기념 사업이 끝날 때까지 보관하고, 이후에는 학교 기록물 관리 규정에 따릅니다.</li>
         <li>방명록: 기념 사업이 끝날 때까지 보관하며, 작성자가 삭제를 요청하면 바로 지웁니다.</li>
+        <li>사진 제보: 게시한 사진은 기념 사업이 끝날 때까지 보관하고 학교 기록물로 넘길 수 있습니다. 게시하지 않은 사진과 게시 중단을 요청받은 사진은 바로 지웁니다.</li>
       </ul>
       <h4>5. 제3자 제공</h4>
       <p>이용자의 개인정보를 다른 곳에 제공하지 않습니다. 법령에 따라 요청받은 경우는 예외로 합니다.</p>
       <h4>6. 외부 서비스</h4>
       <ul>
-        <li>Google Firebase: 기부 내역·방문 기록 저장 (서버가 국외에 있을 수 있습니다)</li>
+        <li>Google Firebase: 기부 내역·방문 기록·방명록·사진 저장 (서버가 국외에 있을 수 있습니다)</li>
         <li>Google Fonts: 글꼴 불러오기</li>
       </ul>
       <h4>7. 브라우저 저장 공간</h4>
-      <p>고른 디자인·글꼴과 기기 구분용 임의 값을 이용자의 브라우저에 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 함께 지워집니다.</p>
+      <p>고른 디자인·글꼴, 기기 구분용 임의 값, 방명록·사진 제보를 마지막으로 보낸 시각(연속 작성 방지용)을 이용자의 브라우저에 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 함께 지워집니다.</p>
       <h4>8. 열람·정정·삭제 요청</h4>
-      <p>본인의 기부 내역 표시를 고치거나 지우고 싶으면 아래 문의처로 알려 주세요. 확인 후 바로 처리합니다.</p>
+      <p>본인의 기부 내역·방명록 글·제보 사진, 또는 사진에 나온 본인 모습을 고치거나 내리고 싶으면 아래 문의처로 알려 주세요. 확인 후 바로 처리합니다.</p>
       <h4>9. 개인정보 보호 문의</h4>
       <p>진선여자고등학교 개교 50주년 누리집 관리자 · <a class="contact-mail"></a></p>
       <p class="dim">시행일: 2026년 9월 23일</p>
@@ -906,6 +997,8 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <ul>
         <li>개교 50주년 기념 사업 안내</li>
         <li>기부금 현황과 후원 계좌 안내</li>
+        <li>학교 연혁과 역대 교장·이사장, 숫자로 보는 학교 기록</li>
+        <li>추억 갤러리와 사진 제보, 축하 방명록</li>
       </ul>
       <h4>제3조 (기부금)</h4>
       <ul>
@@ -924,6 +1017,9 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <ul>
         <li>방명록 글은 관리자가 확인한 뒤 게시합니다. 비방·광고·개인정보가 담긴 글은 게시하지 않거나 지울 수 있습니다.</li>
         <li>갤러리 사진에 본인이 나와 내리기를 원하면 문의처로 알려 주세요. 확인 후 바로 내립니다.</li>
+        <li>사진을 제보하는 분은 본인이 찍었거나 게시해도 되는 사진만 보내야 하며, 사진에 나온 분들의 동의를 받아야 합니다. 이를 어겨 생기는 문제의 책임은 제보한 분에게 있습니다.</li>
+        <li>제보한 사진은 누리집과 학교의 개교 50주년 기념 자료(책자·전시 등)에 비영리로 쓸 수 있으며, 제보한 분이 요청하면 바로 내립니다.</li>
+        <li>관리자는 게시에 알맞지 않은 사진(개인정보 노출, 저작권 침해 우려 등)을 싣지 않을 수 있습니다.</li>
       </ul>
       <h4>제7조 (저작권)</h4>
       <p>누리집에 실린 글과 자료의 저작권은 진선여자고등학교에 있습니다.</p>
@@ -1017,6 +1113,15 @@ const HISTORY = [
   ["2023.03.02", "제47회 입학식 (11학급 338명)", 1]
 ];
 const OPEN_DAY = new Date(2027, 2, 5);   // 개교 50주년 (2027.03.05)
+/* 숫자로 보는 진선 50년: value 를 채우면 숫자가 올라가며 보이고, null 이면 '준비중' */
+const NUMBERS = [
+  {label:"누적 졸업생",   unit:"명",   value:null},
+  {label:"누적 입학생",   unit:"명",   value:null},
+  {label:"졸업 회차",     unit:"회",   value:null},
+  {label:"역대 교직원",   unit:"명",   value:null},
+  {label:"현재 재학생",   unit:"명",   value:null},
+  {label:"현재 학급",     unit:"학급", value:null}
+];
 const THEMES = [
   {id:"navy",  name:"네이비와 골드",  c:["#1F3A6B","#B8923A"]},
   {id:"lotus", name:"연화",          c:["#B0245A","#4E8A5E"]},
@@ -1186,6 +1291,23 @@ async function firebaseApi(){
     },
     setPhoto: (id, o) => fs.updateDoc(ref("gallery", id), o),
     removePhoto: async id => { const b = fs.writeBatch(db); b.delete(ref("gallery", id)); b.delete(ref("gallery_full", id)); await b.commit(); },
+    /* 사진 제보: 방문자가 올리고, 관리자만 보고 게시·삭제 */
+    watchSubmissions: cb => fs.onSnapshot(col("submissions"), s => cb(s.docs.map(d => ({id:d.id, ...d.data()}))), e => console.warn("제보", e.code)),
+    addSubmission: async (meta, data) => {
+      const r = fs.doc(col("submissions")), b = fs.writeBatch(db);
+      b.set(r, {...meta, createdAtMs: Date.now()}); b.set(ref("submissions_full", r.id), {data});
+      await b.commit();
+    },
+    approveSubmission: async (s, edit) => {
+      const f = await fs.getDoc(ref("submissions_full", s.id));
+      const data = f.exists() ? f.data().data : s.thumb;
+      const r = fs.doc(col("gallery")), b = fs.writeBatch(db);
+      b.set(r, {thumb: s.thumb, caption: edit.caption, period: edit.period, by: s.by || "", createdAtMs: Date.now()});
+      b.set(ref("gallery_full", r.id), {data});
+      b.delete(ref("submissions", s.id)); b.delete(ref("submissions_full", s.id));
+      await b.commit();
+    },
+    rejectSubmission: async id => { const b = fs.writeBatch(db); b.delete(ref("submissions", id)); b.delete(ref("submissions_full", id)); await b.commit(); },
     saveMenu: (id, body) => fs.setDoc(ref("menus", id), {body, updatedAt: fs.serverTimestamp()}),
     watchPrivate: cb => fs.onSnapshot(col("donors_private"), s => { const o={}; s.forEach(d => o[d.id] = d.data().realName || ""); cb(o); }, fail),
     saveDonation: async (id, pub, realName) => {
@@ -1241,9 +1363,9 @@ function demoApi(){
   let priv = {};
   let settings = {account: {...DEFAULT_ACCOUNT}};
   let visits = [];   // 미리보기 모드에서는 방문 기록을 남기지 않는다
-  const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); L.p.forEach(f => f({...priv})); L.s.forEach(f => f({...settings})); L.g.forEach(f => f()); L.ph.forEach(f => f([...photos])); };
-  let guests = [], photos = [], full = {};
-  L.p = []; L.s = []; L.g = []; L.ph = [];
+  const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); L.p.forEach(f => f({...priv})); L.s.forEach(f => f({...settings})); L.g.forEach(f => f()); L.ph.forEach(f => f([...photos])); L.sb.forEach(f => f()); };
+  let guests = [], photos = [], full = {}, subs = [], subFull = {};
+  L.p = []; L.s = []; L.g = []; L.ph = []; L.sb = [];
   return {
     watchMenus: cb => { L.m.push(cb); cb({...menus}); },
     watchDonations: cb => { L.d.push(cb); cb([...dons]); },
@@ -1257,6 +1379,13 @@ function demoApi(){
     addPhoto: async (meta, data) => { const id = "p" + Date.now() + Math.random(); photos.push({id, ...meta, createdAtMs: Date.now()}); full[id] = data; emit(); },
     setPhoto: async (id, o) => { photos = photos.map(p => p.id === id ? {...p, ...o} : p); emit(); },
     removePhoto: async id => { photos = photos.filter(p => p.id !== id); delete full[id]; emit(); },
+    watchSubmissions: cb => { const f = () => cb([...subs]); L.sb.push(f); f(); return () => { L.sb = L.sb.filter(x => x !== f); }; },
+    addSubmission: async (meta, data) => { const id = "s" + Date.now(); subs.push({id, ...meta, createdAtMs: Date.now()}); subFull[id] = data; emit(); },
+    approveSubmission: async (s, edit) => {
+      const id = "p" + Date.now(); photos.push({id, thumb: s.thumb, caption: edit.caption, period: edit.period, by: s.by || "", createdAtMs: Date.now()});
+      full[id] = subFull[s.id] || s.thumb; subs = subs.filter(x => x.id !== s.id); delete subFull[s.id]; emit();
+    },
+    rejectSubmission: async id => { subs = subs.filter(x => x.id !== id); delete subFull[id]; emit(); },
     saveVisit: async () => {},
     deleteVisit: async () => {},
     listVisits: async sinceMs => visits.filter(v => !sinceMs || v.startMs >= sinceMs),
@@ -1282,7 +1411,7 @@ function demoApi(){
 const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null,
   priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:"", sel:new Set(),
   view:"site", tab:"stats", period:"7", visits:[], account:null, meId:null, meDirty:false,
-  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:false};
+  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:false, subs:[], unsubSub:null};
 
 function renderMenus(){
   $("#menuGrid").innerHTML = MENUS.map((m, i) => {
@@ -1369,7 +1498,7 @@ function setAdmin(on){
   }
   document.body.classList.toggle("is-admin", on);
   $("#adminFab").textContent = on ? "관리자 대시보드" : "관리자";
-  if(on !== was && api) watchGuests();
+  if(on !== was && api){ watchGuests(); watchSubs(on); }
   renderGuestAdmin();
   if(on){ track.stop(); if(!was) showDash(true); }
   else showDash(false);
@@ -1378,7 +1507,7 @@ function setAdmin(on){
 /* ═════════ 5-1. 관리자 대시보드 ═════════ */
 const SHORT = {"overseas":"교직원 해외연수","history-hall":"역사 홀","book":"50년사 책","anniversary":"개교기념일",
   "festival":"연화제","alumni-night":"진선인의 밤","souvenir":"기념품","video-contest":"홍보 영상 대회"};
-const SEC_NAMES = {top:"첫 화면", menus:"기념 사업 목록", donate:"기부금 현황", history:"50년 발자취", gallery:"추억 갤러리", guest:"축하 방명록"};
+const SEC_NAMES = {top:"첫 화면", menus:"기념 사업 목록", donate:"기부금 현황", history:"50년 발자취", numbers:"숫자로 보는 진선", gallery:"추억 갤러리", guest:"축하 방명록"};
 const svgI = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const fmtDur = s => {
   s = Math.round(s || 0);
@@ -1411,7 +1540,7 @@ function openTab(t){
   if(t === "menus") renderMenuEditor();
   if(t === "settings") fillSettings();
   if(t === "guest") renderGuestAdmin();
-  if(t === "gallery") renderGalleryAdmin();
+  if(t === "gallery"){ renderGalleryAdmin(); renderSubAdmin(); }
 }
 
 /* ─── 접속 현황 ─── */
@@ -1609,10 +1738,69 @@ function initHomepage(){
   document.addEventListener("click", e => { if(!panel.hidden && !e.target.closest(".gnb-tools")) setOpen(false); });
   document.addEventListener("keydown", e => { if(e.key === "Escape" && !panel.hidden){ setOpen(false); btn.focus(); } });
   /* 구역이 화면에 들어오면 부드럽게 나타나기 */
-  const items = document.querySelectorAll(".sec-head, .menu-grid, .tl, #accountSlot, .summary, .board, .gal-grid, .gb-form, .gb-list");
+  const items = document.querySelectorAll(".sec-head, .menu-grid, .tl, .leaders, .num-grid, #accountSlot, .summary, .board, .gal-grid, .gb-form, .gb-list");
   if(!("IntersectionObserver" in window)) return;
   const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {rootMargin: "0px 0px -8% 0px"});
   items.forEach(el => { el.classList.add("reveal"); io.observe(el); });
+}
+
+/* ═════════ 5-1c. 진선을 이끈 분들 · 숫자로 보는 진선 ═════════ */
+function leadersFrom(role){
+  const list = [];
+  HISTORY.forEach(([d, t]) => {
+    const m = t.match(/^(?:초대|제(\d+)대) (?:회당학원 )?(\S+) (교장|이사장) 취임/);
+    if(m && m[3] === role) list.push({n: m[1] ? Number(m[1]) : 1, name: m[2], y: d.slice(0, 4)});
+  });
+  if(!list.length) return list;
+  const by = new Map(list.map(x => [x.n, x]));
+  const out = [];
+  for(let n = Math.min(...by.keys()); n <= Math.max(...by.keys()); n++) out.push(by.get(n) || {n, name: null});
+  return out;
+}
+function renderLeaders(){
+  const li = x => x.name
+    ? `<li><span class="n">${x.n === 1 && x.y === "1977" ? "초대" : x.n + "대"}</span><b>${esc(x.name)}</b><span class="yr">${x.y}</span></li>`
+    : `<li class="tbd"><span class="n">${x.n}대</span><b>확인 중</b><span class="yr"></span></li>`;
+  $("#principals").innerHTML = leadersFrom("교장").map(li).join("");
+  $("#chairs").innerHTML = leadersFrom("이사장").map(li).join("");
+}
+function renderNumbers(){
+  $("#numGrid").innerHTML = NUMBERS.map(x => `<li><span class="lbl">${esc(x.label)}</span>${
+    x.value == null ? `<b class="tbd">준비중</b><span class="sub">학교 자료를 모으고 있습니다</span>`
+                    : `<b data-count="${x.value}">0<small>${esc(x.unit)}</small></b>`}</li>`).join("");
+  const nums = document.querySelectorAll("#numGrid [data-count]");
+  if(!nums.length) return;
+  const run = el => {
+    const to = Number(el.dataset.count), t0 = performance.now(), unit = el.querySelector("small").outerHTML;
+    const step = t => { const p = Math.min(1, (t - t0) / 1400); el.innerHTML = Math.round(to * (1 - Math.pow(1 - p, 3))).toLocaleString("ko-KR") + unit; if(p < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+  if(!("IntersectionObserver" in window)){ nums.forEach(run); return; }
+  const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ run(e.target); io.unobserve(e.target); } }));
+  nums.forEach(el => io.observe(el));
+}
+
+/* ═════════ 5-2b. 사진 제보 ═════════ */
+function watchSubs(on){
+  if(typeof state.unsubSub === "function") state.unsubSub();
+  state.unsubSub = null; state.subs = [];
+  if(on) state.unsubSub = api.watchSubmissions(list => { state.subs = list; renderSubAdmin(); });
+  renderSubAdmin();
+}
+function renderSubAdmin(){
+  const n = state.subs.length;
+  $("#subBadge").hidden = !state.isAdmin || !n;
+  $("#subBadge").textContent = n;
+  $("#subWait").hidden = !n;
+  $("#subCount").textContent = n;
+  if(state.view !== "dash" || state.tab !== "gallery") return;
+  $("#subAdmin").innerHTML = [...state.subs].sort((a, b) => a.createdAtMs - b.createdAtMs).map(s => `<div class="gala" data-id="${s.id}">
+      <img src="${s.thumb}" alt="">
+      <span class="by">${esc(s.by || "보낸 분 미기재")} · ${fmtTime(s.createdAtMs)}</span>
+      <input data-g="period" value="${esc(s.period || "")}" maxlength="20" placeholder="시기" aria-label="시기">
+      <input data-g="caption" value="${esc(s.caption || "")}" maxlength="60" placeholder="설명" aria-label="설명">
+      <div class="gala-acts"><button class="btn btn-sm btn-primary" data-sa="ok">갤러리에 게시</button><button class="btn btn-sm" data-sa="no">싣지 않기</button></div>
+    </div>`).join("");
 }
 
 /* ═════════ 5-2. 축하 방명록 ═════════ */
@@ -1654,14 +1842,14 @@ function renderGallery(){
       <img src="${p.thumb}" alt="${esc(p.caption || "")}" loading="lazy">
       ${p.caption || p.period ? `<figcaption>${p.period ? `<b>${esc(p.period)}</b>` : ""}${esc(p.caption || "")}</figcaption>` : ""}
     </button>`).join("") : `<div class="gal-empty">${svgI('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>')}
-      <b>사진을 모으고 있습니다</b><span>소장하신 옛 교정·졸업·행사 사진이 있다면 <a class="contact-mail" href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>로 보내 주세요.</span></div>`;
+      <b>사진을 모으고 있습니다</b><span>소장하신 옛 교정·졸업·행사 사진이 있다면 위의 '추억 사진 제보하기'로 보내 주세요.</span></div>`;
 }
 async function openPhoto(i){
   const list = sortedPhotos(); if(!list.length) return;
   state.lbIndex = (i + list.length) % list.length;
   const p = list[state.lbIndex];
   $("#lbImg").src = p.thumb; $("#lbImg").alt = p.caption || "";
-  $("#lbCap").innerHTML = `${p.period ? `<b>${esc(p.period)}</b>` : ""}${esc(p.caption || "")}`;
+  $("#lbCap").innerHTML = `${p.period ? `<b>${esc(p.period)}</b>` : ""}${esc(p.caption || "")}${p.by ? ` <span style="opacity:.7">· 제보 ${esc(p.by)}</span>` : ""}`;
   $("#lbPrev").hidden = $("#lbNext").hidden = list.length < 2;
   if(!$("#photoDialog").open) $("#photoDialog").showModal();
   let big = state.photoCache.get(p.id);
@@ -1809,7 +1997,7 @@ async function exportExcel(){
 buildPicks();
 const local = loadLocal();
 applyStyle(local?.theme, local?.font);
-renderMenus(); renderDonations(); renderTimeline(); renderDday(); initHomepage();
+renderMenus(); renderDonations(); renderTimeline(); renderLeaders(); renderNumbers(); renderDday(); initHomepage();
 $("#adminEmail").value = ADMIN_EMAIL;
 document.querySelectorAll(".contact-mail").forEach(a => { a.href = "mailto:" + CONTACT_EMAIL; a.textContent = CONTACT_EMAIL; });
 if(DEMO) $("#demoBanner").hidden = false;
@@ -1923,6 +2111,48 @@ $("#galAdmin").addEventListener("click", async e => {
     }
     if(b.dataset.ga === "del"){ if(!confirm("이 사진을 삭제할까요?")) return; await api.removePhoto(id); state.photoCache.delete(id); toast("삭제했습니다"); }
   }catch(err){ toast("처리하지 못했습니다 (" + (err.code || err.message) + ")"); }
+});
+
+/* 사진 제보 */
+let subPicked = null;
+$("#subOpen").addEventListener("click", () => { $("#submitDialog").showModal(); });
+$("#subFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if(!f) return;
+  subPicked = f;
+  const url = URL.createObjectURL(f);
+  $("#subPrev").onload = () => URL.revokeObjectURL(url);
+  $("#subPrev").src = url; $("#subPrev").hidden = false; $("#subHint").hidden = true;
+});
+$("#subForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  if(!subPicked){ toast("먼저 사진을 골라 주세요"); return; }
+  if(!$("#subAgree").checked){ toast("게시 동의에 체크해 주세요"); return; }
+  const last = Number(lsGet("jinsun50-sub-last")) || 0;
+  if(Date.now() - last < 120000){ toast("잠시 후 다시 보내 주세요 (2분에 한 장)"); return; }
+  const btn = e.target.querySelector('[type="submit"]'); btn.disabled = true; btn.textContent = "보내는 중…";
+  try{
+    const [thumb, full] = await Promise.all([shrinkImage(subPicked, 560, .72, 150000), shrinkImage(subPicked, 1800, .85, 880000)]);
+    await api.addSubmission({thumb, caption: $("#subCaption").value.trim().slice(0, 60), period: $("#subPeriod").value.trim().slice(0, 20), by: $("#subBy").value.trim().slice(0, 20)}, full);
+    lsSet("jinsun50-sub-last", String(Date.now()));
+    e.target.reset(); subPicked = null; $("#subPrev").hidden = true; $("#subHint").hidden = false;
+    $("#submitDialog").close();
+    toast("소중한 사진 고맙습니다! 관리자 확인 후 갤러리에 실립니다");
+  }catch(err){ toast("보내지 못했습니다 (" + (err?.code || "JPG·PNG 사진인지 확인해 주세요") + ")"); }
+  finally{ btn.disabled = false; btn.textContent = "제보하기"; }
+});
+$("#subAdmin").addEventListener("click", async e => {
+  const b = e.target.closest("[data-sa]"); if(!b) return;
+  const card = b.closest("[data-id]"), s = state.subs.find(x => x.id === card.dataset.id); if(!s) return;
+  try{
+    if(b.dataset.sa === "ok"){
+      b.disabled = true;
+      await api.approveSubmission(s, {period: card.querySelector('[data-g="period"]').value.trim(), caption: card.querySelector('[data-g="caption"]').value.trim()});
+      toast("갤러리에 게시했습니다");
+    }else{
+      if(!confirm("이 제보 사진을 싣지 않고 지울까요?")) return;
+      await api.rejectSubmission(s.id); toast("제보 사진을 지웠습니다");
+    }
+  }catch(err){ b.disabled = false; toast("처리하지 못했습니다 (" + (err.code || err.message) + ")"); }
 });
 
 /* 계좌번호 복사 */
