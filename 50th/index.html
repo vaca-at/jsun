@@ -480,7 +480,10 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .lite-msgs p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lite-msgs span{font-size:.8rem;color:var(--muted)}
 .lite-msgs .lite-empty{color:var(--muted);font-size:.9rem}
-.lite-write{align-self:flex-start}
+.lite-photos,.lite-msgs{min-height:136px}
+.lite-empty-ph{height:136px!important;width:100%}
+.lite-msgs li.lite-empty{padding:0;border:none;background:none}
+.lite-foot{display:flex;justify-content:flex-start;margin-top:auto}
 
 /* ───────── 게시판형 팝업 (갤러리 · 방명록) ───────── */
 dialog.board-dlg{width:min(1320px,96vw);height:92vh;max-height:92vh;padding:0;border-radius:16px;overflow:hidden;display:none;flex-direction:column}
@@ -828,6 +831,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
           <button class="lite-more" type="button" data-open="gal">전체 보기 →</button>
         </header>
         <div class="lite-photos" id="galLite"></div>
+        <div class="lite-foot"><button class="btn btn-primary btn-sm" type="button" data-open="sub">＋ 사진 제보하기</button></div>
       </div>
       <div class="lite-card" id="guest">
         <header class="lite-head">
@@ -835,7 +839,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
           <button class="lite-more" type="button" data-open="gb">전체 보기 →</button>
         </header>
         <ul class="lite-msgs" id="gbLite"></ul>
-        <button class="btn btn-primary btn-sm lite-write" type="button" data-open="gbw">✎ 축하 글 남기기</button>
+        <div class="lite-foot"><button class="btn btn-primary btn-sm" type="button" data-open="gbw">✎ 축하 글 남기기</button></div>
       </div>
     </div>
   </section>
@@ -2107,7 +2111,7 @@ function renderGuest(){
     </figure>`).join("") : `<p class="board-empty">아직 게시된 축하가 없습니다.<br>첫 번째 축하를 남겨 주세요.</p>`;
   $("#gbMore").hidden = list.length <= state.gbShow;
   $("#gbLite").innerHTML = list.length ? list.slice(0, 2).map(g => `<li><p>${esc(g.msg)}</p><span>— ${esc(g.name)}</span></li>`).join("")
-    : `<li class="lite-empty">첫 번째 축하 글의 주인공이 되어 주세요.</li>`;
+    : `<li class="lite-empty"><button class="lite-empty-ph" type="button" data-open="gbw">${svgI('<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>')}<span>첫 번째 축하 글의 주인공이 되어 주세요</span></button></li>`;
 }
 function renderGuestAdmin(){
   const wait = state.guests.filter(g => !g.approved).length;
@@ -2142,7 +2146,7 @@ function renderGallery(){
       <b>사진을 모으고 있습니다</b><span>소장하신 옛 교정·졸업·행사 사진이 있다면 '추억 사진 제보'로 보내 주세요.</span></div>`;
   const lite = [...list].reverse().slice(0, 4);
   $("#galLite").innerHTML = lite.length ? lite.map(p => `<button class="lite-ph" data-ph="${list.indexOf(p)}" aria-label="${esc(p.caption || "사진")} 크게 보기"><img src="${p.thumb}" alt="" loading="lazy"></button>`).join("")
-    : `<button class="lite-empty-ph" type="button" data-open="gal">${icon}<span>추억 사진을 모으고 있습니다 · 제보하기</span></button>`;
+    : `<button class="lite-empty-ph" type="button" data-open="gal">${icon}<span>추억 사진을 모으고 있습니다</span></button>`;
 }
 async function openPhoto(i){
   const list = sortedPhotos(); if(!list.length) return;
@@ -2417,6 +2421,7 @@ $("#galAdmin").addEventListener("click", async e => {
 
 /* 추억 갤러리 · 축하 방명록: 거의 꽉 찬 게시판 팝업 */
 function openBoard(k){
+  if(k === "sub"){ $("#submitDialog").showModal(); return; }
   const d = k === "gal" ? $("#galDialog") : $("#gbDialog");
   if(!d.open) d.showModal();
   d.querySelector(".board-body").scrollTop = 0;
