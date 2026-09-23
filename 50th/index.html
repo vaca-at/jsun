@@ -2725,10 +2725,10 @@ async function shareKakao(){
       const link = {mobileWebUrl: SHARE.url, webUrl: SHARE.url};
       Kakao.Share.sendDefault({objectType:"feed", content:{title: SHARE.title, description: SHARE.text, imageUrl: SHARE.image, link}, buttons:[{title:"누리집 보기", link}]});
       return;
-    }catch(e){ console.warn("카카오 공유", e); }
+    }catch(e){ console.warn("카카오 공유", e); toast("카카오 공유 창을 열지 못해 다른 방법으로 공유합니다"); }
   }
   if(navigator.share && matchMedia("(pointer: coarse)").matches){
-    try{ await navigator.share({title: SHARE.title, text: SHARE.text, url: SHARE.url}); return; }
+    try{ await navigator.share({url: SHARE.url}); return; }   // 링크 하나만 보내야 카톡에서 미리보기 카드 한 개로 뜬다
     catch(e){ if(e.name === "AbortError") return; }
   }
   try{ await navigator.clipboard.writeText(SHARE.url); toast("링크를 복사했습니다. 카카오톡 대화창에 붙여 넣어 주세요"); }
