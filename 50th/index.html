@@ -357,6 +357,12 @@ body{--lotus:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' v
 .summary span{font-size:.72rem;font-weight:700;letter-spacing:.22em;color:var(--gold)}
 .summary b{font-family:var(--f-head);font-weight:700;font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.15;font-variant-numeric:tabular-nums;color:var(--ink)}
 .summary>div:first-child b{color:var(--gold)}
+.summary b{white-space:nowrap}
+@media (max-width:560px){
+  .summary{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+  .summary>div{padding:16px 8px}
+  .summary b{font-size:clamp(1.3rem,7vw,1.9rem)}
+}
 .board{position:relative;padding:22px 22px 20px;border-radius:var(--radius);color:var(--board-ink);background:radial-gradient(70% 120% at 100% 0%,color-mix(in srgb,var(--board-amt) 16%,transparent),transparent 60%),var(--board-bg);box-shadow:0 30px 60px -42px rgba(0,0,0,.75)}
 .board::after{content:"";position:absolute;inset:7px;border:1px solid color-mix(in srgb,var(--board-amt) 22%,transparent);border-radius:max(0px,calc(var(--radius) - 3px));pointer-events:none}
 .board-top{position:relative;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin:4px 4px 16px}
@@ -542,7 +548,8 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .quick .q-share .hb-ic svg{width:24px;height:21px}
 .quick .q-share:hover{background:color-mix(in srgb,#FEE500 22%,transparent)}
 @media (max-width:1300px){.quick{right:8px;width:84px}}
-@media (min-width:761px){.quick{zoom:.8}}
+.quick>*{flex-shrink:0}
+@media (min-width:761px){.quick{zoom:.8;max-height:calc((100vh - 90px) / .8)}}
 /* 휴대폰: 카카오톡 공유·링크 복사만 오른쪽 아래 알약으로 (히스토리 등은 상단 메뉴로) */
 @media (max-width:760px){
   .quick{top:auto;bottom:14px;left:auto;right:14px;transform:none;width:auto;max-height:none;flex-direction:row;gap:4px;padding:5px;border-radius:999px;box-shadow:0 12px 28px -12px rgba(0,0,0,.45)}
