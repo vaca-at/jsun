@@ -198,6 +198,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .util-links{display:flex;gap:16px}
 .util-links a{color:var(--muted);text-decoration:none}
 .util-links a:hover{color:var(--accent)}
+.util-band{display:inline-flex;align-items:center;gap:5px}
+.util-band svg{width:14px;height:14px;flex:none}
 .util-style{display:flex;align-items:center;gap:6px}
 .util-lbl{color:var(--muted);font-weight:600;margin-left:6px}
 .util .style-group{padding:2px 4px;box-shadow:none}
@@ -211,14 +213,15 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .gnb{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--surface) 84%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(12px);backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid transparent;transition:border-color .2s,box-shadow .2s}
 .gnb.scrolled{border-bottom-color:var(--line);box-shadow:0 8px 22px -14px rgba(0,0,0,.3)}
 .gnb-in{display:flex;align-items:center;gap:12px 28px;height:68px}
-.brand{display:flex;align-items:center;gap:10px;flex:none;color:var(--ink);text-decoration:none}
-.brand-mark{position:relative;flex:none;display:block;width:44px;height:38px;color:var(--gold)}
-.brand-mark b{position:absolute;left:0;right:0;top:0;text-align:center;font-family:var(--f-head);font-weight:700;font-size:17px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.brand-mark svg{position:absolute;left:0;top:16px;width:44px;height:23px}
+/* 로고: 휘장 44×44 칸과 글자 44px 칸을 고정해 위아래를 맞춘다 */
+.brand{display:flex;align-items:center;gap:6px;height:44px;flex:none;color:var(--ink);text-decoration:none}
+.brand-mark{position:relative;flex:none;display:block;width:44px;height:44px;color:var(--gold)}
+.brand-mark b{position:absolute;left:0;right:0;top:1px;text-align:center;font-family:var(--f-head);font-weight:700;font-size:19px;line-height:19px;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand-mark svg{position:absolute;left:0;bottom:0;width:44px;height:25px}
 .site-foot .brand-mark{color:color-mix(in srgb,var(--gold) 55%,#fff)}
-.brand-txt{display:flex;flex-direction:column;line-height:1.25}
-.brand-txt b{font-size:1.02rem}
-.brand-txt small{font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--gold)}
+.brand-txt{display:flex;flex-direction:column;justify-content:space-between;height:44px;line-height:1}
+.brand-txt b{display:block;font-size:1.3rem;line-height:26px;letter-spacing:-.01em}
+.brand-txt small{display:block;font-size:.72rem;line-height:15px;font-weight:700;letter-spacing:.08em;color:var(--gold)}
 .gnb-menu{display:flex;gap:2px;margin-left:auto}
 .gnb-menu a{position:relative;padding:8px 13px;color:var(--ink);text-decoration:none;font-size:.95rem;white-space:nowrap}
 .gnb-menu a::after{content:"";position:absolute;left:13px;right:13px;bottom:2px;height:2px;border-radius:2px;background:var(--gold);transform:scaleX(0);transition:transform .2s}
@@ -540,6 +543,7 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .quick .q-share:hover{background:color-mix(in srgb,#FEE500 22%,transparent)}
 @media (max-width:760px){.quick .q-share{margin-top:0;padding-top:10px;border-top:none;border-radius:10px}}
 @media (max-width:1300px){.quick{right:8px;width:84px}}
+@media (min-width:761px){.quick{zoom:.8}}
 @media (max-width:760px){.quick{top:auto;bottom:0;left:0;right:0;transform:none;width:auto;flex-direction:row;justify-content:space-around;padding:6px;border-radius:14px 14px 0 0}.q-title,.q-top{display:none}.quick .hbn{flex:1}body .admin-fab{bottom:112px}body{padding-bottom:88px}}
 /* 3안: 기념 사업 아래 가로 띠 배너 */
 .hb-band{padding:56px 0}
@@ -876,7 +880,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <nav class="util-links" aria-label="관련 사이트">
         <a href="https://jinseon.sen.hs.kr/" target="_blank" rel="noopener">진선여자고등학교 ↗</a>
         <a href="https://hoedang.uu.ac.kr/" target="_blank" rel="noopener">학교법인 회당학원 ↗</a>
-        <a href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener">총동문회 밴드 ↗</a>
+        <a class="util-band" href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#23C85A"/><path d="M8.2 5.5v12.6h4.9c2.6 0 4.4-1.6 4.4-3.9 0-1.6-.9-2.8-2.3-3.3 1-.5 1.6-1.5 1.6-2.7 0-1.9-1.5-3.2-3.9-3.2H8.2zm2.6 2.2h2c1 0 1.6.5 1.6 1.4s-.6 1.5-1.6 1.5h-2V7.7zm0 5h2.3c1.2 0 1.9.6 1.9 1.6s-.7 1.6-1.9 1.6h-2.3v-3.2z" fill="#fff"/></svg>총동문회 밴드 ↗</a>
       </nav>
       <div class="util-style" aria-label="화면 꾸미기">
         <span class="util-lbl">디자인</span>
@@ -1012,7 +1016,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <b>관련 사이트</b>
         <a class="fav" href="https://jinseon.sen.hs.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>진선여자고등학교</a>
         <a class="fav" href="https://hoedang.uu.ac.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/></svg>학교법인 회당학원</a>
-        <a class="fav" href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>총동문회 밴드 (청연)</a>
+        <a class="fav" href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#23C85A"/><path d="M8.2 5.5v12.6h4.9c2.6 0 4.4-1.6 4.4-3.9 0-1.6-.9-2.8-2.3-3.3 1-.5 1.6-1.5 1.6-2.7 0-1.9-1.5-3.2-3.9-3.2H8.2zm2.6 2.2h2c1 0 1.6.5 1.6 1.4s-.6 1.5-1.6 1.5h-2V7.7zm0 5h2.3c1.2 0 1.9.6 1.9 1.6s-.7 1.6-1.9 1.6h-2.3v-3.2z" fill="#fff"/></svg>총동문회 밴드 (청연)</a>
       </nav>
     </div>
     <div class="wrap foot-bottom">
@@ -1047,7 +1051,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <nav class="dash-links" aria-label="즐겨찾기">
         <a class="fav" href="https://jinseon.sen.hs.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>학교 홈페이지</a>
         <a class="fav" href="https://hoedang.uu.ac.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/></svg>회당학원</a>
-        <a class="fav" href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>총동문회 밴드</a>
+        <a class="fav" href="https://www.band.us/band/82268288/post" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#23C85A"/><path d="M8.2 5.5v12.6h4.9c2.6 0 4.4-1.6 4.4-3.9 0-1.6-.9-2.8-2.3-3.3 1-.5 1.6-1.5 1.6-2.7 0-1.9-1.5-3.2-3.9-3.2H8.2zm2.6 2.2h2c1 0 1.6.5 1.6 1.4s-.6 1.5-1.6 1.5h-2V7.7zm0 5h2.3c1.2 0 1.9.6 1.9 1.6s-.7 1.6-1.9 1.6h-2.3v-3.2z" fill="#fff"/></svg>총동문회 밴드</a>
       </nav>
       <div class="dash-acts">
         <button class="btn btn-sm" id="dashToSite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>사이트 보기</button>
