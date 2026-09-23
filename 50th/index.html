@@ -107,8 +107,9 @@ body[data-theme="album"] .tile:hover{transform:rotate(0) translateY(-2px)}
 @media (max-width:900px){.board-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:560px){.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .cell{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:8px;align-items:center;padding:7px 10px;border:1px solid var(--board-line);border-radius:var(--radius-sm);min-height:52px}
-.cell .no{grid-row:1/3;font-size:.75rem;opacity:.55;min-width:1.9em;font-variant-numeric:tabular-nums}
+.cell .no{grid-row:1/4;font-size:.75rem;opacity:.55;min-width:1.9em;font-variant-numeric:tabular-nums}
 .cell .nm{font-weight:700;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell .memo{font-size:.72rem;line-height:1.25;opacity:.78;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cell .am{color:var(--board-amt);font-size:.9rem;line-height:1.3;font-variant-numeric:tabular-nums;white-space:nowrap}
 .cell.blank{border-style:dashed;opacity:.28}
 .cell .x{position:absolute;top:2px;right:2px;cursor:pointer;border:none;background:rgba(255,255,255,.15);color:var(--board-ink);width:20px;height:20px;border-radius:50%;font-size:.75rem;line-height:1}
@@ -143,6 +144,28 @@ dialog::backdrop{background:rgba(10,15,30,.5)}
 .login-form input{width:100%}
 .err{color:#C62828;font-size:.85rem;min-height:1.3em;margin:8px 0 0}
 
+/* ───────── 기부금 관리 화면 ───────── */
+.mgr-open{display:flex;justify-content:flex-end;margin-top:12px}
+dialog.wide{width:min(1100px,calc(100% - 24px))}
+.mgr-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.mgr-sum{margin:0 auto 0 0;font-weight:600}
+.mgr-tools input{flex:0 1 220px}
+.mgr-add{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:12px;border:1px dashed var(--accent);border-radius:var(--radius)}
+.mgr-add input:not([type=checkbox]){flex:1 1 130px}
+.chk{display:inline-flex;align-items:center;gap:4px;font-size:.88rem;white-space:nowrap;cursor:pointer}
+.mgr-help{font-size:.8rem;color:var(--muted);margin:6px 0 14px}
+.table-wrap{overflow:auto;max-height:55vh;border:1px solid var(--line);border-radius:var(--radius-sm)}
+.mgr-table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:820px}
+.mgr-table th,.mgr-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;vertical-align:middle}
+.mgr-table th{position:sticky;top:0;z-index:1;background:var(--surface)}
+.mgr-table th button{border:none;background:none;cursor:pointer;font-weight:700;padding:0;color:var(--ink)}
+.mgr-table th[aria-sort] button{color:var(--accent)}
+.mgr-table .r{text-align:right;font-variant-numeric:tabular-nums}
+.mgr-table .dim{color:var(--muted)}
+.mgr-table td input:not([type=checkbox]){width:100%;min-width:80px;padding:5px 8px}
+.mgr-table tr.editing td{background:var(--bg)}
+.mgr-table .acts{display:flex;gap:4px}
+.mgr-table .name-edit{display:flex;gap:8px;align-items:center}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.9rem;z-index:100;opacity:0;pointer-events:none;transition:opacity .2s}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -200,14 +223,9 @@ dialog::backdrop{background:rgba(10,15,30,.5)}
       <div id="boardBody"></div>
     </div>
 
-    <form class="admin-form admin-only" id="donateForm">
-      <div class="row">
-        <input id="dName" placeholder="이름 (예: 김진선)" required maxlength="20" aria-label="이름">
-        <input id="dAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="금액 (원)" required aria-label="금액">
-        <button class="btn btn-primary" type="submit">기부 내역 추가</button>
-      </div>
-      <p>이름은 김*선처럼 가운데를 가린 형태로만 저장됩니다. '익명'이라고 입력하면 익명으로 표시됩니다.</p>
-    </form>
+    <div class="mgr-open admin-only">
+      <button class="btn btn-primary" id="openMgr">기부금 관리 화면 열기</button>
+    </div>
   </section>
 
   <footer>진선여자고등학교 개교 50주년 기념 누리집</footer>
@@ -246,6 +264,42 @@ dialog::backdrop{background:rgba(10,15,30,.5)}
     <p class="err" id="loginErr"></p>
     <button class="btn btn-primary" type="submit" style="width:100%;margin-top:6px">로그인</button>
   </form>
+</dialog>
+
+<dialog id="mgrDialog" class="wide" aria-labelledby="mgrTitle">
+  <div class="dlg-head">
+    <h3 id="mgrTitle">기부금 관리</h3>
+    <button class="btn btn-sm" data-close>닫기</button>
+  </div>
+  <div class="dlg-body">
+    <div class="mgr-tools">
+      <p class="mgr-sum" id="mgrSum"></p>
+      <input id="mgrSearch" type="search" placeholder="이름이나 메모로 찾기" aria-label="이름이나 메모로 찾기">
+      <button class="btn btn-primary" id="mgrExport">엑셀로 저장</button>
+    </div>
+    <form class="mgr-add" id="mgrAdd">
+      <input id="aReal" placeholder="이름 (예: 김진선)" maxlength="20" aria-label="이름">
+      <label class="chk"><input type="checkbox" id="aAnon"> 익명으로 표시</label>
+      <input id="aAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="금액 (원)" required aria-label="금액">
+      <input id="aMemo" placeholder="메모 (선택, 예: 11기)" maxlength="30" aria-label="메모 (선택)">
+      <button class="btn btn-primary" type="submit">추가</button>
+    </form>
+    <p class="mgr-help">전광판에는 김*선처럼 가린 이름만 보입니다. 실명은 관리자만 볼 수 있는 곳에 따로 저장되고, 엑셀 파일에는 실명과 가린 이름이 모두 들어갑니다. 제목을 누르면 정렬됩니다.</p>
+    <div class="table-wrap">
+      <table class="mgr-table">
+        <thead><tr id="mgrHead">
+          <th data-key="no"><button>번호</button></th>
+          <th data-key="date"><button>등록일</button></th>
+          <th data-key="real"><button>실명</button></th>
+          <th data-key="name"><button>전광판 표시</button></th>
+          <th data-key="amount" class="r"><button>금액</button></th>
+          <th data-key="memo"><button>메모</button></th>
+          <th>관리</th>
+        </tr></thead>
+        <tbody id="mgrBody"></tbody>
+      </table>
+    </div>
+  </div>
 </dialog>
 
 <div class="toast" id="toast" role="status"></div>
@@ -335,8 +389,20 @@ async function firebaseApi(){
     watchDonations: cb => fs.onSnapshot(fs.query(col("donations"), fs.orderBy("createdAtMs","asc")), s => cb(s.docs.map(d => ({id:d.id, ...d.data()}))), fail),
     watchSettings: cb => fs.onSnapshot(ref("settings","app"), s => cb(s.exists() ? s.data() : null), fail),
     saveMenu: (id, body) => fs.setDoc(ref("menus", id), {body, updatedAt: fs.serverTimestamp()}),
-    addDonation: (name, amount) => fs.addDoc(col("donations"), {name, amount, createdAtMs: Date.now(), createdAt: fs.serverTimestamp()}),
-    removeDonation: id => fs.deleteDoc(ref("donations", id)),
+    watchPrivate: cb => fs.onSnapshot(col("donors_private"), s => { const o={}; s.forEach(d => o[d.id] = d.data().realName || ""); cb(o); }, fail),
+    saveDonation: async (id, pub, realName) => {
+      const b = fs.writeBatch(db);
+      const r = id ? ref("donations", id) : fs.doc(col("donations"));
+      if(id) b.set(r, {...pub, updatedAt: fs.serverTimestamp()}, {merge:true});
+      else   b.set(r, {...pub, createdAtMs: Date.now(), createdAt: fs.serverTimestamp()});
+      if(realName) b.set(ref("donors_private", r.id), {realName});
+      await b.commit();
+    },
+    removeDonation: async id => {
+      const b = fs.writeBatch(db);
+      b.delete(ref("donations", id)); b.delete(ref("donors_private", id));
+      await b.commit();
+    },
     saveSettings: o => fs.setDoc(ref("settings","app"), o, {merge:true}),
     login: pw => au.signInWithEmailAndPassword(auth, ADMIN_EMAIL, pw),
     logout: () => au.signOut(auth),
@@ -349,18 +415,27 @@ function demoApi(){
   const sur = "김이박최정강조윤장임한오서신권황안송류홍".split("");
   const last = "선희준아진민서연지수현은영".split("");
   let dons = Array.from({length:42}, (_, i) => ({
-    id:"s"+i, createdAtMs:i,
+    id:"s"+i, createdAtMs: Date.now() - (42 - i) * 86400000,
     name: i % 11 === 5 ? "익명" : sur[i % sur.length] + "*" + last[(i*7) % last.length],
-    amount: [100000,200000,300000,500000,1000000,50000][(i*5) % 6]
+    amount: [100000,200000,300000,500000,1000000,50000][(i*5) % 6],
+    memo: ["", "11기", "", "3기 동문회", "", "", "00대 교장선생님", "", "25기", ""][i % 10]
   }));
-  const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); };
+  let priv = {};
+  const emit = () => { L.m.forEach(f => f({...menus})); L.d.forEach(f => f([...dons])); L.p.forEach(f => f({...priv})); };
+  L.p = [];
   return {
     watchMenus: cb => { L.m.push(cb); cb({...menus}); },
     watchDonations: cb => { L.d.push(cb); cb([...dons]); },
     watchSettings: cb => cb(null),
     saveMenu: async (id, b) => { menus[id] = b; emit(); },
-    addDonation: async (n, a) => { dons.push({id:"d"+Date.now(), name:n, amount:a, createdAtMs:Date.now()}); emit(); },
-    removeDonation: async id => { dons = dons.filter(d => d.id !== id); emit(); },
+    watchPrivate: cb => { L.p.push(cb); cb({...priv}); return () => { L.p = L.p.filter(f => f !== cb); }; },
+    saveDonation: async (id, pub, realName) => {
+      if(id) dons = dons.map(d => d.id === id ? {...d, ...pub} : d);
+      else { id = "d" + Date.now(); dons.push({id, ...pub, createdAtMs: Date.now()}); }
+      if(realName) priv[id] = realName;
+      emit();
+    },
+    removeDonation: async id => { dons = dons.filter(d => d.id !== id); delete priv[id]; emit(); },
     saveSettings: async () => {},
     login: async () => L.a.forEach(f => f(true)),
     logout: async () => L.a.forEach(f => f(false)),
@@ -369,7 +444,8 @@ function demoApi(){
 }
 
 /* ═════════ 5. 화면 그리기 ═════════ */
-const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null};
+const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null,
+  priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:""};
 
 function renderMenus(){
   $("#menuGrid").innerHTML = MENUS.map(m => {
@@ -413,6 +489,7 @@ function renderDonations(){
   let cells = slice.map(d => `<div class="cell">
       <span class="no">${d.no}</span>
       <span class="nm">${esc(d.name)}</span>
+      ${d.memo ? `<span class="memo" title="${esc(d.memo)}">${esc(d.memo)}</span>` : ""}
       <span class="am">${won(d.amount)}</span>
       <button class="x admin-only" data-del="${d.id}" aria-label="${esc(d.name)} 기부 내역 삭제">×</button>
     </div>`).join("");
@@ -437,8 +514,116 @@ function applyStyle(theme, font){
 }
 function setAdmin(on){
   state.isAdmin = on;
+  if(on && !state.unsubPriv && api){
+    state.unsubPriv = api.watchPrivate(o => { state.priv = o; renderMgr(); });
+  }
+  if(!on){
+    if(typeof state.unsubPriv === "function") state.unsubPriv();
+    state.unsubPriv = null; state.priv = {}; state.editId = null;
+    if($("#mgrDialog").open) $("#mgrDialog").close();
+  }
   document.body.classList.toggle("is-admin", on);
   $("#adminFab").textContent = on ? "관리자 모드 끄기" : "관리자";
+}
+
+/* ─── 기부금 관리 화면 ─── */
+const fmtDate = ms => { if(!ms) return ""; const d = new Date(ms); return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,"0")}.${String(d.getDate()).padStart(2,"0")}`; };
+const KEYS = {
+  no: d => d.no, date: d => d.createdAtMs || 0, real: d => state.priv[d.id] || "",
+  name: d => d.name || "", amount: d => Number(d.amount) || 0, memo: d => d.memo || ""
+};
+function mgrRows(useSearch){
+  let rows = state.donations.map((d, i) => ({...d, no: i + 1}));
+  if(useSearch && state.search){
+    const q = state.search;
+    rows = rows.filter(d => [d.name, d.memo, state.priv[d.id]].some(v => (v || "").includes(q)));
+  }
+  const f = KEYS[state.mgrKey], dir = state.mgrDir === "asc" ? 1 : -1;
+  return rows.sort((a, b) => {
+    const x = f(a), y = f(b);
+    const c = typeof x === "number" ? x - y : String(x).localeCompare(String(y), "ko");
+    return (c || a.no - b.no) * dir;
+  });
+}
+function renderMgr(){
+  if(!$("#mgrDialog").open) return;
+  const all = state.donations;
+  const total = all.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  $("#mgrSum").textContent = `모두 ${all.length}건, ${won(total)}`;
+  document.querySelectorAll("#mgrHead th[data-key]").forEach(th => {
+    const on = th.dataset.key === state.mgrKey;
+    th.toggleAttribute("aria-sort", on);
+    if(on) th.setAttribute("aria-sort", state.mgrDir === "asc" ? "ascending" : "descending");
+    th.querySelector("button").dataset.arrow = on ? (state.mgrDir === "asc" ? " ▲" : " ▼") : "";
+    const label = th.querySelector("button").textContent.replace(/ [▲▼]$/, "");
+    th.querySelector("button").textContent = label + th.querySelector("button").dataset.arrow;
+  });
+  const rows = mgrRows(true);
+  $("#mgrBody").innerHTML = rows.length ? rows.map(d => {
+    const real = state.priv[d.id] || "";
+    if(d.id === state.editId) return `<tr class="editing" data-id="${d.id}">
+      <td class="dim">${d.no}</td>
+      <td class="dim">${fmtDate(d.createdAtMs)}</td>
+      <td colspan="2"><div class="name-edit">
+        <input data-f="real" value="${esc(real)}" placeholder="${esc(d.name)} (바꿀 때만 입력)" maxlength="20" aria-label="이름">
+        <label class="chk"><input type="checkbox" data-f="anon" ${d.name === "익명" ? "checked" : ""}> 익명</label>
+      </div></td>
+      <td><input data-f="amount" type="number" min="1" step="1" value="${Number(d.amount) || ""}" aria-label="금액"></td>
+      <td><input data-f="memo" value="${esc(d.memo || "")}" maxlength="30" aria-label="메모"></td>
+      <td><div class="acts"><button class="btn btn-sm btn-primary" data-act="save">저장</button><button class="btn btn-sm" data-act="cancel">취소</button></div></td>
+    </tr>`;
+    return `<tr data-id="${d.id}">
+      <td class="dim">${d.no}</td>
+      <td class="dim">${fmtDate(d.createdAtMs)}</td>
+      <td>${real ? esc(real) : '<span class="dim">없음</span>'}</td>
+      <td>${esc(d.name)}</td>
+      <td class="r">${won(d.amount)}</td>
+      <td>${esc(d.memo || "")}</td>
+      <td><div class="acts"><button class="btn btn-sm" data-act="edit">수정</button><button class="btn btn-sm" data-act="del">삭제</button></div></td>
+    </tr>`;
+  }).join("") : `<tr><td colspan="7" class="dim" style="text-align:center;padding:28px">${state.search ? "찾는 내역이 없습니다." : "아직 등록된 기부 내역이 없습니다. 위 칸에 입력해 추가하세요."}</td></tr>`;
+}
+function publicName(real, anon, fallback){
+  if(anon) return "익명";
+  if(real) return maskName(real);
+  return fallback || "";
+}
+function loadXLSX(){
+  if(window.XLSX) return Promise.resolve(window.XLSX);
+  return new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    sc.onload = () => res(window.XLSX); sc.onerror = rej;
+    document.head.appendChild(sc);
+  });
+}
+async function exportExcel(){
+  const rows = mgrRows(false);
+  const total = rows.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  const head = ["번호","등록일","실명","전광판 표시","금액","메모"];
+  const body = rows.map(d => [d.no, fmtDate(d.createdAtMs), state.priv[d.id] || "", d.name, Number(d.amount) || 0, d.memo || ""]);
+  const t = new Date(), ymd = `${t.getFullYear()}${String(t.getMonth()+1).padStart(2,"0")}${String(t.getDate()).padStart(2,"0")}`;
+  const fname = `진선50주년_기부금_${ymd}`;
+  try{
+    const X = await loadXLSX();
+    const ws = X.utils.aoa_to_sheet([head, ...body, [], ["", "", "", "합계", total, `${rows.length}건`]]);
+    ws["!cols"] = [{wch:6},{wch:12},{wch:12},{wch:12},{wch:14},{wch:26}];
+    for(let r = 1; r <= body.length + 2; r++){
+      const c = ws[X.utils.encode_cell({r, c:4})];
+      if(c && c.t === "n") c.z = "#,##0";
+    }
+    const wb = X.utils.book_new();
+    X.utils.book_append_sheet(wb, ws, "기부금");
+    X.writeFile(wb, fname + ".xlsx");
+    toast("엑셀 파일로 저장했습니다");
+  }catch(e){
+    const csv = [head, ...body, [], ["","","","합계",total,""]]
+      .map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(",")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8"}));
+    a.download = fname + ".csv"; a.click();
+    toast("엑셀 도구를 불러오지 못해 CSV 파일로 저장했습니다 (엑셀에서 열 수 있어요)");
+  }
 }
 
 /* ═════════ 6. 시작 ═════════ */
@@ -454,7 +639,7 @@ try{ api = DEMO ? demoApi() : await firebaseApi(); }
 catch(e){ toast("Firebase를 불러오지 못해 미리보기 모드로 실행합니다"); api = demoApi(); $("#demoBanner").hidden = false; }
 
 api.watchMenus(o => { state.menus = o; renderMenus(); renderMenuContent(); });
-api.watchDonations(d => { state.donations = d; renderDonations(); });
+api.watchDonations(d => { state.donations = d; renderDonations(); renderMgr(); });
 api.watchSettings(s => {
   state.defaults = s;
   if(!loadLocal() && s?.theme) applyStyle(s.theme, s.font);
@@ -501,14 +686,54 @@ $("#boardBody").addEventListener("click", async e => {
   try{ await api.removeDonation(b.dataset.del); toast("삭제했습니다"); }
   catch(err){ toast("삭제하지 못했습니다 (" + (err.code || err.message) + ")"); }
 });
-$("#donateForm").addEventListener("submit", async e => {
+$("#openMgr").addEventListener("click", () => {
+  state.editId = null; $("#mgrDialog").showModal(); renderMgr();
+});
+$("#mgrHead").addEventListener("click", e => {
+  const th = e.target.closest("th[data-key]"); if(!th) return;
+  const k = th.dataset.key;
+  if(state.mgrKey === k) state.mgrDir = state.mgrDir === "asc" ? "desc" : "asc";
+  else { state.mgrKey = k; state.mgrDir = k === "amount" ? "desc" : "asc"; }
+  renderMgr();
+});
+$("#mgrSearch").addEventListener("input", e => { state.search = e.target.value.trim(); renderMgr(); });
+$("#mgrExport").addEventListener("click", exportExcel);
+$("#mgrAdd").addEventListener("submit", async e => {
   e.preventDefault();
-  const name = maskName($("#dName").value);
-  const amount = Math.round(Number($("#dAmount").value));
+  const real = $("#aReal").value.trim(), anon = $("#aAnon").checked;
+  const amount = Math.round(Number($("#aAmount").value));
+  const memo = $("#aMemo").value.trim().slice(0, 30);
+  if(!real && !anon){ toast("이름을 입력하거나 '익명으로 표시'를 고르세요"); return; }
   if(!(amount > 0)){ toast("금액을 1원 이상으로 입력하세요"); return; }
-  try{ await api.addDonation(name, amount); e.target.reset(); toast(`${name} ${won(amount)} 추가했습니다`); }
+  const name = publicName(real, anon);
+  try{ await api.saveDonation(null, {name, amount, memo}, real); e.target.reset(); $("#aReal").focus(); toast(`${name} ${won(amount)} 추가했습니다`); }
   catch(err){ toast("추가하지 못했습니다 (" + (err.code || err.message) + ")"); }
 });
+$("#mgrBody").addEventListener("click", async e => {
+  const b = e.target.closest("[data-act]"); if(!b) return;
+  const tr = b.closest("tr"), id = tr.dataset.id;
+  const d = state.donations.find(x => x.id === id);
+  if(b.dataset.act === "edit"){ state.editId = id; renderMgr(); $('#mgrBody tr.editing input[data-f="amount"]')?.focus(); return; }
+  if(b.dataset.act === "cancel"){ state.editId = null; renderMgr(); return; }
+  if(b.dataset.act === "del"){
+    if(!confirm(`${d?.name || ""} ${won(d?.amount)} 내역을 삭제할까요?`)) return;
+    try{ await api.removeDonation(id); toast("삭제했습니다"); }
+    catch(err){ toast("삭제하지 못했습니다 (" + (err.code || err.message) + ")"); }
+    return;
+  }
+  if(b.dataset.act === "save"){
+    const v = f => tr.querySelector(`[data-f="${f}"]`);
+    const real = v("real").value.trim(), anon = v("anon").checked;
+    const amount = Math.round(Number(v("amount").value));
+    const memo = v("memo").value.trim().slice(0, 30);
+    if(!(amount > 0)){ toast("금액을 1원 이상으로 입력하세요"); return; }
+    const name = publicName(real, anon, d.name === "익명" && !anon ? "" : d.name);
+    if(!name){ toast("익명을 해제하려면 이름을 입력하세요"); return; }
+    try{ await api.saveDonation(id, {name, amount, memo}, real); state.editId = null; renderMgr(); toast("수정했습니다"); }
+    catch(err){ toast("수정하지 못했습니다 (" + (err.code || err.message) + ")"); }
+  }
+});
+$("#mgrDialog").addEventListener("close", () => { state.editId = null; });
 
 $("#adminFab").addEventListener("click", async () => {
   if(state.isAdmin){ if(confirm("관리자 모드를 끌까요?")) { await api.logout(); toast("관리자 모드를 껐습니다"); } return; }
