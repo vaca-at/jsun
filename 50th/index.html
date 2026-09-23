@@ -781,7 +781,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     </div>
     <div class="wrap">
       <ul class="hero-stats">
-        <li><b id="dday">D-0</b><span>개교 50주년 2027. 3. 5.(금)까지</span></li>
+        <li><b id="dday">D-0</b><span>개교 50주년 기념일 2027. 5. 20.(목)까지</span></li>
       </ul>
     </div>
   </section>
@@ -1342,7 +1342,7 @@ const HISTORY = [
   ["2023.03.01", "제17대 정극상 교장 취임"],
   ["2023.03.02", "제47회 입학식 (11학급 338명)", 1]
 ];
-const OPEN_DAY = new Date(2027, 2, 5);   // 개교 50주년 (2027.03.05)
+const OPEN_DAY = new Date(2027, 4, 20);  // 개교 50주년 기념일 (2027.05.20)
 const LAYOUT = "a";   // 메인 배치: a(기념 사업 크게) · b(기부 요약 나란히) · c(대표 화면에 기부 카드)
 /* 역대 이사장 (출처: 학교법인 회당학원 이사회 > 역대 이사장 명단). [대, 성명, 취임, 퇴임] */
 const CHAIRS = [
@@ -1973,7 +1973,7 @@ function renderTimeline(){
     const y = d.slice(0, 4), md = d.slice(5);
     const yCell = y !== prevY ? y : ""; prevY = y;
     return `<li class="${k ? "key" : ""}"><span class="y">${yCell}</span><span class="t"><small>${md}</small>${esc(t)}</span></li>`;
-  }).join("") + `<li class="now"><span class="y">2027</span><span class="t"><small>03.05</small><b>개교 50주년</b></span></li>`;
+  }).join("") + `<li class="now"><span class="y">2027</span><span class="t"><small>05.20</small><b>개교 50주년 기념일</b></span></li>`;
   $("#tlToggle").textContent = state.tlAll ? "주요 연혁만 보기" : `전체 연혁 보기 (${HISTORY.length}개)`;
   $("#tlToggle").setAttribute("aria-expanded", state.tlAll);
 }
