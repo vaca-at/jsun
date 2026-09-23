@@ -201,7 +201,10 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .gnb.scrolled{border-bottom-color:var(--line);box-shadow:0 8px 22px -14px rgba(0,0,0,.3)}
 .gnb-in{display:flex;align-items:center;gap:12px 28px;height:68px}
 .brand{display:flex;align-items:center;gap:10px;flex:none;color:var(--ink);text-decoration:none}
-.brand-mark{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-family:var(--f-head);font-weight:700;font-size:1rem;letter-spacing:-.03em;box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--gold),0 4px 12px -2px rgba(0,0,0,.25)}
+.brand-mark{position:relative;flex:none;display:block;width:48px;height:46px;color:var(--gold)}
+.brand-mark b{position:absolute;left:0;right:0;top:-3px;text-align:center;font-family:var(--f-head);font-weight:700;font-size:19px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand-mark svg{position:absolute;left:0;top:17px;width:48px;height:30px}
+.site-foot .brand-mark{color:color-mix(in srgb,var(--gold) 55%,#fff)}
 .brand-txt{display:flex;flex-direction:column;line-height:1.25}
 .brand-txt b{font-size:1.02rem}
 .brand-txt small{font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--gold)}
@@ -325,7 +328,7 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .leader-col{padding:20px 22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
 .leader-col h4{display:flex;align-items:baseline;gap:8px;margin:0 0 12px;padding-bottom:10px;border-bottom:2px solid var(--gold);font-size:1rem}
 .leader-col h4 small{font-weight:400;font-size:.78rem;color:var(--muted)}
-.leader-list{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}
+.leader-list{list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 18px}
 .leader-list li{display:grid;grid-template-columns:3.2em 1fr auto;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
 .leader-list .n{color:var(--gold);font-weight:700;font-size:.8rem;font-variant-numeric:tabular-nums}
 .leader-list .yr{color:var(--muted);font-size:.78rem;font-variant-numeric:tabular-nums}
@@ -723,6 +726,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 </style>
 </head>
 <body data-theme="navy" data-font="batang">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="lotusCup" viewBox="0 18 48 28" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 40c-4.5-3-9.5-9-11-18c5.5 2 9.5 8 11 18z" fill="currentColor" fill-opacity=".18"/><path d="M24 40c4.5-3 9.5-9 11-18c-5.5 2-9.5 8-11 18z" fill="currentColor" fill-opacity=".18"/><path d="M24 40.5c-6-1.2-12-5-15.5-12c6.2.4 12 5 15.5 12z"/><path d="M24 40.5c6-1.2 12-5 15.5-12c-6.2.4-12 5-15.5 12z"/><path d="M24 41.5c-7-.4-14-2.8-19-7.5c6.8-.8 13.4 2.2 19 7.5z"/><path d="M24 41.5c7-.4 14-2.8 19-7.5c-6.8-.8-13.4 2.2-19 7.5z"/><path d="M15 44.5h18"/></symbol></svg>
 
 <div id="demoBanner" class="demo-banner" hidden>미리보기 모드입니다. Firebase 설정값을 넣기 전이라 입력한 내용은 저장되지 않습니다.</div>
 
@@ -744,7 +748,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <header class="gnb" id="gnb">
     <div class="wrap gnb-in">
       <a class="brand" href="#top" aria-label="진선여자고등학교 개교 50주년 처음으로">
-        <span class="brand-mark" aria-hidden="true">50</span>
+        <span class="brand-mark" aria-hidden="true"><b>50</b><svg viewBox="0 18 48 28"><use href="#lotusCup"/></svg></span>
         <span class="brand-txt"><b class="school">진선여자고등학교</b><small>개교 50주년 기념</small></span>
       </a>
       <nav class="gnb-menu" aria-label="주요 메뉴">
@@ -850,7 +854,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <footer class="site-foot">
     <div class="wrap foot-grid">
       <div class="foot-brand">
-        <span class="brand-mark" aria-hidden="true">50</span>
+        <span class="brand-mark" aria-hidden="true"><b>50</b><svg viewBox="0 18 48 28"><use href="#lotusCup"/></svg></span>
         <div>
           <b>진선여자고등학교 개교 50주년 기념 누리집</b>
           <p class="foot-meta">(06213) 서울특별시 강남구 선릉로85길 27<br>교무실 02-2148-0400 · 행정실 02-2148-0410<br>문의 <a class="contact-mail"></a></p>
@@ -891,7 +895,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
 <div class="dash" id="dash" hidden>
   <header class="dash-top">
     <div class="dash-bar">
-      <div class="dash-brand"><span class="dash-50">50</span><span>진선여고 개교 50주년<small>관리자</small></span></div>
+      <div class="dash-brand"><span class="brand-mark" aria-hidden="true"><b>50</b><svg viewBox="0 18 48 28"><use href="#lotusCup"/></svg></span><span>진선여고 개교 50주년<small>관리자</small></span></div>
       <nav class="dash-links" aria-label="즐겨찾기">
         <a class="fav" href="https://jinseon.sen.hs.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/></svg>학교 홈페이지</a>
         <a class="fav" href="https://hoedang.uu.ac.kr/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/></svg>회당학원</a>
@@ -1096,14 +1100,14 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     <div class="h-panel" id="hpanel-tl" role="tabpanel" aria-labelledby="htab-tl">
       <ol class="tl" id="timeline"></ol>
       <div class="tl-more">
-        <button class="btn" id="tlToggle" aria-expanded="false"></button>
+        <button class="btn" id="tlToggle" aria-expanded="true" hidden></button>
         <a class="fav" href="https://jinseon.sen.hs.kr/77443/subMenu.do" target="_blank" rel="noopener">학교 홈페이지 연혁 ↗</a>
       </div>
     </div>
 
     <div class="h-panel" id="hpanel-lead" role="tabpanel" aria-labelledby="htab-lead" hidden>
       <div class="leader-grid">
-        <div class="leader-col"><h4>역대 교장</h4><ol class="leader-list" id="principals"></ol></div>
+        <div class="leader-col"><h4>역대 교장 <small>진선여자고등학교</small></h4><ol class="leader-list" id="principals"></ol></div>
         <div class="leader-col"><h4>역대 이사장 <small>학교법인 회당학원</small></h4><ol class="leader-list" id="chairs"></ol></div>
       </div>
       <p class="leader-note">역대 교장은 학교 홈페이지 연혁에 실린 분을 먼저 모셨고, '확인 중'인 분은 자료를 확인하는 대로 채워 넣겠습니다. 역대 이사장은 학교법인 회당학원의 공식 명단(제1대~제27대)입니다.</p>
@@ -1304,7 +1308,7 @@ const MENUS = [
    icon:'<path d="M12 3l1.9 5.8L20 10.5l-6.1 1.7L12 18l-1.9-5.8L4 10.5l6.1-1.7z"/><path d="M19 17v4M17 19h4M5 3v3M3.5 4.5h3"/>'},
   {id:"alumni-night",  title:"진선인의 밤(총동문회)", memo:[["날짜","2027년 5월 또는 10월"]],
    icon:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'},
-  {id:"souvenir",      title:"기념품 준비",
+  {id:"souvenir",      title:"기념품 준비", memo:[["품목","에코백, 인형키링 등"]],
    icon:'<path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>'},
   {id:"video-contest", title:"개교 50주년 기념 홍보 동영상 제작 대회", memo:[["대상","1, 2학년 학생"],["상금","50만원"],["시기","2026년 연화제 시상"]],
    icon:'<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>'}
@@ -1678,7 +1682,7 @@ function demoApi(){
 const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null,
   priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:"", sel:new Set(),
   view:"site", tab:"stats", period:"7", visits:[], account:null, meId:null, meDirty:false,
-  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:false, subs:[], unsubSub:null, galShow:24};
+  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:true, subs:[], unsubSub:null, galShow:24};
 
 function renderMenus(){
   $("#menuGrid").innerHTML = MENUS.map((m, i) => {
@@ -1768,7 +1772,8 @@ function setAdmin(on){
   $("#adminFab").textContent = on ? "관리자 대시보드" : "관리자";
   if(on !== was && api){ watchGuests(); watchSubs(on); }
   renderGuestAdmin();
-  if(on){ track.stop(); if(!was) showDash(true); }
+  /* 로그인된 채로 들어오면 첫 화면부터. 방금 로그인 창에서 로그인했을 때만 대시보드를 연다 */
+  if(on){ track.stop(); if(!was && state.justLogin){ state.justLogin = false; showDash(true); } }
   else showDash(false);
 }
 
@@ -2022,9 +2027,13 @@ function renderLeaders(){
   const li = x => x.name
     ? `<li><span class="n">${x.n === 1 && x.y === "1977" ? "초대" : x.n + "대"}</span><b>${esc(x.name)}</b><span class="yr">${x.y}</span></li>`
     : `<li class="tbd"><span class="n">${x.n}대</span><b>확인 중</b><span class="yr"></span></li>`;
-  $("#principals").innerHTML = leadersFrom("교장").map(li).join("");
+  const principals = leadersFrom("교장");
+  $("#principals").innerHTML = principals.map(li).join("");
   $("#chairs").innerHTML = CHAIRS.map(([n, name, from, to]) =>
     `<li><span class="n">${n}대</span><b>${esc(name)}</b><span class="yr">${from.slice(2, 7)} ~ ${to.slice(2, 7)}</span></li>`).join("");
+  /* 왼쪽 칸에 1대부터 차례로 내려간 뒤 오른쪽 칸으로 이어지게 */
+  $("#principals").style.gridTemplateRows = `repeat(${Math.ceil(principals.length / 2)}, auto)`;
+  $("#chairs").style.gridTemplateRows = `repeat(${Math.ceil(CHAIRS.length / 2)}, auto)`;
 }
 function renderNumbers(){
   $("#numGrid").innerHTML = NUMBERS.map(x => `<li><span class="lbl">${esc(x.label)}</span>${
@@ -2628,8 +2637,10 @@ $("#adminFab").addEventListener("click", () => {
 });
 $("#loginForm").addEventListener("submit", async e => {
   e.preventDefault();
-  try{ await api.login($("#adminPw").value); $("#loginDialog").close(); toast("관리자 대시보드입니다"); }
+  state.justLogin = true;
+  try{ await api.login($("#adminPw").value); $("#loginDialog").close(); if(state.view !== "dash") showDash(true); toast("관리자 대시보드입니다"); }
   catch(err){
+    state.justLogin = false;
     const c = err.code || "";
     $("#loginErr").textContent =
       c.includes("invalid-credential") || c.includes("wrong-password") ? "비밀번호가 맞지 않습니다." :
