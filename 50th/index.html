@@ -228,7 +228,7 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .btn-primary.btn-lg{box-shadow:0 10px 24px -12px var(--accent)}
 .btn-line{background:transparent;color:var(--ink);border-color:color-mix(in srgb,var(--ink) 28%,transparent)}
 .btn-line:hover{color:var(--accent);border-color:var(--accent)}
-.hero-stats{list-style:none;margin:30px 0 0;padding:20px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
+.hero-stats{list-style:none;margin:30px 0 0;padding:20px 0 0;display:flex;border-top:1px solid color-mix(in srgb,var(--gold) 35%,transparent)}
 .hero-stats li{display:flex;flex-direction:column;gap:2px;padding:2px 22px;border-left:1px solid var(--line)}
 .hero-stats li:first-child{padding-left:0;border-left:none}
 .hero-stats b{font-family:var(--f-head);font-weight:var(--head-w);font-size:clamp(1.4rem,3vw,2rem);line-height:1.2;font-variant-numeric:tabular-nums}
@@ -356,6 +356,175 @@ footer.site-foot{position:relative;padding:56px 0 28px;background:var(--foot-bg)
 .sub-wait{margin-bottom:26px;padding:16px;border:1px solid #E0A100;border-radius:var(--radius);background:color-mix(in srgb,#E0A100 7%,var(--surface))}
 .sub-wait-title{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-size:1rem}
 .gala .by{font-size:.8rem;color:var(--muted)}
+
+/* ───────── 메인 배치 (A·B·C안 공통) ───────── */
+.js-acc .acc-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px}
+.js-acc .acc-line b{font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.js-acc .acc-line button{border:1px solid currentColor;background:none;color:inherit;border-radius:999px;padding:2px 10px;font-size:.75rem;cursor:pointer;opacity:.85}
+.js-acc small{display:block;opacity:.75;font-size:.78rem}
+/* 히스토리 가로 탭 */
+#history.band{padding:68px 0}
+.h-tabs{display:inline-flex;flex-wrap:wrap;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px}
+.h-tabs button{border:none;background:none;padding:9px 18px;border-radius:999px;cursor:pointer;color:var(--muted);font-size:.92rem;white-space:nowrap}
+.h-tabs button:hover{color:var(--ink)}
+.h-tabs button[aria-selected="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.h-panel{animation:hfade .35s ease}
+@keyframes hfade{from{opacity:0;transform:translateY(6px)}}
+@media (max-width:640px){.h-tabs{border-radius:14px}.h-tabs button{padding:8px 12px;font-size:.85rem}}
+/* 갤러리·방명록 2단 */
+.gg{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:900px){.gg{grid-template-columns:minmax(0,1fr);gap:48px}}
+.gg-col{min-width:0;scroll-margin-top:90px}
+.gg-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:18px}
+.gg-head h2{margin:0;font-size:clamp(1.5rem,2.6vw,1.9rem)}
+.gg .gal-grid{grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:118px;gap:8px}
+@media (min-width:700px){.gg .gal-grid .ph:first-child{grid-column:span 2;grid-row:span 2}}
+.gg .gal-empty{padding:28px 12px}
+.gg .gal-grid:has(.gal-empty){grid-auto-rows:auto}
+.gg .gb-form{grid-template-columns:1fr;gap:8px;padding:14px;margin-bottom:14px}
+.gg .gb-form textarea{min-height:70px}
+.gg .gb-form .btn{height:40px;justify-self:end;padding:0 20px}
+.gg .gb-list{columns:1}
+.gg .gb-card{margin-bottom:10px;padding:16px 16px 10px}
+.gg .gb-count{margin:0}
+.gg-more,.gb-more{text-align:center;margin-top:10px}
+
+/* A안: 기념 사업을 크게 */
+.layout-a .menu-grid{gap:18px}
+.layout-a .tile{padding:26px 24px 18px}
+.layout-a .tile-icon{width:52px;height:52px}
+.layout-a .tile-title{font-size:1.3rem}
+
+
+
+/* ───────── 진선 히스토리 배너 · 팝업 ───────── */
+.hbn{position:relative;overflow:hidden;display:flex;align-items:center;gap:14px;width:100%;padding:16px 18px;text-align:left;cursor:pointer;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink);transition:transform .2s,box-shadow .2s,border-color .2s}
+.hbn:hover{transform:translateY(-2px);border-color:var(--gold);box-shadow:0 14px 28px -18px rgba(0,0,0,.45)}
+.hbn::after{content:"";position:absolute;right:-34px;bottom:-44px;width:120px;height:120px;border-radius:50%;border:1px solid color-mix(in srgb,var(--gold) 30%,transparent);pointer-events:none}
+.hb-ic{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:color-mix(in srgb,var(--gold) 14%,transparent);color:var(--gold)}
+.hb-ic svg{width:22px;height:22px}
+.hb-txt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.35}
+.hb-txt small{font-size:.66rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.hb-txt b{font-family:var(--f-head);font-weight:var(--head-w);font-size:1.12rem}
+.hb-txt em{font-style:normal;font-size:.8rem;color:var(--muted)}
+.hb-go{flex:none;color:var(--gold);font-size:1.1rem;transition:transform .2s}
+.hbn:hover .hb-go{transform:translateX(4px)}
+.hb-num{background:var(--board-bg);color:var(--board-ink);border-color:var(--board-bg)}
+.hb-num .hb-ic{background:color-mix(in srgb,var(--gold) 25%,transparent)}
+.hb-num .hb-txt b{color:#fff}
+.hb-num .hb-txt em{color:color-mix(in srgb,var(--board-ink) 65%,transparent)}
+/* 1안: 대표 화면 옆 세로 배너 */
+.hb-side{display:flex;flex-direction:column;gap:10px;align-self:center}
+.wrap.hero:has(.hb-side){grid-template-columns:auto 1fr 320px}
+@media (max-width:1000px){.wrap.hero:has(.hb-side){grid-template-columns:auto 1fr}.hb-side{grid-column:1/-1;flex-direction:row;flex-wrap:wrap}.hb-side .hbn{flex:1 1 240px;width:auto}}
+@media (max-width:640px){.wrap.hero:has(.hb-side){grid-template-columns:1fr}}
+/* 2안: 오른쪽 퀵메뉴 */
+.quick{position:fixed;right:18px;top:50%;transform:translateY(-50%);z-index:35;display:flex;flex-direction:column;gap:4px;width:96px;padding:12px 8px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -20px rgba(0,0,0,.45);text-align:center}
+.q-title{padding-bottom:8px;border-bottom:1px solid var(--line);font-size:.72rem;font-weight:700;line-height:1.3;letter-spacing:.04em;color:var(--gold)}
+.quick .hbn{flex-direction:column;gap:6px;padding:10px 4px;border:none;border-radius:10px;background:none;text-align:center}
+.quick .hbn:hover{transform:none;box-shadow:none;background:color-mix(in srgb,var(--gold) 10%,transparent)}
+.quick .hb-ic{width:40px;height:40px}
+.quick .hb-txt small,.quick .hb-txt em,.quick .hb-go,.quick .hbn::after{display:none}
+.quick .hb-txt b{font-family:var(--f-body);font-weight:700;font-size:.78rem;word-break:keep-all}
+.quick .hb-num,.quick .hb-num .hb-txt b{color:var(--ink)}
+.q-top{display:block;margin-top:4px;padding-top:8px;border-top:1px solid var(--line);font-size:.7rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-decoration:none}
+@media (max-width:1300px){.quick{right:8px;width:84px}}
+@media (max-width:760px){.quick{top:auto;bottom:0;left:0;right:0;transform:none;width:auto;flex-direction:row;justify-content:space-around;padding:6px;border-radius:14px 14px 0 0}.q-title,.q-top{display:none}.quick .hbn{flex:1}body .admin-fab{bottom:96px}body{padding-bottom:88px}}
+/* 3안: 기념 사업 아래 가로 띠 배너 */
+.hb-band{padding:56px 0}
+.hb-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hb-row .hbn{min-height:130px;padding:26px 24px}
+.hb-row .hb-ic{width:56px;height:56px}
+.hb-row .hb-txt b{font-size:1.3rem}
+@media (max-width:860px){.hb-row{grid-template-columns:minmax(0,1fr)}}
+/* 팝업 */
+.hist-dlg .dlg-head{position:sticky;top:0;z-index:2;flex-wrap:wrap;align-items:center;background:var(--surface)}
+.hist-dlg .dlg-head .eyebrow{margin-bottom:2px}
+.hist-dlg .h-tabs{margin-left:auto}
+.hist-dlg .dlg-body{padding-top:22px}
+
+/* 축하 방명록: 왼쪽 글쓰기 · 오른쪽 게시글 */
+.gb-2col{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:40px;align-items:start}
+@media (max-width:900px){.gb-2col{grid-template-columns:minmax(0,1fr);gap:24px}}
+.gb-2col .note{margin:0 0 14px}
+.gb-2col .gb-form{grid-template-columns:1fr;gap:8px;padding:14px;margin:0}
+.gb-2col .gb-form textarea{min-height:96px}
+.gb-2col .gb-form .btn{height:42px;justify-self:end;padding:0 22px}
+.gb-2col .gb-list{columns:2 230px;column-gap:12px}
+.gb-2col .gb-card{margin-bottom:12px;padding:18px 16px 10px}
+.gb-2col .gb-count{margin:0}
+/* 팝업 안 추억 갤러리 */
+.gal-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.gal-bar .note{margin:0}
+.hist-dlg .gal-grid{grid-auto-rows:150px}
+/* ───────── 첫 화면 하단: 갤러리 · 방명록 간단 보기 ───────── */
+.lite-band{padding:44px 0}
+.lite{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+@media (max-width:860px){.lite{grid-template-columns:minmax(0,1fr)}}
+.lite-card{min-width:0;display:flex;flex-direction:column;gap:14px;padding:22px 24px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);scroll-margin-top:90px}
+.lite-head{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.lite-head .eyebrow{margin-bottom:4px}
+.lite-head h2{margin:0;font-size:1.35rem}
+.lite-head h2 small{margin-left:4px;font-family:var(--f-body);font-size:.8rem;font-weight:600;color:var(--gold)}
+.lite-more{border:none;background:none;cursor:pointer;color:var(--accent);font-size:.88rem;font-weight:600;white-space:nowrap}
+.lite-more:hover{text-decoration:underline}
+.lite-photos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.lite-ph{aspect-ratio:1;padding:0;border:none;border-radius:var(--radius-sm);overflow:hidden;cursor:zoom-in;background:var(--line)}
+.lite-ph img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.lite-ph:hover img{transform:scale(1.06)}
+.lite-empty-ph{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:10px;height:96px;border:1px dashed var(--line);border-radius:var(--radius-sm);background:var(--bg);color:var(--muted);font-size:.88rem;cursor:pointer}
+.lite-empty-ph svg{flex:none;width:24px;height:24px;color:var(--gold)}
+.lite-empty-ph:hover{border-color:var(--gold);color:var(--ink)}
+.lite-msgs{flex:1;list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lite-msgs li{padding:10px 14px;border-left:3px solid var(--gold);border-radius:0 var(--radius-sm) var(--radius-sm) 0;background:var(--bg)}
+.lite-msgs p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lite-msgs span{font-size:.8rem;color:var(--muted)}
+.lite-msgs .lite-empty{color:var(--muted);font-size:.9rem}
+.lite-write{align-self:flex-start}
+
+/* ───────── 게시판형 팝업 (갤러리 · 방명록) ───────── */
+dialog.board-dlg{width:min(1320px,96vw);height:92vh;max-height:92vh;padding:0;border-radius:16px;overflow:hidden;display:none;flex-direction:column}
+dialog.board-dlg[open]{display:flex}
+.board-head{flex:none;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;padding:20px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--gold) 6%,var(--surface)))}
+.board-head .eyebrow{display:flex;margin-bottom:2px}
+.board-head h3{display:inline;margin:0;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.7rem}
+.board-count{margin-left:10px;font-size:.85rem;font-weight:700;color:var(--gold)}
+.board-acts{display:flex;gap:8px}
+.board-body{flex:1;overflow:auto;padding:24px 28px 32px;background:var(--bg)}
+.board-lead{margin:0 0 18px;color:var(--muted)}
+.board-empty{padding:60px 0;text-align:center;color:var(--muted)}
+/* 갤러리: 사진 중심 벽돌쌓기 */
+.gal-grid.gal-masonry{display:block;columns:4 240px;column-gap:14px}
+.gal-grid.gal-masonry .ph{display:block;width:100%;margin:0 0 14px;break-inside:avoid;border-radius:10px;background:var(--surface);box-shadow:0 8px 20px -14px rgba(0,0,0,.45)}
+.gal-grid.gal-masonry .ph img{height:auto}
+.gal-masonry .ph figcaption{opacity:0;transition:opacity .25s}
+.gal-masonry .ph:hover figcaption,.gal-masonry .ph:focus-visible figcaption{opacity:1}
+.ph figcaption small{display:block;margin-top:2px;font-size:.72rem;opacity:.8}
+.ph-tag{position:absolute;top:10px;left:10px;padding:2px 10px;border-radius:999px;background:rgba(0,0,0,.55);color:#fff;font-size:.72rem;font-weight:600;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.gal-masonry .gal-empty{column-span:all}
+.gal-empty svg{flex:none}
+/* 방명록: 편지지 카드 */
+.gb-board{display:grid;grid-template-columns:320px minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:860px){.gb-board{grid-template-columns:minmax(0,1fr)}}
+.gb-write{position:sticky;top:0;padding:22px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+@media (max-width:860px){.gb-write{position:static}}
+.gb-write h4{margin:0 0 6px;font-family:var(--f-head);font-weight:var(--head-w);font-size:1.2rem}
+.gb-write .note{margin:0 0 14px;font-size:.88rem}
+.gb-write .gb-form{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;border:none;background:none;box-shadow:none}
+.gb-write .gb-form textarea{min-height:140px}
+.gb-write .gb-msg,.gb-write .gb-form input,.gb-write .gb-form textarea{width:100%}
+dialog [data-close]:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gb-write .gb-form .btn{height:44px;width:100%}
+.gb-wall .gb-list{columns:2 280px;column-gap:18px}
+.gb-wall .gb-card{position:relative;break-inside:avoid;margin:0 0 18px;padding:36px 28px 22px;border:1px solid color-mix(in srgb,var(--gold) 28%,var(--line));border-radius:4px;background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--gold) 4%,var(--surface)));box-shadow:0 14px 30px -24px rgba(0,0,0,.5)}
+.gb-wall .gb-card::before{content:"\201C";position:absolute;top:8px;left:22px;font-family:Georgia,serif;font-size:3.4rem;line-height:1;color:var(--gold);opacity:.5}
+.gb-wall .gb-card::after{content:"";position:absolute;top:-1px;left:28px;right:28px;height:3px;background:var(--foil)}
+.gb-wall .gb-card blockquote{margin:0 0 18px;font-family:var(--f-head);font-weight:400;font-size:1.02rem;line-height:1.85;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+.gb-wall .gb-card figcaption{display:flex;flex-direction:column;align-items:flex-end;gap:2px;padding:0;border:none}
+.gb-wall .gb-sign{position:relative;padding-left:34px;font-family:var(--f-head);font-weight:var(--head-w);font-size:1rem;color:var(--ink)}
+.gb-wall .gb-sign::before{content:"";position:absolute;left:0;top:50%;width:24px;height:1px;background:var(--gold)}
+.gb-wall time{font-size:.75rem;letter-spacing:.04em;color:var(--muted)}
+.gb-wall .board-empty{column-span:all}
 
 /* ───────── 추억 갤러리 ───────── */
 .gal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));grid-auto-rows:170px;grid-auto-flow:dense;gap:10px}
@@ -574,7 +743,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <span class="brand-txt"><b class="school">진선여자고등학교</b><small>개교 50주년 기념</small></span>
       </a>
       <nav class="gnb-menu" aria-label="주요 메뉴">
-        <a href="#projects">기념 사업</a><a href="#history">50년 발자취</a><a href="#donate">기부</a><a href="#gallery">갤러리</a><a href="#guest">방명록</a>
+        <a href="#projects">기념 사업</a><a href="#history">히스토리</a><a href="#donate">기부</a><a href="#gallery">갤러리</a><a href="#guest">방명록</a>
       </nav>
     </div>
   </header>
@@ -612,45 +781,17 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     </div>
     <div class="wrap">
       <ul class="hero-stats">
-        <li><b id="dday">D-0</b><span>개교 50주년까지</span></li>
-        <li><b>1977</b><span>3월 5일 개교</span></li>
-        <li><b>602명</b><span>첫 입학생</span></li>
-        <li><b id="statProjects">8개</b><span>기념 사업</span></li>
+        <li><b id="dday">D-0</b><span>개교 50주년 2027. 3. 5.(금)까지</span></li>
       </ul>
     </div>
   </section>
 
   <section class="band" id="projects" aria-labelledby="menuTitle" data-track="menus">
-    <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">Projects</span><h2 id="menuTitle">기념 사업</h2><p class="note">항목을 누르면 자세한 안내를 볼 수 있습니다.</p></header>
-      <div class="menu-grid" id="menuGrid"></div>
-    </div>
-  </section>
-
-  <section class="band band-alt" id="history" aria-labelledby="histTitle" data-track="history">
-    <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">History</span><h2 id="histTitle">진선 50년 발자취</h2><p class="note">1976년 첫 삽을 뜬 날부터 개교 50주년까지, 진선이 걸어온 길입니다.</p></header>
-      <ol class="tl" id="timeline"></ol>
-      <div class="tl-more">
-        <button class="btn" id="tlToggle" aria-expanded="false"></button>
-        <a class="fav" href="https://jinseon.sen.hs.kr/77443/subMenu.do" target="_blank" rel="noopener">학교 홈페이지 연혁 ↗</a>
+    <div class="wrap proj-wrap">
+      <div class="proj-main">
+        <header class="sec-head"><span class="eyebrow">Projects</span><h2 id="menuTitle">기념 사업</h2><p class="note">개교 50주년을 맞아 준비하는 여덟 가지 사업입니다. 항목을 누르면 자세한 안내를 볼 수 있습니다.</p></header>
+        <div class="menu-grid" id="menuGrid"></div>
       </div>
-
-      <div class="leaders">
-        <h3 class="sub-title">진선을 이끈 분들</h3>
-        <div class="leader-grid">
-          <div class="leader-col"><h4>역대 교장</h4><ol class="leader-list" id="principals"></ol></div>
-          <div class="leader-col"><h4>역대 이사장 <small>학교법인 회당학원</small></h4><ol class="leader-list" id="chairs"></ol></div>
-        </div>
-        <p class="leader-note">학교 홈페이지 연혁에 실린 분을 먼저 모셨습니다. '확인 중'인 분은 자료를 확인하는 대로 채워 넣겠습니다.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="band band-dark" id="numbers" aria-labelledby="numTitle" data-track="numbers">
-    <div class="wrap">
-      <header class="sec-head"><span class="eyebrow">In Numbers</span><h2 id="numTitle">숫자로 보는 진선 50년</h2><p class="note">반세기 동안 쌓아 온 진선의 기록을 숫자로 정리하고 있습니다.</p></header>
-      <ul class="num-grid" id="numGrid"></ul>
     </div>
   </section>
 
@@ -679,35 +820,26 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     </div>
   </section>
 
-  <section class="band band-alt" id="gallery" aria-labelledby="galTitle" data-track="gallery">
-    <div class="wrap">
-      <header class="sec-head sec-head-row">
-        <div><span class="eyebrow">Gallery</span><h2 id="galTitle">추억 갤러리</h2><p class="note">사진으로 돌아보는 진선의 50년. 사진을 누르면 크게 볼 수 있습니다.</p></div>
-        <button class="btn btn-primary btn-lg" id="subOpen" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>추억 사진 제보하기</button>
-      </header>
-      <div class="gal-grid" id="galGrid"></div>
+  <section class="band band-alt lite-band" aria-label="추억 갤러리와 축하 방명록" data-track="community">
+    <div class="wrap lite">
+      <div class="lite-card" id="gallery">
+        <header class="lite-head">
+          <div><span class="eyebrow">Gallery</span><h2>추억 갤러리 <small id="galLiteCount"></small></h2></div>
+          <button class="lite-more" type="button" data-open="gal">전체 보기 →</button>
+        </header>
+        <div class="lite-photos" id="galLite"></div>
+      </div>
+      <div class="lite-card" id="guest">
+        <header class="lite-head">
+          <div><span class="eyebrow">Guestbook</span><h2>축하 방명록 <small id="gbLiteCount"></small></h2></div>
+          <button class="lite-more" type="button" data-open="gb">전체 보기 →</button>
+        </header>
+        <ul class="lite-msgs" id="gbLite"></ul>
+        <button class="btn btn-primary btn-sm lite-write" type="button" data-open="gbw">✎ 축하 글 남기기</button>
+      </div>
     </div>
   </section>
 
-  <section class="band" id="guest" aria-labelledby="gbTitle" data-track="guest">
-    <div class="wrap">
-      <header class="sec-head gb-head">
-        <div><span class="eyebrow">Guestbook</span><h2 id="gbTitle">축하 방명록</h2>
-        <p class="note">진선의 50번째 생일에 축하 한마디를 남겨 주세요. 관리자 확인 후 게시됩니다.</p></div>
-        <span class="gb-count" id="gbCount"></span>
-      </header>
-      <form class="gb-form" id="gbForm">
-        <input id="gbName" maxlength="20" placeholder="이름 또는 기수 (예: 25기 김진선)" aria-label="이름 또는 기수" required>
-        <div class="gb-msg">
-          <textarea id="gbMsg" maxlength="300" placeholder="축하 메시지를 적어 주세요 (300자 이내)" aria-label="축하 메시지" required></textarea>
-          <span class="gb-len" id="gbLen">0 / 300</span>
-        </div>
-        <button class="btn btn-primary" type="submit">남기기</button>
-      </form>
-      <div class="gb-list" id="gbList"></div>
-      <div class="gb-more"><button class="btn" id="gbMore" hidden>더 보기</button></div>
-    </div>
-  </section>
 
   <footer class="site-foot">
     <div class="wrap foot-grid">
@@ -720,7 +852,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       </div>
       <nav class="foot-col" aria-label="바로가기">
         <b>바로가기</b>
-        <a href="#projects">기념 사업</a><a href="#history">50년 발자취</a><a href="#donate">기부금 현황</a><a href="#gallery">추억 갤러리</a><a href="#guest">축하 방명록</a>
+        <a href="#projects">기념 사업</a><a href="#history">진선 히스토리</a><a href="#donate">기부금 현황</a><a href="#gallery">추억 갤러리</a><a href="#guest">축하 방명록</a>
       </nav>
       <nav class="foot-col" aria-label="관련 사이트">
         <b>관련 사이트</b>
@@ -736,6 +868,16 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
     </div>
   </footer>
 </div>
+
+<nav class="quick" aria-label="진선 50년 바로가기">
+  <span class="q-title">진선<br>50년</span>
+  <button class="hbn hb-tl" type="button" data-hist="tl"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="hb-txt"><small>History</small><b>50년 발자취</b><em>1976년 첫 삽부터 개교 50주년까지</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn hb-lead" type="button" data-hist="lead"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><span class="hb-txt"><small>Leaders</small><b>진선을 이끈 분들</b><em>역대 교장 · 이사장</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn hb-num" type="button" data-hist="num"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 16v-5M12 16V7M17 16v-8"/></svg></span><span class="hb-txt"><small>In Numbers</small><b>숫자로 보는 50년</b><em>졸업생·입학생·교직원 기록</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn hb-gal" type="button" data-open="gal"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg></span><span class="hb-txt"><small>Gallery</small><b>추억 갤러리</b><em>사진 보기 · 사진 제보</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <button class="hbn hb-gb" type="button" data-open="gb"><span class="hb-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="hb-txt"><small>Guestbook</small><b>축하 방명록</b><em>축하 글 보기 · 남기기</em></span><span class="hb-go" aria-hidden="true">→</span></button>
+  <a class="q-top" href="#top">TOP ↑</a>
+</nav>
 
 <button class="admin-fab" id="adminFab">관리자</button>
 
@@ -934,6 +1076,80 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
   <button class="lb-nav lb-next" id="lbNext" aria-label="다음 사진">›</button>
 </dialog>
 
+<dialog id="histDialog" class="wide hist-dlg" aria-labelledby="histTitle">
+  <div class="dlg-head">
+    <div><span class="eyebrow">History</span><h3 id="histTitle">진선 히스토리</h3></div>
+      <div class="h-tabs" role="tablist" aria-label="히스토리 보기">
+        <button role="tab" id="htab-tl" aria-controls="hpanel-tl" aria-selected="true" data-h="tl">50년 발자취</button>
+        <button role="tab" id="htab-lead" aria-controls="hpanel-lead" aria-selected="false" data-h="lead" tabindex="-1">진선을 이끈 분들</button>
+        <button role="tab" id="htab-num" aria-controls="hpanel-num" aria-selected="false" data-h="num" tabindex="-1">숫자로 보는 50년</button>
+      </div>
+    <button class="btn btn-sm" data-close autofocus>닫기</button>
+  </div>
+  <div class="dlg-body">
+    <div class="h-panel" id="hpanel-tl" role="tabpanel" aria-labelledby="htab-tl">
+      <ol class="tl" id="timeline"></ol>
+      <div class="tl-more">
+        <button class="btn" id="tlToggle" aria-expanded="false"></button>
+        <a class="fav" href="https://jinseon.sen.hs.kr/77443/subMenu.do" target="_blank" rel="noopener">학교 홈페이지 연혁 ↗</a>
+      </div>
+    </div>
+
+    <div class="h-panel" id="hpanel-lead" role="tabpanel" aria-labelledby="htab-lead" hidden>
+      <div class="leader-grid">
+        <div class="leader-col"><h4>역대 교장</h4><ol class="leader-list" id="principals"></ol></div>
+        <div class="leader-col"><h4>역대 이사장 <small>학교법인 회당학원</small></h4><ol class="leader-list" id="chairs"></ol></div>
+      </div>
+      <p class="leader-note">역대 교장은 학교 홈페이지 연혁에 실린 분을 먼저 모셨고, '확인 중'인 분은 자료를 확인하는 대로 채워 넣겠습니다. 역대 이사장은 학교법인 회당학원의 공식 명단(제1대~제27대)입니다.</p>
+    </div>
+
+    <div class="h-panel" id="hpanel-num" role="tabpanel" aria-labelledby="htab-num" hidden>
+      <ul class="num-grid" id="numGrid"></ul>
+    </div>
+
+  </div>
+</dialog>
+
+<dialog id="galDialog" class="board-dlg" aria-labelledby="galTitle">
+  <div class="board-head">
+    <div><span class="eyebrow">Gallery</span><h3 id="galTitle">추억 갤러리</h3><span class="board-count" id="galCount"></span></div>
+    <div class="board-acts">
+      <button class="btn btn-primary" id="subOpen" type="button">＋ 추억 사진 제보</button>
+      <button class="btn" data-close autofocus>닫기</button>
+    </div>
+  </div>
+  <div class="board-body">
+    <p class="board-lead">사진으로 돌아보는 진선의 50년. 사진을 누르면 크게 볼 수 있습니다.</p>
+    <div class="gal-grid gal-masonry" id="galGrid"></div>
+    <div class="gg-more"><button class="btn" id="galMore" hidden>사진 더 보기</button></div>
+  </div>
+</dialog>
+
+<dialog id="gbDialog" class="board-dlg" aria-labelledby="gbTitle">
+  <div class="board-head">
+    <div><span class="eyebrow">Guestbook</span><h3 id="gbTitle">축하 방명록</h3><span class="board-count" id="gbCount"></span></div>
+    <div class="board-acts"><button class="btn" data-close autofocus>닫기</button></div>
+  </div>
+  <div class="board-body gb-board">
+    <aside class="gb-write">
+      <h4>축하 한마디</h4>
+      <p class="note">진선의 50번째 생일을 함께 축하해 주세요. 관리자 확인 후 게시됩니다.</p>
+      <form class="gb-form" id="gbForm">
+        <input id="gbName" maxlength="20" placeholder="이름 또는 기수 (예: 25기 김진선)" aria-label="이름 또는 기수" required>
+        <div class="gb-msg">
+          <textarea id="gbMsg" maxlength="300" placeholder="축하 메시지 (300자 이내)" aria-label="축하 메시지" required></textarea>
+          <span class="gb-len" id="gbLen">0 / 300</span>
+        </div>
+        <button class="btn btn-primary" type="submit">남기기</button>
+      </form>
+    </aside>
+    <div class="gb-wall">
+      <div class="gb-list" id="gbList"></div>
+      <div class="gb-more"><button class="btn" id="gbMore" hidden>더 보기</button></div>
+    </div>
+  </div>
+</dialog>
+
 <dialog id="submitDialog" aria-labelledby="subTitle">
   <div class="dlg-head">
     <h3 id="subTitle">추억 사진 제보</h3>
@@ -969,7 +1185,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <tr><td>기부자</td><td>성명, 기부 금액, 메모(기수 등)</td><td>기부 확인 후 관리자가 입력</td></tr>
         <tr><td>방명록</td><td>이용자가 적은 이름(또는 기수), 축하 메시지, 작성 시각</td><td>이용자가 직접 입력</td></tr>
         <tr><td>사진 제보</td><td>사진, 시기·설명, 보내는 분 이름 또는 기수(선택), 제보 시각<br><span class="dim">사진에 나온 분의 얼굴 등이 함께 담길 수 있습니다.</span></td><td>이용자가 직접 올림</td></tr>
-        <tr><td>역대 교장·이사장</td><td>대수, 성명, 취임 연도</td><td>학교 홈페이지에 공개된 학교 연혁에서 옮겨 적음</td></tr>
+        <tr><td>역대 교장·이사장</td><td>대수, 성명, 취임 연도·재임 기간</td><td>학교 홈페이지 연혁과 학교법인 회당학원 역대 이사장 명단(공개 자료)에서 옮겨 적음</td></tr>
         <tr><td>관리자</td><td>이메일 주소</td><td>관리자 계정 등록</td></tr>
       </table>
       <h4>2. 처리 목적</h4>
@@ -1076,7 +1292,7 @@ const MENUS = [
    icon:'<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>'},
   {id:"book",          title:"진선 50년사 책 발간", memo:[["발간일","2027년 5월"]],
    icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5M9 7h7"/>'},
-  {id:"anniversary",   title:"개교기념일 행사", memo:[["날짜","2027년 5월 20일"]],
+  {id:"anniversary",   title:"개교기념일 행사", memo:[["날짜","2027년 5월 20일(목)"]],
    icon:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01"/>'},
   {id:"festival",      title:"축제(연화제)", memo:[["날짜","2027년 10월 22일(금)"]],
    icon:'<path d="M12 3l1.9 5.8L20 10.5l-6.1 1.7L12 18l-1.9-5.8L4 10.5l6.1-1.7z"/><path d="M19 17v4M17 19h4M5 3v3M3.5 4.5h3"/>'},
@@ -1107,18 +1323,18 @@ const HISTORY = [
   ["1996.01.22", "제15대 김영호 이사장 취임"],
   ["2002.09.01", "제9대 한기수 교장 취임"],
   ["2002.09.02", "교육정보도서관 개관", 1],
-  ["2002.10.13", "제16대 손규열 이사장 취임"],
+  ["2002.10.13", "제18대 손규열 이사장 취임"],
   ["2004.09.01", "제10대 이병무 교장 취임"],
-  ["2004.12.18", "제18대 박종두 이사장 취임"],
+  ["2004.12.19", "제19대 박종두 이사장 취임"],
   ["2005.10.11", "연화관 헌공 불사", 1],
   ["2005.10.14", "학급 증설 인가 (36학급)"],
   ["2005.12.01", "생활관 헌공 불사"],
   ["2007.02.02", "제20대 손덕호 이사장 취임"],
   ["2007.03.01", "제11대 김기덕 교장 취임"],
-  ["2008.06.18", "제21대 최종웅 이사장 취임"],
+  ["2008.06.16", "제21대 최종웅 이사장 취임"],
   ["2011.09.01", "제12대 윤희준 교장 취임"],
-  ["2012.12.20", "제23대 양택근 이사장 취임"],
-  ["2016.12.19", "제25대 회당학원 이철희 이사장 취임"],
+  ["2012.12.19", "제23대 양택근 이사장 취임"],
+  ["2016.12.19", "제25대 이철희 이사장 연임"],
   ["2017.09.01", "제14대 조남일 교장 취임"],
   ["2019.02.13", "제39회 졸업식"],
   ["2019.03.01", "제15대 방건희 교장 취임"],
@@ -1127,6 +1343,37 @@ const HISTORY = [
   ["2023.03.02", "제47회 입학식 (11학급 338명)", 1]
 ];
 const OPEN_DAY = new Date(2027, 2, 5);   // 개교 50주년 (2027.03.05)
+const LAYOUT = "a";   // 메인 배치: a(기념 사업 크게) · b(기부 요약 나란히) · c(대표 화면에 기부 카드)
+/* 역대 이사장 (출처: 학교법인 회당학원 이사회 > 역대 이사장 명단). [대, 성명, 취임, 퇴임] */
+const CHAIRS = [
+  [1, "손대련", "1964.03.25", "1968.03.24"],
+  [2, "손대련", "1968.06.16", "1969.05.01"],
+  [3, "최호석", "1969.05.18", "1971.08.09"],
+  [4, "선태식", "1971.08.10", "1972.03.23"],
+  [5, "손제석", "1972.03.24", "1974.05.14"],
+  [6, "손제석", "1974.07.25", "1978.07.24"],
+  [7, "손제석", "1978.09.11", "1982.02.07"],
+  [8, "장명", "1982.02.08", "1982.09.10"],
+  [9, "장명", "1982.09.11", "1984.02.17"],
+  [10, "강복수", "1984.02.18", "1986.09.10"],
+  [11, "배신", "1986.10.13", "1989.03.17"],
+  [12, "손제석", "1989.03.18", "1990.10.12"],
+  [13, "손제석", "1990.10.13", "1994.10.12"],
+  [14, "손제석", "1994.10.13", "1996.01.21"],
+  [15, "김영호", "1996.01.22", "1997.12.14"],
+  [16, "최해욱", "1997.12.15", "1998.10.12"],
+  [17, "최해욱", "1998.10.13", "2002.10.12"],
+  [18, "손규열", "2002.10.13", "2004.12.18"],
+  [19, "박종두", "2004.12.19", "2007.01.04"],
+  [20, "손덕호", "2007.02.02", "2008.06.15"],
+  [21, "최종웅", "2008.06.16", "2010.07.22"],
+  [22, "이종관", "2010.07.23", "2012.12.18"],
+  [23, "양택근", "2012.12.19", "2013.08.23"],
+  [24, "이철희", "2013.08.24", "2016.12.18"],
+  [25, "이철희", "2016.12.19", "2019.10.31"],
+  [26, "김성록", "2019.12.26", "2020.12.18"],
+  [27, "송귀영", "2021.01.13", "2023.01.21"]
+];
 /* 숫자로 보는 진선 50년: value 를 채우면 숫자가 올라가며 보이고, null 이면 '준비중' */
 const NUMBERS = [
   {label:"누적 졸업생",   unit:"명",   value:null},
@@ -1425,7 +1672,7 @@ function demoApi(){
 const state = {menus:{}, donations:[], sort:"reg", page:0, pages:1, paused:false, isAdmin:false, openId:null, defaults:null,
   priv:{}, unsubPriv:null, mgrKey:"no", mgrDir:"asc", editId:null, search:"", sel:new Set(),
   view:"site", tab:"stats", period:"7", visits:[], account:null, meId:null, meDirty:false,
-  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:false, subs:[], unsubSub:null};
+  guests:[], gbShow:12, gbFilter:"wait", unsubGuest:null, photos:[], lbIndex:0, photoCache:new Map(), tlAll:false, subs:[], unsubSub:null, galShow:24};
 
 function renderMenus(){
   $("#menuGrid").innerHTML = MENUS.map((m, i) => {
@@ -1465,6 +1712,7 @@ function renderDonations(){
   const total = list.reduce((s, d) => s + (Number(d.amount) || 0), 0);
   $("#sumTotal").textContent = won(total);
   $("#sumCount").textContent = list.length.toLocaleString("ko-KR") + "명";
+  renderDonSummary();
 
   if(!list.length){
     $("#boardBody").innerHTML = `<p class="board-empty">아직 등록된 기부 내역이 없습니다.</p>`;
@@ -1521,7 +1769,7 @@ function setAdmin(on){
 /* ═════════ 5-1. 관리자 대시보드 ═════════ */
 const SHORT = {"overseas":"교직원 해외연수","history-hall":"역사 홀","book":"50년사 책","anniversary":"개교기념일",
   "festival":"연화제","alumni-night":"진선인의 밤","souvenir":"기념품","video-contest":"홍보 영상 대회"};
-const SEC_NAMES = {top:"첫 화면", menus:"기념 사업 목록", donate:"기부금 현황", history:"50년 발자취", numbers:"숫자로 보는 진선", gallery:"추억 갤러리", guest:"축하 방명록"};
+const SEC_NAMES = {top:"첫 화면", menus:"기념 사업 목록", donate:"기부금 현황", history:"50년 발자취", community:"갤러리·방명록 미리보기", gallery:"추억 갤러리", guest:"축하 방명록"};
 const svgI = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const fmtDur = s => {
   s = Math.round(s || 0);
@@ -1679,7 +1927,7 @@ function accountHTML(a){
     <button class="btn acc-copy" type="button" data-copy="${esc(a.number)}">${svgI('<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/>')}계좌번호 복사</button>
   </div>`;
 }
-function renderAccount(){ $("#accountSlot").innerHTML = accountHTML(state.account); }
+function renderAccount(){ $("#accountSlot").innerHTML = accountHTML(state.account); renderDonSummary(); }
 const ACC_FIELDS = {bank:"#fBank", number:"#fNumber", holder:"#fHolder", org:"#fOrg", note:"#fNote"};
 function readAccountForm(){ const o = {}; for(const [k, s] of Object.entries(ACC_FIELDS)) o[k] = $(s).value.trim(); return o; }
 function previewAccount(){
@@ -1733,7 +1981,6 @@ function renderDday(){
   const today = new Date(); today.setHours(0, 0, 0, 0);
   const d = Math.round((OPEN_DAY - today) / 86400000);
   $("#dday").textContent = d > 0 ? `D-${d}` : d === 0 ? "D-DAY" : `D+${-d}`;
-  $("#statProjects").textContent = MENUS.length + "개";
 }
 function initHomepage(){
   /* 상단 메뉴: 스크롤하면 그림자, 지금 보는 구역 메뉴에 표시 */
@@ -1746,7 +1993,7 @@ function initHomepage(){
   };
   addEventListener("scroll", onScroll, {passive: true}); onScroll();
   /* 구역이 화면에 들어오면 부드럽게 나타나기 */
-  const items = document.querySelectorAll(".sec-head, .menu-grid, .tl, .leaders, .num-grid, #accountSlot, .summary, .board, .gal-grid, .gb-form, .gb-list");
+  const items = document.querySelectorAll(".sec-head, .gg-head, .menu-grid, .hbn, #accountSlot, .summary, .board, .gal-grid, .gb-form, .gb-list");
   if(!("IntersectionObserver" in window)) return;
   const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } }), {rootMargin: "0px 0px -8% 0px"});
   items.forEach(el => { el.classList.add("reveal"); io.observe(el); });
@@ -1770,7 +2017,8 @@ function renderLeaders(){
     ? `<li><span class="n">${x.n === 1 && x.y === "1977" ? "초대" : x.n + "대"}</span><b>${esc(x.name)}</b><span class="yr">${x.y}</span></li>`
     : `<li class="tbd"><span class="n">${x.n}대</span><b>확인 중</b><span class="yr"></span></li>`;
   $("#principals").innerHTML = leadersFrom("교장").map(li).join("");
-  $("#chairs").innerHTML = leadersFrom("이사장").map(li).join("");
+  $("#chairs").innerHTML = CHAIRS.map(([n, name, from, to]) =>
+    `<li><span class="n">${n}대</span><b>${esc(name)}</b><span class="yr">${from.slice(2, 7)} ~ ${to.slice(2, 7)}</span></li>`).join("");
 }
 function renderNumbers(){
   $("#numGrid").innerHTML = NUMBERS.map(x => `<li><span class="lbl">${esc(x.label)}</span>${
@@ -1811,6 +2059,38 @@ function renderSubAdmin(){
     </div>`).join("");
 }
 
+/* ═════════ 5-1d. 메인 배치 · 히스토리 탭 · 기부 요약 ═════════ */
+function renderDonSummary(){
+  const list = state.donations;
+  const total = list.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  document.querySelectorAll(".js-total").forEach(el => el.textContent = won(total));
+  document.querySelectorAll(".js-count").forEach(el => el.textContent = list.length.toLocaleString("ko-KR") + "명");
+  const a = state.account;
+  document.querySelectorAll(".js-acc").forEach(el => {
+    el.hidden = !(a && a.number);
+    el.innerHTML = a && a.number ? `<small>후원 계좌 · ${esc(a.bank || "")}</small><span class="acc-line"><b>${esc(a.number)}</b><button type="button" data-copy="${esc(a.number)}">복사</button></span><small>예금주 ${esc(a.holder || "")}${a.org ? " (" + esc(a.org) + ")" : ""}</small>` : "";
+  });
+  const recent = [...list].sort((x, y) => (y.createdAtMs || 0) - (x.createdAtMs || 0)).slice(0, 5);
+  document.querySelectorAll(".js-recent").forEach(el => {
+    el.innerHTML = recent.length ? recent.map(d => `<li><b>${esc(d.name)}</b><span>${won(d.amount)}</span></li>`).join("") : `<li>첫 번째 마음을 기다립니다</li>`;
+  });
+}
+function initHistoryTabs(){
+  const tabs = [...document.querySelectorAll(".h-tabs [role=tab]")];
+  const pick = t => tabs.forEach(b => {
+    const on = b === t;
+    b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
+    $("#" + b.getAttribute("aria-controls")).hidden = !on;
+  });
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => pick(t));
+    t.addEventListener("keydown", e => {
+      const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if(!d) return;
+      const n = tabs[(i + d + tabs.length) % tabs.length]; pick(n); n.focus();
+    });
+  });
+}
+
 /* ═════════ 5-2. 축하 방명록 ═════════ */
 function watchGuests(){
   if(typeof state.unsubGuest === "function") state.unsubGuest();
@@ -1818,12 +2098,16 @@ function watchGuests(){
 }
 function renderGuest(){
   const list = state.guests.filter(g => g.approved).sort((a, b) => b.createdAtMs - a.createdAtMs);
-  $("#gbCount").textContent = list.length ? `축하 메시지 ${list.length.toLocaleString("ko-KR")}개` : "";
+  const n = list.length.toLocaleString("ko-KR");
+  $("#gbCount").textContent = list.length ? `${n}개의 축하` : "";
+  $("#gbLiteCount").textContent = list.length ? `${n}개` : "";
   $("#gbList").innerHTML = list.length ? list.slice(0, state.gbShow).map(g => `<figure class="gb-card">
       <blockquote>${esc(g.msg)}</blockquote>
-      <figcaption><b>${esc(g.name)}</b><span>${fmtDate(g.createdAtMs)}</span></figcaption>
-    </figure>`).join("") : `<p class="empty">아직 게시된 메시지가 없습니다. 첫 번째 축하를 남겨 주세요.</p>`;
+      <figcaption><span class="gb-sign">${esc(g.name)}</span><time>${fmtDate(g.createdAtMs)}</time></figcaption>
+    </figure>`).join("") : `<p class="board-empty">아직 게시된 축하가 없습니다.<br>첫 번째 축하를 남겨 주세요.</p>`;
   $("#gbMore").hidden = list.length <= state.gbShow;
+  $("#gbLite").innerHTML = list.length ? list.slice(0, 2).map(g => `<li><p>${esc(g.msg)}</p><span>— ${esc(g.name)}</span></li>`).join("")
+    : `<li class="lite-empty">첫 번째 축하 글의 주인공이 되어 주세요.</li>`;
 }
 function renderGuestAdmin(){
   const wait = state.guests.filter(g => !g.approved).length;
@@ -1846,11 +2130,19 @@ function renderGuestAdmin(){
 const sortedPhotos = () => [...state.photos].sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0));
 function renderGallery(){
   const list = sortedPhotos();
-  $("#galGrid").innerHTML = list.length ? list.map((p, i) => `<button class="ph" data-ph="${i}" aria-label="${esc(p.caption || "사진")} 크게 보기">
+  const icon = svgI('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>');
+  $("#galCount").textContent = list.length ? `사진 ${list.length.toLocaleString("ko-KR")}장` : "";
+  $("#galLiteCount").textContent = list.length ? `${list.length.toLocaleString("ko-KR")}장` : "";
+  $("#galMore").hidden = list.length <= state.galShow;
+  $("#galGrid").innerHTML = list.length ? list.slice(0, state.galShow).map((p, i) => `<button class="ph" data-ph="${i}" aria-label="${esc(p.caption || "사진")} 크게 보기">
       <img src="${p.thumb}" alt="${esc(p.caption || "")}" loading="lazy">
-      ${p.caption || p.period ? `<figcaption>${p.period ? `<b>${esc(p.period)}</b>` : ""}${esc(p.caption || "")}</figcaption>` : ""}
-    </button>`).join("") : `<div class="gal-empty">${svgI('<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>')}
-      <b>사진을 모으고 있습니다</b><span>소장하신 옛 교정·졸업·행사 사진이 있다면 위의 '추억 사진 제보하기'로 보내 주세요.</span></div>`;
+      ${p.period ? `<span class="ph-tag">${esc(p.period)}</span>` : ""}
+      ${p.caption || p.by ? `<figcaption>${esc(p.caption || "")}${p.by ? `<small>제보 ${esc(p.by)}</small>` : ""}</figcaption>` : ""}
+    </button>`).join("") : `<div class="gal-empty">${icon}
+      <b>사진을 모으고 있습니다</b><span>소장하신 옛 교정·졸업·행사 사진이 있다면 '추억 사진 제보'로 보내 주세요.</span></div>`;
+  const lite = [...list].reverse().slice(0, 4);
+  $("#galLite").innerHTML = lite.length ? lite.map(p => `<button class="lite-ph" data-ph="${list.indexOf(p)}" aria-label="${esc(p.caption || "사진")} 크게 보기"><img src="${p.thumb}" alt="" loading="lazy"></button>`).join("")
+    : `<button class="lite-empty-ph" type="button" data-open="gal">${icon}<span>추억 사진을 모으고 있습니다 · 제보하기</span></button>`;
 }
 async function openPhoto(i){
   const list = sortedPhotos(); if(!list.length) return;
@@ -2005,7 +2297,8 @@ async function exportExcel(){
 buildPicks();
 const local = loadLocal();
 applyStyle(local?.theme, local?.font);
-renderMenus(); renderDonations(); renderTimeline(); renderLeaders(); renderNumbers(); renderDday(); initHomepage();
+renderMenus(); renderDonations(); renderTimeline(); renderLeaders(); renderNumbers(); renderDday(); initHomepage(); initHistoryTabs();
+document.body.classList.add("layout-" + LAYOUT);
 $("#adminEmail").value = ADMIN_EMAIL;
 document.querySelectorAll(".contact-mail").forEach(a => { a.href = "mailto:" + CONTACT_EMAIL; a.textContent = CONTACT_EMAIL; });
 if(DEMO) $("#demoBanner").hidden = false;
@@ -2071,6 +2364,7 @@ $("#gbForm").addEventListener("submit", async e => {
 });
 $("#gbMore").addEventListener("click", () => { state.gbShow += 12; renderGuest(); });
 $("#tlToggle").addEventListener("click", () => { state.tlAll = !state.tlAll; renderTimeline(); });
+$("#galMore").addEventListener("click", () => { state.galShow += 24; renderGallery(); });
 $("#gbFilter").addEventListener("click", e => {
   const b = e.target.closest("[data-f]"); if(!b) return;
   state.gbFilter = b.dataset.f;
@@ -2119,6 +2413,29 @@ $("#galAdmin").addEventListener("click", async e => {
     }
     if(b.dataset.ga === "del"){ if(!confirm("이 사진을 삭제할까요?")) return; await api.removePhoto(id); state.photoCache.delete(id); toast("삭제했습니다"); }
   }catch(err){ toast("처리하지 못했습니다 (" + (err.code || err.message) + ")"); }
+});
+
+/* 추억 갤러리 · 축하 방명록: 거의 꽉 찬 게시판 팝업 */
+function openBoard(k){
+  const d = k === "gal" ? $("#galDialog") : $("#gbDialog");
+  if(!d.open) d.showModal();
+  d.querySelector(".board-body").scrollTop = 0;
+  if(k === "gbw") setTimeout(() => $("#gbName").focus(), 60);
+}
+$("#galLite").addEventListener("click", e => { const b = e.target.closest("[data-ph]"); if(b) openPhoto(Number(b.dataset.ph)); });
+/* 진선 히스토리: 배너나 메뉴를 누르면 팝업으로 */
+function openHist(k){
+  $("#htab-" + k)?.click();
+  if(!$("#histDialog").open) $("#histDialog").showModal();
+  $("#histDialog").scrollTop = 0;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-hist]"); if(b){ openHist(b.dataset.hist); return; }
+  const o = e.target.closest("[data-open]"); if(o){ openBoard(o.dataset.open); return; }
+  const a = e.target.closest('a[href="#history"], a[href="#gallery"], a[href="#guest"]'); if(!a) return;
+  e.preventDefault();
+  const h = a.getAttribute("href");
+  if(h === "#history") openHist("tl"); else openBoard(h === "#gallery" ? "gal" : "gb");
 });
 
 /* 사진 제보 */
