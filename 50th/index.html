@@ -2735,7 +2735,7 @@ async function shareKakao(){
       if(!window.Kakao) await new Promise((res, rej) => { const s = document.createElement("script"); s.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
       if(!Kakao.isInitialized()) Kakao.init(KAKAO_JS_KEY);
       const link = {mobileWebUrl: SHARE.url, webUrl: SHARE.url};
-      Kakao.Share.sendDefault({objectType:"feed", content:{title: SHARE.title, description: SHARE.text, imageUrl: SHARE.image, link}, buttons:[{title:"누리집 보기", link}]});
+      Kakao.Share.sendDefault({objectType:"feed", content:{title: SHARE.title, description: SHARE.text, imageUrl: SHARE.image, imageWidth: 1200, imageHeight: 630, link}, buttons:[{title:"누리집 보기", link}]});
       return;
     }catch(e){ console.warn("카카오 공유", e); toast("카카오 공유 창을 열지 못해 다른 방법으로 공유합니다"); }
   }
