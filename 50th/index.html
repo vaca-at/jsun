@@ -212,9 +212,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;op
 .gnb.scrolled{border-bottom-color:var(--line);box-shadow:0 8px 22px -14px rgba(0,0,0,.3)}
 .gnb-in{display:flex;align-items:center;gap:12px 28px;height:68px}
 .brand{display:flex;align-items:center;gap:10px;flex:none;color:var(--ink);text-decoration:none}
-.brand-mark{position:relative;flex:none;display:block;width:48px;height:44px;color:var(--gold)}
-.brand-mark b{position:absolute;left:0;right:0;top:2px;text-align:center;font-family:var(--f-head);font-weight:700;font-size:19px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.brand-mark svg{position:absolute;left:0;top:20px;width:48px;height:26px}
+.brand-mark{position:relative;flex:none;display:block;width:44px;height:38px;color:var(--gold)}
+.brand-mark b{position:absolute;left:0;right:0;top:0;text-align:center;font-family:var(--f-head);font-weight:700;font-size:17px;line-height:1;letter-spacing:-.02em;background:var(--foil);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.brand-mark svg{position:absolute;left:0;top:16px;width:44px;height:23px}
 .site-foot .brand-mark{color:color-mix(in srgb,var(--gold) 55%,#fff)}
 .brand-txt{display:flex;flex-direction:column;line-height:1.25}
 .brand-txt b{font-size:1.02rem}
@@ -1452,22 +1452,22 @@ const DEMO = firebaseConfig.apiKey.startsWith("여기에");
 
 /* ═════════ 2. 메뉴 (내용은 관리자 모드에서 입력) ═════════ */
 const MENUS = [
-  {id:"overseas",      title:"50주년 기념 교직원 해외연수", memo:[["시기","2027년 2월"],["참석 인원","44명"]],
-   icon:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'},
-  {id:"history-hall",  title:"진선여고 역사 홀", memo:[["시기","2027년 1월, 2월"],["장소","본관 1층 복도"]],
-   icon:'<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>'},
-  {id:"book",          title:"진선 50년사 책 발간", memo:[["발간일","2027년 5월"]],
+  {id:"book",          title:"진선 50년사 책", memo:[["발간일","2027년 5월"]],
    icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5M9 7h7"/>'},
-  {id:"anniversary",   title:"개교기념일 행사", memo:[["날짜","2027년 5월 20일(목)"]],
+  {id:"anniversary",   title:"2027 개교기념일 행사", memo:[["날짜","2027년 5월 20일(목)"]],
    icon:'<path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1M2 21h20M7 8v3M12 8v3M17 8v3M7 4h.01M12 4h.01M17 4h.01"/>'},
-  {id:"festival",      title:"축제(연화제)", memo:[["날짜","2027년 10월 22일(금)"]],
+  {id:"festival",      title:"2027 학교 축제", memo:[["날짜","2027년 10월 22일(금)"]],
    icon:'<path d="M12 3l1.9 5.8L20 10.5l-6.1 1.7L12 18l-1.9-5.8L4 10.5l6.1-1.7z"/><path d="M19 17v4M17 19h4M5 3v3M3.5 4.5h3"/>'},
-  {id:"alumni-night",  title:"진선인의 밤(총동문회)", memo:[["날짜","2027년 5월 또는 10월"]],
+  {id:"alumni-night",  title:"2027 진선인의 밤(총동문회)", memo:[["날짜","2027년 5월 또는 10월"]],
    icon:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'},
-  {id:"souvenir",      title:"기념품 준비", memo:[["품목","에코백, 인형키링 등"]],
-   icon:'<path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>'},
+  {id:"overseas",      title:"개교 50주년 기념 교직원 해외연수", memo:[["시기","2027년 2월"],["참석 인원","44명"]],
+   icon:'<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'},
   {id:"video-contest", title:"개교 50주년 기념 홍보 동영상 제작 대회", memo:[["대상","1, 2학년 학생"],["상금","50만원"],["시기","2026년 연화제 시상"]],
-   icon:'<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>'}
+   icon:'<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 11"/><rect x="2" y="6" width="14" height="12" rx="2"/>'},
+  {id:"history-hall",  title:"진선여고 역사 홀(Hall) 조성", memo:[["시기","2027년 1월, 2월"],["장소","본관 1층 복도"]],
+   icon:'<path d="M3 21h18M5 21V11M9.5 21V11M14.5 21V11M19 21V11M2.5 11h19M12 3l9 5H3z"/>'},
+  {id:"souvenir",      title:"개교 50주년 기념품 제작", memo:[["품목","에코백, 인형키링 등"]],
+   icon:'<path d="M20 12v10H4V12M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>'}
 ];
 
 /* 학교 연혁 (출처: 진선여자고등학교 홈페이지 > 학교소개 > 학교연혁). 세 번째 값 1 = 첫 화면에 보이는 주요 연혁 */
@@ -1964,7 +1964,7 @@ function setAdmin(on){
 
 /* ═════════ 5-1. 관리자 대시보드 ═════════ */
 const SHORT = {"overseas":"교직원 해외연수","history-hall":"역사 홀","book":"50년사 책","anniversary":"개교기념일",
-  "festival":"연화제","alumni-night":"진선인의 밤","souvenir":"기념품","video-contest":"홍보 영상 대회"};
+  "festival":"학교 축제","alumni-night":"진선인의 밤","souvenir":"기념품 제작","video-contest":"홍보 영상 대회"};
 const SEC_NAMES = {top:"첫 화면", menus:"기념 사업 목록", donate:"기부금 현황", history:"50년 발자취", community:"갤러리·방명록 미리보기", gallery:"추억 갤러리", guest:"축하 방명록"};
 const svgI = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
 const fmtDur = s => {
