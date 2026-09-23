@@ -1185,7 +1185,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
       <div class="dgrid">
         <div class="panel">
           <h3>방문자 기본 디자인</h3>
-          <p class="note" style="margin-bottom:14px">처음 들어온 방문자에게 보이는 디자인과 글꼴입니다. 방문자가 직접 바꾸면 그 사람 화면에서는 바꾼 것이 유지됩니다.</p>
+          <p class="note" style="margin-bottom:14px">방문자가 들어올 때마다 보이는 디자인과 글꼴입니다. 방문자가 위쪽에서 직접 바꾸면 그 방문 동안만 유지되고, 다시 들어오면 이 기본값으로 돌아옵니다.</p>
           <label class="fld">디자인<select id="sTheme"></select></label>
           <label class="fld">글꼴<select id="sFont"></select></label>
           <button class="btn btn-primary" id="saveDefault">모두의 기본값으로 저장</button>
@@ -1379,7 +1379,7 @@ dialog.wide{width:min(1100px,calc(100% - 24px))}
         <li>카카오 JavaScript SDK: '카카오톡 공유' 버튼을 누를 때만 불러와 공유 창을 엽니다 (이 누리집은 공유 과정에서 개인정보를 받지 않습니다)</li>
       </ul>
       <h4>7. 브라우저 저장 공간</h4>
-      <p>고른 디자인·글꼴, 기기 구분용 임의 값, 방명록·사진 제보를 마지막으로 보낸 시각(연속 작성 방지용)을 이용자의 브라우저에 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 함께 지워집니다.</p>
+      <p>고른 디자인·글꼴(창을 닫으면 지워짐), 기기 구분용 임의 값, 방명록·사진 제보를 마지막으로 보낸 시각(연속 작성 방지용)을 이용자의 브라우저에 저장합니다. 브라우저 설정에서 사이트 데이터를 지우면 함께 지워집니다.</p>
       <h4>8. 열람·정정·삭제 요청</h4>
       <p>본인의 기부 내역·방명록 글·제보 사진, 또는 사진에 나온 본인 모습을 고치거나 내리고 싶으면 아래 문의처로 알려 주세요. 확인 후 바로 처리합니다.</p>
       <h4>9. 개인정보 보호 문의</h4>
@@ -1577,7 +1577,7 @@ const FONTS = [
   {id:"yuntaeng", name:"윤탱 + 나눔펜 + 개구", head:"'OwnglyphYuntaeng','Nanum Pen Script',cursive"}
 ];
 const DEFAULT_STYLE = {theme:"navy", font:"batang"};
-const LOCAL_KEY = "jinsun50-style-v3";   // 기본값(네이비와 골드 + 고운바탕)으로 모두 되돌리려고 v3로 올림
+const LOCAL_KEY = "jinsun50-style-v4";   // 방문자가 고른 디자인은 이번 방문(탭)에서만 유지, 새로 들어오면 항상 기본값
 const PAGE_SIZE = 15;          // 기부 내역 한 화면에 보이는 인원
 const ROTATE_MS = 10000;       // 한 화면이 넘으면 10초마다 다음 화면으로
 
@@ -1601,8 +1601,9 @@ function toast(msg){
   const t = $("#toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove("show"), 2400);
 }
-function loadLocal(){ try{ return JSON.parse(localStorage.getItem(LOCAL_KEY)); }catch{ return null; } }
-function saveLocal(v){ try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(v)); }catch{} }
+function loadLocal(){ try{ return JSON.parse(sessionStorage.getItem(LOCAL_KEY)); }catch{ return null; } }
+function saveLocal(v){ try{ sessionStorage.setItem(LOCAL_KEY, JSON.stringify(v)); }catch{} }
+try{ ["jinsun50-style-v2","jinsun50-style-v3"].forEach(k => localStorage.removeItem(k)); }catch{}
 const lsGet = k => { try{ return localStorage.getItem(k); }catch{ return null; } };
 const lsSet = (k, v) => { try{ localStorage.setItem(k, v); }catch{} };
 const ymdDash = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
