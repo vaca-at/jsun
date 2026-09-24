@@ -715,7 +715,7 @@ const WD = ['일','월','화','수','목','금','토'];
 
 /* ───── 상태 ───── */
 const App = { view:'home', mmode:'vertical', op:'add', level: store.get('level',1), emode:'abc', cat:'animal', qcat:'all', letter:'A',
-  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', phv:'all', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
+  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
 let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,eng:true,hanja:true,history:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
@@ -1599,11 +1599,12 @@ function renderEng(){
 const markSyl = (w,syl) => { const i=w.toLowerCase().indexOf(syl); return i<0 ? w : `${w.slice(0,i)}<span class="c-con">${w[i]}</span><span class="c-vow">${w[i+1]}</span>${w.slice(i+2)}`; };
 function drawPhonics(){
   const eb=document.getElementById('ebody'); if(!eb) return;
-  const shown=PHONICS.map((x,i)=>({x,i})).filter(o=>App.phv==='all'||o.x.v===App.phv);
+  if(!VOWELS[App.phv]) App.phv='a';
+  const shown=PHONICS.map((x,i)=>({x,i})).filter(o=>o.x.v===App.phv);
   if(!shown.some(o=>o.i===App.ph)) App.ph=shown[0].i;
   const P=PHONICS[App.ph], syl=P.c+P.v, [vk,vs]=VOWELS[P.v];
   eb.innerHTML=`
-    <div class="seg small">${pill('phv','all','전체',App.phv)}${Object.keys(VOWELS).map(v=>pill('phv',v,`모음 <span class="en">${v}</span> [${VOWELS[v][1]}]`,App.phv)).join('')}</div>
+    <div class="seg small">${Object.keys(VOWELS).map(v=>pill('phv',v,`<span class="en">${v}</span> ${VOWELS[v][1]}`,App.phv)).join('')}</div>
     <div class="seg small">${shown.map(o=>pill('ph',o.i,`<span class="en">${o.x.c+o.x.v}</span> ${o.x.ko}`,App.ph)).join('')}</div>
     <div class="card ph-hero">
       <div class="ph-eq en"><span class="c-con">${P.c}</span> + <span class="c-vow">${P.v}</span> = <span class="c-con">${P.c}</span><span class="c-vow">${P.v}</span></div>
