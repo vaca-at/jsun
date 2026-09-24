@@ -1133,13 +1133,13 @@ const calc = (a,b,op) => op==='sub' ? a-b : a+b;
 const OPS = {add:'+', sub:'−'};
 /* 연산 메뉴: 덧셈 1·2단계 / 뺄셈 1·2단계 / 10문제 도전(모두 섞어서) */
 function mrowCur(){
-  if(App.mmode==='challenge') return 'c';
+  App.mmode='vertical'; // 10문제 도전은 뺐어요
   if(App.level!==1 && App.level!==2) App.level=1;
   return (App.op==='sub'?'s':'a')+App.level;
 }
 function renderMath(){
   view.innerHTML=`
-    <div class="seg oneline">${pill('mrow','a1','➕ 덧셈 1',mrowCur())}${pill('mrow','a2','➕ 덧셈 2',mrowCur())}${pill('mrow','s1','➖ 뺄셈 1',mrowCur())}${pill('mrow','s2','➖ 뺄셈 2',mrowCur())}${pill('mrow','c','⏱ 10문제 도전',mrowCur())}</div>
+    <div class="seg oneline">${pill('mrow','a1','➕ 덧셈 1',mrowCur())}${pill('mrow','a2','➕ 덧셈 2',mrowCur())}${pill('mrow','s1','➖ 뺄셈 1',mrowCur())}${pill('mrow','s2','➖ 뺄셈 2',mrowCur())}</div>
     <p class="desc">${App.mmode==='challenge' ? '덧셈과 뺄셈이 섞여 나와요. 빨리 정확하게 풀어 봐요!' : App.op==='sub' ? SUB_LEVELS[App.level] : LEVELS[App.level].desc}</p>
     <div id="mbody"></div>`;
   App.mmode==='vertical' ? drawVertical() : drawChallenge();
@@ -1241,13 +1241,7 @@ function drawChallenge(){
   const mb=document.getElementById('mbody'); if(!mb) return;
   const best=store.get(bestKey(),null);
   const bestTxt = best ? `${best.score}개 정답, ${fmt(best.sec)}` : '아직 없어요';
-  if(!C){
-    mb.innerHTML=`<div class="card center">
-      <p class="big">10문제를 얼마나 빨리 풀 수 있을까?</p>
-      <p class="sub">덧셈·뺄셈 섞어서 · 최고 기록: ${bestTxt}</p>
-      <button class="big-btn" data-act="startC">시작하기</button></div>`;
-    return;
-  }
+  if(!C){ startC(); return; }
   if(C.done){
     mb.innerHTML=`<div class="card center">
       <p class="big">${C.correct===10?'🏆 10문제 모두 정답!':`10문제 중 ${C.correct}개 맞았어요!`}</p>
@@ -1262,6 +1256,7 @@ function drawChallenge(){
       <div class="dots">${C.list.map((_,i)=>`<span class="dot ${i<C.i?(C.res[i]?'ok':'no'):(i===C.i?'cur':'')}"></span>`).join('')}</div>
       <div class="hq"><span>${a} ${OPS[op]} ${b} =</span><span class="ansbox ${C.flash}">${C.input||'&nbsp;'}</span></div>
       <div class="hint">${C.note||'답을 누르고 확인!'}</div>
+      <div class="sub" style="font-size:.85rem">⏱ 최고 기록: ${bestTxt}</div>
     </div>${keypad('c')}${C.lock?'':skipBtn('key','skip')}`;
 }
 function cKey(v){
@@ -1535,14 +1530,7 @@ function startS(){
 }
 function drawS(){
   const sb=document.getElementById('sbody'); if(!sb) return;
-  if(!S || S.unit!==App.unit){
-    S=null;
-    sb.innerHTML=`<div class="card center">
-      <p class="big">${UNITS[App.unit].name}</p>
-      <p class="sub">10문제를 풀어 봐요. 맞힌 만큼 별을 받아요!</p>
-      <button class="big-btn" data-act="startS">시작하기</button></div>`;
-    return;
-  }
+  if(!S || S.unit!==App.unit){ startS(); return; }
   if(S.done){
     sb.innerHTML=`<div class="card center">
       <p class="big">${S.correct===10?'🏆 10문제 모두 정답!':`10문제 중 ${S.correct}개 맞았어요!`}</p>
@@ -1905,11 +1893,7 @@ function hsWrongNote(id, add){
 }
 function drawHQuizArea(){
   const b=document.getElementById('hsbody'); if(!b) return;
-  if(HQ && HQ.kind==='quiz'){ drawHQ(); return; }
-  b.innerHTML=`
-    <div class="seg small">${pill('hqera','all','🌈 전체',App.hqera)}${ERAS.map(e=>pill('hqera',e[0],e[1],App.hqera)).join('')}</div>
-    <div class="card center"><p class="big">한국사 퀴즈 10문제</p><p class="sub">설명을 읽고 누구인지, 무엇인지 맞혀 봐요.</p>
-    <button class="big-btn" data-act="hqStart" data-v="quiz">시작하기</button></div>`;
+  if(HQ && HQ.kind==='quiz') drawHQ(); else startHQ('quiz');
 }
 function drawExam(){
   const b=document.getElementById('hsbody'); if(!b) return;
@@ -1940,6 +1924,7 @@ function drawExam(){
     </div>
     <p class="sub center" style="font-size:.85rem">※ 이 앱의 문제는 공부용 연습 문제예요. 실제 기출문제가 아니에요.</p>`;
 }
+const hqEraPills = () => HQ && HQ.kind==='quiz' ? `<div class="seg small">${pill('hqera','all','🌈 전체',App.hqera)}${ERAS.map(e=>pill('hqera',e[0],e[1],App.hqera)).join('')}</div>` : '';
 function drawHQ(){
   const b=document.getElementById('hsbody'); if(!b||!HQ) return;
   if(HQ.done){
@@ -1948,21 +1933,21 @@ function drawHQ(){
       const pts=HQ.score*5, grade=pts>=80?'4급':pts>=70?'5급':pts>=60?'6급':'';
       res=`<p class="big">${pts}점</p><p>${grade?`기본 시험 <b>${grade}</b> 수준이에요! 🎉`:'조금만 더 공부하면 6급(60점)이에요. 힘내요!'}</p><p class="sub">걸린 시간: ${fmt(HQ.sec)}</p>`;
     } else res=`<p class="big">${HQ.score===HQ.list.length?'🏆 모두 한 번에 맞혔어요!':`${HQ.list.length}문제 중 ${HQ.score}개를 한 번에 맞혔어요!`}</p>`;
-    b.innerHTML=`<div class="card center"><p class="sub">${HQ_KIND[HQ.kind]}</p>${res}<p>받은 별: ⭐ ${HQ.score}개</p>
+    b.innerHTML=`${hqEraPills()}<div class="card center"><p class="sub">${HQ_KIND[HQ.kind]}</p>${res}<p>받은 별: ⭐ ${HQ.score}개</p>
       ${HQ.wrong.length?`<p class="sub">틀린 ${HQ.wrong.length}문제는 📒 오답 노트에 모았어요.</p>`:''}
       <button class="big-btn" data-act="hqStart" data-v="${HQ.kind}">다시 하기</button>
-      <div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div></div>`;
+      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div>'}</div>`;
     return;
   }
   const q=HQ.list[HQ.i], n=HQ.list.length;
   const cls=i=> HQ.solved && q.choices[i]===q.ans ? 'ok' : (HQ.picked && HQ.picked.includes(i) ? 'no' : '');
-  b.innerHTML=`<div class="card">
+  b.innerHTML=`${hqEraPills()}<div class="card">
       <div class="qtop"><span>${HQ_KIND[HQ.kind]} · ${HQ.i+1} / ${n}</span><span>⭐ ${HQ.score}</span></div>
       <div class="sq hs-q">${q.html}</div>
       <div class="choices words hs-ch">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hqPick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
       ${HQ.solved && HQ.note ? `<div class="hint">${HQ.note}</div>` : ''}
       ${HQ.solved?'':skipBtn('hqSkip')}
-      <div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div>
+      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div>'}
     </div>`;
 }
 function hqPick(i){
