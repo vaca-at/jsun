@@ -123,6 +123,10 @@ main{padding:16px 12px 40px 28px}
 .bn-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
 .bn-btns .pill{font-size:.95rem;padding:.35rem .8rem}
 .grasscard{margin-top:12px}
+.deco{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.deco-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.deco-row b{font-weight:normal;color:var(--sub);min-width:4.5em}
+.deco-row .seg{margin:0}
 .grass-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
 .grass-head b{font-weight:normal;font-size:1.2rem}
 .grass-wrap{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 4px}
@@ -387,7 +391,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
     </nav>
     <h1><button id="whoBtn" data-act="showLogin" aria-label="이름 바꾸기">초2 공부방</button></h1>
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
-    <button class="iconbtn" data-act="openSet" aria-label="꾸미기">🎨</button>
+    <button class="iconbtn" data-act="openSet" aria-label="설정">⚙️</button>
   </div>
   <div class="nowbar"><span id="nowDate"></span><span id="nowTime"></span></div>
   <div class="tabs">
@@ -506,32 +510,90 @@ const WORDS = {
 const QUIZ_CATS = ['animal','food','color','number','body'];
 /* 소리 합치기: 자음 + 모음 o → 같은 소리로 시작하는 단어 묶음 (say: 기계 음성이 그 소리로 읽도록 쓴 철자) */
 const VOWELS = { a:['ㅏ','아'], i:['ㅣ','이'], o:['ㅗ','오'], u:['ㅜ','우'] };
-const PH = (c,v,ck,ko,say,words) => ({c,v,ck,ko,say,words:words.map(([w,k,e])=>({w,k,e}))});
-const PHONICS = [
-  PH('b','a','ㅂ','바','bah',[['banana','바나나','🍌'],['barbecue','바비큐','🍖'],['ballet','발레','🩰']]),
-  PH('b','o','ㅂ','보','beau',[['boat','배','⛵'],['bone','뼈','🦴'],['bowl','그릇','🥣'],['bow','리본','🎀']]),
-  PH('g','a','ㄱ','가','gah',[['garden','정원','🌷'],['garlic','마늘','🧄'],['gas','가스','⛽']]),
-  PH('g','i','ㄱ','기','ghee',[['gift','선물','🎁'],['giggle','킥킥 웃다','😆'],['give','주다','🤲']]),
-  PH('g','o','ㄱ','고','go',[['go','가다','🏃'],['goat','염소','🐐'],['goal','골','⚽'],['gold','금','🥇']]),
-  PH('h','o','ㅎ','호','hoe',[['home','집','🏠'],['hotel','호텔','🏨'],['hole','구멍','🕳️'],['hose','호스','🚿']]),
-  PH('j','a','ㅈ','자','jah',[['jar','병','🫙'],['pajamas','잠옷','🛌']]),
-  PH('k','i','ㅋ','키','key',[['kiwi','키위','🥝'],['king','왕','👑'],['kick','차다','🦵']]),
-  PH('m','a','ㅁ','마','mah',[['mama','엄마','👩'],['market','시장','🛒'],['tomato','토마토','🍅']]),
-  PH('m','i','ㅁ','미','me',[['milk','우유','🥛'],['mint','민트','🌿'],['mirror','거울','🪞']]),
-  PH('n','i','ㄴ','니','knee',[['ninja','닌자','🥷'],['tennis','테니스','🎾'],['zucchini','애호박','🥒']]),
-  PH('n','o','ㄴ','노','no',[['no','아니','🙅'],['nose','코','👃'],['note','메모','📝'],['notebook','공책','📓']]),
-  PH('p','a','ㅍ','파','pah',[['party','파티','🎉'],['pasta','파스타','🍝'],['papa','아빠','👨']]),
-  PH('p','i','ㅍ','피','pea',[['pizza','피자','🍕'],['pig','돼지','🐷'],['piano','피아노','🎹'],['pink','분홍색','🩷']]),
-  PH('p','o','ㅍ','포','poe',[['potato','감자','🥔'],['pony','조랑말','🐴'],['polar bear','북극곰','🐻‍❄️'],['pose','자세','🧍']]),
-  PH('p','u','ㅍ','푸','poo',[['pudding','푸딩','🍮'],['push','밀다','👉']]),
-  PH('r','o','ㄹ','로','row',[['robot','로봇','🤖'],['rose','장미','🌹'],['road','길','🛣️'],['rope','밧줄','🪢']]),
-  PH('r','u','ㄹ','루','roo',[['ruby','루비','💎'],['ruler','자','📏']]),
-  PH('s','o','ㅅ','소','so',[['sofa','소파','🛋️'],['soda','탄산음료','🥤'],['soap','비누','🧼'],['solo','혼자 부르기','🎤']]),
-  PH('s','u','ㅅ','수','sue',[['sushi','초밥','🍣'],['super','아주 멋진','🦸'],['suit','정장','👔']]),
-  PH('t','a','ㅌ','타','tah',[['taco','타코','🌮'],['target','과녁','🎯'],['guitar','기타','🎸']]),
-  PH('t','o','ㅌ','토','toe',[['tomato','토마토','🍅'],['toast','토스트','🍞'],['toe','발가락','🦶'],['total','모두 합친','🧮']]),
-  PH('t','u','ㅌ','투','two',[['tutu','발레 치마','🩰'],['tuba','튜바','🎺'],['tuna','참치','🐟']])
-].sort((x,y)=>(x.c+x.v).localeCompare(y.c+y.v));
+/* 자음 15개 × 모음 4개. ck: 비슷한 한글 자음, tip: 한글과 다른 소리 설명 */
+const CONS = {
+  b:{ck:'ㅂ',cho:7}, d:{ck:'ㄷ',cho:3}, f:{ck:'ㅍ',cho:17,tip:'윗니로 아랫입술을 살짝 물고 바람을 내보내요'},
+  g:{ck:'ㄱ',cho:0}, h:{ck:'ㅎ',cho:18}, j:{ck:'ㅈ',cho:12}, k:{ck:'ㅋ',cho:15},
+  l:{ck:'ㄹ',cho:5,tip:'혀끝을 윗니 뒤에 붙였다 떼요'}, m:{ck:'ㅁ',cho:6}, n:{ck:'ㄴ',cho:2}, p:{ck:'ㅍ',cho:17},
+  r:{ck:'ㄹ',cho:5,tip:'혀끝을 입천장에 닿지 않게 안쪽으로 말아요'}, s:{ck:'ㅅ',cho:9}, t:{ck:'ㅌ',cho:16},
+  v:{ck:'ㅂ',cho:7,tip:'윗니로 아랫입술을 살짝 물고 떨리게 소리 내요'}
+};
+const JUNG = {a:0, i:20, o:8, u:13};
+/* 기계 음성이 그 소리로 읽도록 쓴 철자 */
+const SAY = {
+  a:{b:'bah',d:'dah',f:'fah',g:'gah',h:'hah',j:'jah',k:'kah',l:'lah',m:'mah',n:'nah',p:'pah',r:'rah',s:'sah',t:'tah',v:'vah'},
+  i:{b:'bee',d:'dee',f:'fee',g:'ghee',h:'he',j:'gee',k:'key',l:'lee',m:'me',n:'knee',p:'pea',r:'ree',s:'see',t:'tea',v:'vee'},
+  o:{b:'beau',d:'doe',f:'foe',g:'go',h:'hoe',j:'joe',k:'co',l:'low',m:'mow',n:'no',p:'poe',r:'row',s:'so',t:'toe',v:'voe'},
+  u:{b:'boo',d:'do',f:'foo',g:'goo',h:'who',j:'joo',k:'coo',l:'loo',m:'moo',n:'noo',p:'poo',r:'roo',s:'sue',t:'two',v:'voo'}
+};
+/* 그 소리 글자가 들어 있는 단어 [단어, 뜻, 그림] */
+const PW = {
+  ba:[['banana','바나나','🍌'],['baby','아기','👶'],['bath','목욕','🛁']],
+  bi:[['bike','자전거','🚲'],['bird','새','🐦'],['big','큰','🐘']],
+  bo:[['boat','배','⛵'],['bone','뼈','🦴'],['box','상자','📦']],
+  bu:[['bus','버스','🚌'],['bug','벌레','🐛'],['butter','버터','🧈']],
+  da:[['dad','아빠','👨'],['dance','춤','💃'],['dark','어두운','🌑']],
+  di:[['dinosaur','공룡','🦕'],['dish','접시','🍽️'],['dig','파다','⛏️']],
+  do:[['dog','개','🐶'],['doll','인형','🪆'],['door','문','🚪']],
+  du:[['duck','오리','🦆'],['dumpling','만두','🥟']],
+  fa:[['family','가족','👪'],['farm','농장','🚜'],['father','아버지','👨']],
+  fi:[['fish','물고기','🐟'],['five','다섯','5️⃣'],['finger','손가락','☝️']],
+  fo:[['fox','여우','🦊'],['fork','포크','🍴'],['food','음식','🍔']],
+  fu:[['fun','재미','🎉'],['funny','웃긴','🤣']],
+  ga:[['garden','정원','🌷'],['game','게임','🎮'],['gas','가스','⛽']],
+  gi:[['gift','선물','🎁'],['giggle','킥킥 웃다','😆'],['give','주다','🤲']],
+  go:[['go','가다','🏃'],['goat','염소','🐐'],['gold','금','🥇']],
+  gu:[['gum','껌','🍬'],['guitar','기타','🎸']],
+  ha:[['hat','모자','🎩'],['hand','손','✋'],['happy','행복한','😊']],
+  hi:[['hi','안녕','👋'],['hill','언덕','⛰️'],['hippo','하마','🦛']],
+  ho:[['home','집','🏠'],['horse','말','🐴'],['hot','뜨거운','🔥']],
+  hu:[['hug','껴안다','🤗'],['hut','오두막','🛖'],['hungry','배고픈','😋']],
+  ja:[['jam','잼','🍓'],['jar','병','🫙'],['jacket','재킷','🧥']],
+  ji:[['jigsaw','조각 퍼즐','🧩'],['jingle','딸랑딸랑','🔔']],
+  jo:[['jog','천천히 달리다','🏃'],['joke','농담','😂'],['joy','기쁨','😄']],
+  ju:[['juice','주스','🧃'],['jump','뛰다','🦘'],['jungle','정글','🌴']],
+  ka:[['kangaroo','캥거루','🦘'],['karate','가라테','🥋'],['kayak','카약','🛶']],
+  ki:[['kiwi','키위','🥝'],['king','왕','👑'],['kite','연','🪁']],
+  ko:[['koala','코알라','🐨'],['Korea','한국','🇰🇷']],
+  ku:[['kung fu','쿵후','🥋']],
+  la:[['lamp','전등','💡'],['lake','호수','🏞️'],['ladder','사다리','🪜']],
+  li:[['lion','사자','🦁'],['lip','입술','👄'],['lily','백합','🌸']],
+  lo:[['lollipop','막대사탕','🍭'],['log','통나무','🪵'],['love','사랑','❤️']],
+  lu:[['lunch','점심','🍱'],['lucky','운이 좋은','🍀'],['blue','파란색','🔵']],
+  ma:[['mama','엄마','👩'],['map','지도','🗺️'],['mango','망고','🥭']],
+  mi:[['milk','우유','🥛'],['mint','민트','🌿'],['mirror','거울','🪞']],
+  mo:[['mom','엄마','👩'],['moon','달','🌙'],['monkey','원숭이','🐵']],
+  mu:[['music','음악','🎵'],['mug','머그잔','☕'],['mud','진흙','🟤']],
+  na:[['nap','낮잠','😴'],['name','이름','📛'],['banana','바나나','🍌']],
+  ni:[['ninja','닌자','🥷'],['night','밤','🌙'],['nine','아홉','9️⃣']],
+  no:[['no','아니','🙅'],['nose','코','👃'],['note','메모','📝']],
+  nu:[['nut','견과','🥜'],['number','숫자','🔢'],['nurse','간호사','🧑‍⚕️']],
+  pa:[['papa','아빠','👨'],['party','파티','🎉'],['panda','판다','🐼']],
+  pi:[['pizza','피자','🍕'],['pig','돼지','🐷'],['piano','피아노','🎹']],
+  po:[['potato','감자','🥔'],['pot','냄비','🍲'],['pony','조랑말','🐴']],
+  pu:[['pudding','푸딩','🍮'],['push','밀다','👉'],['puppy','강아지','🐶']],
+  ra:[['rabbit','토끼','🐰'],['rain','비','🌧️'],['radio','라디오','📻']],
+  ri:[['ring','반지','💍'],['rice','밥','🍚'],['river','강','🏞️']],
+  ro:[['robot','로봇','🤖'],['rose','장미','🌹'],['rock','바위','🪨']],
+  ru:[['ruby','루비','💎'],['ruler','자','📏'],['run','달리다','🏃']],
+  sa:[['sand','모래','🏖️'],['salad','샐러드','🥗'],['sad','슬픈','😢']],
+  si:[['sit','앉다','🪑'],['six','여섯','6️⃣'],['sister','언니 · 누나','👧']],
+  so:[['sofa','소파','🛋️'],['soap','비누','🧼'],['sock','양말','🧦']],
+  su:[['sushi','초밥','🍣'],['sun','해','☀️'],['sugar','설탕','🍬']],
+  ta:[['taco','타코','🌮'],['taxi','택시','🚕'],['table','탁자','🍽️']],
+  ti:[['tiger','호랑이','🐯'],['tiny','아주 작은','🐜'],['ticket','표','🎫']],
+  to:[['tomato','토마토','🍅'],['toy','장난감','🧸'],['toe','발가락','🦶']],
+  tu:[['tuba','튜바','🎺'],['tutu','발레 치마','🩰'],['turtle','거북','🐢']],
+  va:[['van','승합차','🚐'],['vase','꽃병','🏺'],['lava','용암','🌋']],
+  vi:[['violin','바이올린','🎻'],['village','마을','🏘️'],['video','비디오','📹']],
+  vo:[['volcano','화산','🌋'],['voice','목소리','🗣️'],['volleyball','배구','🏐']],
+  vu:[['vulture','독수리','🦅']]
+};
+const PHONICS = Object.keys(CONS).flatMap(cn=>Object.keys(JUNG).map(v=>({
+  c:cn, v, ck:CONS[cn].ck, tip:CONS[cn].tip||'', say:SAY[v][cn],
+  ko:String.fromCharCode(0xAC00+(CONS[cn].cho*21+JUNG[v])*28),
+  words:(PW[cn+v]||[]).map(([w,k,e])=>({w,k,e}))
+}))).sort((x,y)=>(x.c+x.v).localeCompare(y.c+y.v));
 /* 한국사: 시대, 종류(p 사람 / e 사건 · 문화유산), 이름, 그림, 설명(이름은 넣지 않아요), 연도 */
 const ERAS = [
   ['pre','선사 시대','구석기 → 신석기 → 청동기'],
@@ -1036,7 +1098,8 @@ function loadProfile(name){
   App.level=store.get('level',1); App.op=store.get('op','add'); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
   settings=Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
-  if(settings.fontV!==2){ if(settings.font==='combo1'||settings.font==='study') settings.font='combo3'; settings.fontV=2; }
+  if(settings.fontV!==2){ if(settings.font==='combo1') settings.font='combo3'; settings.fontV=2; }
+  if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='combo3'; // 한 가지 글씨체는 없어졌어요
   stars=store.get('stars',0);
   V=C=Q=S=H=HQ=null; App.view='home'; lastDay=dayKey();
   markVisit(); applySettings(); updateStars();
@@ -1086,6 +1149,13 @@ function provHTML(){
       <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
     </div></div>`;
 }
+function decoHTML(){
+  const s=(k,v,label)=>`<button class="pill ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
+  return `<div class="card deco">
+    <div class="deco-row"><b>🎨 디자인</b><div class="seg">${s('theme','note','📒 공책')}${s('theme','chalk','🟩 칠판')}${s('theme','crayon','🖍️ 크레파스')}</div></div>
+    <div class="deco-row"><b>✏️ 글씨</b><div class="seg">${Object.entries(FONTS).filter(([k,f])=>f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}" style="font-family:${f.t};font-weight:${f.tw||'normal'}">${f.name}</button>`).join('')}</div></div>
+  </div>`;
+}
 function drawBanner(){ const b=document.getElementById('banner'); if(b) b.outerHTML=provHTML(); }
 function renderHome(){
   const d=getLog()[dayKey()]||{};
@@ -1101,13 +1171,14 @@ function renderHome(){
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
     </div>
     <div class="subjects">
-      ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
       <button class="subj clocktile" data-act="clockTile" aria-label="시계 보기 공부하러 가기">
         <span id="homeClock"></span><span class="bigtime" id="homeTime"></span><small id="homeDate"></small>
       </button>
       <button class="subj" data-act="tab" data-v="sticker"><span class="ico">🏅</span><b>칭찬 스티커</b><small>별 ${left}개만 더 모으면 새 스티커!</small></button>
+      ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
     </div>
     <div class="card grasscard">${grassHTML()}</div>
+    ${decoHTML()}
     <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
   tick();
@@ -1611,6 +1682,7 @@ function drawPhonics(){
       <div class="ph-ko"><span class="c-con">${P.ck}</span> + <span class="c-vow">${vk}</span> = ${P.ko}</div>
       <button class="spk" data-act="say" data-v="${P.say}">🔊 ${P.ko} 소리 듣기</button>
       <p class="ph-tip"><span class="c-con">자음 ${P.c} = [${P.ck}] 소리</span> · <span class="c-vow">모음 ${P.v} = [${vs}] 소리</span> → 붙이면 [${P.ko}]!</p>
+      ${P.tip?`<p class="ph-tip" style="color:var(--ink)">👄 <b class="en">${P.c}</b>: ${P.tip}</p>`:''}
       <p class="ph-tip" style="font-size:.85rem">영어 소리는 한글과 조금 달라요. 🔊로 꼭 들어 봐요.</p>
     </div>
     <p class="desc" style="margin-top:12px">‘${syl}’ 소리가 들어 있는 단어예요. 카드를 누르면 소리가 나와요.</p>
@@ -2006,9 +2078,7 @@ const FONTS = {
   combo1:{name:'🎈 말랑 조합', combo:true, t:"'GMarketSans'", css:"'NexonLv2Gothic'", p:"'MitmiFont'", tw:700, scale:1},
   combo2:{name:'✏️ 손글씨 조합', combo:true, t:"'OwnglyphYuntaeng'", css:"'GangwonEducationSaeum'", p:"'OngleipKimkonghae'", scale:1.2},
   combo3:{name:'📖 또박 조합', combo:true, t:"'OngleipTterom'", css:"'NanumSquare'", p:"'OwnglyphYuntaeng'", scale:1},
-  study:{name:'공부잘하자나', css:"'OngleipStudyWell'", scale:1.25},
-  daelong:{name:'대롱체', css:"'OnglippDaelong'", scale:1.2},
-  jua:{name:'주아체', css:"'Jua'", scale:1}
+  jua:{name:'주아체', css:"'Jua'", scale:1}   // 글꼴을 못 불러올 때만 쓰는 기본값
 };
 function applySettings(){
   document.body.dataset.theme=settings.theme;
@@ -2036,10 +2106,7 @@ function drawSettings(){
   if(setMode==='admin'){ box.innerHTML=adminHTML(); return; }
   const s=(k,v,label)=>`<button class="pill ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
   box.innerHTML=`
-    <h3>🎨 꾸미기</h3>
-    <p class="lbl">디자인</p><div class="seg">${s('theme','note','📒 공책')}${s('theme','chalk','🟩 칠판')}${s('theme','crayon','🖍️ 크레파스')}</div>
-    <p class="lbl">글씨 조합 <small>(제목 · 본문 · 포인트)</small></p><div class="seg">${Object.entries(FONTS).filter(([k,f])=>f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}"><span style="font-family:${f.t};font-weight:${f.tw||'normal'}">${f.name}</span> <small style="font-family:${f.css}">본문</small> <small style="font-family:${f.p}">포인트</small></button>`).join('')}</div>
-    <p class="lbl">한 가지 글씨체</p><div class="seg">${Object.entries(FONTS).filter(([k,f])=>!f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}" style="font-family:${f.css}">${f.name}</button>`).join('')}</div>
+    <h3>⚙️ 설정</h3>
     <p class="lbl">글자 크기</p><div class="seg">${s('size',1,'보통')}${s('size',1.15,'크게')}${s('size',1.3,'아주 크게')}</div>
     <p class="lbl">효과음</p><div class="seg">${s('sound',true,'🔔 켜기')}${s('sound',false,'🔕 끄기')}</div>
     <button class="big-btn" data-act="closeSet">닫기</button>
@@ -2186,7 +2253,8 @@ const ACT = {
   set: (v,el)=>{
     const k=el.dataset.k;
     settings[k] = k==='size' ? +v : (k==='sound' ? v==='true' : v);
-    applySettings(); drawSettings();
+    applySettings();
+    if(document.getElementById('settings').hidden) render(); else drawSettings();
   },
   adm: (v,el)=>{
     const k=el.dataset.k;
