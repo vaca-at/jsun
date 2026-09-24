@@ -125,6 +125,14 @@ main{padding:16px 12px 40px 28px}
 .bn-ex{margin:6px 0 0;padding:8px 10px;border-radius:12px;background:var(--paper);border:2px dashed var(--line);font-size:.92rem;line-height:1.5;color:var(--sub);text-align:center}
 .bn-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
 .bn-btns .pill{font-size:.95rem;padding:.35rem .8rem}
+/* 오른쪽 위에 떠 있는 시계 · 스티커 타일 */
+.dock{position:fixed;top:128px;right:max(12px, calc((100vw - 780px) / 2 - 104px));z-index:30;display:flex;flex-direction:column;gap:10px}
+.dock-t{width:84px;padding:10px 4px;border-radius:18px;background:var(--card);border:2px solid var(--line);box-shadow:0 6px 16px rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15}
+.dock-t small{font-size:.75rem;color:var(--sub)}
+.dock-t i{font-style:normal;font-size:.72rem;color:var(--sub)}
+.dock-t b{font-size:1.35rem;font-weight:normal;font-family:var(--font-t),var(--font),'Jua',sans-serif;font-variant-numeric:tabular-nums}
+.dk-ico{font-size:1.7rem;line-height:1.1}
+@media (max-width:1000px){ main{padding-right:100px} }
 .grasscard{margin-top:12px}
 .deco{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .deco-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -341,7 +349,11 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 
 @media (max-width:520px){
   header{padding-left:22px}
-  main{padding-left:22px;padding-right:10px}
+  main{padding-left:22px;padding-right:76px}
+  .dock{top:150px;right:8px;gap:6px}
+  .dock-t{width:60px;padding:6px 2px;border-radius:14px}
+  .dock-t b{font-size:1.05rem}
+  .dk-ico{font-size:1.3rem}
   body[data-theme="note"]::before{left:12px}
   h1{font-size:1.1rem}
   .grade a{padding:.3rem .6rem}
@@ -396,7 +408,6 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
     <button class="iconbtn" data-act="openSet" aria-label="설정">⚙️</button>
   </div>
-  <div class="nowbar"><span id="nowDate"></span><span id="nowTime"></span></div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">🏠 홈</button>
     <button class="tab" data-act="tab" data-v="math">➕➖ 연산</button>
@@ -407,6 +418,11 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
     <button class="tab" data-act="tab" data-v="sticker">🏅 스티커</button>
   </div>
 </header>
+
+<aside class="dock" aria-label="시계와 스티커">
+  <button class="dock-t" data-act="clockTile" aria-label="시계 공부하러 가기"><small id="dkDate"></small><i id="dkAp"></i><b id="dkTime"></b></button>
+  <button class="dock-t" data-act="tab" data-v="sticker" aria-label="스티커 보기"><span class="dk-ico">🏅</span><small>스티커</small><b id="dkStk"></b></button>
+</aside>
 
 <main id="view"></main>
 
@@ -855,7 +871,7 @@ function markO(){
 const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v="${v}">⏭ 모르겠어요, 넘어가기</button>`;
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
-function updateStars(){ document.getElementById('starCount').textContent=stars; }
+function updateStars(){ document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(Math.floor(stars/10),STICKERS.length)}장`; }
 function addStar(n){
   if(n<=0) return;
   const before=Math.floor(stars/10);
@@ -930,8 +946,9 @@ function tick(){
   const t=new Date(), h=t.getHours(), m=t.getMinutes(), s=t.getSeconds();
   const ap=h<12?'오전':'오후', h12=h%12||12;
   const date=`${t.getFullYear()}년 ${t.getMonth()+1}월 ${t.getDate()}일 ${WD[t.getDay()]}요일`;
-  document.getElementById('nowDate').textContent=`📅 ${date}`;
-  document.getElementById('nowTime').textContent=`⏰ ${ap} ${h12}:${pad(m)}:${pad(s)}`;
+  document.getElementById('dkDate').textContent=`${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})`;
+  document.getElementById('dkAp').textContent=ap;
+  document.getElementById('dkTime').textContent=`${h12}:${pad(m)}`;
   const hc=document.getElementById('homeClock');
   if(hc){
     hc.innerHTML=clockSVG(h,m,s);
@@ -1174,10 +1191,6 @@ function renderHome(){
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
     </div>
     <div class="subjects">
-      <button class="subj clocktile" data-act="clockTile" aria-label="시계 보기 공부하러 가기">
-        <span id="homeClock"></span><span class="bigtime" id="homeTime"></span><small id="homeDate"></small>
-      </button>
-      <button class="subj" data-act="tab" data-v="sticker"><span class="ico">🏅</span><b>칭찬 스티커</b><small>별 ${left}개만 더 모으면 새 스티커!</small></button>
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
     </div>
     <div class="card grasscard">${grassHTML()}</div>
