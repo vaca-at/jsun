@@ -7,9 +7,6 @@
 <title>하루 10분 외국어</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
 <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@500;700&family=Nanum+Pen+Script&family=Klee+One:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
-<!-- 파이어스토어 연결용 (설정값을 넣기 전에는 기기 저장 모드로 동작) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 :root,:root[data-design="toss"]{
   --bg:#f2f4f6; --card:#ffffff; --line:#e5e8eb; --line2:#f2f4f6;
@@ -50,7 +47,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);-webkit-fon
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .jp,.word,.kana{font-family:var(--f-card)}
-.card-title,.hello,header h1,#login h2{font-family:var(--f-title)}
+.card-title,.hello,header h1{font-family:var(--f-title)}
 
 #app{max-width:480px;margin:0 auto;min-height:100%;padding:16px 16px 40px}
 header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
@@ -137,13 +134,6 @@ nav.tabs button span{font-size:19px;filter:grayscale(1);opacity:.55}
 nav.tabs button.on{background:var(--accent);color:var(--accent-ink)}
 nav.tabs button.on span{filter:none;opacity:1}
 
-#login{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
-#login .card{width:100%;max-width:380px}
-#login h2{font-size:24px;font-weight:900;letter-spacing:-.02em;margin-bottom:6px}
-#login p{color:var(--sub);font-size:14px;line-height:1.6;margin-bottom:18px}
-#login label{display:block;font-size:13px;font-weight:700;color:var(--sub);margin:12px 0 6px}
-#login input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;font-family:inherit}
-#login .btn{width:100%;margin-top:18px}
 .mode{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--gold-soft);color:var(--gold);margin-top:10px}
 #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;white-space:nowrap}
 #toast.show{opacity:1}
@@ -151,6 +141,7 @@ nav.tabs button.on span{filter:none;opacity:1}
 .watermark{display:none}
 .card.framed{outline:none}
 .style-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 14px 4px;margin-bottom:14px}
+.privacy{font-size:12.5px;color:var(--sub);line-height:1.6;margin:0 0 12px}
 .style-panel .lbl{font-size:13px;font-weight:700;color:var(--sub);margin-bottom:6px}
 [data-design="toss"] .card{border:none}
 [data-design="toss"] .stat,[data-design="toss"] .topic{border:none}
@@ -172,7 +163,6 @@ nav.tabs button.on span{filter:none;opacity:1}
 [data-font="3"] .card-title{font-size:27px}
 [data-font="3"] .hello{font-size:31px;line-height:1.15}
 [data-font="3"] header h1{font-size:27px}
-[data-font="3"] #login h2{font-size:34px}
 [data-font="9"] body{font-size:17px}
 [data-font="9"] .meaning{font-size:24px}
 [data-font="9"] .tip{font-size:15.5px}
@@ -182,28 +172,21 @@ nav.tabs button.on span{filter:none;opacity:1}
 </head>
 <body>
 
-<div id="login">
-  <div class="card framed">
-    <h2>하루 10분 외국어</h2>
-    <p>영어와 일본어를 기초부터, 여행에서 바로 쓰는 한마디까지.<br>이름과 숫자 4자리로 들어오면 공부한 기록이 이어져요.</p>
-    <label for="inName">이름</label>
-    <input id="inName" placeholder="예: 문선영" autocomplete="off">
-    <label for="inPin">숫자 4자리 (나만 아는 번호)</label>
-    <input id="inPin" inputmode="numeric" maxlength="4" placeholder="예: 0915" autocomplete="off">
-    <button class="btn main" onclick="doLogin()">공부 시작하기</button>
-    <div style="text-align:center"><span class="mode" id="modeTag"></span></div>
-  </div>
-</div>
-
 <div id="app">
   <header>
-    <h1>하루 10분 외국어<small id="whoLine"></small></h1>
+    <h1>하루 10분 외국어<small>로그인 없이 · 기록은 이 기기에만 저장돼요</small></h1>
     <button class="icon-btn" onclick="togglePanel()" aria-label="디자인과 글씨체 바꾸기" title="디자인·글씨체">🎨</button>
-    <button class="icon-btn" onclick="logout()" aria-label="로그아웃" title="로그아웃">⎋</button>
   </header>
   <div class="style-panel" id="stylePanel" hidden>
     <div class="lbl">디자인</div><div class="chips" id="designChips"></div>
     <div class="lbl">글씨체</div><div class="chips" id="fontChips"></div>
+    <div class="lbl">내 기록</div>
+    <div class="chips">
+      <button class="chip" onclick="exportData()">기록 코드 복사</button>
+      <button class="chip" onclick="importData()">기록 코드 붙여넣기</button>
+      <button class="chip" onclick="resetData()">기록 지우기</button>
+    </div>
+    <p class="privacy">공부 기록은 서버로 전송되지 않고 지금 쓰는 브라우저에만 남아요. 다른 선생님은 물론 만든 사람도 볼 수 없어요. 폰과 PC를 오갈 때는 기록 코드를 복사해서 옮기면 돼요.</p>
   </div>
   <div class="lang-switch">
     <button id="lg-en" onclick="setLang('en')">🇺🇸 영어</button>
@@ -224,21 +207,7 @@ nav.tabs button.on span{filter:none;opacity:1}
 
 <script>
 /* =========================================================
-   1) 파이어스토어 설정
-   - 비워 두면(null) 각자 기기(브라우저)에만 저장됩니다.
-   - 선생님들이 여러 기기에서 이어서 쓰게 하려면
-     파이어베이스 콘솔의 설정값을 아래에 붙여 넣으세요.
-   ========================================================= */
-const FIREBASE_CONFIG = null;
-/* 예시)
-const FIREBASE_CONFIG = {
-  apiKey: "...", authDomain: "...", projectId: "...",
-  storageBucket: "...", messagingSenderId: "...", appId: "..."
-};
-*/
-
-/* =========================================================
-   2) 단어 데이터
+   1) 단어 데이터
    영어: [단어, 한글발음, 뜻]
    일본어: [표기, 히라가나(표기와 같으면 ""), 한글발음, 뜻]
    ========================================================= */
@@ -282,7 +251,7 @@ const VOCAB = {
 };
 
 /* =========================================================
-   3) 여행 한마디 데이터
+   2) 여행 한마디 데이터
    [표현, 한글발음, 뜻, 팁, 필수여부(1=필수)]
    ========================================================= */
 const TRAVEL = {
@@ -369,56 +338,36 @@ const TRAVEL = {
 };
 
 /* ========================================================= */
-const S = {lang:"en", tab:"home", user:null, db:null, fc:null, qz:null, tv:null, tvCat:0, vocabView:"list"};
+const S = {lang:"en", tab:"home", fc:null, qz:null, tv:null, tvCat:0, vocabView:"list"};
 let D = blank();
 function blank(){ return {known:[], review:[], star:[], streak:0, lastDate:""}; }
 
-try{
-  if(FIREBASE_CONFIG && window.firebase){ firebase.initializeApp(FIREBASE_CONFIG); S.db = firebase.firestore(); }
-}catch(e){ console.warn("파이어스토어 연결 실패, 기기 저장 모드로 동작", e); S.db = null; }
-document.getElementById("modeTag").textContent = S.db ? "☁️ 클라우드 저장: 어느 기기에서든 이어서" : "📱 이 기기에 저장돼요";
-
-/* ---------- 저장 ---------- */
-function docId(){ return (S.user.name + "_" + S.user.pin).replace(/[\/\s.#$\[\]]/g,""); }
-async function loadData(){
-  if(S.db){
-    try{ const snap = await S.db.collection("learners").doc(docId()).get();
-         return snap.exists ? Object.assign(blank(), snap.data()) : blank(); }
-    catch(e){ console.warn(e); }
-  }
-  try{ const raw = localStorage.getItem("lang10_" + docId()); if(raw) return Object.assign(blank(), JSON.parse(raw)); }catch(e){}
+/* ---------- 저장 (이 기기 브라우저에만) ---------- */
+const KEY = "lang10_data";
+function loadData(){
+  try{ const raw = localStorage.getItem(KEY); if(raw) return Object.assign(blank(), JSON.parse(raw)); }catch(e){}
   return blank();
 }
 let saveTimer;
 function save(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(async ()=>{
-    try{ localStorage.setItem("lang10_" + docId(), JSON.stringify(D)); }catch(e){}
-    if(S.db){ try{ await S.db.collection("learners").doc(docId()).set(D); }catch(e){ console.warn(e); toast("저장에 실패했어요. 인터넷 연결을 확인해 주세요."); } }
-  }, 400);
+  saveTimer = setTimeout(()=>{ try{ localStorage.setItem(KEY, JSON.stringify(D)); }catch(e){ toast("이 브라우저에서는 기록을 저장할 수 없어요"); } }, 300);
 }
-
-/* ---------- 로그인 ---------- */
-async function doLogin(auto){
-  let name, pin;
-  if(auto){ name = auto.name; pin = auto.pin; }
-  else{
-    name = document.getElementById("inName").value.trim();
-    pin = document.getElementById("inPin").value.trim();
-    if(!name) return toast("이름을 입력해 주세요");
-    if(!/^\d{4}$/.test(pin)) return toast("숫자 4자리를 입력해 주세요");
-  }
-  S.user = {name, pin};
-  D = await loadData();
-  try{ localStorage.setItem("lang10_last", JSON.stringify(S.user)); }catch(e){}
-  document.getElementById("login").style.display = "none";
-  document.getElementById("whoLine").textContent = name + " 선생님의 공부방";
-  render();
+function exportData(){
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(D))));
+  const done = () => toast("기록 코드를 복사했어요. 다른 기기에서 붙여넣기 하세요");
+  if(navigator.clipboard){ navigator.clipboard.writeText(code).then(done, ()=>prompt("아래 코드를 복사하세요", code)); }
+  else prompt("아래 코드를 복사하세요", code);
 }
-function logout(){
-  if(!confirm("로그아웃할까요? 기록은 그대로 남아요.")) return;
-  try{ localStorage.removeItem("lang10_last"); }catch(e){}
-  location.reload();
+function importData(){
+  const code = prompt("복사해 둔 기록 코드를 붙여넣으세요.\n지금 이 기기의 기록은 덮어써져요.");
+  if(!code) return;
+  try{ D = Object.assign(blank(), JSON.parse(decodeURIComponent(escape(atob(code.trim()))))); save(); render(); toast("기록을 불러왔어요"); }
+  catch(e){ toast("코드가 올바르지 않아요. 다시 복사해 주세요"); }
+}
+function resetData(){
+  if(!confirm("이 기기의 공부 기록을 모두 지울까요? 되돌릴 수 없어요.")) return;
+  D = blank(); save(); render(); toast("기록을 지웠어요");
 }
 
 /* ---------- 공통 ---------- */
@@ -528,7 +477,7 @@ function renderHome(){
   if(!S.tv || S.tv.ctx !== "home"){ S.tv = {ctx:"home", list:shuffle(allPhrases()).slice(0,16), idx:0}; }
   const done = D.lastDate === today();
   return `
-    <div class="hello">${done ? "오늘 공부 완료! 🎉<br>내일도 10분만 만나요." : S.user.name + " 선생님,<br>오늘도 10분만 해 볼까요?"}</div>
+    <div class="hello">${done ? "오늘 공부 완료! 🎉<br>내일도 10분만 만나요." : "오늘도<br>10분만 해 볼까요?"}</div>
     <div class="stats">
       <div class="stat"><b>🔥 ${curStreak()}</b><span>연속 학습일</span></div>
       <div class="stat"><b>${known}<small style="font-size:13px;color:var(--sub)">/${words.length}</small></b><span>외운 단어</span></div>
@@ -701,9 +650,8 @@ function renderTalk(){ return soon("회화는 3단계에서 열려요", "공항,
   let look = null; try{ look = JSON.parse(localStorage.getItem("lang10_look")); }catch(e){}
   applyLook(look && look.d, look && look.f);
   try{ const l = localStorage.getItem("lang10_lang"); if(l === "en" || l === "ja") S.lang = l; }catch(e){}
-  document.getElementById("inPin").addEventListener("keydown", e => { if(e.key === "Enter") doLogin(); });
-  let last = null; try{ last = JSON.parse(localStorage.getItem("lang10_last")); }catch(e){}
-  if(last && last.name && last.pin) doLogin(last);
+  D = loadData();
+  render();
 })();
 </script>
 </body>
