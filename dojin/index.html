@@ -7,17 +7,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Jua&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@700&display=swap&text=川口手目上下一二三四五六七八九十萬日月火水木金土山人女父母兄弟王民先寸東西南北中大小長外白靑敎校學室門國韓軍年生" rel="stylesheet">
 <style>
 @font-face{font-family:'OngleipStudyWell';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2411-3@1.0/Ownglyph_StudyHard-Rg.woff2') format('woff2');font-weight:normal;font-display:swap;}
 @font-face{font-family:'OnglippDaelong';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2507-2@1.0/Ownglyph_daelong-Rg.woff2') format('woff2');font-weight:normal;font-display:swap;}
+/* 좋아하는 글씨체 */
+@font-face{font-family:'NexonLv2Gothic';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic Light.woff') format('woff');font-weight:300;font-display:swap;}
+@font-face{font-family:'NexonLv2Gothic';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic.woff') format('woff');font-weight:normal;font-display:swap;}
+@font-face{font-family:'NexonLv2Gothic';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-04@2.1/NEXON Lv2 Gothic Bold.woff') format('woff');font-weight:700;font-display:swap;}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');font-weight:300;font-display:swap;}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap;}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap;}
+@font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap;}
+@font-face{font-family:'OngleipKimkonghae';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408@1.0/Ownglyph_kimkonghae.woff2') format('woff2');font-weight:normal;font-display:swap;}
+@font-face{font-family:'OngleipTterom';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2408-4@1.0/Ownglyph_ttaerom-Rg.woff2') format('woff2');font-weight:normal;font-display:swap;}
+@font-face{font-family:'MitmiFont';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2402_1@1.0/Ownglyph_meetme-Rg.woff2') format('woff2');font-weight:normal;font-display:swap;}
+@font-face{font-family:'GangwonEducationSaeum';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2201-2@1.0/GangwonEduSaeeum_OTFMediumA.woff') format('woff');font-weight:normal;font-display:swap;}
 
-:root{--size:1;--fsc:1;--font:'Jua';box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+:root{--size:1;--fsc:1;--font:'Jua';--font-t:var(--font);--font-p:var(--font);--tw:normal;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
 *,*::before,*::after{box-sizing:inherit}
 html{font-size:calc(17px * var(--size) * var(--fsc));scroll-padding-top:env(safe-area-inset-top,0px);}
 body{margin:0;min-height:100vh;font-family:var(--font),'Jua',system-ui,sans-serif;color:var(--ink);background-color:var(--bg);-webkit-tap-highlight-color:transparent;line-height:1.4}
 button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 button:focus-visible,a:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+/* 글씨 조합: 제목(--font-t) · 본문(--font) · 포인트(--font-p) */
+h1,.big,.tab,.pill,.big-btn,.subj b,.sheet h3,.grass-head b,.bigtime,.hq,.qtop,.letters,.abc-word,.ww,.ph-eq{font-family:var(--font-t),var(--font),'Jua',sans-serif;font-weight:var(--tw)}
+.praise,.bn-p,.msg,.hj-mean,.hj-qm,.ph-ko,.toast,.hello .big{font-family:var(--font-p),var(--font),'Jua',sans-serif;font-weight:normal}
 .en{font-family:'Andika',system-ui,sans-serif}
 .hanja{font-family:'Noto Serif KR','Batang','Noto Serif CJK KR',serif;font-weight:700}
 
@@ -77,6 +93,13 @@ main{padding:16px 12px 40px 28px}
 .hello .big{margin-bottom:4px}
 .goal{height:14px;border-radius:999px;background:var(--line);overflow:hidden;margin:10px 0 4px}
 .goal i{display:block;height:100%;background:var(--ok);border-radius:999px;transition:width .4s}
+.banner{margin-bottom:12px;background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 30%,var(--card)),var(--card))}
+.bn-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.bn-tag{font-size:.9rem;color:var(--sub)}
+.bn-p{font-size:1.6rem;line-height:1.35;text-align:center;margin:6px 0}
+.bn-m{text-align:center;font-size:1.1rem;color:var(--sub);margin:4px 0 2px}
+.bn-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
+.bn-btns .pill{font-size:.95rem;padding:.35rem .8rem}
 .grasscard{margin-top:12px}
 .grass-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
 .grass-head b{font-weight:normal;font-size:1.2rem}
@@ -188,6 +211,14 @@ main{padding:16px 12px 40px 28px}
 .choices.words{grid-template-columns:1fr}
 .choices.words .choice{min-height:0;padding:12px}
 .choices.words .en{font-size:1.8rem}
+.ph-hero{text-align:center}
+.ph-eq{font-size:3.4rem;line-height:1.2}
+.ph-eq small{font-size:.45em;color:var(--sub)}
+.ph-ko{font-size:1.7rem;margin:2px 0 6px}
+.ph-tip{font-size:.95rem;color:var(--sub);margin:6px 0 0}
+.c-con{color:var(--accent)}
+.c-vow{color:var(--no)}
+body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .choices.short .choice{min-height:4rem;padding:10px 6px}
 
 /* ───── 한자 ───── */
@@ -331,6 +362,50 @@ const WORDS = {
     {w:'good morning',k:'좋은 아침',e:'🌅'},{w:'good night',k:'잘 자',e:'🌙'},{w:'yes',k:'응',e:'👍'},{w:'no',k:'아니',e:'🙅'}]}
 };
 const QUIZ_CATS = ['animal','food','color','number','body'];
+/* 소리 합치기: 자음 + 모음 o → 같은 소리로 시작하는 단어 묶음 (say: 기계 음성이 그 소리로 읽도록 쓴 철자) */
+const PHONICS = [
+  {c:'t', ck:'ㅌ', ko:'토', say:'toe', words:[{w:'tomato',k:'토마토',e:'🍅'},{w:'toast',k:'토스트',e:'🍞'},{w:'toe',k:'발가락',e:'🦶'},{w:'total',k:'모두 합친',e:'🧮'}]},
+  {c:'s', ck:'ㅅ', ko:'소', say:'so', words:[{w:'sofa',k:'소파',e:'🛋️'},{w:'soda',k:'탄산음료',e:'🥤'},{w:'soap',k:'비누',e:'🧼'},{w:'solo',k:'혼자 부르기',e:'🎤'}]},
+  {c:'n', ck:'ㄴ', ko:'노', say:'no', words:[{w:'no',k:'아니',e:'🙅'},{w:'nose',k:'코',e:'👃'},{w:'note',k:'메모',e:'📝'},{w:'notebook',k:'공책',e:'📓'}]},
+  {c:'g', ck:'ㄱ', ko:'고', say:'go', words:[{w:'go',k:'가다',e:'🏃'},{w:'goat',k:'염소',e:'🐐'},{w:'goal',k:'골',e:'⚽'},{w:'gold',k:'금',e:'🥇'}]},
+  {c:'r', ck:'ㄹ', ko:'로', say:'row', words:[{w:'robot',k:'로봇',e:'🤖'},{w:'rose',k:'장미',e:'🌹'},{w:'road',k:'길',e:'🛣️'},{w:'rope',k:'밧줄',e:'🪢'}]},
+  {c:'b', ck:'ㅂ', ko:'보', say:'beau', words:[{w:'boat',k:'배',e:'⛵'},{w:'bone',k:'뼈',e:'🦴'},{w:'bowl',k:'그릇',e:'🥣'},{w:'bow',k:'리본',e:'🎀'}]},
+  {c:'h', ck:'ㅎ', ko:'호', say:'hoe', words:[{w:'home',k:'집',e:'🏠'},{w:'hotel',k:'호텔',e:'🏨'},{w:'hole',k:'구멍',e:'🕳️'},{w:'hose',k:'호스',e:'🚿'}]},
+  {c:'p', ck:'ㅍ', ko:'포', say:'poe', words:[{w:'potato',k:'감자',e:'🥔'},{w:'pony',k:'조랑말',e:'🐴'},{w:'polar bear',k:'북극곰',e:'🐻‍❄️'},{w:'pose',k:'자세',e:'🧍'}]}
+];
+/* 쉬어가는 코너: 오늘의 속담 */
+const PROVERBS = [
+  ['가는 말이 고와야 오는 말이 곱다','내가 남에게 좋게 말해야 남도 나에게 좋게 말해요.'],
+  ['세 살 버릇 여든까지 간다','어릴 때 든 습관은 커서도 고치기 어려워요.'],
+  ['티끌 모아 태산','작은 것도 모이고 모이면 아주 커져요.'],
+  ['원숭이도 나무에서 떨어진다','아주 잘하는 사람도 가끔 실수할 수 있어요.'],
+  ['낮말은 새가 듣고 밤말은 쥐가 듣는다','아무도 없는 것 같아도 말은 늘 조심해야 해요.'],
+  ['백지장도 맞들면 낫다','쉬운 일이라도 함께 하면 더 쉬워요.'],
+  ['소 잃고 외양간 고친다','일이 잘못된 뒤에 고치면 이미 늦어요.'],
+  ['개구리 올챙이 적 생각 못 한다','형편이 나아지면 어렵던 옛날을 잊어버려요.'],
+  ['천 리 길도 한 걸음부터','아무리 큰일도 작은 것부터 시작해요.'],
+  ['호랑이도 제 말 하면 온다','이야기하던 사람이 마침 나타날 때 쓰는 말이에요.'],
+  ['우물 안 개구리','넓은 세상을 모르고 좁은 곳만 아는 사람이에요.'],
+  ['콩 심은 데 콩 나고 팥 심은 데 팥 난다','내가 한 대로 결과가 나와요.'],
+  ['누워서 떡 먹기','아주아주 쉬운 일이에요.'],
+  ['고래 싸움에 새우 등 터진다','힘센 사람들 싸움에 약한 사람이 다쳐요.'],
+  ['빈 수레가 요란하다','잘 모르는 사람이 오히려 더 떠들어요.'],
+  ['등잔 밑이 어둡다','가까이 있는 것을 오히려 잘 몰라요.'],
+  ['발 없는 말이 천 리 간다','말은 눈 깜짝할 사이에 멀리 퍼져요.'],
+  ['돌다리도 두들겨 보고 건너라','잘 아는 일도 한 번 더 조심해서 해요.'],
+  ['윗물이 맑아야 아랫물이 맑다','윗사람이 잘해야 아랫사람도 보고 잘 따라 해요.'],
+  ['하늘이 무너져도 솟아날 구멍이 있다','아무리 힘들어도 방법은 꼭 있어요.'],
+  ['쥐구멍에도 볕 들 날 있다','힘든 날이 지나면 좋은 날도 와요.'],
+  ['가재는 게 편','비슷한 사람끼리 서로 편을 들어 줘요.'],
+  ['금강산도 식후경','배가 불러야 무엇이든 즐겁게 할 수 있어요.'],
+  ['꿩 먹고 알 먹는다','한 가지 일로 두 가지 좋은 것을 얻어요.'],
+  ['사공이 많으면 배가 산으로 간다','모두 자기 말만 하면 일이 엉뚱하게 돼요.'],
+  ['아니 땐 굴뚝에 연기 날까','까닭 없이 생기는 일은 없어요.'],
+  ['뛰는 놈 위에 나는 놈 있다','잘하는 사람 위에 더 잘하는 사람이 있어요.'],
+  ['말 한마디로 천 냥 빚을 갚는다','말을 잘하면 어려운 일도 풀 수 있어요.'],
+  ['공든 탑이 무너지랴','정성을 다해 한 일은 헛되지 않아요.'],
+  ['시작이 반이다','무슨 일이든 시작하면 벌써 반은 한 거예요.']
+];
 /* 한자: 한자, 훈음, 묶음, 쓰임 (급수별 한자 목록은 검정 기관마다 조금씩 달라요. 필요하면 여기를 고치세요) */
 const HANJA9 = [
   ['一','한 일','num','일등'],['二','두 이','num','이층'],['三','석 삼','num','삼각형'],['四','넉 사','num','사계절'],['五','다섯 오','num','오각형'],
@@ -362,8 +437,9 @@ const WD = ['일','월','화','수','목','금','토'];
 
 /* ───── 상태 ───── */
 const App = { view:'home', mmode:'vertical', level: store.get('level',1), emode:'abc', cat:'animal', qcat:'all', letter:'A',
-  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9) };
-let settings = Object.assign({theme:'note',font:'study',size:1,sound:true}, store.get('settings',{}));
+  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0,
+  prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
+let settings = Object.assign({theme:'note',font:'combo1',size:1,sound:true}, store.get('settings',{}));
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,eng:true,hanja:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
@@ -527,12 +603,27 @@ function render(){
 }
 
 /* ───── 홈 ───── */
+function provHTML(){
+  const [p,m]=PROVERBS[App.prov];
+  return `<div class="card banner" id="banner">
+    <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
+    <div class="bn-p">“${p}”</div>
+    ${App.provOpen?`<div class="bn-m">💡 ${m}</div>`:''}
+    <div class="bn-btns">
+      <button class="pill" data-act="provMove" data-v="-1" aria-label="이전 속담">◀</button>
+      <button class="pill" data-act="provSay">🔊 읽어 주기</button>
+      <button class="pill" data-act="provMean">${App.provOpen?'뜻 숨기기':'💡 뜻 보기'}</button>
+      <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
+    </div></div>`;
+}
+function drawBanner(){ const b=document.getElementById('banner'); if(b) b.outerHTML=provHTML(); }
 function renderHome(){
   const d=getLog()[dayKey()]||{};
   const on=Object.keys(SUBJ).filter(k=>admin.subj[k]);
   const total=dayTotal(), goal=admin.goal, pct=Math.min(100,Math.round(total/goal*100));
   const left=10-(stars%10);
   view.innerHTML=`
+    ${provHTML()}
     <div class="card clockcard">
       <div id="homeClock"></div>
       <div><div class="sub" id="homeDate"></div><div class="bigtime" id="homeTime"></div></div>
@@ -936,9 +1027,26 @@ function vis(w){
 }
 function renderEng(){
   view.innerHTML=`
-    <div class="seg">${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
+    <div class="seg">${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','phonics','🧩 소리 합치기',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
     <div id="ebody"></div>`;
-  ({abc:drawAbc, words:drawWords, listen:drawQuiz, read:drawQuiz})[App.emode]();
+  ({abc:drawAbc, phonics:drawPhonics, words:drawWords, listen:drawQuiz, read:drawQuiz})[App.emode]();
+}
+/* 자음 + 모음 소리 합치기 */
+const colorStart = (w,c) => `<span class="c-con">${w[0]}</span><span class="c-vow">${w[1]}</span>${w.slice(2)}`;
+function drawPhonics(){
+  const eb=document.getElementById('ebody'); if(!eb) return;
+  const P=PHONICS[App.ph]||PHONICS[0];
+  eb.innerHTML=`
+    <div class="seg small">${PHONICS.map((x,i)=>pill('ph',i,`<span class="en">${x.c}o</span> ${x.ko}`,App.ph)).join('')}</div>
+    <div class="card ph-hero">
+      <div class="ph-eq en"><span class="c-con">${P.c}</span> + <span class="c-vow">o</span> = ${colorStart(P.c+'o')}</div>
+      <div class="ph-ko"><span class="c-con">${P.ck}</span> + <span class="c-vow">ㅗ</span> = ${P.ko}</div>
+      <button class="spk" data-act="say" data-v="${P.say}">🔊 ${P.ko} 소리 듣기</button>
+      <p class="ph-tip"><span class="c-con">자음 ${P.c} = [${P.ck}] 소리</span> · <span class="c-vow">모음 o = [오] 소리</span> → 붙이면 [${P.ko}]!</p>
+    </div>
+    <p class="desc" style="margin-top:12px">‘${P.ko}’ 소리로 시작하는 단어예요. 카드를 누르면 소리가 나와요.</p>
+    <div class="word-grid">${P.words.map((w,i)=>`
+      <button class="wcard" data-act="phword" data-v="${i}"><span class="emo">${w.e}</span><span class="ww en">${colorStart(w.w)}</span><span class="wk">${w.k}</span></button>`).join('')}</div>`;
 }
 function markLetter(word,l){
   const i=word.toLowerCase().indexOf(l.toLowerCase());
@@ -1143,16 +1251,23 @@ function renderSticker(){
 }
 
 /* ───── 꾸미기(설정) · 관리자 모드 ───── */
+/* 글씨 조합 3개(제목·본문·포인트) + 한 가지 글씨체. scale은 본문 글씨 크기 보정 */
 const FONTS = {
+  combo1:{name:'🎈 말랑 조합', combo:true, t:"'GMarketSans'", css:"'NexonLv2Gothic'", p:"'MitmiFont'", tw:700, scale:1},
+  combo2:{name:'✏️ 손글씨 조합', combo:true, t:"'OwnglyphYuntaeng'", css:"'GangwonEducationSaeum'", p:"'OngleipKimkonghae'", scale:1.2},
+  combo3:{name:'📖 또박 조합', combo:true, t:"'OngleipTterom'", css:"'NanumSquare'", p:"'OwnglyphYuntaeng'", scale:1},
   study:{name:'공부잘하자나', css:"'OngleipStudyWell'", scale:1.25},
   daelong:{name:'대롱체', css:"'OnglippDaelong'", scale:1.2},
   jua:{name:'주아체', css:"'Jua'", scale:1}
 };
 function applySettings(){
   document.body.dataset.theme=settings.theme;
-  const f=FONTS[settings.font]||FONTS.jua;
-  document.documentElement.style.setProperty('--font',f.css);
-  document.documentElement.style.setProperty('--fsc',f.scale);
+  const f=FONTS[settings.font]||FONTS.jua, r=document.documentElement.style;
+  r.setProperty('--font',f.css);
+  r.setProperty('--font-t',f.t||f.css);
+  r.setProperty('--font-p',f.p||f.css);
+  r.setProperty('--tw',f.tw||'normal');
+  r.setProperty('--fsc',f.scale);
   document.documentElement.style.setProperty('--size',settings.size);
   store.set('settings',settings);
 }
@@ -1167,7 +1282,8 @@ function drawSettings(){
   box.innerHTML=`
     <h3>🎨 꾸미기</h3>
     <p class="lbl">디자인</p><div class="seg">${s('theme','note','📒 공책')}${s('theme','chalk','🟩 칠판')}${s('theme','crayon','🖍️ 크레파스')}</div>
-    <p class="lbl">글씨체</p><div class="seg">${Object.entries(FONTS).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}" style="font-family:${f.css}">${f.name}</button>`).join('')}</div>
+    <p class="lbl">글씨 조합 <small>(제목 · 본문 · 포인트)</small></p><div class="seg">${Object.entries(FONTS).filter(([k,f])=>f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}"><span style="font-family:${f.t};font-weight:${f.tw||'normal'}">${f.name}</span> <small style="font-family:${f.css}">본문</small> <small style="font-family:${f.p}">포인트</small></button>`).join('')}</div>
+    <p class="lbl">한 가지 글씨체</p><div class="seg">${Object.entries(FONTS).filter(([k,f])=>!f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}" style="font-family:${f.css}">${f.name}</button>`).join('')}</div>
     <p class="lbl">글자 크기</p><div class="seg">${s('size',1,'보통')}${s('size',1.15,'크게')}${s('size',1.3,'아주 크게')}</div>
     <p class="lbl">효과음</p><div class="seg">${s('sound',true,'🔔 켜기')}${s('sound',false,'🔕 끄기')}</div>
     <button class="big-btn" data-act="closeSet">닫기</button>
@@ -1225,6 +1341,11 @@ function adminHTML(){
 const ACT = {
   tab: v=>go(v),
   grass: v=>grassInfo(v),
+  provMove: v=>{ App.prov=(App.prov+ +v+PROVERBS.length)%PROVERBS.length; App.provOpen=false; drawBanner(); },
+  provMean: ()=>{ App.provOpen=!App.provOpen; drawBanner(); },
+  provSay: ()=>speak(PROVERBS[App.prov][0],'ko'),
+  ph: v=>{ App.ph=+v; drawPhonics(); speak(PHONICS[App.ph].say); },
+  phword: (v,el)=>{ speak(PHONICS[App.ph].words[+v].w); el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); },
   mmode: v=>{ App.mmode=v; render(); },
   level: v=>{ App.level=+v; store.set('level',App.level); V=null; C=null; render(); },
   key: v=>{ if(App.view==='math') App.mmode==='vertical' ? vKey(v) : cKey(v); },
