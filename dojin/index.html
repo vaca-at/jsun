@@ -573,7 +573,7 @@ const WD = ['일','월','화','수','목','금','토'];
 const App = { view:'home', mmode:'vertical', level: store.get('level',1), emode:'abc', cat:'animal', qcat:'all', letter:'A',
   unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0,
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
-let settings = Object.assign({theme:'note',font:'combo1',size:1,sound:true}, store.get('settings',{}));
+let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,eng:true,hanja:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
@@ -811,7 +811,9 @@ function showLogin(){
 function loadProfile(name){
   who=name;
   App.level=store.get('level',1); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
-  settings=Object.assign({theme:'note',font:'combo1',size:1,sound:true}, store.get('settings',{}));
+  settings=Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
+  // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
+  if(settings.fontV!==2){ if(settings.font==='combo1'||settings.font==='study') settings.font='combo3'; settings.fontV=2; }
   stars=store.get('stars',0);
   V=C=Q=S=H=null; App.view='home'; lastDay=dayKey();
   markVisit(); applySettings(); updateStars();
