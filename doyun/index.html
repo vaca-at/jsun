@@ -75,6 +75,10 @@ h1 button::after{content:" ▾";font-size:.7em;color:var(--sub)}
 .lp-who{display:flex;align-items:center;justify-content:center;gap:10px}
 .lp-who b{font-weight:normal;font-size:1.6rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
 .lp .keypad{max-width:300px}
+.sea-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:360px;margin:0 auto}
+.sea{aspect-ratio:1;font-size:2.6rem;border-radius:20px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow)}
+.sea:active{transform:scale(.94)}
+#loginNew[hidden]{display:none}
 .tab{flex:1 1 0;white-space:nowrap;padding:.5rem .2rem;border-radius:14px;background:var(--paper);border:2px solid var(--line);font-size:1.02rem;color:var(--sub)}
 .tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .tab[hidden]{display:none}
@@ -524,10 +528,10 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 
 <div class="login" id="login" hidden>
   <div class="login-box">
-    <div class="login-ico">📚</div>
-    <h2>누가 공부할까요?</h2>
+    <div class="login-ico">🌊</div>
+    <h2 id="loginTitle">오늘은 어떤 친구랑 공부할까?</h2>
     <div class="who-list" id="whoList"></div>
-    <div class="inrow" id="loginNew"><input id="newWho" maxlength="8" placeholder="새 이름 적기" autocomplete="off"><button class="pill" data-act="addWho">들어가기</button></div>
+    <div class="inrow" id="loginNew" hidden><input id="newWho" maxlength="8" placeholder="새 이름 적기" autocomplete="off"><button class="pill" data-act="addWho">들어가기</button></div>
     <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button>
   </div>
 </div>
@@ -563,7 +567,7 @@ document.getElementById('linkE4').href = GRADE_LINKS.e4;
 /* ───── 저장소 (이 기기에만 저장) ───── */
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
-const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho'];
+const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
 const PROFILE_KEYS = ['stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','kread','hstory','mbest'];
 /* 도진이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e4_'+k : `e4_p_${name}_${k}`;
@@ -1597,12 +1601,14 @@ async function cloudPushSettings(){
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 /* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
-/* 도윤이는 물고기를 좋아해요: 날마다 다른 바다 친구가 나와요 (상어 포함) */
-const SEA_FRIENDS = ['🦈','🐠','🐟','🐡','🐋','🐳','🐬','🦑','🐙','🦀','🦞','🐢','🪼','🦭'];
-const todaySea = () => { const t=new Date(); return SEA_FRIENDS[Math.floor(new Date(t.getFullYear(),t.getMonth(),t.getDate()).getTime()/864e5+0.5)%SEA_FRIENDS.length]; };
+/* 이 공부방은 도윤이 혼자 써요. 들어올 때마다 좋아하는 바다 친구 그림을 골라 누르고 들어와요 (상어 포함) */
+const KID = '도윤';
+const SEA_FRIENDS = ['🦈','🐋','🐳','🐬','🐠','🐟','🐡','🦑','🐙','🦀','🦞','🐢','🪼','🦭','🐊','🦐'];
+/* 오늘 고른 그림 (날짜가 바뀌면 다시 골라요) */
+const todaySea = () => { const p=store.get('seaPick',null); return p && p.d===dayKey() ? p.e : '🦈'; };
 const AVATAR_BY_NAME = { '도윤':{daily:true} };
 const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls||""}">${a.daily?todaySea():a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
-const getProfiles = () => store.get('profiles',['도윤']);
+const getProfiles = () => [KID];
 /* 아이마다 나만의 비밀번호 (서로의 별 · 기록을 볼 수 없게) */
 let LP = null; // { name, mode:'enter'|'make'|'again', buf, first }
 const kidPinsRaw = () => store.get('kidpins',{});
@@ -1621,7 +1627,7 @@ function drawLoginPin(){
     <div class="lp-who">${avatarHTML(LP.name, getProfiles().indexOf(LP.name))}<b>${esc(LP.name)}</b></div>
     <p class="sub">${t}</p>
     <div class="pinrow" id="lpinrow">${[0,1,2,3].map(i=>`<span class="${i<LP.buf.length?'f':''}"></span>`).join('')}</div>
-    ${keypad('c','lpin').replace(/data-v="ok">확인/,'data-v="ok">◀ 다른 이름')}
+    ${keypad('c','lpin').replace(/data-v="ok">확인/,'data-v="ok">◀ 그림 다시 고르기')}
     ${LP.mode==='make'?'<p class="sub" style="font-size:.85rem">다른 사람에게 알려 주지 마세요. 잊어버리면 부모님께 말해요.</p>':''}
   </div>`;
   document.getElementById('loginNew').hidden=true;
@@ -1646,12 +1652,10 @@ function lpinKey(v){
   setTimeout(()=>{ if(LP){ LP.buf=''; drawLoginPin(); } },400);
 }
 function showLogin(){
-  LP=null; document.getElementById('loginNew').hidden=false;
-  const list=getProfiles();
-  document.getElementById('whoList').innerHTML = list.map((n,i)=>{
-    return `<button class="who" data-act="login" data-v="${esc(n)}">${avatarHTML(n,i)}<b>${esc(n)}</b></button>`;
-  }).join('');
-  document.getElementById('newWho').value='';
+  LP=null; document.getElementById('loginNew').hidden=true;
+  document.getElementById('loginTitle').textContent='오늘은 어떤 친구랑 공부할까?';
+  document.getElementById('whoList').innerHTML = `<div class="lp"><p class="sub" style="margin:0 0 10px">좋아하는 그림을 눌러서 들어가요 🌊</p>
+    <div class="sea-grid">${SEA_FRIENDS.map(e=>`<button class="sea" data-act="loginSea" data-v="${e}" aria-label="${e} 골라서 들어가기">${e}</button>`).join('')}</div></div>`;
   document.getElementById('settings').hidden=true;
   document.getElementById('login').hidden=false;
 }
@@ -3196,8 +3200,6 @@ function adminHTML(){
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     <p class="lbl">🔑 관리자 비밀번호 바꾸기</p>
     <div class="inrow"><input id="admPin" type="password" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>
-    <p class="lbl">👤 이름 관리 <small>(새 이름은 처음 화면에서 추가해요)</small></p>
-    <div class="seg">${names.map(n=>`<button class="pill" data-act="delWho" data-v="${esc(n)}">${esc(n)} ✕</button>`).join('')}</div>
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="kidPinReset" data-v="${esc(n)}">${esc(n)} ${kidPins()[n]?'비밀번호 지우기':'(아직 없음)'}</button>`).join('')}</div>
     ${who?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
@@ -3221,6 +3223,7 @@ const ACT = {
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),
   login: v=>loginPin(v),
+  loginSea: v=>{ store.set('seaPick',{d:dayKey(), e:v}); document.getElementById('loginTitle').textContent=v+' 친구랑 들어가요!'; loginPin(KID); },
   lpin: v=>lpinKey(v),
   kidPinReset: v=>{ if(!confirm(`${v}의 비밀번호를 지울까요? 다음에 들어갈 때 새로 만들어요.`)) return; setKidPin(v,null); cloudPushNow(v); toast('비밀번호를 지웠어요'); drawSettings(); },
   addWho: ()=>addWho(),
@@ -3394,7 +3397,7 @@ document.addEventListener('keydown',e=>{
 
 applySettings();
 updateStars();
-{ const lw=store.get('lastWho',null); showLogin(); if(lw && getProfiles().includes(lw)) loginPin(lw); }
+showLogin();
 cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);
