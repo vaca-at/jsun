@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>하루 10분 외국어</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
-<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@500;700&family=Nanum+Pen+Script&family=Klee+One:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Zen+Maru+Gothic:wght@500;700&family=Nanum+Pen+Script&family=Klee+One:wght@400;600&family=IBM+Plex+Sans+KR:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;900&family=BIZ+UDPGothic:wght@400;700&family=Noto+Sans+JP:wght@500;700;900&family=Playfair+Display:ital,wght@1,500&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root,:root[data-design="toss"]{
   --bg:#f2f4f6; --card:#ffffff; --line:#e5e8eb; --line2:#f2f4f6;
@@ -47,12 +47,33 @@ body{background:var(--bg);color:var(--ink);font-family:var(--f-body);-webkit-fon
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
 button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .jp,.word,.kana{font-family:var(--f-card)}
-.card-title,.hello,header h1{font-family:var(--f-title)}
+.card-title,.hello{font-family:var(--f-title)}
 
 #app{max-width:480px;margin:0 auto;min-height:100%;padding:16px 16px 40px}
 header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 header h1{font-size:19px;font-weight:900;letter-spacing:-.02em;flex:1}
 header h1 small{display:block;font-size:12px;font-weight:500;color:var(--sub);letter-spacing:0}
+.hero{position:relative;height:214px;border-radius:var(--r-card);overflow:hidden;margin-bottom:14px;font-family:Pretendard,sans-serif;box-shadow:var(--shadow)}
+.hero .in{position:absolute;inset:0;padding:22px 20px 16px;display:flex;flex-direction:column;z-index:3}
+.hero h1{font-size:34px;font-weight:900;letter-spacing:-.03em;line-height:1.1;margin:0}
+.hero .sub{font-size:14px;margin-top:8px;opacity:.9}
+.hero .note{font-size:11.5px;opacity:.7;margin-top:3px}
+.hero .tg{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;border-radius:999px;padding:4px;gap:4px}
+.hero .tg button{padding:10px 0;border-radius:999px;font-weight:800;font-size:15px;color:inherit;opacity:.8}
+.hero .tg button.on{background:var(--tg-bg);color:var(--tg-ink);opacity:1}
+.hero .tg b{font-size:11px;font-weight:800;letter-spacing:.06em;margin-right:5px;padding:2px 5px;border-radius:4px;border:1px solid currentColor}
+.hero .pal{position:absolute;right:14px;top:14px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-size:18px;z-index:4}
+.hero .deco{position:absolute;inset:0;z-index:1;pointer-events:none}
+@keyframes h-dash{to{stroke-dashoffset:0}}
+@keyframes h-sky{0%{background-position:0% 50%}100%{background-position:100% 50%}}
+@keyframes h-blink{0%,100%{opacity:.15}50%{opacity:1}}
+@keyframes h-fly{from{offset-distance:0%}to{offset-distance:100%}}
+@keyframes h-rise{0%,100%{transform:translateY(20px)}50%{transform:translateY(-6px)}}
+@keyframes h-slide{from{background-position:0 0}to{background-position:80px 0}}
+@keyframes h-flick{0%,18%,22%,100%{opacity:1}20%{opacity:.35}60%{opacity:.85}}
+@keyframes h-fade{from{opacity:0}to{opacity:1}}
+.hero .in{animation:h-fade .5s ease-out}
+@media (prefers-reduced-motion:reduce){.hero *{animation:none!important}}
 .icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:16px;display:grid;place-items:center}
 
 .lang-switch{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:18px}
@@ -138,6 +159,39 @@ nav.tabs button.on span{filter:none;opacity:1}
 #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;white-space:nowrap}
 #toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.row-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;margin-bottom:10px;color:var(--ink)}
+.row-item .no{width:34px;height:34px;border-radius:50%;background:var(--gold-soft);display:grid;place-items:center;font-weight:800;color:var(--gold);flex:none;border:1px solid var(--line)}
+.row-item.done .no{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.row-item b{display:block;font-size:16px}
+.row-item small{display:block;color:var(--sub);font-size:12.5px;margin-top:2px;font-family:var(--f-card)}
+.form-box{margin-top:12px;background:var(--gold-soft);border:1px solid var(--line);border-radius:var(--r-btn);padding:11px 13px;font-family:var(--f-card);font-weight:700;font-size:15px}
+.ex{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line2)}
+.ex:last-child{border-bottom:none}
+.ex-w{font-family:var(--f-card);font-size:18px;font-weight:700}
+.ex-r{font-size:13px;color:var(--sub);margin-top:2px}
+.q-guide{color:var(--sub);font-size:13.5px;line-height:1.6;margin:0 0 10px}
+.q-sent{font-family:var(--f-card);font-size:24px;font-weight:700;line-height:1.5;margin-bottom:4px}
+.q-mean{font-size:18px;font-weight:700;margin-bottom:8px}
+.blank{display:inline-block;min-width:64px;border-bottom:3px solid var(--accent);text-align:center;padding:0 6px;color:var(--accent)}
+.blank.ok{color:var(--ok);border-color:var(--ok)}
+.blank.no{color:var(--accent)}
+.ans-line{min-height:56px;border-bottom:2px solid var(--line);display:flex;flex-wrap:wrap;gap:6px;padding:8px 0;margin-bottom:12px}
+.pool{display:flex;flex-wrap:wrap;gap:8px}
+.tok{padding:10px 13px;border-radius:var(--r-btn);border:1px solid var(--line);background:var(--card);font-family:var(--f-card);font-size:16px;font-weight:700;color:var(--ink)}
+.ans-line .tok{background:var(--accent-soft);border-color:transparent}
+.tok.used{opacity:.25}
+.bub-row{display:flex;margin:10px 0}
+.bub-row.me{justify-content:flex-end}
+.bub-row.me .who{text-align:right}
+.who{font-size:11.5px;color:var(--sub);margin:0 4px 3px}
+.bub{display:block;text-align:left;padding:10px 14px;border-radius:16px 16px 16px 4px;background:var(--gold-soft);border:1px solid var(--line);color:var(--ink);transition:box-shadow .2s}
+.me .bub{border-radius:16px 16px 4px 16px;background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.bub .w{font-family:var(--f-card);font-size:18px;font-weight:700;line-height:1.4}
+.bub .r{font-size:12.5px;opacity:.8;margin-top:2px}
+.bub .m{font-size:13.5px;opacity:.92;margin-top:2px}
+.bub.q{background:var(--card);border:2px dashed var(--accent);color:var(--ink)}
+.bub.q .m{font-size:16px;font-weight:700;opacity:1}
+.bub.playing{box-shadow:0 0 0 3px var(--gold)}
 .watermark{display:none}
 .card.framed{outline:none}
 .style-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 14px 4px;margin-bottom:14px}
@@ -162,7 +216,6 @@ nav.tabs button.on span{filter:none;opacity:1}
 [data-design="wafu"] .ess{background:var(--accent);color:#fff}
 [data-font="3"] .card-title{font-size:27px}
 [data-font="3"] .hello{font-size:31px;line-height:1.15}
-[data-font="3"] header h1{font-size:27px}
 [data-font="9"] body{font-size:17px}
 [data-font="9"] .meaning{font-size:24px}
 [data-font="9"] .tip{font-size:15.5px}
@@ -173,10 +226,7 @@ nav.tabs button.on span{filter:none;opacity:1}
 <body>
 
 <div id="app">
-  <header>
-    <h1>하루 10분 외국어<small>로그인 없이 · 기록은 이 기기에만 저장돼요</small></h1>
-    <button class="icon-btn" onclick="togglePanel()" aria-label="디자인과 글씨체 바꾸기" title="디자인·글씨체">🎨</button>
-  </header>
+  <header class="hero" id="hero"></header>
   <div class="style-panel" id="stylePanel" hidden>
     <div class="lbl">디자인</div><div class="chips" id="designChips"></div>
     <div class="lbl">글씨체</div><div class="chips" id="fontChips"></div>
@@ -187,10 +237,6 @@ nav.tabs button.on span{filter:none;opacity:1}
       <button class="chip" onclick="resetData()">기록 지우기</button>
     </div>
     <p class="privacy">공부 기록은 서버로 전송되지 않고 지금 쓰는 브라우저에만 남아요. 다른 선생님은 물론 만든 사람도 볼 수 없어요. 폰과 PC를 오갈 때는 기록 코드를 복사해서 옮기면 돼요.</p>
-  </div>
-  <div class="lang-switch">
-    <button id="lg-en" onclick="setLang('en')">🇺🇸 영어</button>
-    <button id="lg-ja" onclick="setLang('ja')">🇯🇵 일본어</button>
   </div>
 <nav class="tabs"><div>
   <button data-tab="home" onclick="go('home')"><span>🏠</span>오늘</button>
@@ -338,9 +384,9 @@ const TRAVEL = {
 };
 
 /* ========================================================= */
-const S = {lang:"en", tab:"home", fc:null, qz:null, tv:null, tvCat:0, vocabView:"list"};
+const S = {lang:"en", tab:"home", gm:null, tk:null, fc:null, qz:null, tv:null, tvCat:0, vocabView:"list"};
 let D = blank();
-function blank(){ return {known:[], review:[], star:[], streak:0, lastDate:""}; }
+function blank(){ return {known:[], review:[], star:[], gdone:[], tdone:[], streak:0, lastDate:""}; }
 
 /* ---------- 저장 (이 기기 브라우저에만) ---------- */
 const KEY = "lang10_data";
@@ -385,13 +431,15 @@ function isJa(){ return S.lang === "ja"; }
 function langLabel(){ return isJa() ? "JAPANESE" : "ENGLISH"; }
 function seal(){ return isJa() ? "あ" : "A"; }
 
-function speak(text){
+function speak(text, onend, pitch){
   if(!("speechSynthesis" in window)) return toast("이 기기는 음성 읽기를 지원하지 않아요");
   speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text.replace(/○○/g, isJa() ? "キム" : "Kim"));
   u.lang = isJa() ? "ja-JP" : "en-US"; u.rate = 0.85;
   const v = speechSynthesis.getVoices().find(v => v.lang.replace("_","-").toLowerCase().startsWith(u.lang.slice(0,2)));
   if(v) u.voice = v;
+  u.pitch = pitch || 1;
+  if(onend){ u.onend = onend; u.onerror = onend; }
   speechSynthesis.speak(u);
 }
 if("speechSynthesis" in window){ speechSynthesis.getVoices(); }
@@ -448,8 +496,56 @@ function cardHTML(o){
 }
 
 /* ---------- 화면 전환 ---------- */
-function setLang(l){ S.lang = l; S.fc = null; S.qz = null; S.tv = null; S.tvCat = 0; S.vocabView = "list"; try{ localStorage.setItem("lang10_lang", l); }catch(e){} render(); }
-function go(t){ S.tab = t; if(t === "vocab"){ S.vocabView = "list"; S.fc = null; S.qz = null; } if(t !== "home" && t !== "travel") S.tv = null; if(t === "travel") S.tv = null; render(); window.scrollTo(0,0); }
+
+/* ---------- 헤더 (언어별 디자인이 무작위로) ---------- */
+const HEROES = {
+  en: {
+    E1: {bg:"background:#0b1f3a;color:#fff", tg:"background:rgba(255,255,255,.12)", on:["#e32017","#fff"], pal:"background:rgba(255,255,255,.14);color:#fff",
+      sub:'<span style="font-family:\'Playfair Display\';font-style:italic">Mind the gap, one word a day</span>',
+      deco:`<svg class="deco" viewBox="0 0 440 214" preserveAspectRatio="none"><path d="M-10 160 H170 L225 105 H450" fill="none" stroke="#e32017" stroke-width="7" stroke-dasharray="620" stroke-dashoffset="620" style="animation:h-dash 4s ease-out infinite alternate"/><path d="M-10 66 H130 L185 121 H450" fill="none" stroke="#ffd300" stroke-width="7" stroke-dasharray="620" stroke-dashoffset="620" style="animation:h-dash 5s .6s ease-out infinite alternate"/><path d="M330 -10 V76 L285 121 V230" fill="none" stroke="#00a0e2" stroke-width="7" stroke-dasharray="420" stroke-dashoffset="420" style="animation:h-dash 4.5s 1.2s ease-out infinite alternate"/><circle cx="225" cy="105" r="8" fill="#fff" stroke="#0b1f3a" stroke-width="3"/><circle cx="330" cy="76" r="8" fill="#fff" stroke="#0b1f3a" stroke-width="3"/><circle cx="170" cy="160" r="8" fill="#fff" stroke="#0b1f3a" stroke-width="3"/></svg><div class="deco" style="z-index:2;background:linear-gradient(90deg,rgba(11,31,58,.93) 0 42%,rgba(11,31,58,.15))"></div>`},
+    E2: {bg:"background:linear-gradient(120deg,#ff9a62,#e0567a,#5b3a8c,#1d2a5c,#ff9a62);background-size:300% 300%;animation:h-sky 14s linear infinite alternate;color:#fff", tg:"background:rgba(25,20,49,.55)", on:["#fff","#191431"], pal:"background:rgba(255,255,255,.2);color:#fff",
+      sub:'<span style="font-family:\'Playfair Display\';font-style:italic">Ten minutes, city lights</span>',
+      deco:`<svg class="deco" style="top:auto;height:96px" viewBox="0 0 330 90" preserveAspectRatio="none"><path d="M0 90 V60 H20 V40 H38 V58 H52 V25 H60 V10 H64 V25 H72 V55 H90 V35 H112 V62 H128 V45 H150 V20 H158 V5 H162 V20 H170 V60 H190 V38 H214 V64 H232 V30 H250 V52 H270 V42 H292 V66 H310 V50 H330 V90Z" fill="#191431"/><g fill="#ffd98a"><rect x="24" y="48" width="3" height="3" style="animation:h-blink 3s infinite"/><rect x="56" y="30" width="3" height="3" style="animation:h-blink 2.2s .5s infinite"/><rect x="100" y="44" width="3" height="3" style="animation:h-blink 4s 1s infinite"/><rect x="154" y="28" width="3" height="3" style="animation:h-blink 2.6s .2s infinite"/><rect x="202" y="46" width="3" height="3" style="animation:h-blink 3.4s 1.4s infinite"/><rect x="240" y="38" width="3" height="3" style="animation:h-blink 2.8s .8s infinite"/><rect x="280" y="50" width="3" height="3" style="animation:h-blink 3.6s .3s infinite"/></g></svg>`},
+    E4: {bg:"background:#eaf2fb radial-gradient(#b9cde4 1.2px,transparent 1.3px) 0 0/12px 12px;color:#12305c", tg:"background:#fff;border:1px solid #c9d8ea", on:["#12305c","#fff"], pal:"background:#fff;color:#12305c;border:1px solid #c9d8ea",
+      sub:"ICN → JFK · 오늘의 항로",
+      deco:`<svg class="deco" viewBox="0 0 440 214" preserveAspectRatio="none"><path d="M220 205 Q300 -10 415 95" fill="none" stroke="#3f6fb5" stroke-width="2" stroke-dasharray="6 6"/><circle cx="415" cy="95" r="6" fill="#e0453a"/></svg><div class="deco" style="z-index:2"><span style="position:absolute;left:0;top:0;font-size:26px;line-height:1;color:#12305c;offset-path:path('M220 205 Q300 -10 415 95');offset-rotate:auto;animation:h-fly 7s ease-in-out infinite">✈</span></div>`}
+  },
+  ja: {
+    J2: {bg:"background:#f7efe2;color:#1d2b4a", tg:"background:rgba(255,255,255,.9);width:60%;margin-bottom:24px", on:["#c8302f","#fff"], pal:"background:#fff;color:#1d2b4a;border:1px solid #e3d6c0", font:"'Shippori Mincho',serif",
+      sub:"日の出とともに、一語ずつ",
+      deco:`<div class="deco"><div style="position:absolute;right:30px;top:34px;width:78px;height:78px;border-radius:50%;background:#c8302f;animation:h-rise 8s ease-in-out infinite"></div></div><svg class="deco" style="top:auto;height:118px" viewBox="0 0 330 110" preserveAspectRatio="none"><path d="M170 110 L250 22 Q260 15 270 22 L350 110Z" fill="#1d2b4a"/><path d="M230 37 L250 22 Q260 15 270 22 L290 37 L276 44 L266 36 L256 45 L244 38Z" fill="#fff"/></svg><div class="deco" style="top:auto;height:22px;z-index:2;background:radial-gradient(circle at 10px 22px,transparent 7px,#2f4a7a 8px,#2f4a7a 10px,transparent 11px) 0 0/20px 22px;animation:h-slide 5s linear infinite"></div>`},
+    J3: {bg:"background-color:#13254a;background-image:radial-gradient(circle at 50% 100%,transparent 14px,#d9b86c 15px,transparent 16px,transparent 21px,#d9b86c 22px,transparent 23px,transparent 28px,#d9b86c 29px,transparent 30px),radial-gradient(circle at 0 50%,transparent 14px,#d9b86c 15px,transparent 16px,transparent 21px,#d9b86c 22px,transparent 23px,transparent 28px,#d9b86c 29px,transparent 30px);background-size:40px 20px;animation:h-slide 12s linear infinite;color:#f6ecd2", tg:"border:1px solid rgba(217,184,108,.45)", on:["#d9b86c","#13254a"], pal:"background:rgba(217,184,108,.2);color:#d9b86c", font:"'Shippori Mincho',serif", title:"color:#f0d796",
+      sub:"静かな波のように、毎日",
+      deco:`<div class="deco" style="z-index:2;background:linear-gradient(90deg,#13254a 0 48%,rgba(19,37,74,.5))"></div>`},
+    J4: {bg:"background:#150f26;color:#fff", tg:"background:rgba(255,255,255,.08);width:64%", on:["#ff6fb1","#150f26"], pal:"background:rgba(255,255,255,.1);color:#ff6fb1",
+      sub:'<span style="color:#c9b8ff">夜の東京で、ひとこと</span>',
+      deco:`<div class="deco" style="display:flex;gap:10px;justify-content:flex-end;padding:62px 22px 0 0;font-family:'Noto Sans JP';font-weight:700;align-items:flex-start"><span style="writing-mode:vertical-rl;font-size:24px;color:#ff6fb1;border:2px solid #ff6fb1;padding:8px 4px;border-radius:6px;text-shadow:0 0 8px #ff6fb1;box-shadow:0 0 12px rgba(255,111,177,.5);animation:h-flick 4s infinite">ことば</span><span style="writing-mode:vertical-rl;font-size:24px;color:#5ee7ff;border:2px solid #5ee7ff;padding:8px 4px;border-radius:6px;text-shadow:0 0 8px #5ee7ff;box-shadow:0 0 12px rgba(94,231,255,.5);animation:h-flick 5s 1.3s infinite">たび</span></div>`}
+  }
+};
+let heroKey = {en:null, ja:null};
+function pickHero(lang){
+  const keys = Object.keys(HEROES[lang]);
+  let k; do{ k = keys[Math.floor(Math.random()*keys.length)]; }while(keys.length > 1 && k === heroKey[lang]);
+  heroKey[lang] = k;
+}
+function renderHero(){
+  const H = HEROES[S.lang][heroKey[S.lang]];
+  const el = document.getElementById("hero");
+  el.setAttribute("style", H.bg + `;--tg-bg:${H.on[0]};--tg-ink:${H.on[1]}`);
+  el.innerHTML = H.deco + `
+    <button class="pal" style="${H.pal}" onclick="togglePanel()" aria-label="디자인과 글씨체 바꾸기" title="디자인·글씨체">🎨</button>
+    <div class="in">
+      <h1 style="${H.font ? "font-family:"+H.font+";" : ""}${H.title||""}">하루 10분<br>외국어</h1>
+      <div class="sub" style="${H.font ? "font-family:"+H.font : ""}">${H.sub}</div>
+      <div class="note">로그인 없이 · 기록은 이 기기에만 저장돼요</div>
+      <div class="tg" style="${H.tg}">
+        <button id="lg-en" class="${S.lang==="en"?"on":""}" onclick="setLang('en')"><b>EN</b>영어</button>
+        <button id="lg-ja" class="${S.lang==="ja"?"on":""}" onclick="setLang('ja')"><b>JP</b>일본어</button>
+      </div>
+    </div>`;
+}
+function setLang(l){ playToken++; S.gm = null; S.tk = null; S.lang = l; S.fc = null; S.qz = null; S.tv = null; S.tvCat = 0; S.vocabView = "list"; try{ localStorage.setItem("lang10_lang", l); }catch(e){} pickHero(l); renderHero(); render(); }
+function go(t){ playToken++; if("speechSynthesis" in window) speechSynthesis.cancel(); S.tab = t; S.gm = null; S.tk = null; if(t === "vocab"){ S.vocabView = "list"; S.fc = null; S.qz = null; } if(t !== "home" && t !== "travel") S.tv = null; if(t === "travel") S.tv = null; render(); window.scrollTo(0,0); }
 const DESIGNS=[["toss","토스형"],["note","노트형"],["pass","항공권형"],["wafu","일본 와풍형"]];
 const FONTS=[["1","깔끔 기본"],["2","둥글둥글"],["3","손글씨 노트"],["9","큰 글씨"]];
 function applyLook(design, font){
@@ -640,10 +736,259 @@ function reviewDone(id){ D.review = D.review.filter(x => x !== id); if(!D.known.
 function unstar(id){ D.star = D.star.filter(x => x !== id); save(); render(); }
 function reviewCards(){ const list = D.review.filter(id => id.startsWith(S.lang)).map(byId).filter(Boolean); S.tab = "vocab"; S.vocabView = "flash"; S.fc = {title:"복습 단어", list:shuffle(list), idx:0}; render(); window.scrollTo(0,0); }
 
-/* ---------- 준비 중 ---------- */
-function soon(title, body){ return `<div class="card framed" style="text-align:center;padding:34px 22px"><div style="font-size:44px">🛠️</div><div class="card-title" style="margin-top:10px">${title}</div><p style="color:var(--sub);font-size:14px;line-height:1.7;margin-top:10px">${body}</p><button class="btn main" style="margin:18px auto 0;padding:12px 22px" onclick="go('travel')">여행 한마디 먼저 해 보기</button></div>`; }
-function renderGrammar(){ return soon("문법은 2단계에서 열려요", isJa() ? "～です/～ます, ～たい, ～てください 같은 기초 패턴을<br>설명 카드와 빈칸 문제로 짧게 익히게 됩니다." : "be동사, 현재진행, 과거형, can/will 같은 기초 패턴을<br>설명 카드와 빈칸 문제로 짧게 익히게 됩니다."); }
-function renderTalk(){ return soon("회화는 3단계에서 열려요", "공항, 식당, 호텔 같은 장면의 대화를<br>한 줄씩 듣고 역할을 맡아 연습하게 됩니다."); }
+/* =========================================================
+   3) 문법 데이터
+   t:제목, d:설명, f:형태, ex:[예문, 발음, 뜻], q:[빈칸문장, 보기, 정답번호], o:순서 맞추기 조각, om:순서 문제 뜻
+   ========================================================= */
+const GRAMMAR = {
+  en: [
+    {t:"be동사 am · is · are", d:"'~이다, ~에 있다'라는 뜻이에요. 주어에 따라 모양이 바뀌어요.", f:"I am · You are · He/She is · We/They are",
+     ex:[["I am a teacher.","아이 엠 어 티처","나는 교사예요."],["She is from Korea.","쉬 이즈 프롬 코리아","그녀는 한국 출신이에요."],["We are tired.","위 아 타이어드","우리는 피곤해요."]],
+     q:[["I ___ hungry.",["am","is","are"],0],["They ___ my friends.",["is","are","am"],1]], o:["She","is","from","Seoul"], om:"그녀는 서울 출신이에요."},
+    {t:"일반동사 현재형", d:"평소에 하는 일을 말해요. 주어가 He·She·It이면 동사 끝에 -s를 붙여요.", f:"I like · She likes",
+     ex:[["I like coffee.","아이 라익 커피","나는 커피를 좋아해요."],["He works in Seoul.","히 웍스 인 서울","그는 서울에서 일해요."],["We live in Busan.","위 리브 인 부산","우리는 부산에 살아요."]],
+     q:[["She ___ tea.",["like","likes","liking"],1],["I ___ in Suwon.",["live","lives","living"],0]], o:["He","works","every","day"], om:"그는 매일 일해요."},
+    {t:"부정문 don't · doesn't", d:"'~하지 않아요'. He·She·It에는 doesn't를 써요.", f:"I don't + 동사 · She doesn't + 동사",
+     ex:[["I don't eat meat.","아이 돈트 잇 미트","나는 고기를 안 먹어요."],["She doesn't drink coffee.","쉬 더즌트 드링크 커피","그녀는 커피를 안 마셔요."],["I don't know.","아이 돈트 노우","모르겠어요."]],
+     q:[["He ___ like fish.",["don't","doesn't","isn't"],1],["I ___ understand.",["don't","doesn't","am not"],0]], o:["I","don't","speak","French"], om:"나는 프랑스어를 못해요."},
+    {t:"의문문 Do you ~?", d:"'~하나요?' 하고 물을 때 Do를 앞에 붙여요. He·She·It에는 Does를 써요.", f:"Do you + 동사? · Does she + 동사?",
+     ex:[["Do you like sushi?","두 유 라익 스시","초밥 좋아하세요?"],["Does she speak English?","더즈 쉬 스픽 잉글리쉬","그녀는 영어를 하나요?"],["Do you have Wi-Fi?","두 유 해브 와이파이","와이파이 있나요?"]],
+     q:[["___ you like music?",["Do","Does","Are"],0],["___ he live here?",["Do","Does","Is"],1]], o:["Do","you","have","a","map"], om:"지도 있으세요?"},
+    {t:"현재진행 be + -ing", d:"'지금 ~하고 있어요'. be동사 뒤에 동사-ing를 붙여요.", f:"I am + 동사ing",
+     ex:[["I am studying English.","아이 엠 스터딩 잉글리쉬","나는 영어를 공부하고 있어요."],["She is waiting for a bus.","쉬 이즈 웨이팅 포 어 버스","그녀는 버스를 기다리고 있어요."],["It is raining.","잇 이즈 레이닝","비가 오고 있어요."]],
+     q:[["I am ___ now.",["eat","eating","eats"],1],["They ___ watching TV.",["is","are","am"],1]], o:["I","am","looking","for","the","station"], om:"역을 찾고 있어요."},
+    {t:"과거형 -ed · was", d:"지난 일을 말해요. 보통 동사 끝에 -ed를 붙이고, go→went처럼 모양이 바뀌는 동사도 있어요.", f:"visited · went · was/were",
+     ex:[["I visited Tokyo last year.","아이 비지티드 도쿄 라스트 이어","작년에 도쿄에 갔어요."],["It was delicious.","잇 워즈 딜리셔스","맛있었어요."],["We went to the beach.","위 웬트 투 더 비치","우리는 해변에 갔어요."]],
+     q:[["I ___ a movie yesterday.",["watch","watched","watching"],1],["The hotel ___ nice.",["were","was","be"],1]], o:["We","went","there","yesterday"], om:"우리는 어제 거기 갔어요."},
+    {t:"미래 will", d:"'~할 거예요'. will 뒤에는 동사 원래 모양이 와요. I will은 I'll로 줄여요.", f:"will + 동사원형",
+     ex:[["I will call you.","아이 윌 콜 유","전화할게요."],["It will rain tomorrow.","잇 윌 레인 투마로우","내일 비가 올 거예요."],["I'll have this.","아일 해브 디스","이걸로 할게요."]],
+     q:[["I ___ go tomorrow.",["will","am","did"],0],["She will ___ late.",["is","be","being"],1]], o:["I","will","see","you","soon"], om:"곧 만나요."},
+    {t:"가능·부탁 can", d:"'~할 수 있어요'. 질문으로 쓰면 '~해도 될까요? / ~해 줄래요?'라는 부탁이 돼요.", f:"can + 동사원형 · Can I ~? · Can you ~?",
+     ex:[["I can swim.","아이 캔 스윔","나는 수영할 수 있어요."],["Can you help me?","캔 유 헬프 미","도와주실 수 있나요?"],["Can I pay by card?","캔 아이 페이 바이 카드","카드로 계산해도 되나요?"]],
+     q:[["___ I sit here?",["Can","Do","Am"],0],["She can ___ Japanese.",["speaks","speak","speaking"],1]], o:["Can","you","take","a","picture"], om:"사진 찍어 주실 수 있나요?"},
+    {t:"want to · I'd like to", d:"'~하고 싶어요'. I'd like to는 더 공손한 말투라 가게나 호텔에서 쓰기 좋아요.", f:"want to + 동사 · I'd like to + 동사",
+     ex:[["I want to go home.","아이 원 투 고우 홈","집에 가고 싶어요."],["I'd like to check in.","아이드 라익 투 체크인","체크인하고 싶어요."],["Do you want to eat?","두 유 원 투 잇","먹고 싶어요?"]],
+     q:[["I want ___ rest.",["to","for","at"],0],["I'd like ___ order.",["to","a","for"],0]], o:["I'd","like","to","book","a","table"], om:"테이블을 예약하고 싶어요."},
+    {t:"의문사 What · Where · How", d:"무엇(What), 어디(Where), 어떻게·얼마나(How)를 문장 맨 앞에 두고 물어요.", f:"Where is ~? · What time ~? · How much ~?",
+     ex:[["Where is the station?","웨어 이즈 더 스테이션","역이 어디예요?"],["What time is it?","왓 타임 이즈 잇","몇 시예요?"],["How much is it?","하우 머치 이즈 잇","얼마예요?"]],
+     q:[["___ is the restroom?",["Where","What","Who"],0],["___ much is this?",["How","What","Where"],0]], o:["What","time","is","it"], om:"몇 시예요?"}
+  ],
+  ja: [
+    {t:"～です (~입니다)", d:"명사 뒤에 붙여 '~입니다'라고 정중하게 말해요.", f:"명사 + です",
+     ex:[["学生です。","가쿠세-데스","학생입니다."],["韓国人です。","캉코쿠진데스","한국인입니다."],["これは水です。","코레와 미즈데스","이것은 물입니다."]],
+     q:[["わたしは先生___。",["です","ます","を"],0],["これは水___か。",["です","を","に"],0]], o:["わたしは","かんこくじん","です"], om:"저는 한국인입니다."},
+    {t:"～は (주제: ~은/는)", d:"は는 '와'로 읽어요. 이야기의 주제를 나타내요.", f:"A は B です",
+     ex:[["わたしはキムです。","와타시와 키무데스","저는 김입니다."],["駅はあそこです。","에키와 아소코데스","역은 저기예요."],["トイレはどこですか。","토이레와 도코데스카","화장실은 어디예요?"]],
+     q:[["わたし___キムです。",["は","を","に"],0],["駅___どこですか。",["は","を","で"],0]], o:["トイレは","どこ","ですか"], om:"화장실은 어디예요?"},
+    {t:"～ですか (~입니까?)", d:"문장 끝에 か를 붙이면 질문이 돼요. 물음표 대신 마침표를 써요.", f:"～ですか",
+     ex:[["学生ですか。","가쿠세-데스카","학생이에요?"],["高いですか。","타카이데스카","비싸요?"],["これは何ですか。","코레와 난데스카","이건 뭐예요?"]],
+     q:[["日本人です___。",["か","を","ね"],0],["これは何___か。",["です","ます","を"],0]], o:["これは","なん","ですか"], om:"이건 뭐예요?"},
+    {t:"～ます (정중한 동사)", d:"동사를 정중하게 말할 때 ～ます를 붙여요.", f:"食べ + ます → 食べます",
+     ex:[["食べます。","타베마스","먹습니다."],["東京に行きます。","토-쿄-니 이키마스","도쿄에 갑니다."],["コーヒーを飲みます。","코-히-오 노미마스","커피를 마십니다."]],
+     q:[["コーヒーを飲み___。",["ます","です","か"],0],["東京に行き___。",["ます","です","を"],0]], o:["わたしは","ごはんを","たべます"], om:"저는 밥을 먹습니다."},
+    {t:"～ません (~하지 않습니다)", d:"～ます를 ～ません으로 바꾸면 부정이 돼요.", f:"食べます → 食べません",
+     ex:[["分かりません。","와카리마셍","모르겠습니다."],["肉は食べません。","니쿠와 타베마셍","고기는 안 먹어요."],["お酒は飲みません。","오사케와 노미마셍","술은 안 마셔요."]],
+     q:[["分かり___。",["ません","です","か"],0],["お酒は飲み___。",["ません","ましょう","ですか"],0]], o:["にくは","たべ","ません"], om:"고기는 안 먹어요."},
+    {t:"～ました (~했습니다)", d:"～ます를 ～ました로 바꾸면 과거가 돼요.", f:"行きます → 行きました",
+     ex:[["行きました。","이키마시타","갔습니다."],["食べました。","타베마시타","먹었습니다."],["美味しかったです。","오이시캇타데스","맛있었어요."]],
+     q:[["きのう東京に行き___。",["ました","ます","ません"],0],["財布をなくし___。",["ました","です","を"],0]], o:["きのう","すしを","たべました"], om:"어제 초밥을 먹었어요."},
+    {t:"～をください (~ 주세요)", d:"원하는 물건 뒤에 をください를 붙이면 어디서나 통하는 주문 표현이 돼요.", f:"물건 + を + ください",
+     ex:[["水をください。","미즈오 쿠다사이","물 주세요."],["これをください。","코레오 쿠다사이","이거 주세요."],["メニューをください。","메뉴-오 쿠다사이","메뉴판 주세요."]],
+     q:[["水___ください。",["を","は","に"],0],["コーヒーを___。",["ください","です","ます"],0]], o:["おちゃを","ください"], om:"차 주세요."},
+    {t:"～たいです (~하고 싶어요)", d:"동사의 ます를 떼고 たいです를 붙여요.", f:"行きます → 行きたいです",
+     ex:[["行きたいです。","이키타이데스","가고 싶어요."],["ラーメンが食べたいです。","라-멘가 타베타이데스","라멘이 먹고 싶어요."],["買いたいです。","카이타이데스","사고 싶어요."]],
+     q:[["すしを食べ___です。",["たい","ます","ない"],0],["京都に行き___です。",["たい","て","た"],0]], o:["にほんに","いきたい","です"], om:"일본에 가고 싶어요."},
+    {t:"～てください (~해 주세요)", d:"상대에게 부탁할 때 써요. 동사를 て 모양으로 바꾸고 ください를 붙여요.", f:"待つ → 待って + ください",
+     ex:[["待ってください。","맛테 쿠다사이","기다려 주세요."],["ゆっくり話してください。","육쿠리 하나시테 쿠다사이","천천히 말해 주세요."],["見せてください。","미세테 쿠다사이","보여 주세요."]],
+     q:[["ちょっと待っ___ください。",["て","た","に"],0],["もう一度言っ___。",["てください","ました","たい"],0]], o:["ゆっくり","はなして","ください"], om:"천천히 말해 주세요."},
+    {t:"どこ · あります (어디 · 있어요)", d:"장소는 どこですか로 묻고, 물건이 있는지는 ありますか로 물어요.", f:"～はどこですか · ～はありますか",
+     ex:[["トイレはどこですか。","토이레와 도코데스카","화장실은 어디예요?"],["Wi-Fiはありますか。","와이화이와 아리마스카","와이파이 있어요?"],["近くにコンビニがありますか。","치카쿠니 콤비니가 아리마스카","근처에 편의점 있어요?"]],
+     q:[["駅は___ですか。",["どこ","なに","だれ"],0],["Wi-Fiは___か。",["あります","います","です"],0]], o:["ちかくに","コンビニが","ありますか"], om:"근처에 편의점 있어요?"}
+  ]
+};
+
+/* =========================================================
+   4) 회화 데이터
+   roles:[상대, 나], l:[말하는 사람(0 상대·1 나), 문장, 발음, 뜻]
+   ========================================================= */
+const TALK = {
+  en: [
+    {t:"공항 입국 심사", ic:"🛂", roles:["심사관","나"], l:[
+      [0,"Hello. Passport, please.","헬로우. 패스포트, 플리즈","안녕하세요. 여권 주세요."],[1,"Here you are.","히어 유 아","여기 있어요."],
+      [0,"What's the purpose of your visit?","왓츠 더 퍼포즈 오브 유어 비짓","방문 목적이 뭐예요?"],[1,"Sightseeing.","싸잇씽","관광이요."],
+      [0,"How long are you staying?","하우 롱 아 유 스테잉","얼마나 머무세요?"],[1,"Five days.","파이브 데이즈","5일이요."],[0,"Enjoy your trip.","인조이 유어 트립","즐거운 여행 되세요."]]},
+    {t:"호텔 체크인", ic:"🏨", roles:["직원","나"], l:[
+      [0,"Hi, how can I help you?","하이, 하우 캔 아이 헬프 유","안녕하세요, 무엇을 도와드릴까요?"],[1,"I'd like to check in. I have a reservation.","아이드 라익 투 체크인. 아이 해브 어 레저베이션","체크인하려고요. 예약했어요."],
+      [0,"May I have your name?","메이 아이 해브 유어 네임","성함이 어떻게 되세요?"],[1,"Kim Minji.","킴 민지","김민지예요."],
+      [0,"Here is your key. Breakfast is from seven.","히어 이즈 유어 키. 브렉퍼스트 이즈 프롬 세븐","여기 열쇠요. 조식은 7시부터예요."],[1,"Thank you. What's the Wi-Fi password?","땡큐. 왓츠 더 와이파이 패스워드","감사합니다. 와이파이 비밀번호가 뭐예요?"]]},
+    {t:"식당 주문", ic:"🍴", roles:["직원","나"], l:[
+      [0,"How many people?","하우 매니 피플","몇 분이세요?"],[1,"Two, please.","투, 플리즈","두 명이요."],
+      [0,"Are you ready to order?","아 유 레디 투 오더","주문하시겠어요?"],[1,"What do you recommend?","왓 두 유 레커멘드","뭘 추천하세요?"],
+      [0,"The steak is very popular.","더 스테이크 이즈 베리 파퓰러","스테이크가 인기가 많아요."],[1,"I'll have that, please.","아일 해브 댓, 플리즈","그걸로 할게요."]]},
+    {t:"카페", ic:"☕", roles:["직원","나"], l:[
+      [0,"Hi! What can I get for you?","하이! 왓 캔 아이 겟 포 유","안녕하세요! 뭘 드릴까요?"],[1,"An iced latte, please.","언 아이스드 라테, 플리즈","아이스 라테 한 잔 주세요."],
+      [0,"What size?","왓 사이즈","사이즈는요?"],[1,"Small, please.","스몰, 플리즈","작은 걸로요."],
+      [0,"For here or to go?","포 히어 오어 투 고우","드시고 가세요, 가져가세요?"],[1,"To go, please.","투 고우, 플리즈","가져갈게요."]]},
+    {t:"옷 가게", ic:"🛍️", roles:["점원","나"], l:[
+      [0,"Can I help you?","캔 아이 헬프 유","도와드릴까요?"],[1,"I'm just looking, thanks.","아임 저스트 루킹, 땡스","그냥 보고 있어요, 고마워요."],
+      [1,"How much is this?","하우 머치 이즈 디스","이거 얼마예요?"],[0,"It's twenty dollars.","잇츠 트웬티 달러즈","20달러예요."],
+      [1,"Can I pay by card?","캔 아이 페이 바이 카드","카드 되나요?"],[0,"Sure. Would you like a bag?","슈어. 우쥬 라익 어 백","그럼요. 봉투 필요하세요?"],[1,"No, thank you.","노우, 땡큐","아니요, 괜찮아요."]]},
+    {t:"길 묻기", ic:"🧭", roles:["행인","나"], l:[
+      [1,"Excuse me. Where is the subway station?","익스큐즈 미. 웨어 이즈 더 서브웨이 스테이션","실례합니다. 지하철역이 어디예요?"],[0,"Go straight and turn left.","고우 스트레잇 앤 턴 레프트","쭉 가서 왼쪽으로 도세요."],
+      [1,"Is it far?","이즈 잇 파","멀어요?"],[0,"No, it's about five minutes on foot.","노우, 잇츠 어바웃 파이브 미닛츠 온 풋","아니요, 걸어서 5분 정도예요."],
+      [1,"Thank you so much.","땡큐 쏘 머치","정말 고마워요."],[0,"You're welcome.","유어 웰컴","천만에요."]]}
+  ],
+  ja: [
+    {t:"공항 입국 심사", ic:"🛂", roles:["심사관","나"], l:[
+      [0,"パスポートを見せてください。","파스포-토오 미세테 쿠다사이","여권을 보여 주세요."],[1,"はい、どうぞ。","하이, 도-조","네, 여기요."],
+      [0,"旅行の目的は何ですか。","료코-노 모쿠테키와 난데스카","여행 목적이 뭐예요?"],[1,"観光です。","캉코-데스","관광입니다."],
+      [0,"何日間いますか。","난니치캉 이마스카","며칠 계세요?"],[1,"五日間です。","이츠카캉데스","5일간입니다."],[0,"いい旅を。","이- 타비오","좋은 여행 되세요."]]},
+    {t:"호텔 체크인", ic:"🏨", roles:["직원","나"], l:[
+      [0,"いらっしゃいませ。","이랏샤이마세","어서 오세요."],[1,"チェックインお願いします。予約したキムです。","첵쿠잉 오네가이시마스. 요야쿠시타 키무데스","체크인 부탁합니다. 예약한 김입니다."],
+      [0,"キム様ですね。パスポートをお願いします。","키무사마데스네. 파스포-토오 오네가이시마스","김 님이시군요. 여권 부탁드립니다."],[1,"はい。朝ご飯は何時からですか。","하이. 아사고항와 난지카라데스카","네. 아침 식사는 몇 시부터예요?"],
+      [0,"七時からです。","시치지카라데스","7시부터입니다."],[1,"ありがとうございます。","아리가토- 고자이마스","감사합니다."]]},
+    {t:"식당 주문", ic:"🍜", roles:["직원","나"], l:[
+      [0,"何名様ですか。","난메-사마데스카","몇 분이세요?"],[1,"二人です。","후타리데스","두 명이에요."],
+      [0,"ご注文はお決まりですか。","고추-몽와 오키마리데스카","주문 정하셨어요?"],[1,"おすすめは何ですか。","오스스메와 난데스카","추천 메뉴가 뭐예요?"],
+      [0,"ラーメンが人気です。","라-멘가 닌키데스","라멘이 인기예요."],[1,"じゃあ、それを二つください。","쟈-, 소레오 후타츠 쿠다사이","그럼 그걸로 두 개 주세요."]]},
+    {t:"편의점", ic:"🏪", roles:["점원","나"], l:[
+      [0,"いらっしゃいませ。","이랏샤이마세","어서 오세요."],[0,"袋はいりますか。","후쿠로와 이리마스카","봉투 필요하세요?"],
+      [1,"いいえ、大丈夫です。","이-에, 다이죠-부데스","아니요, 괜찮아요."],[0,"温めますか。","아타타메마스카","데워 드릴까요?"],
+      [1,"はい、お願いします。","하이, 오네가이시마스","네, 부탁해요."],[0,"五百円です。","고햐쿠엔데스","500엔입니다."],[1,"カードで払えますか。","카-도데 하라에마스카","카드로 계산되나요?"]]},
+    {t:"기념품 가게", ic:"🛍️", roles:["점원","나"], l:[
+      [0,"何かお探しですか。","나니카 오사가시데스카","뭐 찾으세요?"],[1,"見ているだけです。","미테이루 다케데스","그냥 보는 중이에요."],
+      [1,"これはいくらですか。","코레와 이쿠라데스카","이거 얼마예요?"],[0,"三千円です。","산젱엔데스","3,000엔입니다."],
+      [1,"免税できますか。","멘제- 데키마스카","면세 되나요?"],[0,"はい、パスポートをお願いします。","하이, 파스포-토오 오네가이시마스","네, 여권 부탁드려요."]]},
+    {t:"길 묻기", ic:"🧭", roles:["행인","나"], l:[
+      [1,"すみません、駅はどこですか。","스미마셍, 에키와 도코데스카","실례합니다, 역이 어디예요?"],[0,"まっすぐ行って、右です。","맛스구 잇테, 미기데스","쭉 가서 오른쪽이에요."],
+      [1,"遠いですか。","토-이데스카","멀어요?"],[0,"いいえ、歩いて五分ぐらいです。","이-에, 아루이테 고훙 구라이데스","아니요, 걸어서 5분쯤이에요."],
+      [1,"ありがとうございます。","아리가토- 고자이마스","감사합니다."],[0,"どういたしまして。","도-이타시마시테","천만에요."]]}
+  ]
+};
+
+/* ---------- 문법 ---------- */
+function gHead(title, idx, len, eyebrow){
+  return `<div class="card-head"><div class="seal">${seal()}</div><div><div class="eyebrow">${eyebrow}</div><div class="card-title">${title}</div></div><div class="count">${idx+1} / ${len}</div></div>`;
+}
+function renderGrammar(){
+  if(S.gm) return S.gm.step === "learn" ? gLearn() : gPractice();
+  const G = GRAMMAR[S.lang]; const done = G.filter((g,i)=>D.gdone.includes(S.lang+"-g-"+i)).length;
+  return `<div class="sec-title">기초 문법 ${G.length}가지 · ${done}개 완료</div>` +
+    G.map((g,i)=>`<button class="row-item${D.gdone.includes(S.lang+"-g-"+i) ? " done" : ""}" onclick="openGrammar(${i})">
+      <span class="no">${D.gdone.includes(S.lang+"-g-"+i) ? "✓" : i+1}</span>
+      <span style="flex:1;min-width:0"><b>${g.t}</b><small>${g.f}</small></span><span style="color:var(--faint)">›</span></button>`).join("");
+}
+function openGrammar(i){ S.gm = {i, step:"learn"}; render(); window.scrollTo(0,0); }
+function gLearn(){
+  const G = GRAMMAR[S.lang], g = G[S.gm.i];
+  return `<button class="back" onclick="S.gm=null;render()">‹ 문법 목록</button>
+  <div class="card framed">${gHead(g.t, S.gm.i, G.length, "GRAMMAR")}
+    <div class="tip" style="margin-top:0">${ICON_BULB}<p>${g.d}</p></div>
+    <div class="form-box">${g.f}</div>
+    <div class="sec-title" style="margin:16px 0 4px">예문</div>
+    ${g.ex.map((e,k)=>`<div class="ex"><div style="flex:1;min-width:0"><div class="ex-w">${e[0]}</div><div class="ex-r">[${e[1]}] ${e[2]}</div></div>
+      <button class="mini" onclick="speak(GRAMMAR[S.lang][${S.gm.i}].ex[${k}][0]);markStudy()" aria-label="듣기">🔊</button></div>`).join("")}
+  </div>
+  <button class="btn main" style="width:100%" onclick="startGPractice()">✏️ 연습 문제 3개 풀기</button>`;
+}
+function startGPractice(){
+  const g = GRAMMAR[S.lang][S.gm.i];
+  S.gm = {i:S.gm.i, step:"practice", qi:0, picked:null, score:0, pool:shuffle(g.o.map((w,k)=>k)), ans:[], checked:null};
+  render(); window.scrollTo(0,0);
+}
+function gPractice(){
+  const G = GRAMMAR[S.lang], g = G[S.gm.i], st = S.gm;
+  const head = `<button class="back" onclick="S.gm={i:${st.i},step:'learn'};render()">‹ 설명 다시 보기</button>`;
+  if(st.qi >= 3){
+    const next = st.i < G.length-1 ? `<button class="btn main" onclick="openGrammar(${st.i+1})">다음 문법 ›</button>` : `<button class="btn main" onclick="S.gm=null;render()">목록으로</button>`;
+    return `<div class="card framed" style="text-align:center"><div style="font-size:46px">${st.score===3?"🏆":"💪"}</div>
+      <div class="card-title" style="margin-top:8px">3문제 중 ${st.score}개 맞혔어요</div>
+      <p style="color:var(--sub);font-size:14px;margin-top:8px">'${g.t}'을(를) 완료로 표시했어요.</p>
+      <div class="row2" style="margin-top:18px"><button class="btn ghost" onclick="startGPractice()">다시 풀기</button>${next}</div></div>`;
+  }
+  let body = "";
+  if(st.qi < 2){
+    const q = g.q[st.qi];
+    const filled = st.picked === null ? `<span class="blank">　　</span>` : `<span class="blank ${st.picked===q[2]?"ok":"no"}">${q[1][st.picked]}</span>`;
+    body = `<p class="q-guide">빈칸에 알맞은 말을 골라 주세요</p>
+      <div class="q-sent">${q[0].replace("___", filled)}</div>
+      ${q[1].map((o,k)=>{ let c=""; if(st.picked!==null){ if(k===q[2]) c=" right"; else if(k===st.picked) c=" wrong"; }
+        return `<button class="opt${c}" onclick="gPick(${k})" ${st.picked!==null?"disabled":""}>${o}</button>`; }).join("")}
+      ${st.picked!==null ? `<button class="btn main" style="width:100%;margin-top:14px" onclick="gNext()">다음 문제 ›</button>` : ""}`;
+  } else {
+    const sep = isJa() ? "" : " ";
+    body = `<p class="q-guide">조각을 순서대로 눌러 문장을 완성해 주세요</p>
+      <div class="q-mean">${g.om}</div>
+      <div class="ans-line">${st.ans.map((k,j)=>`<button class="tok" onclick="gUnpick(${j})" ${st.checked!==null?"disabled":""}>${g.o[k]}</button>`).join("") || '<span style="color:var(--faint);font-size:14px;align-self:center">여기에 문장이 만들어져요</span>'}</div>
+      <div class="pool">${st.pool.map(k=>`<button class="tok${st.ans.includes(k)?" used":""}" onclick="gAdd(${k})" ${st.ans.includes(k)||st.checked!==null?"disabled":""}>${g.o[k]}</button>`).join("")}</div>
+      ${st.checked===null ? `<button class="btn main" style="width:100%;margin-top:14px" onclick="gCheck()" ${st.ans.length<g.o.length?"disabled":""}>정답 확인</button>`
+        : `<div class="tip" style="background:${st.checked?"var(--ok-soft)":"var(--accent-soft)"}">${st.checked?"⭕":"❌"}<p>${st.checked?"정답이에요!":"정답: "+g.o.join(sep)}</p></div>
+           <div class="row2"><button class="btn ghost" onclick="speak(GRAMMAR[S.lang][${st.i}].o.join('${sep}'))">🔊 듣기</button><button class="btn main" onclick="gNext()">결과 보기 ›</button></div>`}`;
+  }
+  return head + `<div class="card framed">${gHead(g.t, st.qi, 3, "PRACTICE")}${body}${dots(3, st.qi)}</div>`;
+}
+function gPick(k){ const st = S.gm, q = GRAMMAR[S.lang][st.i].q[st.qi]; st.picked = k; if(k===q[2]) st.score++; speak(q[0].replace("___", q[1][q[2]])); markStudy(); render(); }
+function gAdd(k){ S.gm.ans.push(k); render(); }
+function gUnpick(j){ S.gm.ans.splice(j,1); render(); }
+function gCheck(){
+  const st = S.gm, g = GRAMMAR[S.lang][st.i];
+  st.checked = st.ans.every((k,j)=>g.o[k]===g.o[j]); if(st.checked) st.score++;
+  speak(g.o.join(isJa() ? "" : " ")); markStudy(); render();
+}
+function gNext(){
+  const st = S.gm; st.qi++; st.picked = null;
+  if(st.qi >= 3){ const id = S.lang+"-g-"+st.i; if(!D.gdone.includes(id)){ D.gdone.push(id); save(); } }
+  render();
+}
+
+/* ---------- 회화 ---------- */
+let playToken = 0;
+function renderTalk(){
+  if(S.tk) return tScene();
+  const T = TALK[S.lang]; const done = T.filter((s,i)=>D.tdone.includes(S.lang+"-c-"+i)).length;
+  return `<div class="sec-title">상황별 대화 ${T.length}장면 · ${done}개 완료</div><div class="grid">` +
+    T.map((s,i)=>`<button class="topic" onclick="openScene(${i})"><div class="ic">${s.ic}</div><b>${s.t}</b>
+      <small>${D.tdone.includes(S.lang+"-c-"+i) ? "✓ 역할 연습 완료" : s.l.length+"줄 대화"}</small></button>`).join("") + `</div>`;
+}
+function openScene(i){ playToken++; S.tk = {i, mode:"view", shown:[]}; render(); window.scrollTo(0,0); }
+function tScene(){
+  const T = TALK[S.lang], s = T[S.tk.i], role = S.tk.mode === "role";
+  const mine = s.l.map((L,k)=>L[0]===1?k:-1).filter(k=>k>=0);
+  const left = mine.filter(k=>!S.tk.shown.includes(k)).length;
+  return `<button class="back" onclick="playToken++;speechSynthesis.cancel();S.tk=null;render()">‹ 장면 목록</button>
+  <div class="card framed">${gHead(s.ic+" "+s.t, S.tk.i, T.length, "CONVERSATION")}
+    <div class="chips" style="padding-bottom:8px">
+      <button class="chip${!role?" on":""}" onclick="setTalkMode('view')">대화 보기</button>
+      <button class="chip${role?" on":""}" onclick="setTalkMode('role')">'${s.roles[1]}' 역할 연습</button>
+    </div>
+    ${role ? `<p class="q-guide">점선 말풍선의 뜻을 보고 먼저 소리 내어 말해 본 뒤, 눌러서 정답을 확인하세요. ${left ? "남은 차례 "+left+"개" : "🎉 모두 확인했어요!"}</p>`
+           : `<button class="btn soft" style="width:100%;margin-bottom:6px" onclick="playAll()">▶ 대화 전체 듣기</button>`}
+    ${s.l.map((L,k)=>{
+      const me = L[0]===1, hide = role && me && !S.tk.shown.includes(k);
+      return `<div class="bub-row${me?" me":""}"><div style="max-width:84%"><div class="who">${s.roles[L[0]]}</div>
+        ${hide ? `<button class="bub q" onclick="reveal(${k})"><div class="m">${L[3]}</div><div class="r">눌러서 확인 👆</div></button>`
+               : `<button class="bub" id="bub-${k}" onclick="speakLine(${k})"><div class="w">${L[1]}</div><div class="r">[${L[2]}]</div><div class="m">${L[3]}</div></button>`}
+      </div></div>`; }).join("")}
+  </div>`;
+}
+function setTalkMode(m){ playToken++; speechSynthesis.cancel(); S.tk.mode = m; S.tk.shown = []; render(); }
+function speakLine(k, cb){ const L = TALK[S.lang][S.tk.i].l[k]; speak(L[1], cb, L[0]===1 ? 1.2 : 0.95); markStudy(); }
+function reveal(k){
+  S.tk.shown.push(k); speakLine(k); render();
+  const s = TALK[S.lang][S.tk.i]; const mine = s.l.filter(L=>L[0]===1).length;
+  if(S.tk.shown.length >= mine){ const id = S.lang+"-c-"+S.tk.i; if(!D.tdone.includes(id)){ D.tdone.push(id); save(); toast("이 장면 역할 연습을 완료했어요"); } }
+}
+function playAll(){
+  const my = ++playToken; const n = TALK[S.lang][S.tk.i].l.length; let k = 0;
+  const step = ()=>{
+    if(my !== playToken || !S.tk) return;
+    document.querySelectorAll(".bub.playing").forEach(b=>b.classList.remove("playing"));
+    if(k >= n) return;
+    const el = document.getElementById("bub-"+k); if(el){ el.classList.add("playing"); el.scrollIntoView({block:"nearest", behavior:"smooth"}); }
+    const cur = k++; speakLine(cur, ()=>setTimeout(step, 350));
+  };
+  step();
+}
 
 /* ---------- 시작 ---------- */
 (function init(){
@@ -651,6 +996,7 @@ function renderTalk(){ return soon("회화는 3단계에서 열려요", "공항,
   applyLook(look && look.d, look && look.f);
   try{ const l = localStorage.getItem("lang10_lang"); if(l === "en" || l === "ja") S.lang = l; }catch(e){}
   D = loadData();
+  pickHero(S.lang); renderHero();
   render();
 })();
 </script>
