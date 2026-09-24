@@ -67,6 +67,7 @@ h1 button::after{content:" ▾";font-size:.7em;color:var(--sub)}
 .who-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
 .who{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px 8px;border-radius:22px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow)}
 .who-ico{font-size:3.2rem;line-height:1.1}
+.who-ico.black-dragon{filter:grayscale(1) brightness(.38) contrast(1.4) drop-shadow(0 0 4px rgba(120,60,200,.55))}
 .who b{font-weight:normal;font-size:1.5rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
 .who small{color:var(--sub)}
 .tab{flex:1 1 0;white-space:nowrap;padding:.5rem .2rem;border-radius:14px;background:var(--paper);border:2px solid var(--line);font-size:1.02rem;color:var(--sub)}
@@ -134,6 +135,9 @@ main{padding:16px 12px 40px 28px}
 .subj .ico{font-size:2.6rem;line-height:1}
 .subj b{font-size:1.5rem;font-weight:normal}
 .subj small{color:var(--sub);font-size:.95rem}
+.clocktile{align-items:center;text-align:center;justify-content:center;gap:2px}
+.clocktile .clock{width:5rem;height:5rem}
+.clocktile .bigtime{font-size:1.25rem;line-height:1.2}
 .subj.wide{grid-column:1/-1;flex-direction:row;align-items:center;gap:14px}
 
 /* ───── 연산: 세로셈 모눈판 ───── */
@@ -314,7 +318,16 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
   .hj-q{font-size:5rem}
   .hj-big{font-size:5.5rem}
   .replay{width:4.8rem;height:4.8rem;font-size:2.2rem}
-  .subjects{grid-template-columns:1fr}
+  .bn-btns{gap:4px}
+  .bn-btns .pill{font-size:.85rem;padding:.3rem .6rem}
+  .bn-p{font-size:1.35rem}
+  .subjects{gap:8px}
+  .subj{padding:12px}
+  .subj .ico{font-size:2rem}
+  .subj b{font-size:1.25rem}
+  .subj small{font-size:.82rem}
+  .clocktile .clock{width:4.2rem;height:4.2rem}
+  .clocktile .bigtime{font-size:1.05rem}
   .clock{width:6rem;height:6rem}
   .bigtime{font-size:1.7rem}
   .sq{font-size:1.3rem}
@@ -712,7 +725,7 @@ function tick(){
   if(hc){
     hc.innerHTML=clockSVG(h,m,s);
     document.getElementById('homeTime').textContent=`${ap} ${h12}시 ${m}분`;
-    document.getElementById('homeDate').textContent=date;
+    document.getElementById('homeDate').textContent=`${t.getMonth()+1}월 ${t.getDate()}일 ${WD[t.getDay()]}요일`;
   }
   if(dayKey()!==lastDay){ lastDay=dayKey(); markVisit(); if(App.view==='home') render(); }
 }
@@ -781,12 +794,15 @@ async function cloudReset(name){
 
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
+/* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
+const AVATAR_BY_NAME = { '도진':{e:'🐉', cls:'black-dragon'} };
+const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls}">${a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
 const getProfiles = () => store.get('profiles',['도진','윤아']);
 function showLogin(){
   const list=getProfiles();
   document.getElementById('whoList').innerHTML = list.map((n,i)=>{
     const st=store.get('stars',0,n);
-    return `<button class="who" data-act="login" data-v="${esc(n)}"><span class="who-ico">${AVATARS[i%AVATARS.length]}</span><b>${esc(n)}</b><small>⭐ ${st}</small></button>`;
+    return `<button class="who" data-act="login" data-v="${esc(n)}">${avatarHTML(n,i)}<b>${esc(n)}</b><small>⭐ ${st}</small></button>`;
   }).join('');
   document.getElementById('newWho').value='';
   document.getElementById('settings').hidden=true;
@@ -851,11 +867,6 @@ function renderHome(){
   const total=dayTotal(), goal=admin.goal, pct=Math.min(100,Math.round(total/goal*100));
   const left=10-(stars%10);
   view.innerHTML=`
-    ${provHTML()}
-    <div class="card clockcard">
-      <div id="homeClock"></div>
-      <div><div class="sub" id="homeDate"></div><div class="bigtime" id="homeTime"></div></div>
-    </div>
     ${admin.msg?`<div class="card msg">💌 ${esc(admin.msg)}</div>`:''}
     <div class="card hello">
       <div class="big">안녕, ${josa(who,'아','야')}! 오늘은 뭘 공부해 볼까?</div>
@@ -863,11 +874,15 @@ function renderHome(){
       <div class="sub">오늘의 목표 ${total} / ${goal}문제 ${total>=goal?'🎯 달성!':''}</div>
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
     </div>
-    <div class="card grasscard">${grassHTML()}</div>
     <div class="subjects">
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
-      <button class="subj wide" data-act="tab" data-v="sticker"><span class="ico">🏅</span><span><b>칭찬 스티커</b><br><small>별 ${left}개만 더 모으면 새 스티커!</small></span></button>
+      <button class="subj clocktile" data-act="clockTile" aria-label="시계 보기 공부하러 가기">
+        <span id="homeClock"></span><span class="bigtime" id="homeTime"></span><small id="homeDate"></small>
+      </button>
+      <button class="subj" data-act="tab" data-v="sticker"><span class="ico">🏅</span><b>칭찬 스티커</b><small>별 ${left}개만 더 모으면 새 스티커!</small></button>
     </div>
+    <div class="card grasscard">${grassHTML()}</div>
+    <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
   tick();
 }
@@ -1621,6 +1636,7 @@ function adminHTML(){
 /* ───── 클릭 처리 ───── */
 const ACT = {
   tab: v=>go(v),
+  clockTile: ()=>{ if(!admin.subj.school){ toast('지금 시각을 잘 읽어 봐요!'); return; } App.unit='time'; store.set('unit','time'); S=null; go('school'); },
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),
   login: v=>loadProfile(v),
