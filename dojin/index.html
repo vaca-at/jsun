@@ -418,7 +418,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 </div>
 
 <script>
-/* ▼▼▼ 여기만 바꾸면 돼요: 초2·초4 웹앱 주소 ▼▼▼ */
+/* ▼▼▼ 여기만 바꾸면 돼요: 초2 · 초4 웹앱 주소 ▼▼▼ */
 const GRADE_LINKS = { e2: './', e4: '../e4/' };
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
@@ -441,7 +441,7 @@ document.getElementById('linkE2').href = GRADE_LINKS.e2;
 document.getElementById('linkE4').href = GRADE_LINKS.e4;
 
 /* ───── 저장소 (이 기기에만 저장) ───── */
-/* 이름(프로필)별로 따로 저장해요. admin·profiles 는 모두 같이 써요. */
+/* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho'];
 const PROFILE_KEYS = ['op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today'];
@@ -465,10 +465,10 @@ const store = {
 
 /* ───── 데이터 ───── */
 const SUBJ = {
-  math:{name:'연산', ico:'➕', desc:'덧셈·뺄셈 세로셈 (받아올림·받아내림)'},
+  math:{name:'연산', ico:'➕', desc:'덧셈 · 뺄셈 세로셈 (받아올림 · 받아내림)'},
   school:{name:'학교수학', ico:'📐', desc:'2학년 2학기 교과서 단원'},
   eng:{name:'영어', ico:'🔤', desc:'알파벳, 단어, 듣고 고르기'},
-  hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급·8급 한자 카드와 퀴즈'},
+  hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:'🏯', desc:'시대 공부, 한능검 준비'}
 };
 const ABC = [
@@ -485,7 +485,7 @@ const WORDS = {
     {w:'dog',k:'개',e:'🐶'},{w:'cat',k:'고양이',e:'🐱'},{w:'rabbit',k:'토끼',e:'🐰'},{w:'bear',k:'곰',e:'🐻'},
     {w:'lion',k:'사자',e:'🦁'},{w:'tiger',k:'호랑이',e:'🐯'},{w:'elephant',k:'코끼리',e:'🐘'},{w:'monkey',k:'원숭이',e:'🐵'},
     {w:'pig',k:'돼지',e:'🐷'},{w:'duck',k:'오리',e:'🦆'}]},
-  food:{name:'🍎 과일·음식',items:[
+  food:{name:'🍎 과일 · 음식',items:[
     {w:'apple',k:'사과',e:'🍎'},{w:'banana',k:'바나나',e:'🍌'},{w:'grapes',k:'포도',e:'🍇'},{w:'orange',k:'오렌지',e:'🍊'},
     {w:'strawberry',k:'딸기',e:'🍓'},{w:'watermelon',k:'수박',e:'🍉'},{w:'milk',k:'우유',e:'🥛'},{w:'bread',k:'빵',e:'🍞'},
     {w:'pizza',k:'피자',e:'🍕'},{w:'egg',k:'달걀',e:'🥚'}]},
@@ -532,11 +532,11 @@ const PHONICS = [
   PH('t','o','ㅌ','토','toe',[['tomato','토마토','🍅'],['toast','토스트','🍞'],['toe','발가락','🦶'],['total','모두 합친','🧮']]),
   PH('t','u','ㅌ','투','two',[['tutu','발레 치마','🩰'],['tuba','튜바','🎺'],['tuna','참치','🐟']])
 ].sort((x,y)=>(x.c+x.v).localeCompare(y.c+y.v));
-/* 한국사: 시대, 종류(p 사람 / e 사건·문화유산), 이름, 그림, 설명(이름은 넣지 않아요), 연도 */
+/* 한국사: 시대, 종류(p 사람 / e 사건 · 문화유산), 이름, 그림, 설명(이름은 넣지 않아요), 연도 */
 const ERAS = [
   ['pre','선사 시대','구석기 → 신석기 → 청동기'],
-  ['gojo','고조선과 여러 나라','우리 역사 첫 나라와 부여·고구려·동예'],
-  ['samguk','삼국 시대','고구려·백제·신라 그리고 가야'],
+  ['gojo','고조선과 여러 나라','우리 역사 첫 나라와 부여 · 고구려 · 동예'],
+  ['samguk','삼국 시대','고구려 · 백제 · 신라 그리고 가야'],
   ['nambuk','남북국 시대','통일 신라와 발해'],
   ['goryeo','고려','918년 ~ 1392년'],
   ['joseon','조선','1392년 ~ 1897년'],
@@ -706,7 +706,7 @@ const HANJA_LV = {
   8:{name:'8급 50자', list:HANJA8, sub:'한 단계 위', desc:'8급: 가족, 방향, 학교, 나라 한자까지 50자예요. 9급에서 배운 한자도 섞여 있어요.'}
 };
 const HANJA_ALL = HANJA9.concat(HANJA8.filter(x=>!HANJA9.some(y=>y.h===x.h)));
-const HANJA_GROUPS = {num:'🔢 숫자', nat:'🌳 자연·요일', ppl:'👪 사람·몸', dir:'🧭 방향·크기', sch:'🏫 학교·나라'};
+const HANJA_GROUPS = {num:'🔢 숫자', nat:'🌳 자연 · 요일', ppl:'👪 사람 · 몸', dir:'🧭 방향 · 크기', sch:'🏫 학교 · 나라'};
 const STICKERS = ['🦄','🌈','🐣','🍭','🚀','🐬','🌻','🎈','🦋','🍩','🐼','🌟','🧸','🍉','🐳','🎀','🦖','🍓','🐥','🎠','🌙','🐙','🍦','🦁','🏆','🐨','🍀','🎨','🐞','👑'];
 const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽해!','천재인가?','잘했어요!','바로 그거야!'];
 const SUB_LEVELS = {1:'두 자리 − 한 자리, 받아내림 (예: 42 − 7)', 2:'두 자리 − 두 자리, 받아내림 (예: 62 − 38)'};
@@ -798,7 +798,7 @@ function addStar(n){
   if(Math.floor(stars/10)>before) setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600);
 }
 
-/* ───── 학습 기록 (날짜별·과목별: 푼 문제 n, 맞은 문제 ok) ───── */
+/* ───── 학습 기록 (날짜별 · 과목별: 푼 문제 n, 맞은 문제 ok) ───── */
 function dayKey(t=new Date()){ return `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`; }
 function getLog(name){ return store.get('log',{},name); }
 function dayTotal(k=dayKey(), L=getLog()){ const d=L[k]||{}; return Object.values(d).reduce((a,e)=>a+e.n,0); }
@@ -979,7 +979,7 @@ const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 const AVATAR_BY_NAME = { '도진':{e:'🐲', cls:'black-dragon'}, '윤아':{e:'🐱', cls:'black-cat'} };
 const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls}">${a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
 const getProfiles = () => store.get('profiles',['도진','윤아']);
-/* 아이마다 나만의 비밀번호 (서로의 별·기록을 볼 수 없게) */
+/* 아이마다 나만의 비밀번호 (서로의 별 · 기록을 볼 수 없게) */
 let LP = null; // { name, mode:'enter'|'make'|'again', buf, first }
 const kidPinsRaw = () => store.get('kidpins',{});
 const kidPins = () => { const r=kidPinsRaw(), o={}; for(const k in r) if(r[k]&&r[k].h) o[k]=r[k].h; return o; };
@@ -1441,7 +1441,7 @@ const UNITS = {
   len:{name:'3. 길이 재기', desc:'1 m = 100 cm, 길이의 합과 차, 알맞은 단위', gen:genLen},
   time:{name:'4. 시각과 시간', desc:'시계 보기, 몇 분 전, 시간 단위 바꾸기', gen:genTime},
   graph:{name:'5. 표와 그래프', desc:'표와 ○ 그래프 읽기', gen:genGraph},
-  pat:{name:'6. 규칙 찾기', desc:'수 규칙, 모양 규칙, 곱셈표·달력 규칙', gen:genPat},
+  pat:{name:'6. 규칙 찾기', desc:'수 규칙, 모양 규칙, 곱셈표 · 달력 규칙', gen:genPat},
   mix:{name:'🌈 섞어서', desc:'여섯 단원 문제가 골고루 나와요'}
 };
 const UNIT_KEYS = ['n4','mul','len','time','graph','pat'];
@@ -1911,7 +1911,7 @@ function drawExam(){
   b.innerHTML=`
     <div class="card exam-info">
       <p class="big">📝 한국사능력검정시험이란?</p>
-      <p>국사편찬위원회에서 치르는 한국사 시험이에요. <b>기본</b>(4·5·6급)과 <b>심화</b>(1·2·3급)가 있어요.</p>
+      <p>국사편찬위원회에서 치르는 한국사 시험이에요. <b>기본</b>(4·5 · 6급)과 <b>심화</b>(1·2 · 3급)가 있어요.</p>
       <table class="tbl"><tr><th>기본 시험</th><td>50문제 · 100점 만점 · 4개 중 고르기</td></tr>
         <tr><th>4급</th><td>80점 이상</td></tr><tr><th>5급</th><td>70점 이상</td></tr><tr><th>6급</th><td>60점 이상</td></tr></table>
       <p class="sub" style="font-size:.9rem">시험 날짜와 접수는 한국사능력검정시험 누리집(historyexam.go.kr)에서 꼭 확인하세요.</p>
@@ -2000,7 +2000,7 @@ function renderSticker(){
 }
 
 /* ───── 꾸미기(설정) · 관리자 모드 ───── */
-/* 글씨 조합 3개(제목·본문·포인트) + 한 가지 글씨체. scale은 본문 글씨 크기 보정 */
+/* 글씨 조합 3개(제목 · 본문 · 포인트) + 한 가지 글씨체. scale은 본문 글씨 크기 보정 */
 const FONTS = {
   combo1:{name:'🎈 말랑 조합', combo:true, t:"'GMarketSans'", css:"'NexonLv2Gothic'", p:"'MitmiFont'", tw:700, scale:1},
   combo2:{name:'✏️ 손글씨 조합', combo:true, t:"'OwnglyphYuntaeng'", css:"'GangwonEducationSaeum'", p:"'OngleipKimkonghae'", scale:1.2},
@@ -2045,7 +2045,7 @@ function drawSettings(){
     <div class="center"><button class="linkbtn" data-act="openAdmin">🔒 관리자 모드 (부모님용)</button></div>`;
 }
 function pinHTML(){
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진·윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진 · 윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<h3>🔒 관리자 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <p class="center sub">비밀번호 4자리를 눌러 주세요.</p>
@@ -2079,7 +2079,7 @@ function adminHTML(){
     rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${cells}<td>${n?`${ok}/${n}`:'-'}</td></tr>`;
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진·윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진 · 윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<h3>🔒 관리자 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
