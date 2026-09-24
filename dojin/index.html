@@ -147,10 +147,10 @@ main{padding:16px 12px 40px 28px}
 .grass-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
 .grass-head b{font-weight:normal;font-size:1.2rem}
 .grass-wrap{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 4px}
-.grass-d,.grass{display:grid;grid-template-rows:repeat(7,15px);gap:3px}
-.grass-d{font-size:10px;line-height:15px;color:var(--sub)}
-.grass{grid-auto-flow:column;grid-auto-columns:15px}
-.g{width:15px;height:15px;border-radius:4px;padding:0;background:color-mix(in srgb,var(--line) 75%,transparent)}
+.grass-d,.grass{display:grid;grid-template-rows:repeat(7,24px);gap:4px}
+.grass-d{font-size:.78rem;line-height:24px;color:var(--sub);padding-right:4px}
+.grass{grid-auto-flow:column;grid-auto-columns:24px}
+.g{width:24px;height:24px;border-radius:6px;padding:0;background:color-mix(in srgb,var(--line) 75%,transparent)}
 .g.v{background:transparent;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ok) 60%,transparent)}
 .g.g1{background:color-mix(in srgb,var(--ok) 30%,var(--paper))}
 .g.g2{background:color-mix(in srgb,var(--ok) 55%,var(--paper))}
@@ -158,7 +158,10 @@ main{padding:16px 12px 40px 28px}
 .g.g4{background:var(--ok)}
 .g.t{outline:2px solid var(--accent);outline-offset:1px}
 .grass-leg{display:flex;align-items:center;gap:4px;justify-content:flex-end;font-size:.8rem;color:var(--sub);margin-top:6px}
-.grass-leg .g{display:inline-block;cursor:default}
+.grass-leg .g{display:inline-block;cursor:default;width:13px;height:13px;border-radius:3px}
+.g.out{visibility:hidden}
+.g.fut{background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.grass-wrap{justify-content:center}
 .subjects{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 .subj{text-align:left;padding:18px;border-radius:22px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
 .subj .ico{font-size:2.6rem;line-height:1}
@@ -964,24 +967,30 @@ function grassLevel(n, visited){
   const g=admin.goal;
   return n>=g*2 ? 'g4' : n>=g ? 'g3' : n>=Math.ceil(g/2) ? 'g2' : 'g1';
 }
-function grassHTML(weeks=15, name=who){
+/* 이번 달 공부 잔디: 한 칸 = 하루, 세로 한 줄 = 한 주. 색이 진할수록 많이 공부한 날 */
+function grassHTML(name=who){
   const L=getLog(name), vis=store.get('visits',{},name);
   const today=new Date(); today.setHours(0,0,0,0);
-  const start=new Date(today); start.setDate(start.getDate()-today.getDay()-(weeks-1)*7);
+  const y=today.getFullYear(), mo=today.getMonth();
+  const first=new Date(y,mo,1), last=new Date(y,mo+1,0);
+  const start=new Date(first); start.setDate(1-first.getDay());
+  const end=new Date(last); end.setDate(last.getDate()+(6-last.getDay()));
   let cells='';
-  for(const d=new Date(start); d<=today; d.setDate(d.getDate()+1)){
+  for(const d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
+    if(d.getMonth()!==mo){ cells+='<span class="g out"></span>'; continue; }
+    if(d>today){ cells+=`<span class="g fut" title="${d.getDate()}일"></span>`; continue; }
     const k=dayKey(d), n=dayTotal(k,L);
-    cells+=`<button class="g ${grassLevel(n,vis[k])} ${k===dayKey()?'t':''}" data-act="grass" data-v="${k}" aria-label="${d.getMonth()+1}월 ${d.getDate()}일 ${n}문제"></button>`;
+    cells+=`<button class="g ${grassLevel(n,vis[k])} ${k===dayKey()?'t':''}" data-act="grass" data-v="${k}" title="${d.getDate()}일 ${n}문제" aria-label="${mo+1}월 ${d.getDate()}일 ${n}문제"></button>`;
   }
   // 연속 접속일, 이번 달 공부한 날
   let streak=0; const c=new Date(today);
   while(vis[dayKey(c)]){ streak++; c.setDate(c.getDate()-1); }
   const ym=dayKey(today).slice(0,7);
   const studied=Object.keys(L).filter(k=>k.startsWith(ym) && dayTotal(k,L)>0).length;
-  const visited=Object.keys(vis).filter(k=>k.startsWith(ym)).length;
-  return `<div class="grass-head"><b>🌱 공부 잔디</b><span class="sub">🔥 ${streak}일 연속 접속 · 이번 달 접속 ${visited}일 · 공부 ${studied}일</span></div>
+  const goalDays=Object.keys(L).filter(k=>k.startsWith(ym) && dayTotal(k,L)>=admin.goal).length;
+  return `<div class="grass-head"><b>🌱 ${mo+1}월 공부 잔디</b><span class="sub">🔥 ${streak}일 연속 · 공부한 날 ${studied}일 · 목표 달성 ${goalDays}일</span></div>
     <div class="grass-wrap"><div class="grass-d">${WD.map(w=>`<span>${w}</span>`).join('')}</div><div class="grass">${cells}</div></div>
-    <div class="grass-leg">접속만 <span class="g v"></span> 조금 <span class="g g1"></span><span class="g g2"></span><span class="g g3"></span><span class="g g4"></span> 많이</div>`;
+    <div class="grass-leg">들어오기만 <span class="g v"></span> 조금 <span class="g g1"></span><span class="g g2"></span><span class="g g3"></span><span class="g g4"></span> 많이</div>`;
 }
 function grassInfo(k){
   const L=getLog(), d=L[k]||{}, [y,m,dd]=k.split('-').map(Number);
@@ -2329,7 +2338,7 @@ function adminHTML(){
   return `<h3>🔒 관리자 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
-    <div class="card" style="padding:12px">${grassHTML(20,admView)}</div>
+    <div class="card" style="padding:12px">${grassHTML(admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th></tr>${rows}</table></div>
     <p class="lbl">🎯 하루 목표 문제 수</p>
