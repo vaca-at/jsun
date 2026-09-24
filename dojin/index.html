@@ -57,6 +57,18 @@ h1{flex:1;margin:0;font-size:1.3rem;font-weight:normal;text-align:center;white-s
 .iconbtn{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--paper);border:2px solid var(--line);font-size:1.15rem}
 .nowbar{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 16px;margin-top:6px;font-size:.95rem;color:var(--sub);font-variant-numeric:tabular-nums}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+h1 button{font:inherit;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+h1 button::after{content:" ▾";font-size:.7em;color:var(--sub)}
+.login{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.login[hidden]{display:none}
+.login-box{width:100%;max-width:420px;text-align:center}
+.login-ico{font-size:3.4rem}
+.login h2{font-family:var(--font-t),var(--font),'Jua',sans-serif;font-weight:var(--tw);font-size:1.8rem;margin:4px 0 16px}
+.who-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.who{display:flex;flex-direction:column;align-items:center;gap:2px;padding:18px 8px;border-radius:22px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow)}
+.who-ico{font-size:3.2rem;line-height:1.1}
+.who b{font-weight:normal;font-size:1.5rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
+.who small{color:var(--sub)}
 .tab{flex:1 1 0;white-space:nowrap;padding:.5rem .2rem;border-radius:14px;background:var(--paper);border:2px solid var(--line);font-size:1.02rem;color:var(--sub)}
 .tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .tab[hidden]{display:none}
@@ -97,7 +109,8 @@ main{padding:16px 12px 40px 28px}
 .bn-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
 .bn-tag{font-size:.9rem;color:var(--sub)}
 .bn-p{font-size:1.6rem;line-height:1.35;text-align:center;margin:6px 0}
-.bn-m{text-align:center;font-size:1.1rem;color:var(--sub);margin:4px 0 2px}
+.bn-m{text-align:center;font-size:.92rem;color:var(--sub);margin:2px 0}
+.bn-ex{margin:8px 0 0;padding:10px 12px;border-radius:14px;background:var(--paper);border:2px dashed var(--line);font-size:1rem;line-height:1.5}
 .bn-btns{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
 .bn-btns .pill{font-size:.95rem;padding:.35rem .8rem}
 .grasscard{margin-top:12px}
@@ -132,6 +145,7 @@ main{padding:16px 12px 40px 28px}
 .dg.op{font-size:2.6rem}
 .bar{grid-column:1/-1;width:100%;height:4px;background:var(--ink);border-radius:2px;margin:2px 0 6px}
 .cell{width:3.7rem;height:4.1rem;border:3px dashed var(--sub);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:2.9rem;background:var(--paper);transition:transform .15s}
+button.cell{padding:0;color:var(--ink)}
 .cell.carry{width:2.6rem;height:2.8rem;font-size:1.9rem;border-color:var(--carry);color:var(--carry)}
 .cell.active{border-style:solid;border-color:var(--accent);box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 25%,transparent)}
 .cell.carry.active{border-color:var(--carry);box-shadow:0 0 0 5px color-mix(in srgb,var(--carry) 25%,transparent)}
@@ -222,6 +236,12 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .choices.short .choice{min-height:4rem;padding:10px 6px}
 
 /* ───── 한자 ───── */
+.lvtabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.lvtab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:18px;background:var(--card);border:3px solid var(--line);box-shadow:var(--shadow)}
+.lvtab b{font-weight:var(--tw);font-family:var(--font-t),var(--font),'Jua',sans-serif;font-size:1.6rem;line-height:1.1}
+.lvtab small{color:var(--sub);font-size:.85rem}
+.lvtab.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.lvtab.on b{color:var(--accent)}
 .hj-hero{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;text-align:center}
 .hj-big{font-size:7rem;line-height:1}
 .hj-mean{font-size:2.3rem}
@@ -258,6 +278,10 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .inrow input{flex:1;min-width:0;font:inherit;padding:.45rem .7rem;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
 .inrow .pill{flex:none}
 
+.grade-o{position:fixed;left:50%;top:42%;width:10rem;height:10rem;margin:-5rem 0 0 -5rem;border:13px solid #E5484D;border-radius:50%;z-index:45;pointer-events:none;animation:oPop .9s ease-out forwards}
+@keyframes oPop{0%{transform:scale(.3);opacity:0}25%{transform:scale(1.06);opacity:.95}75%{transform:scale(1);opacity:.9}100%{opacity:0}}
+.skipbtn{display:block;margin:12px auto 0;padding:.45rem 1.1rem;border-radius:999px;border:2px dashed var(--line);background:var(--paper);color:var(--sub);font-size:1rem}
+.adminbtn{margin-top:18px;padding:.45rem 1.1rem;border-radius:999px;border:2px solid var(--line);background:var(--paper);color:var(--sub);font-size:.95rem}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.7rem 1.2rem;border-radius:999px;z-index:60;font-size:1.1rem;white-space:nowrap}
 .burst{position:fixed;pointer-events:none;font-size:2rem;z-index:40;animation:fly 1s ease-out forwards}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(200deg);opacity:0}}
@@ -268,9 +292,28 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
   body[data-theme="note"]::before{left:12px}
   h1{font-size:1.1rem}
   .grade a{padding:.3rem .6rem}
-  .tab{flex:1 1 30%;font-size:.95rem}
-  .vgrid{grid-template-columns:2rem repeat(3,3.9rem);background-size:3.9rem 3.9rem;background-position:2rem 0}
-  .cell{width:3.3rem;height:3.8rem;font-size:2.6rem}
+  html{font-size:calc(15px * var(--size) * min(var(--fsc),1.1))}
+  header{position:static;padding-top:6px;padding-bottom:6px}
+  .nowbar{font-size:.8rem;margin-top:4px}
+  .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+  .tab{padding:.35rem .2rem;font-size:.92rem;border-radius:12px}
+  main{padding-top:10px}
+  .card{padding:14px}
+  .vgrid{grid-template-columns:1.8rem repeat(3,3.3rem);background-size:3.3rem 3.3rem;background-position:1.8rem 0;padding:4px 6px 6px}
+  .dg{font-size:2.3rem;height:3.2rem}
+  .dg.op{font-size:2rem}
+  .cell{width:2.8rem;height:3.1rem;font-size:2.1rem;border-width:2px}
+  .cell.carry{width:2rem;height:2.2rem;font-size:1.4rem}
+  .hint{margin-top:6px;min-height:2.4em;font-size:1.05rem}
+  .hq{font-size:2.1rem}
+  .keypad{gap:6px;margin-top:10px}
+  .key{padding:.4rem 0;font-size:1.6rem}
+  .sq .clock{width:9rem;height:9rem}
+  .choice{min-height:4.6rem;padding:10px 6px}
+  .choice .emo{font-size:2.8rem}
+  .hj-q{font-size:5rem}
+  .hj-big{font-size:5.5rem}
+  .replay{width:4.8rem;height:4.8rem;font-size:2.2rem}
   .subjects{grid-template-columns:1fr}
   .clock{width:6rem;height:6rem}
   .bigtime{font-size:1.7rem}
@@ -287,7 +330,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
       <a id="linkE2" class="on" aria-current="page">초2</a>
       <a id="linkE4">초4</a>
     </nav>
-    <h1>초2 공부방</h1>
+    <h1><button id="whoBtn" data-act="showLogin" aria-label="이름 바꾸기">초2 공부방</button></h1>
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
     <button class="iconbtn" data-act="openSet" aria-label="꾸미기">🎨</button>
   </div>
@@ -304,6 +347,16 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 
 <main id="view"></main>
 
+<div class="login" id="login" hidden>
+  <div class="login-box">
+    <div class="login-ico">📚</div>
+    <h2>누가 공부할까요?</h2>
+    <div class="who-list" id="whoList"></div>
+    <div class="inrow"><input id="newWho" maxlength="8" placeholder="새 이름 적기" autocomplete="off"><button class="pill" data-act="addWho">들어가기</button></div>
+    <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button>
+  </div>
+</div>
+
 <div class="modal" id="settings" hidden>
   <div class="sheet card" id="setBody"></div>
 </div>
@@ -317,10 +370,27 @@ document.getElementById('linkE2').href = GRADE_LINKS.e2;
 document.getElementById('linkE4').href = GRADE_LINKS.e4;
 
 /* ───── 저장소 (이 기기에만 저장) ───── */
+/* 이름(프로필)별로 따로 저장해요. admin·profiles 는 모두 같이 써요. */
+let who = null;
+const GLOBAL_KEYS = ['admin','profiles'];
+const PROFILE_KEYS = ['stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today'];
+const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2_'+k : `e2_p_${name}_${k}`;
 const store = {
-  get(k, d){ try{ const v = localStorage.getItem('e2_'+k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('e2_'+k, JSON.stringify(v)); }catch(e){} }
+  get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem(skey(k), JSON.stringify(v)); }catch(e){} },
+  del(k, name){ try{ localStorage.removeItem(skey(k,name)); }catch(e){} }
 };
+/* 예전(이름 없던 때) 기록은 도진이에게 옮겨요 */
+(function migrate(){
+  try{
+    if(localStorage.getItem('e2_profiles')!==null) return;
+    PROFILE_KEYS.forEach(k=>{
+      const v=localStorage.getItem('e2_'+k);
+      if(v!==null){ localStorage.setItem(`e2_p_도진_${k}`, v); localStorage.removeItem('e2_'+k); }
+    });
+    localStorage.setItem('e2_profiles', JSON.stringify(['도진','윤아']));
+  }catch(e){}
+})();
 
 /* ───── 데이터 ───── */
 const SUBJ = {
@@ -406,6 +476,39 @@ const PROVERBS = [
   ['공든 탑이 무너지랴','정성을 다해 한 일은 헛되지 않아요.'],
   ['시작이 반이다','무슨 일이든 시작하면 벌써 반은 한 거예요.']
 ];
+/* 언제 쓰는 말일까? 초2 눈높이 사례 (PROVERBS 와 순서가 같아요) */
+const PROVERB_EX = [
+  "친구에게 \"같이 놀자!\" 하고 다정하게 말했더니, 친구도 \"좋아!\" 하고 웃으며 대답해 줬어요.",
+  "어릴 때부터 손톱을 물어뜯던 삼촌은 어른이 된 지금도 가끔 손톱을 물어요.",
+  "매일 100원씩 저금통에 넣었더니, 1년 뒤에 장난감을 살 만큼 돈이 모였어요.",
+  "받아쓰기 100점만 받던 짝꿍이 오늘은 한 문제를 틀렸어요. 누구나 틀릴 수 있어요.",
+  "아무도 없는 줄 알고 친구 흉을 봤는데, 다음 날 그 친구가 알고 있었어요.",
+  "혼자 무거운 책상을 옮기기 힘들었는데, 친구랑 같이 드니까 금방 옮겼어요.",
+  "자전거를 밖에 두고 자물쇠를 안 채웠다가 잃어버린 뒤에야 자물쇠를 샀어요.",
+  "2학년이 된 형이 1학년 동생에게 \"그것도 못 해?\" 하고 놀렸어요. 형도 작년엔 못 했는데!",
+  "줄넘기 100번이 목표라면, 오늘은 10번부터 시작해요.",
+  "\"도진이는 언제 오지?\" 하고 말하는데 바로 그때 도진이가 교실로 들어왔어요.",
+  "우리 동네 놀이터가 제일 크다고 생각했는데, 다른 동네에 가 보니 훨씬 큰 놀이터가 있었어요.",
+  "매일 책을 읽은 친구는 글쓰기를 잘하게 되었어요. 한 만큼 돌아와요.",
+  "1 + 1은 나한테 누워서 떡 먹기처럼 쉬워요!",
+  "형과 누나가 리모컨으로 싸우는 바람에, 옆에 있던 나까지 혼났어요.",
+  "공부를 제일 안 한 친구가 \"나 다 알아!\" 하고 가장 크게 떠들었어요.",
+  "안경을 한참 찾았는데, 알고 보니 머리 위에 쓰고 있었어요.",
+  "내가 쉬는 시간에 한 말이 점심시간이 되기 전에 반 친구들 모두에게 퍼졌어요.",
+  "잘 아는 길이라도 횡단보도에서는 오른쪽, 왼쪽을 꼭 살피고 건너요.",
+  "선생님이 먼저 인사를 잘하시니까, 우리 반 친구들도 모두 인사를 잘해요.",
+  "준비물을 깜빡했는데, 친구가 남는 것을 빌려줘서 수업을 할 수 있었어요.",
+  "계속 지기만 하던 우리 팀이 드디어 이어달리기에서 1등을 했어요.",
+  "내 짝이 혼날 때, 짝과 친한 친구가 \"쟤 잘못 아니에요!\" 하고 편을 들었어요.",
+  "놀이공원에 가서도 배가 고프니 놀이기구보다 밥이 먼저 생각났어요.",
+  "심부름을 했더니 칭찬도 받고 용돈도 받았어요!",
+  "모둠 친구들이 모두 자기 생각만 말하다가 그림 숙제가 엉망이 되었어요.",
+  "동생이 울고 있어요. 분명 무슨 까닭이 있을 거예요.",
+  "우리 반에서 달리기 1등이었는데, 운동회에서 나보다 더 빠른 친구를 만났어요.",
+  "친구 물건을 망가뜨렸을 때 \"정말 미안해\" 하고 진심으로 말했더니 친구가 용서해 줬어요.",
+  "열심히 연습한 피아노 곡을 발표회에서 틀리지 않고 끝까지 쳤어요.",
+  "방 청소가 하기 싫었는데, 막상 장난감 하나를 치우기 시작하니 금방 끝났어요."
+  ];
 /* 한자: 한자, 훈음, 묶음, 쓰임 (급수별 한자 목록은 검정 기관마다 조금씩 달라요. 필요하면 여기를 고치세요) */
 const HANJA9 = [
   ['一','한 일','num','일등'],['二','두 이','num','이층'],['三','석 삼','num','삼각형'],['四','넉 사','num','사계절'],['五','다섯 오','num','오각형'],
@@ -427,7 +530,10 @@ const HANJA8 = [
   ['敎','가르칠 교','sch','교실'],['校','학교 교','sch','학교'],['學','배울 학','sch','학생'],['室','집 실','sch','교실'],['門','문 문','sch','교문'],
   ['國','나라 국','sch','국어'],['韓','한국 한','sch','한국'],['軍','군사 군','sch','군인'],['年','해 년','sch','작년'],['生','날 생','sch','생일']
 ].map(([h,m,g,ex])=>({h,m,g,ex}));
-const HANJA_LV = {9:{name:'9급 30자', list:HANJA9}, 8:{name:'8급 50자', list:HANJA8}};
+const HANJA_LV = {
+  9:{name:'9급 30자', list:HANJA9, sub:'처음 시작', desc:'9급: 숫자, 요일, 몸, 위아래처럼 가장 쉬운 한자 30자예요.'},
+  8:{name:'8급 50자', list:HANJA8, sub:'한 단계 위', desc:'8급: 가족, 방향, 학교, 나라 한자까지 50자예요. 9급에서 배운 한자도 섞여 있어요.'}
+};
 const HANJA_ALL = HANJA9.concat(HANJA8.filter(x=>!HANJA9.some(y=>y.h===x.h)));
 const HANJA_GROUPS = {num:'🔢 숫자', nat:'🌳 자연·요일', ppl:'👪 사람·몸', dir:'🧭 방향·크기', sch:'🏫 학교·나라'};
 const STICKERS = ['🦄','🌈','🐣','🍭','🚀','🐬','🌻','🎈','🦋','🍩','🐼','🌟','🧸','🍉','🐳','🎀','🦖','🍓','🐥','🎠','🌙','🐙','🍦','🦁','🏆','🐨','🍀','🎨','🐞','👑'];
@@ -443,9 +549,9 @@ let settings = Object.assign({theme:'note',font:'combo1',size:1,sound:true}, sto
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,eng:true,hanja:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
-let stars = store.get('stars',0);
+let stars = 0;
 let V = null, C = null, Q = null, S = null, H = null;
-let setMode = 'deco', pinBuf = '';
+let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
 const view = document.getElementById('view');
 
 /* ───── 공통 도구 ───── */
@@ -503,6 +609,11 @@ function speak(text, lang='en'){
   else { u.lang='en-US'; u.rate=0.8; if(enVoice) u.voice=enVoice; }
   speechSynthesis.speak(u);
 }
+function markO(){
+  const o=document.createElement('div'); o.className='grade-o'; document.body.appendChild(o);
+  setTimeout(()=>o.remove(),900);
+}
+const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v="${v}">⏭ 모르겠어요, 넘어가기</button>`;
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function updateStars(){ document.getElementById('starCount').textContent=stars; }
@@ -515,18 +626,18 @@ function addStar(n){
 
 /* ───── 학습 기록 (날짜별·과목별: 푼 문제 n, 맞은 문제 ok) ───── */
 function dayKey(t=new Date()){ return `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`; }
-function getLog(){ return store.get('log',{}); }
+function getLog(name){ return store.get('log',{},name); }
 function dayTotal(k=dayKey(), L=getLog()){ const d=L[k]||{}; return Object.values(d).reduce((a,e)=>a+e.n,0); }
 
 /* ───── 공부 잔디: 접속한 날 + 푼 문제 수 ───── */
-function markVisit(){ const v=store.get('visits',{}); if(!v[dayKey()]){ v[dayKey()]=1; store.set('visits',v); } }
+function markVisit(){ if(!who) return; const v=store.get('visits',{}); if(!v[dayKey()]){ v[dayKey()]=1; store.set('visits',v); } }
 function grassLevel(n, visited){
   if(!n) return visited ? 'v' : '';
   const g=admin.goal;
   return n>=g*2 ? 'g4' : n>=g ? 'g3' : n>=Math.ceil(g/2) ? 'g2' : 'g1';
 }
-function grassHTML(weeks=15){
-  const L=getLog(), vis=store.get('visits',{});
+function grassHTML(weeks=15, name=who){
+  const L=getLog(name), vis=store.get('visits',{},name);
   const today=new Date(); today.setHours(0,0,0,0);
   const start=new Date(today); start.setDate(start.getDate()-today.getDay()-(weeks-1)*7);
   let cells='';
@@ -591,6 +702,39 @@ function tick(){
   if(dayKey()!==lastDay){ lastDay=dayKey(); markVisit(); if(App.view==='home') render(); }
 }
 
+/* ───── 이름 고르기 (프로필) ───── */
+const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
+const getProfiles = () => store.get('profiles',['도진','윤아']);
+function showLogin(){
+  const list=getProfiles();
+  document.getElementById('whoList').innerHTML = list.map((n,i)=>{
+    const st=store.get('stars',0,n);
+    return `<button class="who" data-act="login" data-v="${esc(n)}"><span class="who-ico">${AVATARS[i%AVATARS.length]}</span><b>${esc(n)}</b><small>⭐ ${st}</small></button>`;
+  }).join('');
+  document.getElementById('newWho').value='';
+  document.getElementById('settings').hidden=true;
+  document.getElementById('login').hidden=false;
+}
+function loadProfile(name){
+  who=name;
+  App.level=store.get('level',1); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
+  settings=Object.assign({theme:'note',font:'combo1',size:1,sound:true}, store.get('settings',{}));
+  stars=store.get('stars',0);
+  V=C=Q=S=H=null; App.view='home'; lastDay=dayKey();
+  markVisit(); applySettings(); updateStars();
+  document.getElementById('whoBtn').textContent=`${josa(name,'이의','의')} 공부방`;
+  document.title=`${josa(name,'이의','의')} 공부방`;
+  document.getElementById('login').hidden=true;
+  render(); window.scrollTo(0,0);
+}
+function addWho(){
+  const n=document.getElementById('newWho').value.trim().replace(/[<>"'&_]/g,'');
+  if(!n){ toast('이름을 적어 주세요'); return; }
+  const list=getProfiles();
+  if(!list.includes(n)){ list.push(n); store.set('profiles',list); }
+  loadProfile(n);
+}
+
 /* ───── 화면 전환 ───── */
 function go(v){ App.view=v; render(); window.scrollTo(0,0); }
 function render(){
@@ -608,11 +752,12 @@ function provHTML(){
   return `<div class="card banner" id="banner">
     <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
     <div class="bn-p">“${p}”</div>
-    ${App.provOpen?`<div class="bn-m">💡 ${m}</div>`:''}
+    <div class="bn-m">${m}</div>
+    ${App.provOpen?`<div class="bn-ex">🧒 이럴 때 써요: ${PROVERB_EX[App.prov]}</div>`:''}
     <div class="bn-btns">
       <button class="pill" data-act="provMove" data-v="-1" aria-label="이전 속담">◀</button>
       <button class="pill" data-act="provSay">🔊 읽어 주기</button>
-      <button class="pill" data-act="provMean">${App.provOpen?'뜻 숨기기':'💡 뜻 보기'}</button>
+      <button class="pill" data-act="provMean">${App.provOpen?'숨기기':'💡 언제 쓸까?'}</button>
       <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
     </div></div>`;
 }
@@ -630,7 +775,7 @@ function renderHome(){
     </div>
     ${admin.msg?`<div class="card msg">💌 ${esc(admin.msg)}</div>`:''}
     <div class="card hello">
-      <div class="big">안녕! 오늘은 뭘 공부해 볼까?</div>
+      <div class="big">안녕, ${josa(who,'아','야')}! 오늘은 뭘 공부해 볼까?</div>
       <div class="goal"><i style="width:${pct}%"></i></div>
       <div class="sub">오늘의 목표 ${total} / ${goal}문제 ${total>=goal?'🎯 달성!':''}</div>
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
@@ -639,7 +784,8 @@ function renderHome(){
     <div class="subjects">
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
       <button class="subj wide" data-act="tab" data-v="sticker"><span class="ico">🏅</span><span><b>칭찬 스티커</b><br><small>별 ${left}개만 더 모으면 새 스티커!</small></span></button>
-    </div>`;
+    </div>
+    <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
   tick();
 }
 
@@ -669,24 +815,25 @@ function keypad(mode, act='key'){
 }
 
 /* 세로셈 연습 */
-/* 받아올림 칸을 따로 쓰지 않고 답만 바로 써요. 틀리면 풀이 힌트가 나와요. */
+/* 받아올림 칸은 따로 쓰지 않아요. 칸을 눌러 자리를 고르고 숫자를 쓰면, 쓴 숫자는 그 자리에 그대로 있어요.
+   한 칸을 쓰면 다음 칸(일 → 십 → 백)으로 저절로 넘어가요. 틀리면 풀이 힌트가 나와요. */
+const PLACES = ['o','t','h']; // 일, 십, 백
 function newV(){
   const [a,b]=genPair(App.level);
   const a1=a%10, b1=b%10, a10=Math.floor(a/10), b10=Math.floor(b/10), s1=a1+b1, t=a10+b10+1;
   const hint=`일의 자리: ${a1} + ${b1} = ${s1} → <b>${s1%10}</b> 쓰고 1 올림<br>십의 자리: 1 + ${a10} + ${b10} = <b>${t}</b>`;
-  V={a,b,hint,input:'',wrong:0,miss:false,showHint:false,done:false,msg:''};
+  V={a,b,hint,cells:{o:'',t:'',h:''},sel:'o',wrong:0,miss:false,showHint:false,done:false,msg:''};
 }
 function drawVertical(){
   const mb=document.getElementById('mbody'); if(!mb) return;
   if(!V) newV();
-  const {a,b,input}=V;
-  const cell=pos=>{
-    const d=input.length>pos ? input[input.length-1-pos] : '';
-    const on=!V.done && pos===input.length;
-    return `<div class="cell ${on?'active':''} ${d!==''?'done':''}">${d}</div>`;
+  const {a,b,cells}=V;
+  const cell=k=>{
+    const on=!V.done && V.sel===k;
+    return `<button class="cell ${on?'active':''} ${cells[k]!==''?'done':''}" data-act="vsel" data-v="${k}" aria-label="${{o:'일',t:'십',h:'백'}[k]}의 자리">${cells[k]}</button>`;
   };
   const carry = V.showHint||V.done ? '<div class="cell carry done">1</div>' : '';
-  const msg = V.done ? V.msg : (V.showHint ? V.hint : '답을 쓰고 확인을 눌러요.');
+  const msg = V.done ? V.msg : (V.showHint ? V.hint : '칸을 눌러 자리를 고르고 답을 써요.');
   mb.innerHTML=`
     <div class="card board">
       <div class="vgrid" id="vgrid">
@@ -695,30 +842,46 @@ function drawVertical(){
         <div></div><div></div><div class="dg">${Math.floor(a/10)}</div><div class="dg">${a%10}</div>
         <div class="dg op">+</div><div></div><div class="dg">${Math.floor(b/10)}</div><div class="dg">${b%10}</div>
         <div class="bar"></div>
-        <div></div><div>${cell(2)}</div><div>${cell(1)}</div><div>${cell(0)}</div>
+        <div></div><div>${cell('h')}</div><div>${cell('t')}</div><div>${cell('o')}</div>
       </div>
       <div class="hint">${msg}</div>
     </div>
-    ${V.done ? `<button class="big-btn" data-act="nextV">다음 문제 ▶</button>` : keypad('c')}`;
+    ${V.done ? `<button class="big-btn" data-act="nextV">다음 문제 ▶</button>` : keypad('c')+skipBtn('key','skip')}`;
 }
 function vKey(v){
   if(!V) return;
   if(V.done){ if(v==='ok') { V=null; drawVertical(); } return; }
-  if(v==='del'){ V.input=V.input.slice(0,-1); drawVertical(); return; }
+  const ans=V.a+V.b;
+  if(v==='skip'){
+    V.done=true; logToday('math', false);
+    const s=String(ans).padStart(3,' ');
+    V.cells={h:s[0].trim(), t:s[1], o:s[2]};
+    V.msg=`정답은 <b>${ans}</b> 이에요.<br><small>${V.hint}</small>`;
+    drawVertical(); return;
+  }
+  if(v==='del'){
+    if(V.cells[V.sel]===''){ const k=PLACES.indexOf(V.sel); if(k>0) V.sel=PLACES[k-1]; }
+    V.cells[V.sel]=''; drawVertical(); return;
+  }
   if(v==='ok'){
-    if(!V.input) return;
-    if(+V.input===V.a+V.b){
-      V.done=true; beep(true); addStar(1); logToday('math', !V.miss); burst();
-      V.msg=`<span class="praise">${praise()}</span><br>${V.a} + ${V.b} = ${V.a+V.b}`;
+    const {h,t,o}=V.cells;
+    if(o===''||t===''){ toast('일의 자리와 십의 자리를 모두 써요'); return; }
+    if(+(h+t+o)===ans){
+      V.done=true; beep(true); markO(); addStar(1); logToday('math', !V.miss); burst();
+      V.msg=`<span class="praise">${praise()}</span><br>${V.a} + ${V.b} = ${ans}`;
       drawVertical();
     } else {
-      V.wrong++; V.miss=true; V.input=''; beep(false);
+      V.wrong++; V.miss=true; V.cells={o:'',t:'',h:''}; V.sel='o'; beep(false);
       if(V.wrong>=2) V.showHint=true;
       drawVertical(); shake('vgrid');
     }
     return;
   }
-  if(/^\d$/.test(v) && V.input.length<3){ V.input+=v; drawVertical(); }
+  if(/^\d$/.test(v)){
+    V.cells[V.sel]=v;
+    const k=PLACES.indexOf(V.sel); if(k<2) V.sel=PLACES[k+1];
+    drawVertical();
+  }
 }
 
 /* 10문제 도전 */
@@ -752,16 +915,16 @@ function drawChallenge(){
       <div class="dots">${C.list.map((_,i)=>`<span class="dot ${i<C.i?(C.res[i]?'ok':'no'):(i===C.i?'cur':'')}"></span>`).join('')}</div>
       <div class="hq"><span>${a} + ${b} =</span><span class="ansbox ${C.flash}">${C.input||'&nbsp;'}</span></div>
       <div class="hint">${C.note||'답을 누르고 확인!'}</div>
-    </div>${keypad('c')}`;
+    </div>${keypad('c')}${C.lock?'':skipBtn('key','skip')}`;
 }
 function cKey(v){
   if(!C||C.done||C.lock) return;
   if(v==='del'){ C.input=C.input.slice(0,-1); }
-  else if(v==='ok'){
-    if(!C.input) return;
-    const [a,b]=C.list[C.i], ok=+C.input===a+b;
+  else if(v==='ok'||v==='skip'){
+    if(v==='ok' && !C.input) return;
+    const [a,b]=C.list[C.i], ok=v==='ok' && +C.input===a+b;
     C.res.push(ok); beep(ok); logToday('math', ok);
-    if(ok){ C.correct++; C.flash='ok'; C.note=`<span class="praise">${praise()}</span>`; }
+    if(ok){ markO(); C.correct++; C.flash='ok'; C.note=`<span class="praise">${praise()}</span>`; }
     else { C.flash='no'; C.note=`아쉬워요! 정답은 <b>${a+b}</b>`; }
     C.lock=true; drawChallenge();
     const me=C;
@@ -990,12 +1153,12 @@ function drawS(){
     }).join('')}</div>`;
   }
   sb.innerHTML=`<div class="card board">${dots}${tag}<div class="sq">${body}</div>
-    <div class="hint">${S.note||(q.type==='num'?'답을 누르고 확인!':'알맞은 것을 골라요.')}</div></div>${below}`;
+    <div class="hint">${S.note||(q.type==='num'?'답을 누르고 확인!':'알맞은 것을 골라요.')}</div></div>${below}${S.lock?'':skipBtn('skey','skip')}`;
 }
 function answerS(ok){
   const q=S.list[S.i];
   S.res.push(ok); beep(ok); logToday('school', ok);
-  if(ok){ S.correct++; S.flash='ok'; S.note=`<span class="praise">${praise()}</span>`; }
+  if(ok){ markO(); S.correct++; S.flash='ok'; S.note=`<span class="praise">${praise()}</span>`; }
   else { S.flash='no'; S.note=`아쉬워요! 정답은 <b>${esc(q.ans)}</b>${q.explain?`<br><small>${q.explain}</small>`:''}`; }
   S.lock=true; drawS();
   const me=S;
@@ -1008,6 +1171,7 @@ function answerS(ok){
 }
 function sKey(v){
   if(!S||S.done||S.lock) return;
+  if(v==='skip'){ answerS(false); return; }
   const q=S.list[S.i]; if(q.type!=='num') return;
   if(v==='del') S.input=S.input.slice(0,-1);
   else if(v==='ok'){ if(!S.input) return; answerS(+S.input===q.ans); return; }
@@ -1111,34 +1275,41 @@ function drawQuiz(){
       <button class="replay" data-act="replay" aria-label="다시 듣기">🔊</button>
       <p class="center sub" style="margin-top:-6px">잘 듣고 알맞은 그림을 골라요.</p>
       <div class="choices">${Q.choices.map((c,i)=>`
-        <button class="choice ${cls(i)}" data-act="pick" data-v="${i}">${vis(c)}${Q.solved&&c.w===Q.cur.w?`<span class="en">${c.w}</span>`:''}</button>`).join('')}</div></div>`;
+        <button class="choice ${cls(i)}" data-act="pick" data-v="${i}">${vis(c)}${Q.solved&&c.w===Q.cur.w?`<span class="en">${c.w}</span>`:''}</button>`).join('')}</div>${Q.solved?'':skipBtn('qskip')}</div>`;
     if(first) setTimeout(()=>speak(Q.cur.w),350);
   } else {
     eb.innerHTML=`${cats}<div class="card">${top}
       <div class="readpic">${vis(Q.cur)}</div>
       <p class="center sub">그림에 맞는 영어 단어를 골라요.</p>
       <div class="choices words">${Q.choices.map((c,i)=>`
-        <button class="choice ${cls(i)}" data-act="pick" data-v="${i}"><span class="en">${c.w}</span></button>`).join('')}</div></div>`;
+        <button class="choice ${cls(i)}" data-act="pick" data-v="${i}"><span class="en">${c.w}</span></button>`).join('')}</div>${Q.solved?'':skipBtn('qskip')}</div>`;
   }
+}
+function advanceQ(ms){
+  const me=Q;
+  setTimeout(()=>{
+    if(Q!==me) return;
+    Q.i++;
+    if(Q.i>=10){ Q.done=true; if(Q.score>=8) burst(); }
+    else nextQ();
+    if(App.view==='eng' && App.emode===Q.mode){
+      drawQuiz();
+      if(!Q.done && Q.mode==='listen') setTimeout(()=>speak(Q.cur.w),300);
+    }
+  },ms);
+}
+function skipQ(){
+  if(!Q||Q.solved||Q.done) return;
+  Q.tried=true; Q.solved=true; beep(false); speak(Q.cur.w); logToday('eng', false);
+  drawQuiz(); advanceQ(2000);
 }
 function pick(i){
   if(!Q||Q.solved||Q.done) return;
   const c=Q.choices[i];
   if(c.w===Q.cur.w){
-    Q.solved=true; beep(true); speak(Q.cur.w); logToday('eng', !Q.tried);
+    Q.solved=true; beep(true); markO(); speak(Q.cur.w); logToday('eng', !Q.tried);
     if(!Q.tried){ Q.score++; addStar(1); }
-    drawQuiz();
-    const me=Q;
-    setTimeout(()=>{
-      if(Q!==me) return;
-      Q.i++;
-      if(Q.i>=10){ Q.done=true; if(Q.score>=8) burst(); }
-      else nextQ();
-      if(App.view==='eng' && App.emode===Q.mode){
-        drawQuiz();
-        if(!Q.done && Q.mode==='listen') setTimeout(()=>speak(Q.cur.w),300);
-      }
-    },1300);
+    drawQuiz(); advanceQ(1300);
   } else {
     if(Q.wrong.includes(i)) return;
     Q.tried=true; Q.wrong.push(i); beep(false);
@@ -1153,9 +1324,11 @@ const hPool = g => g==='all' ? hList() : hList().filter(x=>x.g===g);
 const grpPills = () => `<div class="seg small">${pill('hgrp','all','🌈 전체',App.hgrp)}${Object.keys(HANJA_GROUPS).filter(g=>hList().some(x=>x.g===g)).map(g=>pill('hgrp',g,HANJA_GROUPS[g],App.hgrp)).join('')}</div>`;
 function renderHanja(){
   if(!hPool(App.hgrp).length) App.hgrp='all';
+  const lv=HANJA_LV[App.hlv]||HANJA_LV[9];
   view.innerHTML=`
+    <div class="lvtabs">${[9,8].map(l=>`<button class="lvtab ${+App.hlv===l?'on':''}" data-act="hlv" data-v="${l}"><b>${l}급</b><small>${HANJA_LV[l].list.length}자 · ${HANJA_LV[l].sub}</small></button>`).join('')}</div>
+    <p class="desc">${lv.desc}</p>
     <div class="seg">${pill('hmode','card','📜 한자 카드',App.hmode)}${pill('hmode','meaning','🤔 뜻 고르기',App.hmode)}${pill('hmode','find','🔍 한자 찾기',App.hmode)}</div>
-    <div class="seg small">${Object.keys(HANJA_LV).sort().reverse().map(l=>pill('hlv',l,HANJA_LV[l].name,App.hlv)).join('')}</div>
     <div id="hbody"></div>`;
   App.hmode==='card' ? drawHCard() : drawHQuiz();
 }
@@ -1193,45 +1366,53 @@ function drawHQuiz(){
   if(!H || H.mode!==App.hmode || H.grp!==App.hgrp || H.lv!==App.hlv){ newH(); first=true; }
   if(H.done){
     hb.innerHTML=`${grpPills()}<div class="card center">
+      <p class="sub">${H.lv}급 ${H.mode==='meaning'?'뜻 고르기':'한자 찾기'}</p>
       <p class="big">${H.score===10?'🏆 모두 한 번에 맞혔어요!':`10문제 중 ${H.score}개를 한 번에 맞혔어요!`}</p>
       <p>받은 별: ⭐ ${H.score}개</p>
       <button class="big-btn" data-act="hAgain">다시 하기</button></div>`;
     return;
   }
-  const top=`<div class="qtop"><span>${H.i+1}번째 문제 / 10</span><span>⭐ ${H.score}</span></div>`;
+  const top=`<div class="qtop"><span>${H.lv}급 · ${H.i+1}번째 문제 / 10</span><span>⭐ ${H.score}</span></div>`;
   const cls=i=> H.solved && H.choices[i].h===H.cur.h ? 'ok' : (H.wrong.includes(i)?'no':'');
   if(H.mode==='meaning'){
     hb.innerHTML=`${grpPills()}<div class="card">${top}
       <div class="hj-q hanja">${H.cur.h}</div>
       <p class="center sub">이 한자의 뜻과 소리는?</p>
-      <div class="choices">${H.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hpick" data-v="${i}"><span class="ct km">${c.m}</span></button>`).join('')}</div></div>`;
+      <div class="choices">${H.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hpick" data-v="${i}"><span class="ct km">${c.m}</span>${H.solved&&c.h===H.cur.h?`<span class="hanja" style="font-size:1.6rem">${c.h}</span>`:''}</button>`).join('')}</div>${H.solved?'':skipBtn('hskip')}</div>`;
   } else {
     hb.innerHTML=`${grpPills()}<div class="card">${top}
       <div class="hj-qm">${H.cur.m}</div>
       <p class="center"><button class="spk" data-act="hsay" data-v="${H.cur.m}">🔊 듣기</button></p>
       <p class="center sub">알맞은 한자를 골라요.</p>
-      <div class="choices">${H.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hpick" data-v="${i}"><span class="hanja">${c.h}</span></button>`).join('')}</div></div>`;
+      <div class="choices">${H.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hpick" data-v="${i}"><span class="hanja">${c.h}</span>${H.solved&&c.h===H.cur.h?`<span class="ct km" style="font-size:1.1rem">${c.m}</span>`:''}</button>`).join('')}</div>${H.solved?'':skipBtn('hskip')}</div>`;
     if(first) setTimeout(()=>speak(H.cur.m,'ko'),350);
   }
+}
+function advanceH(ms){
+  const me=H;
+  setTimeout(()=>{
+    if(H!==me) return;
+    H.i++;
+    if(H.i>=10){ H.done=true; if(H.score>=8) burst(); }
+    else nextH();
+    if(App.view==='hanja' && App.hmode===H.mode){
+      drawHQuiz();
+      if(!H.done && H.mode==='find') setTimeout(()=>speak(H.cur.m,'ko'),300);
+    }
+  },ms);
+}
+function skipH(){
+  if(!H||H.solved||H.done) return;
+  H.tried=true; H.solved=true; beep(false); speak(H.cur.m,'ko'); logToday('hanja', false);
+  drawHQuiz(); advanceH(2200);
 }
 function hPick(i){
   if(!H||H.solved||H.done) return;
   const c=H.choices[i];
   if(c.h===H.cur.h){
-    H.solved=true; beep(true); speak(H.cur.m,'ko'); logToday('hanja', !H.tried);
+    H.solved=true; beep(true); markO(); speak(H.cur.m,'ko'); logToday('hanja', !H.tried);
     if(!H.tried){ H.score++; addStar(1); }
-    drawHQuiz();
-    const me=H;
-    setTimeout(()=>{
-      if(H!==me) return;
-      H.i++;
-      if(H.i>=10){ H.done=true; if(H.score>=8) burst(); }
-      else nextH();
-      if(App.view==='hanja' && App.hmode===H.mode){
-        drawHQuiz();
-        if(!H.done && H.mode==='find') setTimeout(()=>speak(H.cur.m,'ko'),300);
-      }
-    },1300);
+    drawHQuiz(); advanceH(1300);
   } else {
     if(H.wrong.includes(i)) return;
     H.tried=true; H.wrong.push(i); beep(false);
@@ -1269,11 +1450,16 @@ function applySettings(){
   r.setProperty('--tw',f.tw||'normal');
   r.setProperty('--fsc',f.scale);
   document.documentElement.style.setProperty('--size',settings.size);
-  store.set('settings',settings);
+  if(who) store.set('settings',settings);
 }
 function saveAdmin(){ store.set('admin',admin); }
-function openModal(mode){ setMode=mode; pinBuf=''; drawSettings(); document.getElementById('settings').hidden=false; }
-function closeModal(){ document.getElementById('settings').hidden=true; setMode='deco'; pinBuf=''; render(); }
+function openModal(mode){
+  const lg=document.getElementById('login'); if(!lg.hidden){ fromLogin=true; lg.hidden=true; }
+  setMode=mode; pinBuf=''; drawSettings(); document.getElementById('settings').hidden=false; }
+function closeModal(){
+  document.getElementById('settings').hidden=true; setMode='deco'; pinBuf='';
+  if(fromLogin || !who){ fromLogin=false; showLogin(); } else render();
+}
 function drawSettings(){
   const box=document.getElementById('setBody');
   if(setMode==='pin'){ box.innerHTML=pinHTML(); return; }
@@ -1307,7 +1493,8 @@ function pinKey(v){
   setTimeout(()=>{ if(setMode==='pin'){ pinBuf=''; drawSettings(); } },450);
 }
 function adminHTML(){
-  const L=getLog(), keys=Object.keys(SUBJ);
+  const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
+  const L=getLog(admView), keys=Object.keys(SUBJ);
   let rows='';
   for(let i=0;i<7;i++){
     const t=new Date(); t.setDate(t.getDate()-i);
@@ -1318,7 +1505,8 @@ function adminHTML(){
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
   return `<h3>🔒 관리자 모드</h3>
-    <div class="card" style="padding:12px">${grassHTML(20)}</div>
+    <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
+    <div class="card" style="padding:12px">${grassHTML(20,admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th></tr>${rows}</table></div>
     <p class="lbl">🎯 하루 목표 문제 수</p>
@@ -1329,11 +1517,13 @@ function adminHTML(){
     <div class="seg small">${[1,2,3,4,5,6,7,8,9].map(d=>tg('dan',d,d+'단',admin.dans.includes(d))).join('')}</div>
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
     <div class="inrow"><input id="admMsg" maxlength="60" placeholder="예: 오늘도 화이팅! 20문제 풀면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
-    <p class="lbl">⭐ 별 관리 (지금 ${stars}개)</p>
-    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>
+    ${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
+    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     <p class="lbl">🔑 비밀번호 바꾸기</p>
     <div class="inrow"><input id="admPin" type="password" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>
-    <button class="danger" data-act="reset">별과 기록 모두 지우기</button>
+    <p class="lbl">👤 이름 관리 <small>(새 이름은 처음 화면에서 추가해요)</small></p>
+    <div class="seg">${names.map(n=>`<button class="pill" data-act="delWho" data-v="${esc(n)}">${esc(n)} ✕</button>`).join('')}</div>
+    ${who?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
     <button class="big-btn" data-act="closeSet">나가기</button>`;
 }
 
@@ -1341,6 +1531,17 @@ function adminHTML(){
 const ACT = {
   tab: v=>go(v),
   grass: v=>grassInfo(v),
+  showLogin: ()=>showLogin(),
+  login: v=>loadProfile(v),
+  addWho: ()=>addWho(),
+  admWho: v=>{ admView=v; drawSettings(); },
+  delWho: v=>{
+    if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
+    store.set('profiles', getProfiles().filter(n=>n!==v));
+    PROFILE_KEYS.forEach(k=>store.del(k,v));
+    if(v===who){ who=null; fromLogin=true; }
+    admView=who; drawSettings();
+  },
   provMove: v=>{ App.prov=(App.prov+ +v+PROVERBS.length)%PROVERBS.length; App.provOpen=false; drawBanner(); },
   provMean: ()=>{ App.provOpen=!App.provOpen; drawBanner(); },
   provSay: ()=>speak(PROVERBS[App.prov][0],'ko'),
@@ -1350,6 +1551,7 @@ const ACT = {
   level: v=>{ App.level=+v; store.set('level',App.level); V=null; C=null; render(); },
   key: v=>{ if(App.view==='math') App.mmode==='vertical' ? vKey(v) : cKey(v); },
   nextV: ()=>{ V=null; drawVertical(); },
+  vsel: v=>{ if(V&&!V.done){ V.sel=v; drawVertical(); } },
   startC: ()=>startC(),
   unit: v=>{ App.unit=v; store.set('unit',v); S=null; render(); },
   startS: ()=>startS(),
@@ -1364,10 +1566,12 @@ const ACT = {
   replay: ()=>{ if(Q&&Q.cur) speak(Q.cur.w); },
   pick: v=>pick(+v),
   quizAgain: ()=>{ Q=null; drawQuiz(); },
+  qskip: ()=>skipQ(),
+  hskip: ()=>skipH(),
   hmode: v=>{ App.hmode=v; H=null; render(); },
   hgrp: v=>{ App.hgrp=v; H=null; App.hmode==='card' ? drawHCard() : drawHQuiz(); },
   htile: v=>{ App.hchar=v; drawHCard(); speak(HANJA_ALL.find(x=>x.h===v).m,'ko'); },
-  hlv: v=>{ App.hlv=+v; store.set('hlv',App.hlv); H=null; render(); },
+  hlv: v=>{ App.hlv=+v; store.set('hlv',App.hlv); H=null; App.hgrp='all'; App.hchar=hList()[0].h; render(); },
   hsay: v=>speak(v,'ko'),
   hpick: v=>hPick(+v),
   hAgain: ()=>{ H=null; drawHQuiz(); },
@@ -1395,8 +1599,8 @@ const ACT = {
     admin.pin=p; saveAdmin(); toast('비밀번호를 바꿨어요'); drawSettings();
   },
   reset: ()=>{
-    if(!confirm('모은 별, 스티커, 학습 기록, 최고 기록을 모두 지울까요?')) return;
-    ['stars','today','log','visits','best_1','best_2','best_3'].forEach(k=>{ try{ localStorage.removeItem('e2_'+k); }catch(e){} });
+    if(!confirm(`${who}의 별, 스티커, 학습 기록, 최고 기록을 모두 지울까요?`)) return;
+    ['stars','today','log','visits','best_1','best_2','best_3'].forEach(k=>store.del(k));
     stars=0; markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
   }
 };
@@ -1406,6 +1610,7 @@ document.addEventListener('click',e=>{
   const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el);
 });
 document.addEventListener('keydown',e=>{
+  if(!document.getElementById('login').hidden){ if(e.key==='Enter' && e.target.id==='newWho') addWho(); return; }
   let fn=null;
   if(!document.getElementById('settings').hidden){ if(setMode==='pin') fn=pinKey; }
   else if(App.view==='math') fn=ACT.key;
@@ -1416,10 +1621,9 @@ document.addEventListener('keydown',e=>{
   else if(e.key==='Enter' && fn!==pinKey){ e.preventDefault(); fn('ok'); }
 });
 
-markVisit();
 applySettings();
 updateStars();
-render();
+showLogin();
 tick();
 setInterval(tick,1000);
 </script>
