@@ -52,7 +52,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline
 .jp,.word,.kana{font-family:var(--f-card)}
 .card-title,.hello,header h1,#login h2{font-family:var(--f-title)}
 
-#app{max-width:480px;margin:0 auto;min-height:100%;padding:16px 16px 96px}
+#app{max-width:480px;margin:0 auto;min-height:100%;padding:16px 16px 40px}
 header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 header h1{font-size:19px;font-weight:900;letter-spacing:-.02em;flex:1}
 header h1 small{display:block;font-size:12px;font-weight:500;color:var(--sub);letter-spacing:0}
@@ -130,11 +130,11 @@ header h1 small{display:block;font-size:12px;font-weight:500;color:var(--sub);le
 .empty{text-align:center;color:var(--sub);padding:24px 10px;line-height:1.7;font-size:14px}
 .star-btn{position:absolute;right:18px;top:78px;z-index:2;font-size:22px;color:var(--gold)}
 
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:10}
-nav.tabs div{max-width:480px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr)}
-nav.tabs button{padding:9px 0 10px;font-size:11px;font-weight:700;color:var(--faint);display:flex;flex-direction:column;align-items:center;gap:3px}
-nav.tabs button span{font-size:19px;filter:grayscale(1);opacity:.6}
-nav.tabs button.on{color:var(--accent)}
+nav.tabs{position:sticky;top:0;z-index:10;background:var(--bg);padding:6px 0 12px;margin:-6px 0 6px}
+nav.tabs div{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-card);padding:5px;box-shadow:var(--shadow)}
+nav.tabs button{padding:8px 0 7px;font-size:12px;font-weight:700;color:var(--sub);display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:var(--r-btn);word-break:keep-all;line-height:1.2}
+nav.tabs button span{font-size:19px;filter:grayscale(1);opacity:.55}
+nav.tabs button.on{background:var(--accent);color:var(--accent-ink)}
 nav.tabs button.on span{filter:none;opacity:1}
 
 #login{position:fixed;inset:0;background:var(--bg);z-index:50;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -145,7 +145,7 @@ nav.tabs button.on span{filter:none;opacity:1}
 #login input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;font-family:inherit}
 #login .btn{width:100%;margin-top:18px}
 .mode{display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--gold-soft);color:var(--gold);margin-top:10px}
-#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;white-space:nowrap}
 #toast.show{opacity:1}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .watermark{display:none}
@@ -177,7 +177,7 @@ nav.tabs button.on span{filter:none;opacity:1}
 [data-font="9"] .meaning{font-size:24px}
 [data-font="9"] .tip{font-size:15.5px}
 [data-font="9"] .foot,[data-font="9"] .stat span,[data-font="9"] .topic small{font-size:14px}
-[data-font="9"] nav.tabs button{font-size:12px}
+[data-font="9"] nav.tabs button{font-size:13px}
 </style>
 </head>
 <body>
@@ -209,17 +209,17 @@ nav.tabs button.on span{filter:none;opacity:1}
     <button id="lg-en" onclick="setLang('en')">🇺🇸 영어</button>
     <button id="lg-ja" onclick="setLang('ja')">🇯🇵 일본어</button>
   </div>
-  <main id="main"></main>
-</div>
-
 <nav class="tabs"><div>
   <button data-tab="home" onclick="go('home')"><span>🏠</span>오늘</button>
   <button data-tab="vocab" onclick="go('vocab')"><span>📚</span>단어</button>
-  <button data-tab="travel" onclick="go('travel')"><span>✈️</span>여행 한마디</button>
+  <button data-tab="travel" onclick="go('travel')"><span>✈️</span>여행</button>
   <button data-tab="grammar" onclick="go('grammar')"><span>🧩</span>문법</button>
   <button data-tab="talk" onclick="go('talk')"><span>💬</span>회화</button>
   <button data-tab="review" onclick="go('review')"><span>🔁</span>복습함</button>
 </div></nav>
+  <main id="main"></main>
+</div>
+
 <div id="toast"></div>
 
 <script>
