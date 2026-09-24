@@ -90,7 +90,10 @@ main{padding:16px 12px 40px 28px}
 .seg.oneline{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .seg.oneline::-webkit-scrollbar{display:none}
 .seg.oneline .pill{flex:none;white-space:nowrap;padding:.4rem .7rem}
-.seg.small .pill{font-size:.92rem;padding:.35rem .75rem}
+/* 큰 분류(윗줄)는 크게, 그 안의 거르기(아랫줄 .small)는 작은 칩으로 */
+.seg:not(.small) .pill{font-size:1.05rem;padding:.5rem 1rem}
+.seg.small{gap:5px}
+.seg.small .pill{font-size:.82rem;padding:.25rem .65rem;border-width:1.5px;font-family:var(--font),'Jua',sans-serif;font-weight:normal}
 .desc{margin:-2px 0 12px;color:var(--sub);font-size:.95rem}
 .big-btn{display:block;width:100%;max-width:420px;margin:14px auto 0;padding:.85rem;border-radius:16px;background:var(--accent);color:var(--accent-ink);font-size:1.3rem;box-shadow:0 4px 0 rgba(0,0,0,.18)}
 .big-btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
@@ -1675,7 +1678,7 @@ function drawPhonics(){
   if(!shown.some(o=>o.i===App.ph)) App.ph=shown[0].i;
   const P=PHONICS[App.ph], syl=P.c+P.v, [vk,vs]=VOWELS[P.v];
   eb.innerHTML=`
-    <div class="seg small">${Object.keys(VOWELS).map(v=>pill('phv',v,`<span class="en">${v}</span> ${VOWELS[v][1]}`,App.phv)).join('')}</div>
+    <div class="seg">${Object.keys(VOWELS).map(v=>pill('phv',v,`<span class="en">${v}</span> ${VOWELS[v][1]}`,App.phv)).join('')}</div>
     <div class="seg small">${shown.map(o=>pill('ph',o.i,`<span class="en">${o.x.c+o.x.v}</span> ${o.x.ko}`,App.ph)).join('')}</div>
     <div class="card ph-hero">
       <div class="ph-eq en"><span class="c-con">${P.c}</span> + <span class="c-vow">${P.v}</span> = <span class="c-con">${P.c}</span><span class="c-vow">${P.v}</span></div>
