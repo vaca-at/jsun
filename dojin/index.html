@@ -366,6 +366,21 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 const GRADE_LINKS = { e2: './', e4: '../e4/' };
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
+/* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
+   비워 두면(null) 이 기기에만 저장돼요. 규칙: e2/{dojin|yuna}, e2/{아이}/daily/{YYYY-MM-DD} */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c",
+  measurementId: "G-NV17H8CTJE"
+};
+const GRADE_ID = 'e2';
+const KID_IDS = { '도진':'dojin', '윤아':'yuna' };
+/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
+
 document.getElementById('linkE2').href = GRADE_LINKS.e2;
 document.getElementById('linkE4').href = GRADE_LINKS.e4;
 
@@ -373,11 +388,11 @@ document.getElementById('linkE4').href = GRADE_LINKS.e4;
 /* 이름(프로필)별로 따로 저장해요. admin·profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles'];
-const PROFILE_KEYS = ['stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today'];
+const PROFILE_KEYS = ['starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today'];
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2_'+k : `e2_p_${name}_${k}`;
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem(skey(k), JSON.stringify(v)); }catch(e){} },
+  set(k, v, name){ try{ localStorage.setItem(skey(k,name), JSON.stringify(v)); }catch(e){} },
   del(k, name){ try{ localStorage.removeItem(skey(k,name)); }catch(e){} }
 };
 /* 예전(이름 없던 때) 기록은 도진이에게 옮겨요 */
@@ -620,7 +635,7 @@ function updateStars(){ document.getElementById('starCount').textContent=stars; 
 function addStar(n){
   if(n<=0) return;
   const before=Math.floor(stars/10);
-  stars+=n; store.set('stars',stars); updateStars();
+  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush();
   if(Math.floor(stars/10)>before) setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600);
 }
 
@@ -630,7 +645,7 @@ function getLog(name){ return store.get('log',{},name); }
 function dayTotal(k=dayKey(), L=getLog()){ const d=L[k]||{}; return Object.values(d).reduce((a,e)=>a+e.n,0); }
 
 /* ───── 공부 잔디: 접속한 날 + 푼 문제 수 ───── */
-function markVisit(){ if(!who) return; const v=store.get('visits',{}); if(!v[dayKey()]){ v[dayKey()]=1; store.set('visits',v); } }
+function markVisit(){ if(!who) return; const v=store.get('visits',{}); if(!v[dayKey()]){ v[dayKey()]=1; store.set('visits',v); } cloudPush(); }
 function grassLevel(n, visited){
   if(!n) return visited ? 'v' : '';
   const g=admin.goal;
@@ -667,7 +682,7 @@ function logToday(s, ok){
   const d=L[k]||(L[k]={}), e=d[s]||(d[s]={n:0,ok:0});
   e.n++; if(ok) e.ok++;
   const keys=Object.keys(L).sort(); while(keys.length>90) delete L[keys.shift()];
-  store.set('log',L);
+  store.set('log',L); cloudPush();
   if(dayTotal(k)===admin.goal) setTimeout(()=>{ toast('🎯 오늘 목표를 달성했어요!'); burst(); },900);
 }
 
@@ -702,6 +717,68 @@ function tick(){
   if(dayKey()!==lastDay){ lastDay=dayKey(); markVisit(); if(App.view==='home') render(); }
 }
 
+/* ───── 온라인 저장 (Firebase Firestore) ─────
+   아이 문서: { name, stars, starsAt, updatedAt }
+   날짜 문서: { visited, total, math:{n,ok}, school:{n,ok}, eng:{n,ok}, hanja:{n,ok} }
+   여러 기기에서 쓰면 날짜별 문제 수는 큰 쪽을, 별은 나중에 바뀐 쪽을 따라요. */
+const cloud = { ready:null, db:null, ok:false };
+function cloudInit(){
+  if(!FIREBASE_CONFIG) return Promise.resolve(null);
+  if(cloud.ready) return cloud.ready;
+  const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{
+    firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); cloud.ok=true; return cloud.db;
+  }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
+  return cloud.ready;
+}
+const kidRef = name => cloud.db && KID_IDS[name] ? cloud.db.collection(GRADE_ID).doc(KID_IDS[name]) : null;
+async function cloudPull(name){
+  if(!KID_IDS[name] || !await cloudInit()) return false;
+  try{
+    const ref=kidRef(name), snap=await ref.get();
+    if(snap.exists){
+      const d=snap.data();
+      if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); }
+    }
+    const L=getLog(name), vis=store.get('visits',{},name), qs=await ref.collection('daily').get();
+    qs.forEach(doc=>{
+      const k=doc.id, d=doc.data();
+      if(d.visited) vis[k]=1;
+      Object.keys(SUBJ).forEach(s=>{
+        if(!d[s]) return;
+        const day=L[k]||(L[k]={}), e=day[s]||(day[s]={n:0,ok:0});
+        e.n=Math.max(e.n,d[s].n||0); e.ok=Math.max(e.ok,d[s].ok||0);
+      });
+    });
+    store.set('log',L,name); store.set('visits',vis,name);
+    return true;
+  }catch(e){ console.warn('불러오기 실패', e); return false; }
+}
+let pushTimer=null;
+function cloudPush(){
+  if(!FIREBASE_CONFIG || !who || !KID_IDS[who]) return;
+  const name=who; clearTimeout(pushTimer);
+  pushTimer=setTimeout(()=>cloudPushNow(name),1500);
+}
+async function cloudPushNow(name){
+  if(!await cloudInit()) return;
+  const ref=kidRef(name); if(!ref) return;
+  const k=dayKey(), L=getLog(name);
+  try{
+    await ref.set({name, stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now()},{merge:true});
+    await ref.collection('daily').doc(k).set(Object.assign({visited:!!store.get('visits',{},name)[k], total:dayTotal(k,L)}, L[k]||{}),{merge:true});
+  }catch(e){ console.warn('저장 실패', e); }
+}
+async function cloudReset(name){
+  if(!KID_IDS[name] || !await cloudInit()) return;
+  try{
+    const ref=kidRef(name), qs=await ref.collection('daily').get();
+    await Promise.all(qs.docs.map(d=>d.ref.delete()));
+    await ref.set({name, stars:0, starsAt:Date.now(), updatedAt:Date.now()},{merge:true});
+  }catch(e){ console.warn('지우기 실패', e); }
+}
+
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 const getProfiles = () => store.get('profiles',['도진','윤아']);
@@ -726,6 +803,12 @@ function loadProfile(name){
   document.title=`${josa(name,'이의','의')} 공부방`;
   document.getElementById('login').hidden=true;
   render(); window.scrollTo(0,0);
+  cloudPull(name).then(ok=>{
+    if(!ok || who!==name) return;
+    stars=store.get('stars',0); updateStars();
+    if(App.view==='home') render();
+    cloudPush();
+  });
 }
 function addWho(){
   const n=document.getElementById('newWho').value.trim().replace(/[<>"'&_]/g,'');
@@ -1476,7 +1559,9 @@ function drawSettings(){
     <div class="center"><button class="linkbtn" data-act="openAdmin">🔒 관리자 모드 (부모님용)</button></div>`;
 }
 function pinHTML(){
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진·윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<h3>🔒 관리자 모드</h3>
+    <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <p class="center sub">비밀번호 4자리를 눌러 주세요.</p>
     <div class="pinrow" id="pinrow">${[0,1,2,3].map(i=>`<span class="${i<pinBuf.length?'f':''}"></span>`).join('')}</div>
     ${admin.pin===ADMIN_DEF.pin?'<p class="center sub" style="font-size:.9rem">처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.</p>':''}
@@ -1488,7 +1573,11 @@ function pinKey(v){
   if(!/^\d$/.test(v) || pinBuf.length>=4) return;
   pinBuf+=v;
   if(pinBuf.length<4){ drawSettings(); return; }
-  if(pinBuf===admin.pin){ setMode='admin'; pinBuf=''; drawSettings(); return; }
+  if(pinBuf===admin.pin){
+    setMode='admin'; pinBuf=''; drawSettings();
+    const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+    return;
+  }
   drawSettings(); shake('pinrow'); beep(false); toast('비밀번호가 틀렸어요');
   setTimeout(()=>{ if(setMode==='pin'){ pinBuf=''; drawSettings(); } },450);
 }
@@ -1504,7 +1593,9 @@ function adminHTML(){
     rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${cells}<td>${n?`${ok}/${n}`:'-'}</td></tr>`;
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진·윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<h3>🔒 관리자 모드</h3>
+    <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(20,admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
@@ -1534,7 +1625,7 @@ const ACT = {
   showLogin: ()=>showLogin(),
   login: v=>loadProfile(v),
   addWho: ()=>addWho(),
-  admWho: v=>{ admView=v; drawSettings(); },
+  admWho: v=>{ admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
   delWho: v=>{
     if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
     store.set('profiles', getProfiles().filter(n=>n!==v));
@@ -1592,7 +1683,7 @@ const ACT = {
     saveAdmin(); drawSettings();
   },
   admMsg: ()=>{ admin.msg=document.getElementById('admMsg').value.trim(); saveAdmin(); toast('저장했어요'); },
-  admStar: v=>{ stars=Math.max(0,stars+ +v); store.set('stars',stars); updateStars(); drawSettings(); },
+  admStar: v=>{ stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawSettings(); },
   admPin: ()=>{
     const p=document.getElementById('admPin').value;
     if(!/^\d{4}$/.test(p)){ toast('숫자 4자리로 적어 주세요'); return; }
@@ -1601,7 +1692,7 @@ const ACT = {
   reset: ()=>{
     if(!confirm(`${who}의 별, 스티커, 학습 기록, 최고 기록을 모두 지울까요?`)) return;
     ['stars','today','log','visits','best_1','best_2','best_3'].forEach(k=>store.del(k));
-    stars=0; markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
+    stars=0; store.set('starsAt',Date.now()); cloudReset(who); markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
   }
 };
 document.addEventListener('click',e=>{
