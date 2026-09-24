@@ -1597,8 +1597,11 @@ async function cloudPushSettings(){
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 /* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
-const AVATAR_BY_NAME = { '도윤':{e:'🦅'} };
-const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls||""}">${a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
+/* 도윤이는 물고기를 좋아해요: 날마다 다른 바다 친구가 나와요 (상어 포함) */
+const SEA_FRIENDS = ['🦈','🐠','🐟','🐡','🐋','🐳','🐬','🦑','🐙','🦀','🦞','🐢','🪼','🦭'];
+const todaySea = () => { const t=new Date(); return SEA_FRIENDS[Math.floor(new Date(t.getFullYear(),t.getMonth(),t.getDate()).getTime()/864e5+0.5)%SEA_FRIENDS.length]; };
+const AVATAR_BY_NAME = { '도윤':{daily:true} };
+const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls||""}">${a.daily?todaySea():a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
 const getProfiles = () => store.get('profiles',['도윤']);
 /* 아이마다 나만의 비밀번호 (서로의 별 · 기록을 볼 수 없게) */
 let LP = null; // { name, mode:'enter'|'make'|'again', buf, first }
@@ -1765,7 +1768,7 @@ function renderHome(){
   view.innerHTML=`
     ${admin.msg?`<div class="card msg">💌 ${esc(admin.msg)}</div>`:''}
     <div class="card hello">
-      <div class="big">안녕, ${josa(who,'아','야')}! 오늘도 차근차근 해 볼까?</div>
+      <div class="big">${AVATAR_BY_NAME[who]&&AVATAR_BY_NAME[who].daily?todaySea()+' ':''}안녕, ${josa(who,'아','야')}! 오늘도 차근차근 해 볼까?</div>
       <div class="goal"><i style="width:${pct}%"></i></div>
       <div class="sub">오늘의 목표 ${total} / ${goal}문제 ${total>=goal?'🎯 달성!':''} · ⏱ ${dayMin()}분 공부했어요</div>
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
