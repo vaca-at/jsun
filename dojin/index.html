@@ -133,6 +133,12 @@ main{padding:16px 12px 40px 28px}
 .dock-t b{font-size:1.35rem;font-weight:normal;font-family:var(--font-t),var(--font),'Jua',sans-serif;font-variant-numeric:tabular-nums}
 .dk-ico{font-size:1.7rem;line-height:1.1}
 @media (max-width:1000px){ main{padding-right:100px} }
+.decobar{max-width:780px;margin:6px auto 0;display:flex;align-items:center;justify-content:center;gap:4px;overflow-x:auto;scrollbar-width:none}
+.decobar::-webkit-scrollbar{display:none}
+.dchip{flex:none;white-space:nowrap;padding:.18rem .55rem;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font-size:.78rem;color:var(--sub);font-family:var(--font),'Jua',sans-serif}
+.dchip i{font-style:normal}
+.dchip.on{background:var(--hi);border-color:var(--hi);color:#3A2E1A}
+.dsep{flex:none;width:1.5px;height:1rem;background:var(--line);margin:0 4px}
 .grasscard{margin-top:12px}
 .deco{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .deco-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -297,6 +303,10 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .dan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0;text-align:center;font-size:1.15rem}
 .dan span{padding:6px;border-radius:10px;background:var(--paper);border:2px solid var(--line)}
 .lesson .tbl{margin:8px auto}
+.ko-q{font-size:1.35rem;line-height:1.7}
+.ko-q ~ .choices .ct{font-size:1.1rem;line-height:1.4}
+.ko-q ~ .choices.words .choice{padding:10px 12px}
+.ko-para{text-align:left;font-size:1.1rem;line-height:1.7;background:var(--paper);border:2px dashed var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
 .lvtabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .lvtab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:18px;background:var(--card);border:3px solid var(--line);box-shadow:var(--shadow)}
 .lvtab b{font-weight:var(--tw);font-family:var(--font-t),var(--font),'Jua',sans-serif;font-size:1.6rem;line-height:1.1}
@@ -359,7 +369,8 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
   .grade a{padding:.3rem .6rem}
   html{font-size:calc(15px * var(--size) * min(var(--fsc),1.1))}
   header{position:static;padding-top:6px;padding-bottom:6px}
-  .nowbar{font-size:.8rem;margin-top:4px}
+  .dchip{font-size:.74rem;padding:.15rem .45rem}
+  .dchip i{display:none}
   .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
   .tab{padding:.35rem .1rem;font-size:.84rem;border-radius:12px;overflow:hidden;text-overflow:ellipsis}
   main{padding-top:10px}
@@ -408,10 +419,12 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
     <button class="iconbtn" data-act="openSet" aria-label="설정">⚙️</button>
   </div>
+  <div class="decobar" id="decobar"></div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">🏠 홈</button>
     <button class="tab" data-act="tab" data-v="math">➕➖ 연산</button>
     <button class="tab" data-act="tab" data-v="school">📐 학교수학</button>
+    <button class="tab" data-act="tab" data-v="korean">📖 국어</button>
     <button class="tab" data-act="tab" data-v="eng">🔤 영어</button>
     <button class="tab" data-act="tab" data-v="hanja"><span class="hanja">漢</span> 한자</button>
     <button class="tab" data-act="tab" data-v="history">🏯 한국사</button>
@@ -490,6 +503,7 @@ const store = {
 const SUBJ = {
   math:{name:'연산', ico:'➕', desc:'덧셈 · 뺄셈 세로셈 (받아올림 · 받아내림)'},
   school:{name:'학교수학', ico:'📐', desc:'2학년 2학기 교과서 단원'},
+  korean:{name:'국어', ico:'📖', desc:'받아쓰기 · 말놀이 · 높임말 (1 · 2단계)'},
   eng:{name:'영어', ico:'🔤', desc:'알파벳, 단어, 듣고 고르기'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:'🏯', desc:'시대 공부, 한능검 준비'}
@@ -695,6 +709,65 @@ const HISTORY = [
 const eraIdx = k => ERAS.findIndex(x=>x[0]===k);
 const eraName = k => (ERAS.find(x=>x[0]===k)||['',''])[1];
 
+/* 국어: 1단계(2학년 2학기 수준) · 2단계(3학년 1학기 수준) */
+const KO_LV = {
+  1:{sub:'2학년 2학기 수준', acts:{spell:'✏️ 바른 글자', sound:'🔔 흉내 내는 말', opp:'↔️ 반대말', punc:'❓ 문장 부호'}},
+  2:{sub:'3학년 1학기 수준', acts:{honor:'🙇 높임 표현', base:'📕 국어사전 낱말', sense:'👀 감각 표현', main:'📄 중심 문장', why:'💭 일의 까닭', spell2:'✏️ 헷갈리는 말'}}
+};
+const KO_DESC = {
+  spell:'소리 나는 대로 쓰지 않고, 바르게 쓴 낱말을 골라요.',
+  sound:'소리나 모양을 흉내 내는 말을 넣어 문장을 실감 나게 만들어요.',
+  opp:'뜻이 서로 반대인 낱말을 찾아요.',
+  punc:'문장 끝에 알맞은 문장 부호(. ? ! ,)를 골라요.',
+  honor:'웃어른께는 높이는 말을 써요. (밥 → 진지, 자다 → 주무시다)',
+  base:'국어사전에는 ‘먹다’처럼 모양이 바뀌지 않는 기본 모양으로 실려 있어요.',
+  sense:'보고, 듣고, 맡고, 맛보고, 만진 느낌을 살린 말을 알아봐요.',
+  main:'문단에서 가장 중요한 생각을 담은 문장(중심 문장)을 찾아요.',
+  why:'어떤 일이 왜 일어났는지, 까닭을 찾아요.',
+  spell2:'자주 틀리는 말을 바르게 쓴 문장을 골라요.'
+};
+const KO_SPELL = [['같이','가치'],['해돋이','해도지'],['깨끗이','깨끗히'],['앉아요','안자요'],['읽어요','일거요'],['많이','마니'],['웃어요','우서요'],['깊이','기피'],
+  ['놀이터','노리터'],['눈사람','눈싸람'],['꽃잎','꼰닙'],['국물','궁물'],['설날','설랄'],['없어요','업서요'],['싫어요','시러요'],['괜찮아요','괜차나요'],
+  ['떡볶이','떡뽀끼'],['맑아요','말가요'],['밟아요','발바요'],['넓어요','널버요'],['식물','싱물'],['옷이','오시'],['학교','학꾜'],['숲속','숩쏙']];
+const KO_SOUND = [['강아지가 □ 짖어요.','멍멍'],['비가 □ 내려요.','주룩주룩'],['별이 □ 빛나요.','반짝반짝'],['토끼가 □ 뛰어가요.','깡충깡충'],
+  ['아기가 □ 웃어요.','방긋방긋'],['시계가 □ 가요.','똑딱똑딱'],['배에서 □ 소리가 나요.','꼬르륵'],['오리가 □ 걸어가요.','뒤뚱뒤뚱'],
+  ['바람이 □ 불어요.','쌩쌩'],['눈이 □ 내려요.','펑펑'],['병아리가 □ 울어요.','삐악삐악'],['개구리가 □ 울어요.','개굴개굴'],['찌개가 □ 끓어요.','보글보글'],['문을 □ 두드려요.','똑똑']];
+const KO_OPP = [['크다','작다'],['길다','짧다'],['많다','적다'],['높다','낮다'],['무겁다','가볍다'],['덥다','춥다'],['빠르다','느리다'],['넓다','좁다'],
+  ['밝다','어둡다'],['깊다','얕다'],['두껍다','얇다'],['열다','닫다'],['웃다','울다'],['이기다','지다'],['기쁘다','슬프다'],['쉽다','어렵다'],['앞','뒤'],['위','아래'],['시작','끝'],['들어가다','나오다']];
+const KO_PUNC = [['밥 먹었니□','?'],['와, 정말 멋지다□','!'],['나는 학교에 갔다□','.'],['너는 몇 살이니□','?'],['우아, 눈이 온다□','!'],['오늘은 날씨가 맑다□','.'],
+  ['어디 가니□','?'],['조심해□','!'],['사과□ 배, 귤을 샀어요.',','],['엄마□ 사랑해요.',','],['동생과 공원에서 놀았다□','.'],['이것은 무엇일까□','?']];
+const PUNC_NAME = {'.':'마침표 ( . )','?':'물음표 ( ? )','!':'느낌표 ( ! )',',':'쉼표 ( , )'};
+const KO_HONOR = [['밥','진지'],['집','댁'],['나이','연세'],['말','말씀'],['이름','성함'],['생일','생신'],['자다','주무시다'],['먹다','드시다'],['있다','계시다'],['아프다','편찮으시다'],['주다','드리다'],['묻다','여쭈다'],['병','병환']];
+const KO_HONOR_S = [['할아버지께서 방에서 □.','주무세요',['자요','잠자요','자니']],['선생님께 선물을 □.','드렸어요',['줬어요','주었니','줄게']],
+  ['할머니, 진지 □.','잡수세요',['먹어요','먹어라','먹자']],['아버지께서 지금 집에 □.','계세요',['있어요','있다','있니']],
+  ['할머니께서 □ 병원에 가셨어요.','편찮으셔서',['아파서','아프니까','아팠고']],['할아버지, 이 책 좀 □ 봐도 될까요?','여쭤',['물어','묻고','물어서']]];
+const KO_BASE = [['먹었다','먹다',['먹었','먹어','먹는']],['뛰어요','뛰다',['뛰어','뛰었다','뛰는']],['입었다','입다',['입었','입어','입는']],['웃는','웃다',['웃어','웃었다','웃고']],
+  ['달리고','달리다',['달려','달린','달렸다']],['읽으니','읽다',['읽으','읽어','읽었다']],['앉아서','앉다',['앉아','앉은','앉았다']],['좋아요','좋다',['좋아','좋은','좋았다']],
+  ['예쁜','예쁘다',['예뻐','예뻤다','예쁘고']],['잡았다','잡다',['잡아','잡은','잡았']],['씻고','씻다',['씻어','씻은','씻었다']],['작은','작다',['작아','작았다','작고']]];
+const SENSES = ['눈으로 보는 느낌','귀로 듣는 느낌','코로 맡는 느낌','혀로 맛보는 느낌','손으로 만지는 느낌'];
+const KO_SENSE = [['보들보들한 강아지 털',4],['새콤달콤한 딸기',3],['고소한 참기름 냄새',2],['시끌벅적한 운동장',1],['알록달록한 꽃밭',0],['매끈매끈한 조약돌',4],
+  ['짭짤한 감자칩',3],['향긋한 꽃향기',2],['졸졸 흐르는 시냇물 소리',1],['반짝반짝 빛나는 별',0],['까끌까끌한 수세미',4],['쌉쌀한 나물',3]];
+const KO_MAIN = [
+  ['운동을 하면 좋은 점이 많아요.',['몸이 튼튼해져요.','기분이 좋아져요.','밤에 잠도 잘 와요.']],
+  ['겨울에는 여러 가지 놀이를 할 수 있어요.',['눈사람을 만들어요.','썰매를 타요.','눈싸움도 해요.']],
+  ['동물들은 여러 방법으로 겨울을 나요.',['곰은 겨울잠을 자요.','철새는 따뜻한 곳으로 날아가요.','다람쥐는 먹이를 모아 두어요.']],
+  ['우리 학교에는 여러 장소가 있어요.',['책을 읽는 도서관이 있어요.','뛰어노는 운동장이 있어요.','밥을 먹는 급식실이 있어요.']],
+  ['물을 아껴 써야 해요.',['이를 닦을 때 컵을 써요.','샤워하는 시간을 줄여요.','수도꼭지를 꼭 잠가요.']],
+  ['채소는 우리 몸에 좋아요.',['당근은 눈을 건강하게 해 줘요.','시금치는 몸을 튼튼하게 해 줘요.','양배추는 배 속을 편하게 해 줘요.']]
+];
+const KO_WHY = [['비가 와서 우산을 썼어요.','우산을 쓴 까닭은?','비가 와서',['해가 떠서','바람이 불어서','눈이 와서']],
+  ['늦잠을 자서 학교에 늦었어요.','학교에 늦은 까닭은?','늦잠을 자서',['배가 아파서','길이 막혀서','비가 와서']],
+  ['동생이 넘어져서 울었어요.','동생이 운 까닭은?','넘어져서',['배가 고파서','혼나서','졸려서']],
+  ['열심히 연습해서 줄넘기 100번을 했어요.','줄넘기 100번을 할 수 있었던 까닭은?','열심히 연습해서',['운이 좋아서','줄이 길어서','친구가 도와줘서']],
+  ['날씨가 추워서 두꺼운 옷을 입었어요.','두꺼운 옷을 입은 까닭은?','날씨가 추워서',['옷이 예뻐서','비가 와서','학교에 가서']],
+  ['물을 주지 않아서 꽃이 시들었어요.','꽃이 시든 까닭은?','물을 주지 않아서',['햇빛이 많아서','바람이 불어서','꽃이 커서']],
+  ['친구가 도와줘서 숙제를 빨리 끝냈어요.','숙제를 빨리 끝낸 까닭은?','친구가 도와줘서',['숙제가 쉬워서','시간이 많아서','선생님이 도와줘서']],
+  ['배가 고파서 밥을 두 그릇 먹었어요.','밥을 두 그릇 먹은 까닭은?','배가 고파서',['밥이 식어서','엄마가 시켜서','반찬이 없어서']]];
+const KO_SPELL2 = [['며칠 동안 비가 왔어요.','몇일 동안 비가 왔어요.'],['숙제를 금세 끝냈어요.','숙제를 금새 끝냈어요.'],['설거지를 도와드렸어요.','설겆이를 도와드렸어요.'],
+  ['오늘은 왠지 기분이 좋아요.','오늘은 웬지 기분이 좋아요.'],['웬일로 일찍 일어났니?','왠일로 일찍 일어났니?'],['선생님이 되고 싶어요.','선생님이 돼고 싶어요.'],
+  ['이제 가도 돼요.','이제 가도 되요.'],['베개를 베고 누웠어요.','배개를 베고 누웠어요.'],['된장찌개가 맛있어요.','된장찌게가 맛있어요.'],
+  ['어떡해, 우산을 놓고 왔어!','어떻해, 우산을 놓고 왔어!'],['내일 봬요.','내일 뵈요.'],['어제 먹었던 빵이 맛있었어.','어제 먹었든 빵이 맛있었어.']];
+
 /* 쉬어가는 코너: 오늘의 속담 */
 const PROVERBS = [
   ['가는 말이 고와야 오는 말이 곱다','내가 남에게 좋게 말해야 남도 나에게 좋게 말해요.'],
@@ -796,14 +869,14 @@ const WD = ['일','월','화','수','목','금','토'];
 
 /* ───── 상태 ───── */
 const App = { view:'home', mmode:'vertical', op:'add', level: store.get('level',1), emode:'abc', cat:'animal', qcat:'all', letter:'A',
-  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
+  unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', klv:1, kact:'spell', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
 let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
-const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,eng:true,hanja:true,history:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
+const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,korean:true,eng:true,hanja:true,history:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
 let stars = 0;
-let V = null, C = null, Q = null, S = null, H = null, HQ = null;
+let V = null, C = null, Q = null, S = null, H = null, HQ = null, K = null;
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
 const view = document.getElementById('view');
 
@@ -1121,7 +1194,7 @@ function loadProfile(name){
   if(settings.fontV!==2){ if(settings.font==='combo1') settings.font='combo3'; settings.fontV=2; }
   if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='combo3'; // 한 가지 글씨체는 없어졌어요
   stars=store.get('stars',0);
-  V=C=Q=S=H=HQ=null; App.view='home'; lastDay=dayKey();
+  V=C=Q=S=H=HQ=K=null; App.view='home'; lastDay=dayKey();
   markVisit(); applySettings(); updateStars();
   document.getElementById('whoBtn').textContent=`${josa(name,'이의','의')} 공부방`;
   document.title=`${josa(name,'이의','의')} 공부방`;
@@ -1151,7 +1224,7 @@ function render(){
     t.classList.toggle('on',t.dataset.v===App.view);
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];
   });
-  ({home:renderHome, math:renderMath, school:renderSchool, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
+  ({home:renderHome, math:renderMath, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
 }
 
 /* ───── 홈 ───── */
@@ -1168,6 +1241,13 @@ function provHTML(){
       <button class="pill" data-act="provMean">${App.provOpen?'숨기기':'💡 언제 쓸까?'}</button>
       <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
     </div></div>`;
+}
+const DECO_THEME = {note:'📒<i> 공책</i>', chalk:'🟩<i> 칠판</i>', crayon:'🖍️<i> 크레파스</i>'};
+const DECO_FONT = {combo1:'🎈 말랑', combo2:'✏️ 손글씨', combo3:'📖 또박'};
+function drawDecoBar(){
+  const b=document.getElementById('decobar'); if(!b) return;
+  const chip=(k,v,label)=>`<button title="${label.replace(/<[^>]+>/g,'').trim()}" class="dchip ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
+  b.innerHTML=Object.entries(DECO_THEME).map(([v,l])=>chip('theme',v,l)).join('')+'<span class="dsep"></span>'+Object.entries(DECO_FONT).map(([v,l])=>chip('font',v,l)).join('');
 }
 function decoHTML(){
   const s=(k,v,label)=>`<button class="pill ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
@@ -1194,7 +1274,6 @@ function renderHome(){
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
     </div>
     <div class="card grasscard">${grassHTML()}</div>
-    ${decoHTML()}
     <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
   tick();
@@ -1913,6 +1992,88 @@ function hPick(i){
   }
 }
 
+/* ───── 국어 ───── */
+const KBOX = '<span class="box">&nbsp;?&nbsp;</span>';
+const kq = (html, ans, choices, explain='', cls='words') => ({html, ans, choices:shuffle([...new Set([ans,...choices])]), explain, cls});
+const others = (arr, not, n=3) => shuffle(arr.filter(x=>x!==not)).slice(0,n);
+const KO_GEN = {
+  spell: ()=>{ const [r,w]=one(KO_SPELL); return kq('바르게 쓴 낱말은?', r, [w], `‘${r}’는 [${w}]처럼 소리 나지만 ‘${r}’로 써요.`, 'short'); },
+  sound: ()=>{ const [s,a]=one(KO_SOUND); return kq(`${s.replace('□',KBOX)}<br><small class="sub">알맞은 흉내 내는 말은?</small>`, a, others(KO_SOUND.map(x=>x[1]),a), s.replace('□',a), 'short'); },
+  opp: ()=>{ const p=one(KO_OPP), k=rnd(0,1), a=p[1-k]; return kq(`‘${p[k]}’의 반대말은?`, a, others(KO_OPP.flat(),a).filter(x=>x!==p[k]), `${p[k]} ↔ ${a}`, 'short'); },
+  punc: ()=>{ const [s,m]=one(KO_PUNC); return kq(`${s.replace('□',KBOX)}<br><small class="sub">${KBOX} 안에 알맞은 문장 부호는?</small>`, PUNC_NAME[m], Object.values(PUNC_NAME), s.replace('□',m), 'short'); },
+  honor: ()=>{
+    if(Math.random()<0.5){ const [p,h]=one(KO_HONOR); return kq(`‘${p}’${josa(p,'을','를').slice(p.length)} 높여 이르는 말은?`, h, others(KO_HONOR.map(x=>x[1]),h,2).concat(p), `${p} → ${h}`, 'short'); }
+    const [s,a,w]=one(KO_HONOR_S); return kq(`${s.replace('□',KBOX)}<br><small class="sub">웃어른께 알맞은 말은?</small>`, a, w, s.replace('□',a));
+  },
+  base: ()=>{ const [w,a,d]=one(KO_BASE); return kq(`‘${w}’${josa(w,'을','를').slice(w.length)} 국어사전에서 찾으려면<br>어떤 모양으로 찾아야 할까요?`, a, d, `국어사전에는 기본 모양 ‘${a}’로 실려 있어요.`, 'short'); },
+  sense: ()=>{ const [p,i]=one(KO_SENSE); return kq(`‘${p}’<br><small class="sub">어떤 느낌을 살린 말일까요?</small>`, SENSES[i], others(SENSES,SENSES[i])); },
+  main: ()=>{ const [m,rest]=one(KO_MAIN), first=Math.random()<0.6, sents=first?[m,...rest]:[...rest,m];
+    return kq(`<div class="ko-para">${sents.join(' ')}</div><small class="sub">이 문단의 중심 문장은?</small>`, m, rest, '나머지 문장들이 이 문장을 자세히 설명해 줘요.'); },
+  why: ()=>{ const [s,q,a,d]=one(KO_WHY); return kq(`<div class="ko-para">${s}</div>${q}`, a, d, s); },
+  spell2: ()=>{ const [r,w]=one(KO_SPELL2); return kq('바르게 쓴 문장은?', r, [w], r); }
+};
+function renderKorean(){
+  if(!KO_LV[App.klv].acts[App.kact]) App.kact=Object.keys(KO_LV[App.klv].acts)[0];
+  view.innerHTML=`
+    <div class="lvtabs">${[1,2].map(l=>`<button class="lvtab ${App.klv===l?'on':''}" data-act="klv" data-v="${l}"><b>${l}단계</b><small>${KO_LV[l].sub}</small></button>`).join('')}</div>
+    <div class="seg">${Object.entries(KO_LV[App.klv].acts).map(([k,n])=>pill('kact',k,n,App.kact)).join('')}</div>
+    <p class="desc">${KO_DESC[App.kact]}</p>
+    <div id="kbody"></div>`;
+  drawK();
+}
+function startK(){
+  const list=[]; let guard=0;
+  while(list.length<10 && guard++<200){ const q=KO_GEN[App.kact](); if(!list.some(x=>x.html===q.html&&x.ans===q.ans)) list.push(q); }
+  while(list.length<10) list.push(KO_GEN[App.kact]());
+  K={lv:App.klv, act:App.kact, list, i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false};
+}
+function drawK(){
+  const b=document.getElementById('kbody'); if(!b) return;
+  if(!K || K.lv!==App.klv || K.act!==App.kact) startK();
+  if(K.done){
+    b.innerHTML=`<div class="card center"><p class="big">${K.score===10?'🏆 모두 한 번에 맞혔어요!':`10문제 중 ${K.score}개를 한 번에 맞혔어요!`}</p>
+      <p>받은 별: ⭐ ${K.score}개</p><button class="big-btn" data-act="kAgain">다시 하기</button></div>`;
+    return;
+  }
+  const q=K.list[K.i];
+  const cls=i=> K.solved && q.choices[i]===q.ans ? 'ok' : (K.picked.includes(i)?'no':'');
+  b.innerHTML=`<div class="card">
+    <div class="qtop"><span>${K.lv}단계 · ${K.i+1} / 10</span><span>⭐ ${K.score}</span></div>
+    <div class="sq ko-q">${q.html}</div>
+    <div class="choices ${q.cls}">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="kpick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
+    ${K.note?`<div class="hint">${K.note}</div>`:''}
+    ${K.solved?'':skipBtn('kskip')}
+  </div>`;
+}
+function kNext(ms){
+  const me=K;
+  setTimeout(()=>{
+    if(K!==me) return;
+    K.i++; K.tried=false; K.solved=false; K.picked=[]; K.note='';
+    if(K.i>=10){ K.done=true; if(K.score>=8) burst(); }
+    if(App.view==='korean') drawK();
+  }, ms);
+}
+function kPick(i){
+  if(!K||K.solved||K.done) return;
+  const q=K.list[K.i];
+  if(q.choices[i]===q.ans){
+    K.solved=true; beep(true); markO(); logToday('korean', !K.tried);
+    if(!K.tried){ K.score++; addStar(1); }
+    K.note=`<span class="praise">${praise()}</span>`; drawK(); kNext(1300);
+  } else {
+    if(K.picked.includes(i)) return;
+    K.tried=true; K.picked.push(i); beep(false);
+    K.note=q.explain?`<small>💡 ${q.explain}</small>`:''; drawK();
+  }
+}
+function kSkip(){
+  if(!K||K.solved||K.done) return;
+  const q=K.list[K.i];
+  K.tried=true; K.solved=true; beep(false); logToday('korean', false);
+  K.note=`정답은 <b>${esc(q.ans)}</b>${q.explain?`<br><small>${q.explain}</small>`:''}`; drawK(); kNext(2600);
+}
+
 /* ───── 한국사 ───── */
 function renderHistory(){
   view.innerHTML=`
@@ -2106,6 +2267,7 @@ function applySettings(){
   r.setProperty('--fsc',f.scale);
   document.documentElement.style.setProperty('--size',settings.size);
   if(who) store.set('settings',settings);
+  drawDecoBar();
 }
 const adminPinH = () => admin.pinH || hashPin(admin.pin||ADMIN_DEF.pin,'admin');
 function saveAdmin(){ admin.at=Date.now(); store.set('admin',admin); cloudPushSettings(); }
@@ -2244,6 +2406,11 @@ const ACT = {
   replay: ()=>{ if(Q&&Q.cur) speak(Q.cur.w); },
   pick: v=>pick(+v),
   quizAgain: ()=>{ Q=null; drawQuiz(); },
+  klv: v=>{ App.klv=+v; App.kact=Object.keys(KO_LV[App.klv].acts)[0]; K=null; render(); },
+  kact: v=>{ App.kact=v; K=null; render(); },
+  kpick: v=>kPick(+v),
+  kskip: ()=>kSkip(),
+  kAgain: ()=>{ K=null; drawK(); },
   qskip: ()=>skipQ(),
   hskip: ()=>skipH(),
   hmode: v=>{ App.hmode=v; H=null; render(); },
@@ -2270,7 +2437,7 @@ const ACT = {
     const k=el.dataset.k;
     settings[k] = k==='size' ? +v : (k==='sound' ? v==='true' : v);
     applySettings();
-    if(document.getElementById('settings').hidden) render(); else drawSettings();
+    if(!document.getElementById('settings').hidden) drawSettings();
   },
   adm: (v,el)=>{
     const k=el.dataset.k;
