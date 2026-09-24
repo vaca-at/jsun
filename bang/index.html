@@ -348,30 +348,28 @@ nav.tabs button.on span{filter:none;opacity:1}
 /* =========================================================
    0) 익명 이용 통계 (Firebase)
    - null이면 아무것도 전송하지 않아요. (관리자 화면은 이 기기 기록만 보여 줌)
-   - 켜려면 Firebase 콘솔 > 프로젝트 설정 > 웹 앱의 설정값을 붙여 넣으세요.
-     Authentication > 이메일/비밀번호 사용 설정 후 관리자 계정을 하나 만들고,
-     Firestore 규칙에 아래 내용을 넣으세요. (ADMIN_EMAIL은 관리자 이메일로)
+   - doyun·dojin 앱과 같은 프로젝트(moon-15f88)를 함께 쓰므로 이 앱은 bang_visits 컬렉션만 써요.
+   - Authentication > 이메일/비밀번호 사용 설정 후 관리자 계정을 하나 만들고,
+     Firestore 규칙에서 기존 match /{grade}/{id} 블록 아래에 이 블록을 추가하세요. (ADMIN_EMAIL은 관리자 이메일로)
 
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{db}/documents {
-       match /visits/{id} {
+       match /bang_visits/{id} {
          allow create: if request.resource.data.keys().hasOnly(['a','s','d','o','b','m','l','t','sec'])
                        && request.resource.data.sec is number && request.resource.data.sec <= 3600
+                       && request.resource.data.t is number
                        && request.resource.data.m is string && request.resource.data.m.size() < 20;
          allow read: if request.auth != null && request.auth.token.email == 'ADMIN_EMAIL';
          allow update, delete: if false;
        }
-     }
-   }
    ========================================================= */
-const FIREBASE_CONFIG = null;
-/* 예시)
 const FIREBASE_CONFIG = {
-  apiKey: "...", authDomain: "...", projectId: "...",
-  storageBucket: "...", messagingSenderId: "...", appId: "..."
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c"
 };
-*/
+const VISITS = "bang_visits";
 const ANALYTICS_ON = !!FIREBASE_CONFIG;
 const NOTE_SHORT = ANALYTICS_ON ? "로그인 없이 · 기록은 이 기기에만 · 이름 없는 익명 통계만 수집" : "로그인 없이 · 기록은 이 기기에만 · 관리자는 정보를 수집하지 않아요";
 const MENU_NAMES = {home:"오늘", vocab:"단어", kana:"글자(가나)", travel:"여행", theme:"테마", grammar:"문법", talk:"회화", review:"복습함"};
@@ -442,7 +440,7 @@ function endStay(){
 function localVisits(){ try{ return JSON.parse(localStorage.getItem("lang10_visits")) || []; }catch(e){ return []; } }
 function logVisit(rec){
   try{ const v = localVisits(); v.push(rec); localStorage.setItem("lang10_visits", JSON.stringify(v.slice(-1000))); }catch(e){}
-  if(ANALYTICS_ON && !optedOut()) initFirebase().then(fb => fb && fb.db.collection("visits").add(rec)).catch(e => console.warn("통계 전송 실패", e));
+  if(ANALYTICS_ON && !optedOut()) initFirebase().then(fb => fb && fb.db.collection(VISITS).add(rec)).catch(e => console.warn("통계 전송 실패", e));
 }
 document.addEventListener("visibilitychange", ()=>{ if(document.hidden) endStay(); else track(); });
 window.addEventListener("pagehide", endStay);
@@ -1721,7 +1719,7 @@ async function loadAdmin(){
   S.ad.state = "loading"; render();
   try{
     const fb = await initFirebase();
-    const snap = await fb.db.collection("visits").orderBy("t", "desc").limit(5000).get();
+    const snap = await fb.db.collection(VISITS).orderBy("t", "desc").limit(5000).get();
     S.ad.rows = snap.docs.map(d => d.data()); S.ad.state = "ready"; S.ad.err = "";
   }catch(e){ console.warn(e); S.ad.state = "ready"; S.ad.rows = []; S.ad.err = "기록을 불러오지 못했어요. 관리자 계정과 Firestore 규칙을 확인해 주세요."; }
   if(S.tab === "admin") render();
