@@ -784,6 +784,8 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   .me-acc{right:-26px;font-size:42px}
   .me-hat{font-size:52px;top:-24px;margin-left:-26px}
 }
+/* 휴대폰: 큰 선택 단추(공부하기 · 문제풀기 등) 글씨는 한 줄로 */
+@media (max-width:520px){ .lvtab b{font-size:1.2rem;white-space:nowrap} .lvtab small{font-size:.78rem} }
 /* ═════════ 새 디자인 끝 ═════════ */
 /* 도진: 가로 화면(아이패드 등)에서는 문제는 왼쪽, 숫자판은 오른쪽에 나란히 → 한 화면에 다 보여요 */
 @media (orientation:landscape) and (min-width:700px){
@@ -2454,8 +2456,8 @@ function renderSchool(){
   view.innerHTML=`
     <div class="seg small">${Object.keys(UNITS).map(k=>pill('unit',k,UNITS[k].name,App.unit)).join('')}</div>
     ${App.unit==='mix' ? '' : `<div class="lvtabs">
-      <button class="lvtab ${learn?'on':''}" data-act="smode" data-v="learn"><b>📖 쉽게 배우기</b><small>그림으로 개념 익히기</small></button>
-      <button class="lvtab ${learn?'':'on'}" data-act="smode" data-v="quiz"><b>✏️ 문제 풀기</b><small>10문제 풀고 별 받기</small></button>
+      <button class="lvtab ${learn?'on':''}" data-act="smode" data-v="learn"><b>📖 공부하기</b><small>그림으로 개념 익히기</small></button>
+      <button class="lvtab ${learn?'':'on'}" data-act="smode" data-v="quiz"><b>✏️ 문제풀기</b><small>10문제 풀고 별 받기</small></button>
     </div>`}
     <p class="desc">${UNITS[App.unit].desc}</p>
     <div id="sbody"></div>`;
