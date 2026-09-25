@@ -577,10 +577,6 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 <body data-theme="note">
 <header>
   <div class="toprow">
-    <nav class="grade" aria-label="학년 바꾸기">
-      <a id="linkE2">초2</a>
-      <a id="linkE4" class="on" aria-current="page">초4</a>
-    </nav>
     <h1><button id="whoBtn" data-act="showLogin" aria-label="이름 바꾸기">초4 공부방</button></h1>
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
     <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침">🔄</button>
@@ -619,9 +615,6 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 </div>
 
 <script>
-/* ▼▼▼ 여기만 바꾸면 돼요: 초2 · 초4 웹앱 주소 ▼▼▼ */
-const GRADE_LINKS = { e2: '../dojin/', e4: './' };
-/* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 /* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
    비워 두면(null) 이 기기에만 저장돼요. 규칙: e4/{doyun}, e4/{아이}/daily/{YYYY-MM-DD}, e4/settings
@@ -639,8 +632,6 @@ const GRADE_ID = 'e4';
 const KID_IDS = { '도윤':'doyun' };
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
-document.getElementById('linkE2').href = GRADE_LINKS.e2;
-document.getElementById('linkE4').href = GRADE_LINKS.e4;
 
 /* ───── 저장소 (이 기기에만 저장) ───── */
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
