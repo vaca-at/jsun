@@ -529,6 +529,11 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 /* 화면 아래 이용약관 · 개인정보처리방침 */
 .legal{max-width:780px;margin:0 auto;padding:4px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
 .legal a{color:var(--sub)}
+/* 쉬어가는 코너 세 박스 · 오른쪽 날씨 타일 */
+.bn-head{font-size:1.15rem;margin:4px 2px 8px}
+.bn-row{margin-bottom:10px}
+.dock-t.dk-wx small{white-space:nowrap}
+.wx-pop .wx{margin:10px 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -552,9 +557,11 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
   </div>
 </header>
 
-<aside class="dock" aria-label="시계와 스티커">
+<aside class="dock" aria-label="시계, 도서관, 스티커, 날씨">
   <button class="dock-t" data-act="clockTile" aria-label="시계 공부하러 가기"><small id="dkDate"></small><i id="dkAp"></i><b id="dkTime"></b></button>
+  <button class="dock-t" data-act="libOpen" aria-label="명작 도서관"><span class="dk-ico">📚</span><small>도서관</small><b id="dkLib"></b></button>
   <button class="dock-t" data-act="tab" data-v="sticker" aria-label="스티커 보기"><span class="dk-ico">🏅</span><small>스티커</small><b id="dkStk"></b></button>
+  <button class="dock-t dk-wx" data-act="wxTile" aria-label="오늘 날씨 자세히 보기"><span class="dk-ico" id="dkWxIco">🌡️</span><b id="dkWxT">날씨</b><small id="dkWxS"></small></button>
 </aside>
 
 <main id="view"></main>
@@ -1675,35 +1682,31 @@ function renderClosed(s, party){
   if(party) celebrate();
 }
 function provHTML(){
-  const tab=App.bnTab||'prov';
-  const tabs=`<div class="bn-tabs">${[['prov','📜 속담'],['ja','🇯🇵 일본어'],['en','🇺🇸 영어']].map(([v,l])=>`<button class="pill ${tab===v?'on':''}" data-act="bnTab" data-v="${v}">${l}</button>`).join('')}</div>`;
-  if(tab!=='prov'){
-    const L=tab==='ja'?JA_TRAVEL:EN_TRAVEL, i=tab==='ja'?App.ja:App.en, [t,r,m,e]=L[i];
-    return `<div class="card banner" id="banner">
-    <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 여행 ${tab==='ja'?'일본어':'영어'}</span><span class="bn-tag">${i+1} / ${L.length}</span></div>
-    ${tabs}
-    <div class="bn-p ${tab==='en'?'en':''}" ${tab==='ja'?'lang="ja"':''}>${e} ${esc(t)}</div>
-    <p class="bn-read">[${r}]</p>
-    <div class="bn-m">${m}</div>
-    <div class="bn-btns">
-      <button class="pill" data-act="bnMove" data-v="-1" aria-label="이전 표현">◀</button>
-      <button class="pill" data-act="bnSay">🔊 들어 보기</button>
-      <button class="pill" data-act="bnMove" data-v="1" aria-label="다음 표현">▶</button>
-    </div></div>`;
-  }
   const [p,m]=PROVERBS[App.prov];
-  return `<div class="card banner" id="banner">
-    <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
-    ${tabs}
-    <div class="bn-p">“${p}”</div>
-    <div class="bn-m">${m}</div>
-    ${App.provOpen?`<div class="bn-ex">🧒 이럴 때 써요: ${PROVERB_EX[App.prov]}</div>`:''}
-    <div class="bn-btns">
-      <button class="pill" data-act="provMove" data-v="-1" aria-label="이전 속담">◀</button>
-      <button class="pill" data-act="provSay">🔊 읽어 주기</button>
-      <button class="pill" data-act="provMean">${App.provOpen?'숨기기':'💡 언제 쓸까?'}</button>
-      <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
-    </div></div>`;
+  const trav=k=>{ const L=k==='ja'?JA_TRAVEL:EN_TRAVEL, i=k==='ja'?App.ja:App.en, [t,r,mm,e]=L[i];
+    return `<div class="card banner bn-row">
+      <div class="bn-top"><span class="bn-tag">${k==='ja'?'🇯🇵 여행 일본어':'🇺🇸 여행 영어'}</span><span class="bn-tag">${i+1} / ${L.length}</span></div>
+      <div class="bn-p ${k==='en'?'en':''}" ${k==='ja'?'lang="ja"':''}>${e} ${esc(t)}</div>
+      <p class="bn-read">[${r}]</p>
+      <div class="bn-m">${mm}</div>
+      <div class="bn-btns">
+        <button class="pill" data-act="bnMove" data-k="${k}" data-v="-1" aria-label="이전 표현">◀</button>
+        <button class="pill" data-act="bnSay" data-k="${k}">🔊 들어 보기</button>
+        <button class="pill" data-act="bnMove" data-k="${k}" data-v="1" aria-label="다음 표현">▶</button>
+      </div></div>`; };
+  return `<div id="banner"><p class="bn-head">☕ 쉬어가는 코너</p>
+    <div class="card banner bn-row">
+      <div class="bn-top"><span class="bn-tag">📜 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
+      <div class="bn-p">“${p}”</div>
+      <div class="bn-m">${m}</div>
+      ${App.provOpen?`<div class="bn-ex">🧒 이럴 때 써요: ${PROVERB_EX[App.prov]}</div>`:''}
+      <div class="bn-btns">
+        <button class="pill" data-act="provMove" data-v="-1" aria-label="이전 속담">◀</button>
+        <button class="pill" data-act="provSay">🔊 읽어 주기</button>
+        <button class="pill" data-act="provMean">${App.provOpen?'숨기기':'💡 언제 쓸까?'}</button>
+        <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
+      </div></div>
+    ${trav('ja')}${trav('en')}</div>`;
 }
 /* ───── 오늘 날씨 · 시간 (Open-Meteo, 키 없이 쓰는 무료 날씨. 30분마다 새로 받아요) ───── */
 const WX_DEF = {lat:37.5665, lon:126.978, name:'서울'};
@@ -1736,10 +1739,21 @@ async function loadWeather(force){
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`;
     const d=await (await fetch(u)).json();
     wxSet('data',{at:Date.now(), lat:loc.lat, temp:d.current.temperature_2m, code:d.current.weather_code, max:d.daily.temperature_2m_max[0], min:d.daily.temperature_2m_min[0], rain:d.daily.precipitation_probability_max[0]??0});
-    const card=document.getElementById('wxCard'); if(card && App.view==='home') card.outerHTML=weatherHTML();
+    const card=document.getElementById('wxCard'); if(card) card.outerHTML=weatherHTML(); drawDockExtra();
   }catch(e){ console.warn('날씨를 불러오지 못했어요', e); }
 }
 setInterval(()=>{ const el=document.getElementById('wxTime'); if(el){ const t=new Date(), h=t.getHours(); el.textContent=`${h<12?'오전':'오후'} ${h%12||12}:${pad(t.getMinutes())}`; } }, 1000);
+/* 오른쪽 타일: 📚 도서관(읽은 책 수) · 🌤️ 날씨(아이콘 · 기온). 누르면 도서관 / 자세한 날씨 */
+let wxTry=0;
+function drawDockExtra(){
+  const lb=document.getElementById('dkLib');
+  if(lb && typeof LIB_BOOKS!=='undefined'){ const r=who?store.get('lib',{}):{}; lb.textContent=`${LIB_BOOKS.filter(b=>r[b.id]!==undefined).length}/${LIB_BOOKS.length}`; }
+  const w=wxGet('data'), c=w?(WX_CODE[w.code]||['🌡️','날씨']):['🌡️','날씨'];
+  const i=document.getElementById('dkWxIco'), t=document.getElementById('dkWxT'), s=document.getElementById('dkWxS');
+  if(i){ i.textContent=c[0]; t.textContent=w?Math.round(w.temp)+'°':'날씨'; s.textContent=w?c[1]:''; }
+  if(Date.now()-wxTry>60000){ wxTry=Date.now(); loadWeather(); }
+}
+setInterval(drawDockExtra, 5000); setTimeout(drawDockExtra, 300);
 const DECO_THEME = {note:'📒<i> 공책</i>', chalk:'🟩<i> 칠판</i>', crayon:'🖍️<i> 크레파스</i>'};
 const DECO_FONT = {combo1:'🎈 말랑', combo2:'✏️ 손글씨', combo3:'📖 또박'};
 function drawDecoBar(){
@@ -1789,7 +1803,6 @@ function renderHome(){
   const left=10-(stars%10);
   view.innerHTML=`
     ${admin.msg?`<div class="card msg">💌 ${esc(admin.msg)}</div>`:''}
-    ${weatherHTML()}
     <div class="card hello">
       <div class="big">안녕, ${josa(who,'아','야')}! 오늘은 뭘 공부해 볼까?</div>
       <div class="goal"><i style="width:${pct}%"></i></div>
@@ -1799,7 +1812,7 @@ function renderHome(){
     <div class="subjects">
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small>${subjTodayHTML(k)}</button>`).join('')}
     </div>
-    ${libTileHTML()}${balanceHTML()}
+    ${balanceHTML()}
     <div class="card grasscard">${grassHTML()}</div>
     <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openMom">👩 엄마 모드</button> <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
@@ -3398,6 +3411,8 @@ function adminHTML(){
 
 /* ───── 클릭 처리 ───── */
 const ACT = {
+  wxTile: ()=>{ document.getElementById('setBody').innerHTML=`<div class="wx-pop"><h3>🌤️ 오늘 날씨</h3>${weatherHTML()}<button class="big-btn" data-act="wxClose">닫기</button></div>`; document.getElementById('settings').hidden=false; },
+  wxClose: ()=>{ document.getElementById('settings').hidden=true; },
   reloadApp: async ()=>{
     toast('🔄 새로 불러와요…');
     try{ if(FIREBASE_CONFIG && who && KID_IDS[who]){ clearTimeout(pushTimer); await Promise.race([cloudPushNow(who), new Promise(r=>setTimeout(r,2500))]); } }catch(e){}
@@ -3430,8 +3445,8 @@ const ACT = {
     admView=who; drawSettings();
   },
   bnTab: v=>{ App.bnTab=v; drawBanner(); },
-  bnMove: v=>{ if(App.bnTab==='ja') App.ja=(App.ja+ +v+JA_TRAVEL.length)%JA_TRAVEL.length; else App.en=(App.en+ +v+EN_TRAVEL.length)%EN_TRAVEL.length; drawBanner(); },
-  bnSay: ()=>{ if(App.bnTab==='ja') speak(JA_TRAVEL[App.ja][0].replace(/ \/ /g,'、'),'ja'); else speak(EN_TRAVEL[App.en][0]); },
+  bnMove: (v,el)=>{ if(el.dataset.k==='ja') App.ja=(App.ja+ +v+JA_TRAVEL.length)%JA_TRAVEL.length; else App.en=(App.en+ +v+EN_TRAVEL.length)%EN_TRAVEL.length; drawBanner(); },
+  bnSay: (v,el)=>{ if(el.dataset.k==='ja') speak(JA_TRAVEL[App.ja][0].replace(/ \/ /g,'、'),'ja'); else speak(EN_TRAVEL[App.en][0]); },
   wxLoc: ()=>{ if(!navigator.geolocation){ toast('이 기기는 위치를 알 수 없어요'); return; }
     navigator.geolocation.getCurrentPosition(p=>{ wxSet('loc',{lat:+p.coords.latitude.toFixed(3), lon:+p.coords.longitude.toFixed(3), name:'내 위치'}); loadWeather(true); toast('📍 내 위치 날씨로 바꿨어요'); }, ()=>toast('위치를 쓸 수 없어서 서울 날씨를 보여 줘요')); },
   provMove: v=>{ App.prov=(App.prov+ +v+PROVERBS.length)%PROVERBS.length; App.provOpen=false; drawBanner(); },
