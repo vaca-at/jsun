@@ -726,6 +726,38 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   .subj .ico{width:2.3rem;height:2.3rem;font-size:1.2rem}
   .subj b{font-size:1.1rem}
 }
+/* 쉬어가는 코너: 속담(미색) · 여행 일본어(분홍) · 여행 영어(하늘) */
+.rc{margin-top:26px}
+.rc-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;margin:0 2px 12px}
+.rc-head b{font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw);font-size:1.2rem}
+.rc-head span{font-size:.85rem;color:var(--sub)}
+.rc-card{position:relative;overflow:hidden;padding:18px 20px;border-radius:var(--rad);background:var(--rc-bg);border:1px solid var(--rc-line)}
+.rc-prov{--rc-bg:#FFF8EA;--rc-line:#F2E2BF;--rc-c:#B7791F}
+.rc-ja{--rc-bg:#FFF3F4;--rc-line:#F7D8DD;--rc-c:#D6435A}
+.rc-en{--rc-bg:#F1F5FF;--rc-line:#D8E2FA;--rc-c:#2F66D8}
+.rc-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.rc-chip{display:inline-flex;align-items:center;gap:6px;padding:.24rem .65rem;border-radius:999px;background:#fff;border:1px solid var(--rc-line);color:var(--rc-c);font-size:.78rem;font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw);white-space:nowrap}
+.rc-chip i{width:6px;height:6px;border-radius:50%;background:var(--rc-c)}
+.rc-nav{display:flex;align-items:center;gap:2px;font-size:.8rem;color:var(--sub);font-variant-numeric:tabular-nums}
+.rc-nav span{min-width:3.6em;text-align:center}
+.rc-nav button{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#fff;border:1px solid var(--rc-line);color:var(--rc-c);font-size:15px}
+.rc-q{position:relative;margin:16px 0 4px;padding-left:36px;font-family:var(--font-p),var(--font),sans-serif;font-weight:normal;font-size:1.9rem;line-height:1.3;color:var(--ink);word-break:keep-all}
+.rc-q::before{content:"\201C";position:absolute;left:0;top:-.28em;font-family:Georgia,'Times New Roman',serif;font-size:3.4rem;line-height:1;color:var(--rc-c);opacity:.4}
+.rc-m{padding-left:36px;color:var(--sub);font-size:.98rem;line-height:1.55}
+.rc-ex{margin:12px 0 0 36px;padding:10px 13px;border-radius:12px;background:#fff;border:1px dashed var(--rc-line);font-size:.92rem;line-height:1.6}
+.rc-ex b{display:block;margin-bottom:2px;font-size:.74rem;color:var(--rc-c);font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw)}
+.rc-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.rc-prov .rc-acts{padding-left:36px}
+.rc-act{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;background:#fff;border:1px solid var(--rc-line);color:var(--ink);font-size:.86rem;font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw)}
+.rc-act.main{background:var(--rc-c);border-color:var(--rc-c);color:#fff}
+.rc-act:active,.rc-nav button:active{transform:scale(.95)}
+.rc-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.rc-ph{display:flex;align-items:flex-start;gap:12px;margin-top:14px}
+.rc-e{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:#fff;border:1px solid var(--rc-line);font-size:1.6rem;line-height:1}
+.rc-t{font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw);font-size:1.3rem;line-height:1.3;word-break:keep-all}
+.rc-r{margin-top:3px;color:var(--rc-c);font-size:.9rem}
+.rc-mm{margin-top:1px;color:var(--sub);font-size:.88rem}
+@media (max-width:640px){ .rc-pair{grid-template-columns:1fr} .rc-q{font-size:1.55rem} }
 /* ═════════ 새 디자인 끝 ═════════ */
 </style>
 </head>
@@ -2224,30 +2256,29 @@ function renderClosed(s, party){
 }
 function provHTML(){
   const [p,m]=PROVERBS[App.prov];
+  const SPK='<svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5H4Z"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+  const nav=(act,k,n,N,what)=>`<div class="rc-nav"><button data-act="${act}"${k?` data-k="${k}"`:''} data-v="-1" aria-label="이전 ${what}">‹</button><span>${n} / ${N}</span><button data-act="${act}"${k?` data-k="${k}"`:''} data-v="1" aria-label="다음 ${what}">›</button></div>`;
   const trav=k=>{ const L=k==='ja'?JA_TRAVEL:EN_TRAVEL, i=k==='ja'?App.ja:App.en, [t,r,mm,e]=L[i];
-    return `<div class="card banner bn-row">
-      <div class="bn-top"><span class="bn-tag">${k==='ja'?'🇯🇵 여행 일본어':'🇺🇸 여행 영어'}</span><span class="bn-tag">${i+1} / ${L.length}</span></div>
-      <div class="bn-p ${k==='en'?'en':''}" ${k==='ja'?'lang="ja"':''}>${e} ${esc(t)}</div>
-      <p class="bn-read">[${r}]</p>
-      <div class="bn-m">${mm}</div>
-      <div class="bn-btns">
-        <button class="pill" data-act="bnMove" data-k="${k}" data-v="-1" aria-label="이전 표현">◀</button>
-        <button class="pill" data-act="bnSay" data-k="${k}">🔊 들어 보기</button>
-        <button class="pill" data-act="bnMove" data-k="${k}" data-v="1" aria-label="다음 표현">▶</button>
-      </div></div>`; };
-  return `<div id="banner"><p class="bn-head">☕ 쉬어가는 코너</p>
-    <div class="card banner bn-row">
-      <div class="bn-top"><span class="bn-tag">📜 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
-      <div class="bn-p">“${p}”</div>
-      <div class="bn-m">${m}</div>
-      ${App.provOpen?`<div class="bn-ex">🧒 이럴 때 써요: ${PROVERB_EX[App.prov]}</div>`:''}
-      <div class="bn-btns">
-        <button class="pill" data-act="provMove" data-v="-1" aria-label="이전 속담">◀</button>
-        <button class="pill" data-act="provSay">🔊 읽어 주기</button>
-        <button class="pill" data-act="provMean">${App.provOpen?'숨기기':'💡 언제 쓸까?'}</button>
-        <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
+    return `<div class="rc-card rc-${k}">
+      <div class="rc-top"><span class="rc-chip"><i></i>${k==='ja'?'여행 일본어':'여행 영어'}</span>${nav('bnMove',k,i+1,L.length,'표현')}</div>
+      <div class="rc-ph"><span class="rc-e" aria-hidden="true">${e}</span><div>
+        <div class="rc-t" ${k==='ja'?'lang="ja"':'lang="en"'}>${esc(t)}</div>
+        <div class="rc-r">[${r}]</div>
+        <div class="rc-mm">${mm}</div></div></div>
+      <div class="rc-acts"><button class="rc-act main" data-act="bnSay" data-k="${k}">${SPK} 들어 보기</button></div>
+    </div>`; };
+  return `<section id="banner" class="rc">
+    <div class="rc-head"><b>쉬어가는 코너</b><span>하루 한 번, 가볍게 읽고 들어 봐요</span></div>
+    <div class="rc-card rc-prov">
+      <div class="rc-top"><span class="rc-chip"><i></i>오늘의 속담</span>${nav('provMove','',App.prov+1,PROVERBS.length,'속담')}</div>
+      <div class="rc-q">${p}</div>
+      <div class="rc-m">${m}</div>
+      ${App.provOpen?`<div class="rc-ex"><b>이럴 때 써요</b>${PROVERB_EX[App.prov]}</div>`:''}
+      <div class="rc-acts">
+        <button class="rc-act main" data-act="provSay">${SPK} 읽어 주기</button>
+        <button class="rc-act" data-act="provMean">${App.provOpen?'숨기기':'언제 쓸까?'}</button>
       </div></div>
-    ${trav('ja')}${trav('en')}</div>`;
+    <div class="rc-pair">${trav('ja')}${trav('en')}</div></section>`;
 }
 /* ───── 오늘 날씨 · 시간 (Open-Meteo, 키 없이 쓰는 무료 날씨. 30분마다 새로 받아요) ───── */
 const WX_DEF = {lat:37.5665, lon:126.978, name:'서울'};
