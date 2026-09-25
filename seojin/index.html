@@ -568,7 +568,7 @@ const store = {
 /* ───── 데이터 ───── */
 const SUBJ = {
   korean:{name:'국어', ico:'📖', desc:'긴 글 읽고 4문제 · 관용 표현 · 헷갈리는 말'},
-  school:{name:'수학', ico:'📐', desc:'초6 심화 · 중1 1학기 · 중1 2학기'},
+  school:{name:'수학', ico:'📐', desc:'초6 심화 · 중1 · 중2 (1 · 2학기)'},
   eng:{name:'영어', ico:'🔤', desc:'1단계 · 2단계 · 3단계 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:'🏯', desc:'동화처럼 읽는 이야기책 · 9급 · 8급'}
@@ -1886,7 +1886,7 @@ function keypad(mode, act='key'){
     mode==='n'?`<button class="key fn del" data-act="${act}" data-v="del">⌫</button><button class="key fn ok" style="grid-column:span 2" data-act="${act}" data-v="ok">확인</button>`:''}</div>`;
 }
 
-/* ───── 수학 (초6 심화 · 중1 1학기 · 중1 2학기) ─────
+/* ───── 수학 (초6 심화 · 중1 1 · 2학기 · 중2 1 · 2학기) ─────
    문제 형식: 숫자 입력(type:'num', html 안의 □ 자리에 답 입력) 또는 고르기(type:'choice') */
 const numQ = (html, ans, explain='') => ({type:'num', html, ans, explain});
 const choQ = (html, ans, others, explain='', cls='') => {
@@ -2391,7 +2391,7 @@ function renderSchool(){
   if(App.smode!=='learn') App.smode='quiz';
   const keys=[...MLV[App.mlv].keys,'mix_'+App.mlv];
   view.innerHTML=`
-    <div class="lvtabs" style="grid-template-columns:repeat(3,1fr)">${Object.entries(MLV).map(([k,L])=>`<button class="lvtab ${App.mlv===k?'on':''}" data-act="mlv" data-v="${k}"><b>${L.name}</b><small>${L.sub}</small></button>`).join('')}</div>
+    <div class="lvtabs" style="grid-template-columns:repeat(auto-fit,minmax(6.6rem,1fr))">${Object.entries(MLV).map(([k,L])=>`<button class="lvtab ${App.mlv===k?'on':''}" data-act="mlv" data-v="${k}"><b>${L.name}</b><small>${L.sub}</small></button>`).join('')}</div>
     <div class="seg small">${keys.map(k=>pill('unit',k,UNITS[k].name+(!isMix(k)?weakTag('school',UNITS[k].short):''),App.unit)).join('')}</div>
     <div class="seg" style="display:grid;grid-template-columns:repeat(2,1fr)">
       ${isMix(App.unit)?'':pill('smode','learn','📖 설명',App.smode)}${pill('smode','quiz','✏️ 퀴즈 10문제',App.smode)}
@@ -2503,6 +2503,293 @@ const LESSONS = {
     lcard('상대도수', `<div class="ls-big" ${SM}>상대도수 = 그 계급의 도수 ÷ 도수의 총합</div><p>상대도수의 총합은 항상 <b>1</b>이에요. 전체 수가 다른 두 집단을 비교할 때 좋아요.</p>`)
   ]
 };
+/* ════════ 중2 1학기 · 중2 2학기 (4 · 5단계) ════════ */
+/* 윗첨자 지수: supN(12) → ¹² (1은 안 써요) */
+const supN = n => n===1 ? '' : String(n).split('').map(d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[d]).join('');
+/* 단항식 글자: mono(-6,3,4) → −6x³y⁴ */
+const mono = (c, ex, ey=0) => { const v=(ex?'x'+supN(ex):'')+(ey?'y'+supN(ey):''); if(!v) return sgn(c); return (c===1?'':c===-1?MN:sgn(c))+v; };
+/* 두 문자 일차식: lin2(1,-7) → x − 7y */
+const lin2 = (a,b) => { let s=a===0?'':(a===1?'':a===-1?MN:sgn(a))+'x'; if(b) s += s ? (b>0?' + ':` ${MN} `)+(Math.abs(b)===1?'':Math.abs(b))+'y' : (b===1?'':b===-1?MN:sgn(b))+'y'; return s||'0'; };
+/* 분수 n/d 를 소수로: 정수 부분, 순환하지 않는 부분, 순환마디 */
+function decExp(n,d){
+  const ip=Math.floor(n/d); let r=n%d; const digits=[], seen={};
+  while(r && seen[r]===undefined){ seen[r]=digits.length; r*=10; digits.push(Math.floor(r/d)); r%=d; }
+  if(!r) return {ip, pre:digits.join(''), rep:''};
+  const k=seen[r]; return {ip, pre:digits.slice(0,k).join(''), rep:digits.slice(k).join('')};
+}
+/* 순환마디의 처음과 끝 숫자 위에 점 */
+const dotRep = rep => rep.length===1 ? rep+'̇' : rep[0]+'̇'+rep.slice(1,-1)+rep.slice(-1)+'̇';
+const repStr = (ip,pre,rep) => `${ip}.${pre}${dotRep(rep)}`;
+const onlyTwoFive = d => { while(d%2===0) d/=2; while(d%5===0) d/=5; return d===1; };
+
+/* 4-1. 유리수와 순환소수 */
+function genRep(){
+  const t=rnd(1,5);
+  if(t===1){ let n,d,e; do{ d=one([3,6,7,9,11,12,15,18,22,27,33,37]); n=rnd(1,d-1); e=decExp(n,d); }while(gcd(n,d)>1 || !e.rep);
+    const alt=[e.rep.length>1?e.rep.slice(1)+e.rep[0]:e.rep+e.rep, e.pre+e.rep, e.rep[0]==='0'?'1':e.rep[0]+'0', String(n)].filter(x=>x!==e.rep);
+    return choQ(`<span class="big">${fr(n,d)}</span>를 소수로 나타낼 때 순환마디는?`, e.rep, alt, `${n} ÷ ${d} = ${e.ip}.${e.pre}${e.rep}${e.rep}… → 되풀이되는 부분은 ${e.rep}`, 'short'); }
+  if(t===2){ let n,d; do{ d=one([4,6,8,12,14,15,16,18,20,21,24,25,30,35,40,45,50,60,75,80]); n=rnd(1,d-1); }while(n%d===0);
+    const g=gcd(n,d), dd=d/g, fin=onlyTwoFive(dd);
+    return choQ(`<span class="big">${fr(n,d)}</span>를 소수로 나타내면?`, fin?'유한소수':'순환소수', ['유한소수','순환소수'], `먼저 약분하면 ${fStr(n,d,false)} → 분모의 소인수가 ${fin?'2나 5뿐이라 유한소수':'2, 5 말고도 있어서 순환소수'}예요.`, 'short'); }
+  if(t===3){ const kind=rnd(0,1); let pre='', rep;
+    if(kind===0){ rep=String(rnd(1,98)).padStart(rnd(1,2),'0'); if(/^(\d)\1$/.test(rep)) rep=rep[0]; }
+    else { pre=String(rnd(1,9)); rep=String(rnd(0,9)); if(rep===pre) rep=String((+rep+1)%10); }
+    const num=+(pre+rep)-(+pre||0), den=+('9'.repeat(rep.length)+'0'.repeat(pre.length)), ans=fStr(num,den,false);
+    return choQ(`순환소수 <span class="big">${repStr(0,pre,rep)}</span>를 기약분수로 나타내면?`, ans, [fStr(+(pre+rep),den,false), fStr(num,den*10,false), fStr(+(pre+rep), +('9'.repeat(pre.length+rep.length)),false), fStr(num+1,den,false)],
+      pre?`(${pre+rep} − ${pre}) ÷ ${den} = ${num}/${den} = ${ans}`:`순환마디 ${rep} ÷ ${den} = ${ans}`); }
+  if(t===4){ const p=one([3,7,9,11,13,21]), i=rnd(0,2), j=rnd(0,2); let n; do{ n=rnd(1,20); }while(gcd(n,p)>1 || gcd(n,2*5)>1);
+    const den=(2**i)*(5**j)*p, fac=[i?`2${supN(i)}`:'',j?`5${supN(j)}`:'',String(p)].filter(Boolean).join(' × ');
+    return numQ(`<span class="big">${fr(n, den)}</span> × x 가 유한소수가 되게 하는<br>가장 작은 자연수 x는 □`, p, `${den} = ${fac} → 분모에 남는 2, 5가 아닌 소인수 ${p}을(를) 없애야 해요.`); }
+  return oxQ([['모든 순환소수는 유리수예요.','O'],['무한소수는 모두 순환소수예요.','X'],['정수가 아닌 유리수는 유한소수나 순환소수로 나타낼 수 있어요.','O'],['0.9̇ 는 1과 같아요.','O'],['기약분수의 분모에 3이 있으면 항상 유한소수예요.','X'],['유한소수는 모두 분수로 나타낼 수 있어요.','O']]);
+}
+/* 4-2. 식의 계산 */
+function genPolyE(){
+  const t=rnd(1,6);
+  if(t===1){ const m=rnd(2,6), n=rnd(2,5);
+    return one([
+      ()=>numQ(`<span class="big">a${supN(m)} × a${supN(n)} = a<sup>□</sup></span>`, m+n, `밑이 같으면 지수끼리 더해요: ${m} + ${n}`),
+      ()=>numQ(`<span class="big">(a${supN(m)})${supN(n)} = a<sup>□</sup></span>`, m*n, `거듭제곱의 거듭제곱은 지수끼리 곱해요: ${m} × ${n}`),
+      ()=>numQ(`<span class="big">a${supN(m+n)} ÷ a${supN(n)} = a<sup>□</sup></span>`, m, `나눗셈은 지수끼리 빼요: ${m+n} − ${n}`),
+      ()=>{ const c=rnd(2,3), e=rnd(2,3); return numQ(`<span class="big">(${c}x)${supN(e)} = □x${supN(e)}</span>`, c**e, `${c}${supN(e)} = ${c**e}`); }
+    ])(); }
+  if(t===2){ const a=rndNZ(-5,5), b=rndNZ(-5,5), p=rnd(1,3), q=rnd(0,2), r=rnd(1,3), s=rnd(1,3);
+    const ans=mono(a*b,p+r,q+s);
+    return choQ(`<span class="big">(${mono(a,p,q)}) × (${mono(b,r,s)})</span><br>계산한 값은?`, ans, [mono(-a*b,p+r,q+s), mono(a*b,p*r,q+s), mono(a+b,p+r,q+s), mono(a*b,p+r+1,q+s)], '계수는 계수끼리, 같은 문자는 지수끼리 더해요.', 'short'); }
+  if(t===3){ const c=rndNZ(-4,5), k=rnd(2,4), p=rnd(1,3), q=rnd(1,3), r=rnd(0,2), s=rnd(0,2);
+    const ans=mono(c,p,q);
+    return choQ(`<span class="big">${mono(c*k,p+r,q+s)} ÷ ${mono(k,r,s)}</span><br>계산한 값은?`, ans, [mono(-c,p,q), mono(c,p+r,q), mono(c*k,p,q), mono(c,p,q+s+1)], '나눗셈은 역수를 곱하듯, 계수끼리 나누고 지수끼리 빼요.', 'short'); }
+  if(t===4){ let a,b,c,d; do{ a=rndNZ(-5,6); b=rndNZ(-6,6); c=rndNZ(-5,6); d=rndNZ(-6,6); }while(a===c||b===d);
+    return choQ(`<span class="big">(${lin2(a,b)}) − (${lin2(c,d)})</span><br>를 간단히 하면?`, lin2(a-c,b-d), [lin2(a+c,b-d), lin2(a-c,b+d), lin2(a+c,b+d)], '괄호 앞의 −는 괄호 안 부호를 모두 바꿔요.', 'short'); }
+  if(t===5){ const a=rnd(2,4), b=rndNZ(-5,5), c=rnd(1,3), d=rndNZ(-5,5);  // a·x(x+b) − c·x(x+d)
+    const A=a-c, B=a*b-c*d; const q=(A===0?'':(A===1?'':A===-1?MN:sgn(A))+'x²')+(B? (A? (B>0?' + ':` ${MN} `)+(Math.abs(B)===1?'':Math.abs(B))+'x' : lin(B,0)) : '');
+    const w=(A2,B2)=>(A2===0?'':(A2===1?'':A2===-1?MN:sgn(A2))+'x²')+(B2? (A2? (B2>0?' + ':` ${MN} `)+(Math.abs(B2)===1?'':Math.abs(B2))+'x' : lin(B2,0)) : '') || '0';
+    return choQ(`<span class="big">${a}x(${lin(1,b)}) − ${c===1?'':c}x(${lin(1,d)})</span><br>를 간단히 하면?`, q||'0', [w(A,a*b+c*d), w(a+c,B), w(A,-B)], '분배법칙으로 괄호를 풀고 동류항끼리 모아요.', 'short'); }
+  const a=one([2,3,4,5]), b=one([-1,1]), c=rnd(2,15);
+  return choQ(`등식 <span class="big">${lin2(a,b)} = ${c}</span>를 y에 대하여 풀면?`, `y = ${lin(-a*b,c*b)}`, [`y = ${lin(a*b,c*b)}`, `y = ${lin(-a*b,-c*b)}`, `y = ${lin(a,c)}`], 'y만 남기고 나머지를 이항해요.', 'short');
+}
+/* 4-3. 일차부등식 */
+function genIneq(){
+  const t=rnd(1,5);
+  const sol=(op,v)=>`x ${op} ${sgn(v)}`, flip={'>':'<','<':'>','≥':'≤','≤':'≥'};
+  if(t===1||t===5){ const a=one([-5,-4,-3,-2,2,3,4,5]), x0=rnd(-6,6), op=one(['>','<','≥','≤']);
+    let lhs, rhs, why;
+    if(t===1){ const b=rnd(-9,9); lhs=lin(a,b); rhs=sgn(a*x0+b); why=`${lin(a,0)} ${op} ${sgn(a*x0)}`; }
+    else { const k=rnd(2,4), m=rndNZ(-4,4), c=a+k; // k(x+m) op (c)x + d  → (k-c)x op d-km, k-c=-a
+      const d=-a*x0+k*m; lhs=`${k}(${lin(1,m)})`; rhs=lin(c,d); why=`괄호를 풀고 이항하면 ${lin(k-c,0)} ${op} ${sgn(d-k*m)}`; }
+    const aa = t===1 ? a : -a, fo = aa<0 ? flip[op] : op;
+    return choQ(`부등식 <span class="big">${lhs} ${op} ${rhs}</span>의 해는?`, sol(fo,x0), [sol(flip[fo],x0), sol(fo,-x0), sol(flip[fo],-x0), sol(fo,x0+1)], `${why} → ${aa<0?'음수로 나누면 부등호 방향이 바뀌어요':'양수로 나누면 방향은 그대로'}: ${sol(fo,x0)}`, 'short'); }
+  if(t===2){ const a=rnd(2,5), k=rnd(2,8), b=rnd(-6,6), c=a*k+b;
+    return numQ(`부등식 <span class="big">${lin(a,b)} ≤ ${c}</span>을(를) 만족하는<br>자연수 x는 모두 □개`, k, `${lin(a,0)} ≤ ${c-b} → x ≤ ${k} → 1부터 ${k}까지`); }
+  if(t===3) return oxQ([['a < b 이면 a − 3 < b − 3 이에요.','O'],['a < b 이면 −2a > −2b 예요.','O'],['a < b 이면 a ÷ (−1) < b ÷ (−1) 이에요.','X'],['a < b 이면 3a < 3b 예요.','O'],['양변에 음수를 곱하면 부등호의 방향이 바뀌어요.','O'],['x − 2 > 5 의 해는 x > 3 이에요.','X']]);
+  const p1=one([300,400,500,600]), p2=p1+one([200,300,400]), N=rnd(8,15), k=rnd(2,N-2), B=p1*(N-k)+p2*k+rnd(0,(p2-p1)/100-1)*100;
+  return numQ(`한 개에 ${p1}원인 사탕과 ${p2}원인 초콜릿을 합쳐서 ${N}개 사려고 해요.<br>전체 값을 ${B.toLocaleString()}원 이하로 하려면 초콜릿은 최대 □개`, k, `초콜릿을 x개라 하면 ${p1}(${N} − x) + ${p2}x ≤ ${B} → ${p2-p1}x ≤ ${B-p1*N}`);
+}
+/* 4-4. 연립일차방정식 */
+function genSys(){
+  const t=rnd(1,6);
+  if(t===1){ const x=rnd(-6,9), y=rnd(-6,9), ask=rnd(0,1);
+    return numQ(`<span class="big">x + y = ${sgn(x+y)}, x − y = ${sgn(x-y)}</span><br>일 때 ${ask?'y':'x'} = □`, ask?y:x, `두 식을 ${ask?'빼면 2y':'더하면 2x'} = ${sgn(ask?2*y:2*x)}`); }
+  if(t===2){ let a,b,d,e; do{ a=rndNZ(-4,5); b=rndNZ(-4,5); d=rndNZ(-4,5); e=rndNZ(-4,5); }while(a*e-b*d===0);
+    const x=rnd(-5,6), y=rnd(-5,6), ask=rnd(0,1);
+    return numQ(`<span class="big">${lin2(a,b)} = ${sgn(a*x+b*y)}<br>${lin2(d,e)} = ${sgn(d*x+e*y)}</span><br>연립방정식의 해에서 ${ask?'y':'x'} = □`, ask?y:x, `한 문자를 없애도록 두 식의 계수를 맞춰 더하거나 빼요. 해: x = ${sgn(x)}, y = ${sgn(y)}`); }
+  if(t===3){ const x=rndNZ(-4,4), y=rndNZ(-4,4), a=rndNZ(-5,6), c=rnd(2,5);
+    return numQ(`연립방정식 <span class="big">ax + ${c}y = ${sgn(a*x+c*y)}, x + y = ${sgn(x+y)}</span>의 해가<br>x = ${sgn(x)}, y = ${sgn(y)}일 때, 상수 a의 값은 □`, a, `해를 첫째 식에 넣으면 ${par(x)}a + ${c*y<0?'('+MN+(-c*y)+')':c*y} = ${sgn(a*x+c*y)}`); }
+  if(t===4){ const h=rnd(8,20), pig=rnd(2,h-2), legs=2*(h-pig)+4*pig;
+    return numQ(`닭과 돼지가 모두 ${h}마리이고, 다리는 모두 ${legs}개예요.<br>돼지는 □마리`, pig, `닭 x, 돼지 y: x + y = ${h}, 2x + 4y = ${legs} → y = ${pig}`); }
+  if(t===5){ const a=rnd(20,60), b=rnd(5,a-5);
+    return numQ(`두 수의 합이 ${a+b}이고 차가 ${a-b}예요.<br>큰 수는 □`, a, `x + y = ${a+b}, x − y = ${a-b} → 2x = ${2*a}`); }
+  const a=rndNZ(-3,4), b=rndNZ(-3,4), c=rnd(1,9), k=rnd(2,3), kind=rnd(0,2);
+  const eq2 = kind===0 ? `${lin2(a*k,b*k)} = ${sgn(c*k)}` : kind===1 ? `${lin2(a*k,b*k)} = ${sgn(c*k+1)}` : `${lin2(a,-b)} = ${sgn(c)}`;
+  return choQ(`<span class="big">${lin2(a,b)} = ${sgn(c)}<br>${eq2}</span><br>연립방정식의 해는?`, ['해가 무수히 많아요','해가 없어요','해가 한 쌍이에요'][kind], ['해가 무수히 많아요','해가 없어요','해가 한 쌍이에요'], '둘째 식이 첫째 식의 몇 배인지 보세요. 완전히 같으면 무수히 많고, x · y 계수만 같으면 해가 없어요.', 'short');
+}
+/* 4-5. 일차함수 */
+function genLinF(){
+  const t=rnd(1,8);
+  if(t===1){ const a=one([-4,-3,-2,-1,1,2,3,4]), x1=rnd(-4,3), dx=rnd(1,4), b=rnd(-5,5), y1=a*x1+b;
+    return numQ(`두 점 ${pt(x1,y1)}, ${pt(x1+dx,y1+a*dx)}를 지나는 직선의 기울기는 □`, a, `(y의 증가량) ÷ (x의 증가량) = ${sgn(a*dx)} ÷ ${dx}`); }
+  if(t===2){ const a=one([-4,-3,-2,2,3,4]), r=rndNZ(-5,5), b=-a*r;
+    return Math.random()<0.5 ? numQ(`<span class="big">y = ${lin(a,b)}</span>의 그래프의 x절편은 □`, r, `y = 0 을 넣으면 ${lin(a,b)} = 0 → x = ${sgn(r)}`)
+      : numQ(`<span class="big">y = ${lin(a,b)}</span>의 그래프의 y절편은 □`, b, 'x = 0 일 때의 y 값이에요.'); }
+  if(t===3){ const a=one([-3,-2,-1,1,2,3]), b=rnd(-5,5), x1=rnd(-3,2), x2=x1+rnd(1,3);
+    return choQ(`두 점 ${pt(x1,a*x1+b)}, ${pt(x2,a*x2+b)}를 지나는 직선의 식은?`, `y = ${lin(a,b)}`, [`y = ${lin(-a,b)}`, `y = ${lin(a,-b===b?b+1:-b)}`, `y = ${lin(a+1,b-x1)}`], `기울기 ${sgn(a)}를 먼저 구하고, 한 점을 넣어 y절편을 구해요.`, 'short'); }
+  if(t===4){ const a=one([-3,-2,2,3,4]), p=rndNZ(-4,4), q=rnd(-6,6);
+    return numQ(`<span class="big">y = ${lin(a,rnd(1,5))}</span>의 그래프와 평행하고<br>점 ${pt(p,q)}를 지나는 직선의 y절편은 □`, q-a*p, `평행하면 기울기가 같아요: y = ${lin(a,0)} + b 에 점을 넣으면 b = ${sgn(q)} − ${par(a*p)}`); }
+  if(t===5) return oxQ([['y = −2x + 1의 그래프는 오른쪽 아래로 향해요.','O'],['y = 2x + 1과 y = 2x − 3의 그래프는 평행해요.','O'],['y = 3의 그래프는 x축에 평행해요.','O'],['x = 2는 일차함수예요.','X'],['기울기가 같고 y절편도 같으면 두 그래프는 일치해요.','O'],['y = x²은 일차함수예요.','X']]);
+  if(t===6){ let a,c; do{ a=rndNZ(-3,3); c=rndNZ(-3,3); }while(a===c); const x=rnd(-4,4), y0=rnd(-5,5), b=y0-a*x, d=y0-c*x;
+    return numQ(`두 직선 <span class="big">y = ${lin(a,b)}</span>, <span class="big">y = ${lin(c,d)}</span>의<br>교점의 x좌표는 □`, x, `교점 = 연립방정식의 해: ${lin(a,b)} = ${lin(c,d)} → x = ${sgn(x)}`); }
+  if(t===7){ const V=rnd(20,50), r=rnd(2,4), m=rnd(2,Math.floor(V/r)-1);
+    return numQ(`물이 ${V} L 들어 있는 통에서 1분에 ${r} L씩 물이 빠져요.<br>${m}분 뒤에 남은 물은 □ L`, V-r*m, `y = ${V} − ${r}x 에 x = ${m}`); }
+  const a=one([-3,-2,2,3]), k=rndNZ(-5,5);
+  return numQ(`<span class="big">y = ${lin(a,0)}</span>의 그래프를 y축 방향으로 ${sgn(k)}만큼<br>평행이동한 그래프의 y절편은 □`, k, `y = ${lin(a,k)}`);
+}
+/* 5-1. 삼각형의 성질 */
+function genTri2(){
+  const t=rnd(1,6);
+  if(t===1){ const B=5*rnd(9,17), A=180-2*B;
+    return numQ(`${polySVG(triPts(B,B),{tk:[0,1,1],al:['','','A']})}AB = AC인 이등변삼각형에서 ∠B의 외각이 ${180-B}°이면<br>∠A = □°`, A, `∠B = ${B}°, ∠C = ∠B → ∠A = 180 − ${B} × 2`); }
+  if(t===2){ const [q,a]=one([['빗변의 길이와 한 예각의 크기가 각각 같은 두 직각삼각형','RHA 합동'],['빗변의 길이와 다른 한 변의 길이가 각각 같은 두 직각삼각형','RHS 합동']]);
+    return choQ(`${q}은 어떤 합동일까요?`, a, ['RHA 합동','RHS 합동','SAS 합동','AAA 합동'], 'R: 직각(Right), H: 빗변(Hypotenuse), A: 각, S: 변', 'short'); }
+  if(t===3){ const k=rnd(1,6); const [a,b,c]=one([[3,4,5],[5,12,13],[6,8,10],[8,15,17]]).map(v=>v*k);
+    return c%2 ? numQ(`세 변이 ${a}, ${b}, ${c}인 직각삼각형의 외접원의 지름은 □`, c, '직각삼각형의 외심은 빗변의 중점이라, 빗변이 외접원의 지름이에요.')
+      : numQ(`세 변이 ${a}, ${b}, ${c}인 직각삼각형의 외접원의 반지름은 □`, c/2, `직각삼각형의 외심은 빗변의 중점 → 반지름 = ${c} ÷ 2`); }
+  if(t===4){ const A=2*rnd(15,40);
+    return Math.random()<0.5 ? numQ(`점 O가 △ABC의 외심이고 ∠A = ${A}°일 때, ∠BOC = □°`, 2*A, `외심에서 ∠BOC = 2∠A`)
+      : numQ(`점 I가 △ABC의 내심이고 ∠A = ${A}°일 때, ∠BIC = □°`, 90+A/2, `내심에서 ∠BIC = 90° + ½∠A = 90 + ${A/2}`); }
+  if(t===5){ const k=rnd(1,4); const [a,b,c]=one([[3,4,5],[5,12,13],[8,15,17]]).map(v=>v*k);
+    return numQ(`세 변이 ${a}, ${b}, ${c}인 직각삼각형의 내접원의 반지름은 □`, (a+b-c)/2, `넓이 ${a*b/2} = ½ × r × (${a} + ${b} + ${c}) → r = ${(a+b-c)/2}`); }
+  return oxQ([['외심은 세 변의 수직이등분선의 교점이에요.','O'],['내심은 세 내각의 이등분선의 교점이에요.','O'],['둔각삼각형의 외심은 삼각형의 안쪽에 있어요.','X'],['내심에서 세 변까지의 거리는 모두 같아요.','O'],['외심에서 세 꼭짓점까지의 거리는 모두 같아요.','O'],['이등변삼각형의 꼭지각의 이등분선은 밑변을 수직이등분해요.','O']]);
+}
+/* 5-2. 사각형의 성질 */
+function genQuad2(){
+  const t=rnd(1,6);
+  if(t===1){ let x,p,q,c,d; do{ x=rnd(10,40); p=rnd(1,3); q=p+rnd(1,2); c=rnd(-20,40); d=p*x+c-q*x; }while(p*x+c<30||p*x+c>150);
+    return numQ(`평행사변형 ABCD에서 ∠A = (${lin(p,c)})°, ∠C = (${lin(q,d)})°예요.<br>x의 값은 □`, x, `평행사변형의 대각은 크기가 같아요: ${lin(p,c)} = ${lin(q,d)}`); }
+  if(t===2){ let x,p,q,c,d; do{ x=rnd(2,9); p=rnd(1,2); q=p+rnd(1,2); c=rnd(-3,8); d=p*x+c-q*x; }while(p*x+c<3);
+    return numQ(`평행사변형 ABCD의 두 대각선이 점 O에서 만나요.<br>BO = ${lin(p,c)}, DO = ${lin(q,d)}일 때 x = □`, x, `평행사변형의 두 대각선은 서로를 이등분해요: BO = DO`); }
+  if(t===3) return choQ('다음 중 평행사변형이 되는 조건이 <b style="font-weight:normal">아닌</b> 것은?', '한 쌍의 대변이 평행하고, 다른 한 쌍의 대변의 길이가 같다', ['두 쌍의 대변이 각각 평행하다','두 쌍의 대각의 크기가 각각 같다','두 대각선이 서로를 이등분한다','한 쌍의 대변이 평행하고 그 길이가 같다'], '‘평행’과 ‘길이가 같음’은 같은 한 쌍의 대변이어야 해요. 등변사다리꼴을 떠올려 보세요.', 'words');
+  if(t===4){ const [q,a]=one([['두 대각선의 길이가 같고, 서로를 수직이등분하는 사각형','정사각형'],['두 대각선이 서로를 수직이등분하는 사각형','마름모'],['두 대각선의 길이가 같고, 서로를 이등분하는 사각형','직사각형'],['두 대각선이 서로를 이등분하는 사각형','평행사변형']]);
+    return choQ(`${q}으로 가장 알맞은 것은?`, a, ['정사각형','마름모','직사각형','평행사변형','등변사다리꼴'], '', 'short'); }
+  if(t===5){ const S=2*rnd(6,40);
+    return one([
+      ()=>numQ(`평행사변형 ABCD의 넓이가 ${S} cm²예요. 대각선 AC로 나눈 △ABC의 넓이는 □ cm²`, S/2, '대각선은 평행사변형을 넓이가 같은 두 삼각형으로 나눠요.'),
+      ()=>numQ(`AD ∥ BC인 사다리꼴 ABCD에서 △ABC의 넓이가 ${S} cm²이면<br>△DBC의 넓이는 □ cm²`, S, '밑변 BC가 같고, 평행선 사이라서 높이도 같아요.'),
+      ()=>numQ(`평행사변형 ABCD의 넓이가 ${2*S} cm²예요. 두 대각선의 교점 O에 대하여<br>△OAB의 넓이는 □ cm²`, S/2, '두 대각선이 평행사변형을 넓이가 같은 삼각형 4개로 나눠요.')
+    ])(); }
+  const B=5*rnd(10,16);
+  return Math.random()<0.5 ? numQ(`AD ∥ BC인 등변사다리꼴 ABCD에서 ∠B = ${B}°이면 ∠C = □°`, B, '등변사다리꼴은 아랫변의 양 끝 각의 크기가 같아요.')
+    : numQ(`AD ∥ BC인 등변사다리꼴 ABCD에서 ∠B = ${B}°이면 ∠A = □°`, 180-B, `평행선의 같은 쪽 안쪽 각의 합은 180°: 180 − ${B}`);
+}
+/* 5-3. 도형의 닮음 */
+function genSim2(){
+  const t=rnd(1,7);
+  if(t===1){ const m=rnd(2,5), n=rnd(2,6); if(m===n) return genSim2(); const a=m*rnd(1,3), bc=m*rnd(1,4);
+    return numQ(`△ABC ∽ △DEF이고 AB = ${a}, DE = ${a/m*n}, BC = ${bc}예요.<br>EF = □`, bc/m*n, `닮음비 AB : DE = ${m} : ${n} → EF = ${bc} × ${n}/${m}`); }
+  if(t===2){ let m,n; do{ m=rnd(1,4); n=rnd(2,5); }while(m>=n||gcd(m,n)>1); const k=rnd(1,6);
+    return numQ(`닮음비가 ${m} : ${n}인 두 닮은 도형에서 작은 도형의 넓이가 ${m*m*k} cm²이면<br>큰 도형의 넓이는 □ cm²`, n*n*k, `넓이의 비는 ${m}² : ${n}² = ${m*m} : ${n*n}`); }
+  if(t===3){ let m,n; do{ m=rnd(1,3); n=rnd(2,4); }while(m>=n||gcd(m,n)>1); const k=rnd(1,4);
+    return numQ(`닮음비가 ${m} : ${n}인 두 닮은 입체도형에서 작은 도형의 부피가 ${m**3*k} cm³이면<br>큰 도형의 부피는 □ cm³`, n**3*k, `부피의 비는 ${m}³ : ${n}³ = ${m**3} : ${n**3}`); }
+  if(t===4){ const k=rnd(1,4), ad=rnd(2,6)*k, db=rnd(1,5)*k, g=gcd(ad,db), u=rnd(1,3), ae=ad/g*u;
+    return numQ(`△ABC에서 DE ∥ BC이고, AD = ${ad}, DB = ${db}, AE = ${ae}예요.<br>EC = □`, db/g*u, `AD : DB = AE : EC → ${ad} : ${db} = ${ae} : EC`); }
+  if(t===5){ const bc=2*rnd(4,15); return numQ(`△ABC에서 AB, AC의 중점을 각각 M, N이라 할 때, BC = ${bc}이면<br>MN = □`, bc/2, '삼각형 두 변의 중점을 이은 선분은 나머지 변과 평행하고 길이는 그 절반이에요.'); }
+  if(t===6){ const ad=3*rnd(3,12), S=3*rnd(4,30);
+    return Math.random()<0.5 ? numQ(`△ABC의 무게중심을 G, 중선 AD의 길이를 ${ad}라 하면<br>AG = □`, ad/3*2, '무게중심은 중선을 꼭짓점에서부터 2 : 1로 나눠요.')
+      : numQ(`넓이가 ${S} cm²인 △ABC의 무게중심을 G라 하면<br>△GAB의 넓이는 □ cm²`, S/3, '무게중심과 세 꼭짓점을 이으면 넓이가 같은 삼각형 3개로 나뉘어요.'); }
+  const [q,a]=one([['세 쌍의 대응변의 길이의 비가 같아요.','SSS 닮음'],['두 쌍의 대응변의 길이의 비가 같고, 그 끼인각의 크기가 같아요.','SAS 닮음'],['두 쌍의 대응각의 크기가 각각 같아요.','AA 닮음']]);
+  return choQ(`두 삼각형이 다음과 같을 때, 어떤 닮음 조건일까요?<br><b style="font-weight:normal">${q}</b>`, a, ['SSS 닮음','SAS 닮음','AA 닮음','ASA 닮음'], '', 'short');
+}
+/* 5-4. 피타고라스 정리 */
+const PY3 = [[3,4,5],[5,12,13],[8,15,17],[7,24,25],[20,21,29],[9,40,41]];
+function genPyth(){
+  const t=rnd(1,6), k=rnd(1,3), [a,b,c]=one(PY3).map(v=>v*k);
+  if(t===1) return numQ(`직각을 낀 두 변이 ${a}, ${b}인 직각삼각형의 빗변의 길이는 □`, c, `${a}² + ${b}² = ${a*a} + ${b*b} = ${c*c} = ${c}²`);
+  if(t===2) return numQ(`빗변이 ${c}이고 다른 한 변이 ${a}인 직각삼각형의 나머지 한 변의 길이는 □`, b, `${c}² − ${a}² = ${c*c-a*a} = ${b}²`);
+  if(t===3){ const d=rnd(-1,1), s=[a,b,c+d], kind=d===0?'직각삼각형':d<0?'예각삼각형':'둔각삼각형';
+    return choQ(`세 변의 길이가 ${s.join(', ')}인 삼각형은?`, kind, ['직각삼각형','예각삼각형','둔각삼각형'], `가장 긴 변의 제곱 ${s[2]**2} ${d===0?'=':d<0?'<':'>'} 나머지 두 변의 제곱의 합 ${a*a+b*b}`, 'short'); }
+  if(t===4) return numQ(`가로 ${a} cm, 세로 ${b} cm인 직사각형의 대각선의 길이는 □ cm`, c, `대각선² = ${a}² + ${b}²`);
+  if(t===5){ const x1=rnd(-5,3), y1=rnd(-5,3), sx=one([1,-1]), sy=one([1,-1]);
+    return numQ(`두 점 ${pt(x1,y1)}, ${pt(x1+sx*a,y1+sy*b)} 사이의 거리는 □`, c, `가로 ${a}, 세로 ${b}인 직각삼각형의 빗변이에요.`); }
+  return numQ(`빗변이 ${c}이고 한 변이 ${a}인 직각삼각형의 넓이는 □`, a*b/2, `나머지 변 = ${b} → ${a} × ${b} ÷ 2`);
+}
+/* 5-5. 확률 */
+function genProb(){
+  const t=rnd(1,7);
+  if(t===1){ const s=rnd(3,11), cnt=6-Math.abs(7-s);
+    return one([
+      ()=>numQ(`주사위 두 개를 던질 때, 나온 눈의 합이 ${s}인 경우의 수는 □`, cnt, `합이 ${s}가 되는 (앞, 뒤) 쌍을 모두 세어요.`),
+      ()=>{ const [q,a]=one([['짝수',3],['3의 배수',2],['소수',3],['6의 약수',4],['4 이상',3]]); return numQ(`주사위 한 개를 던질 때, ${q}의 눈이 나오는 경우의 수는 □`, a, ''); }
+    ])(); }
+  if(t===2){ const n=rnd(2,4); return Math.random()<0.5 ? numQ(`동전 ${n}개를 동시에 던질 때 나오는 모든 경우의 수는 □`, 2**n, `2를 ${n}번 곱해요.`) : numQ(`동전 ${n-1}개와 주사위 1개를 동시에 던질 때 모든 경우의 수는 □`, 2**(n-1)*6, `${Array(n-1).fill(2).join(' × ')} × 6`); }
+  if(t===3){ const n=rnd(3,6);
+    return one([
+      ()=>numQ(`${n}명을 한 줄로 세우는 경우의 수는 □`, [1,1,2,6,24,120,720][n], `${Array.from({length:n},(_,i)=>n-i).join(' × ')}`),
+      ()=>numQ(`${n}명 중에서 회장 1명, 부회장 1명을 뽑는 경우의 수는 □`, n*(n-1), `${n} × ${n-1}`),
+      ()=>numQ(`${n}명 중에서 대표 2명을 뽑는 경우의 수는 □`, n*(n-1)/2, `순서가 없으니 ${n} × ${n-1} ÷ 2`)
+    ])(); }
+  if(t===4){ const r=rnd(1,7), b=rnd(1,7), w=rnd(0,4), N=r+b+w;
+    return choQ(`주머니에 빨간 공 ${r}개, 파란 공 ${b}개${w?`, 흰 공 ${w}개`:''}가 있어요.<br>한 개를 꺼낼 때 빨간 공일 확률은?`, fStr(r,N,false), [fStr(b,N,false), fStr(r,N+1,false), fStr(r,b+w||1,false), fStr(N-r,N,false)], `(빨간 공의 수) ÷ (전체 공의 수) = ${r}/${N}`, 'short'); }
+  if(t===5){ const n=rnd(2,4); return choQ(`동전 ${n}개를 던질 때, 적어도 한 개는 앞면이 나올 확률은?`, fStr(2**n-1,2**n,false), [fStr(1,2**n,false), fStr(1,2,false), fStr(n,2**n,false)], `1 − (모두 뒷면일 확률) = 1 − 1/${2**n}`, 'short'); }
+  if(t===6){ const s=rnd(4,10), cnt=6-Math.abs(7-s);
+    return choQ(`주사위 두 개를 던질 때, 눈의 합이 ${s}일 확률은?`, fStr(cnt,36,false), [fStr(cnt,6,false), fStr(cnt+1,36,false), fStr(s,36,false)], `합이 ${s}인 경우 ${cnt}가지 ÷ 모든 경우 36가지`, 'short'); }
+  return oxQ([['어떤 사건이 일어날 확률 p는 0 ≤ p ≤ 1이에요.','O'],['반드시 일어나는 사건의 확률은 1이에요.','O'],['절대 일어나지 않는 사건의 확률은 0이에요.','O'],['사건 A가 일어날 확률이 p이면, 일어나지 않을 확률은 1 − p예요.','O'],['동전을 던져 앞면이 3번 연속 나오면, 다음엔 뒷면이 나올 확률이 더 커요.','X']]);
+}
+
+Object.assign(UNITS, {
+  rep:{lv:'m2a', name:'1. 유리수와 순환소수', short:'유리수와 순환소수', desc:'유한소수 · 순환소수, 순환마디, 순환소수를 분수로', gen:genRep},
+  polyE:{lv:'m2a', name:'2. 식의 계산', short:'식의 계산', desc:'지수법칙, 단항식의 곱셈 · 나눗셈, 다항식의 계산', gen:genPolyE},
+  ineq:{lv:'m2a', name:'3. 일차부등식', short:'일차부등식', desc:'부등식의 성질, 일차부등식 풀기, 활용', gen:genIneq},
+  sys:{lv:'m2a', name:'4. 연립일차방정식', short:'연립일차방정식', desc:'가감법 · 대입법, 해의 개수, 활용', gen:genSys},
+  linF:{lv:'m2a', name:'5. 일차함수', short:'일차함수', desc:'기울기와 절편, 직선의 식, 평행 · 교점, 활용', gen:genLinF},
+  tri2:{lv:'m2b', name:'1. 삼각형의 성질', short:'삼각형의 성질', desc:'이등변삼각형, 직각삼각형의 합동, 외심과 내심', gen:genTri2},
+  quad2:{lv:'m2b', name:'2. 사각형의 성질', short:'사각형의 성질', desc:'평행사변형이 되는 조건, 여러 사각형, 넓이', gen:genQuad2},
+  sim2:{lv:'m2b', name:'3. 도형의 닮음', short:'도형의 닮음', desc:'닮음비, 넓이 · 부피의 비, 평행선과 선분, 무게중심', gen:genSim2},
+  pyth:{lv:'m2b', name:'4. 피타고라스 정리', short:'피타고라스 정리', desc:'빗변 구하기, 삼각형 판별, 좌표 위의 거리', gen:genPyth},
+  prob:{lv:'m2b', name:'5. 확률', short:'확률', desc:'경우의 수, 확률의 뜻과 성질', gen:genProb},
+  mix_m2a:{lv:'m2a', name:'🌈 섞어서', short:'중2-1 섞어서', desc:'중2 1학기 다섯 단원 문제가 골고루 나와요'},
+  mix_m2b:{lv:'m2b', name:'🌈 섞어서', short:'중2-2 섞어서', desc:'중2 2학기 다섯 단원 문제가 골고루 나와요'}
+});
+MLV.m2a={name:'🔥 중2 1학기', sub:'순환소수 · 식 · 부등식 · 함수'};
+MLV.m2b={name:'💎 중2 2학기', sub:'삼각형 · 닮음 · 피타고라스 · 확률'};
+['m2a','m2b'].forEach(l=>{ MLV[l].keys=Object.keys(UNITS).filter(k=>UNITS[k].lv===l && !isMix(k)); });
+Object.assign(LESSONS, {
+  rep: ()=>[
+    lcard('유한소수와 무한소수', `<p><b>유한소수</b>: 0.25처럼 소수점 아래 숫자가 끝나는 소수</p><p><b>순환소수</b>: 0.333…처럼 같은 숫자 배열이 끝없이 되풀이되는 소수. 되풀이되는 부분이 <b>순환마디</b>예요.</p><div class="ls-big" ${SM}>0.1818… = 0.${dotRep('18')} &nbsp; 1.2555… = 1.2${dotRep('5')}</div>`),
+    lcard('유한소수가 되는 분수', `<p>기약분수로 나타낸 뒤, <b>분모의 소인수가 2나 5뿐</b>이면 유한소수예요.</p><div class="ls-big" ${SM}>${fr(3,12)} = ${fr(1,4)} → 유한소수 &nbsp; ${fr(1,6)} → 순환소수</div>`),
+    lcard('순환소수를 분수로', `<div class="ls-big" ${SM}>0.${dotRep('7')} = ${fr(7,9)} &nbsp; 0.${dotRep('36')} = ${fr(36,99)} = ${fr(4,11)}</div><div class="ls-big" ${SM}>0.1${dotRep('6')} = ${fr('16 − 1',90)} = ${fr(15,90)} = ${fr(1,6)}</div><p class="sub">분모: 순환마디 숫자 개수만큼 9, 순환하지 않는 숫자 개수만큼 0</p>`)
+  ],
+  polyE: ()=>[
+    lcard('지수법칙', ltable([['곱셈','aᵐ × aⁿ = a^(m+n)'],['거듭제곱','(aᵐ)ⁿ = a^(mn)'],['나눗셈','aᵐ ÷ aⁿ = a^(m−n) (m > n)'],['곱의 거듭제곱','(ab)ⁿ = aⁿbⁿ']])),
+    lcard('단항식의 곱셈 · 나눗셈', `<div class="ls-big" ${SM}>(3x²y) × (−2xy³) = <b>−6x³y⁴</b></div><div class="ls-big" ${SM}>12x³y² ÷ 4xy = <b>3x²y</b></div><p>계수는 계수끼리, 같은 문자는 지수법칙으로 계산해요.</p>`),
+    lcard('다항식의 계산', `<div class="ls-big" ${SM}>(2x + 3y) − (x − 4y) = <b>x + 7y</b></div><div class="ls-big" ${SM}>2x(x − 3) − x(x + 1) = 2x² − 6x − x² − x = <b>x² − 7x</b></div>`),
+    lcard('등식의 변형', `<p>한 문자에 대하여 푼다 = 그 문자만 왼쪽에 남기기</p><div class="ls-big" ${SM}>2x + y = 7 → <b>y = −2x + 7</b></div>`)
+  ],
+  ineq: ()=>[
+    lcard('부등식의 성질', `<p>양변에 같은 수를 더하거나 빼도, 양수를 곱하거나 나눠도 방향은 그대로예요.</p><p><b>음수를 곱하거나 나누면 부등호의 방향이 바뀌어요!</b></p><div class="ls-big" ${SM}>a &lt; b → −2a &gt; −2b</div>`),
+    lcard('일차부등식 풀기', `<div class="ls-big" ${SM}>−3x + 4 &gt; 10<br>−3x &gt; 6<br><b>x &lt; −2</b> (음수로 나눠서 방향이 바뀜)</div>`),
+    lcard('활용 문제', `<p>‘이하’는 ≤, ‘미만’은 &lt;, ‘이상’은 ≥, ‘초과’는 &gt;</p><p>개수 · 사람 수는 자연수이니, 해 중에서 알맞은 자연수를 골라요.</p>`)
+  ],
+  sys: ()=>[
+    lcard('가감법', `<p>두 식을 더하거나 빼서 한 문자를 없애요.</p><div class="ls-big" ${SM}>x + y = 7, x − y = 1<br>더하면 2x = 8 → x = 4, y = 3</div>`),
+    lcard('대입법', `<p>한 식을 x = … 또는 y = … 꼴로 바꿔서 다른 식에 넣어요.</p><div class="ls-big" ${SM}>y = 2x, x + y = 9 → x + 2x = 9 → x = 3, y = 6</div>`),
+    lcard('해의 개수', ltable([['두 식이 완전히 같아요','해가 무수히 많아요'],['x, y 계수만 같고 상수가 달라요','해가 없어요'],['그 밖의 경우','해가 한 쌍']])),
+    lcard('활용 문제', `<p>모르는 것 두 개를 x, y로 놓고 식 두 개를 세워요.</p><p class="sub">닭과 돼지: 머리 수 x + y, 다리 수 2x + 4y</p>`)
+  ],
+  linF: ()=>[
+    lcard('일차함수와 그래프', `<p>y = ax + b (a ≠ 0)의 그래프는 직선이에요.</p>${ltable([['기울기 a','(y의 증가량) ÷ (x의 증가량)'],['y절편 b','x = 0일 때 y 값'],['x절편','y = 0일 때 x 값']])}`),
+    lcard('기울기의 부호', `<p>a &gt; 0이면 오른쪽 위로, a &lt; 0이면 오른쪽 아래로 향해요.</p><p>기울기가 같으면 <b>평행</b>하거나 <b>일치</b>해요.</p>`),
+    lcard('직선의 식 구하기', `<p>① 두 점으로 기울기를 구하고 ② 한 점을 넣어 y절편을 구해요.</p><div class="ls-big" ${SM}>(1, 3), (3, 7) → 기울기 2 → 3 = 2 × 1 + b → <b>y = 2x + 1</b></div>`),
+    lcard('일차함수와 연립방정식', `<p>두 직선의 <b>교점의 좌표</b>가 연립방정식의 <b>해</b>예요.</p><p class="sub">y = 2x의 그래프를 y축 방향으로 k만큼 평행이동하면 y = 2x + k</p>`)
+  ],
+  tri2: ()=>[
+    lcard('이등변삼각형', `${polySVG(triPts(65,65),{tk:[0,1,1]})}<p>두 밑각의 크기가 같고, 꼭지각의 이등분선은 밑변을 <b>수직이등분</b>해요.</p>`),
+    lcard('직각삼각형의 합동', ltable([['RHA 합동','빗변과 한 예각이 같아요'],['RHS 합동','빗변과 다른 한 변이 같아요']])),
+    lcard('외심', `<p>세 변의 <b>수직이등분선</b>의 교점. 세 <b>꼭짓점</b>까지 거리가 같아요(외접원의 중심).</p><p>∠BOC = 2∠A · 직각삼각형의 외심은 <b>빗변의 중점</b></p>`),
+    lcard('내심', `<p>세 내각의 <b>이등분선</b>의 교점. 세 <b>변</b>까지 거리가 같아요(내접원의 중심).</p><p>∠BIC = 90° + ½∠A · 넓이 = ½ × r × (세 변의 합)</p>`)
+  ],
+  quad2: ()=>[
+    lcard('평행사변형의 성질', `<p>두 쌍의 대변의 길이가 같고, 두 쌍의 대각의 크기가 같고, 두 대각선이 서로를 이등분해요.</p>`),
+    lcard('평행사변형이 되는 조건', `<p>위 성질 가운데 하나를 만족하거나, <b>한 쌍의 대변이 평행하고 그 길이가 같으면</b> 평행사변형이에요.</p>`),
+    lcard('여러 가지 사각형의 대각선', ltable([['평행사변형','서로 이등분'],['직사각형','길이가 같고 서로 이등분'],['마름모','서로 수직이등분'],['정사각형','길이가 같고 서로 수직이등분'],['등변사다리꼴','길이가 같아요']])),
+    lcard('평행선과 넓이', `<p>밑변이 같고 두 평행선 사이에 있는 삼각형은 <b>넓이가 같아요</b>(높이가 같으니까).</p>`)
+  ],
+  sim2: ()=>[
+    lcard('닮음과 닮음비', `<p>한 도형을 일정한 비율로 늘리거나 줄여 다른 도형과 포개지면 닮음(∽)이에요.</p>${ltable([['길이의 비','m : n'],['넓이의 비','m² : n²'],['부피의 비','m³ : n³']])}`),
+    lcard('삼각형의 닮음 조건', ltable([['SSS 닮음','세 쌍의 대응변의 비가 같아요'],['SAS 닮음','두 쌍의 대응변의 비와 끼인각이 같아요'],['AA 닮음','두 쌍의 대응각이 같아요']])),
+    lcard('평행선과 선분의 비', `<p>DE ∥ BC이면 AD : DB = AE : EC</p><p>두 변의 <b>중점</b>을 이은 선분은 나머지 변과 평행하고 길이는 <b>절반</b>이에요.</p>`),
+    lcard('무게중심', `<p>세 중선의 교점. 중선을 꼭짓점에서부터 <b>2 : 1</b>로 나눠요.</p><p class="sub">무게중심과 세 꼭짓점을 이으면 넓이가 같은 삼각형 3개가 생겨요.</p>`)
+  ],
+  pyth: ()=>[
+    lcard('피타고라스 정리', `<div class="ls-big">a² + b² = c² <small>(c: 빗변)</small></div><div class="ls-big" ${SM}>3² + 4² = 9 + 16 = 25 = 5²</div>`),
+    lcard('자주 나오는 세 수', `<div class="ls-big" ${SM}>(3, 4, 5) · (5, 12, 13) · (8, 15, 17) · (7, 24, 25)</div><p class="sub">배수도 돼요: (6, 8, 10), (9, 12, 15)</p>`),
+    lcard('삼각형 판별', ltable([['c² = a² + b²','직각삼각형'],['c² < a² + b²','예각삼각형'],['c² > a² + b²','둔각삼각형']])+'<p class="sub">c는 가장 긴 변이에요.</p>'),
+    lcard('좌표 위의 거리', `<p>두 점 사이의 거리 = √((x의 차)² + (y의 차)²)</p><div class="ls-big" ${SM}>(1, 1), (4, 5) → √(3² + 4²) = <b>5</b></div>`)
+  ],
+  prob: ()=>[
+    lcard('경우의 수', `<p>‘또는’(동시에 일어나지 않을 때)은 <b>더하고</b>, ‘동시에’ · ‘잇달아’는 <b>곱해요</b>.</p><div class="ls-big" ${SM}>동전 1개와 주사위 1개 → 2 × 6 = 12</div>`),
+    lcard('줄 세우기 · 뽑기', ltable([['n명을 한 줄로','n × (n−1) × … × 1'],['회장 · 부회장 (순서 있음)','n × (n−1)'],['대표 2명 (순서 없음)','n × (n−1) ÷ 2']])),
+    lcard('확률', `<div class="ls-big" ${SM}>확률 = (그 사건이 일어나는 경우의 수) ÷ (모든 경우의 수)</div><p>0 ≤ 확률 ≤ 1. 반드시 일어나면 1, 절대 안 일어나면 0</p>`),
+    lcard('적어도 한 번', `<p>(적어도 한 번 일어날 확률) = 1 − (한 번도 안 일어날 확률)</p><div class="ls-big" ${SM}>동전 2개 중 적어도 1개 앞면 = 1 − ${fr(1,4)} = ${fr(3,4)}</div>`)
+  ]
+});
 function drawLesson(){
   const sb=document.getElementById('sbody'); if(!sb) return;
   sb.innerHTML = LESSONS[App.unit]().join('') + `<button class="big-btn" data-act="smode" data-v="quiz">✏️ 이제 퀴즈 풀어 보기</button>`;
@@ -3108,7 +3395,7 @@ function drawBooks(){
     <p class="sub" style="font-size:.9rem;margin:8px 0 0">하루 3권까지 한 권마다 ⭐ 1개! 이번 달 ${month}권, 모두 ${list.length}권 읽었어요.</p></div>
     <div class="shelf" style="margin-top:12px">${list.slice().reverse().map((x,i)=>`<div class="book"><span class="done" style="color:var(--sub)">${x.d.slice(5).replace('-','/')}</span>
       <span class="bk-e">${['📕','📗','📘','📙'][(list.length-1-i)%4]}</span><b>${esc(x.t)}</b><small>${esc(x.l||'')}</small>
-      <button class="linkbtn" style="margin:4px 0 0;align-self:flex-end;font-size:.8rem" data-act="delBook" data-v="${x.at}">지우기</button></div>`).join('')||'<p class="sub">아직 기록이 없어요. 첫 책을 남겨 봐요!</p>'}</div>`;
+      <button class="linkbtn" style="margin:4px 0 0;align-self:flex-end;font-size:.8rem" data-act="delBook" data-v="${x.at}">지우기</button></div>`).join('')||'<p class="sub" style="white-space:nowrap">📚 첫 책을 남겨 봐요!</p>'}</div>`;
 }
 /* 관용 표현 · 헷갈리는 말 · 높임 표현: 10문제 */
 function startK(){

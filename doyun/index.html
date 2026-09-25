@@ -2806,7 +2806,7 @@ function drawBooks(){
     <p class="sub" style="font-size:.9rem;margin:8px 0 0">하루 3권까지 한 권마다 ⭐ 1개! 이번 달 ${month}권, 모두 ${list.length}권 읽었어요.</p></div>
     <div class="shelf" style="margin-top:12px">${list.slice().reverse().map((x,i)=>`<div class="book"><span class="done" style="color:var(--sub)">${x.d.slice(5).replace('-','/')}</span>
       <span class="bk-e">${['📕','📗','📘','📙'][(list.length-1-i)%4]}</span><b>${esc(x.t)}</b><small>${esc(x.l||'')}</small>
-      <button class="linkbtn" style="margin:4px 0 0;align-self:flex-end;font-size:.8rem" data-act="delBook" data-v="${x.at}">지우기</button></div>`).join('')||'<p class="sub">아직 기록이 없어요. 첫 책을 남겨 봐요!</p>'}</div>`;
+      <button class="linkbtn" style="margin:4px 0 0;align-self:flex-end;font-size:.8rem" data-act="delBook" data-v="${x.at}">지우기</button></div>`).join('')||'<p class="sub" style="white-space:nowrap">📚 첫 책을 남겨 봐요!</p>'}</div>`;
 }
 /* 관용 표현 · 헷갈리는 말 · 높임 표현: 10문제 */
 function startK(){
