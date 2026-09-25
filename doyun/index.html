@@ -568,7 +568,7 @@ document.getElementById('linkE4').href = GRADE_LINKS.e4;
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
-const PROFILE_KEYS = ['stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','kread','hstory','mbest'];
+const PROFILE_KEYS = ['stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
 /* 도진이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e4_'+k : `e4_p_${name}_${k}`;
 const store = {
@@ -1242,13 +1242,18 @@ const HANJA_LV = {
 };
 const HANJA_ALL = HANJA9.concat(HANJA8.filter(x=>!HANJA9.some(y=>y.h===x.h)), HANJA7);
 const HANJA_GROUPS = {num:'🔢 숫자', time:'⏰ 때 · 계절', nat:'🌳 자연', ppl:'👪 사람 · 몸', dir:'🧭 방향 · 모양', sch:'🏫 학교 · 나라', life:'🏠 생활 · 공부'};
-/* 스티커: 별 10개마다 1장. 한 권에 30장, 다 모으면 다음 권이 열려요 */
+/* 스티커: 별 10개마다 1장. 한 권을 다 모으면 다음 권이 열려요 (모두 100장) */
 const STICKER_BOOKS = [
   {name:'1권 · 반짝 친구들', s:['🦄','🌈','🐣','🍭','🚀','🐬','🌻','🎈','🦋','🍩','🐼','🌟','🧸','🍉','🐳','🎀','🦖','🍓','🐥','🎠','🌙','🐙','🍦','🦁','🏆','🐨','🍀','🎨','🐞','👑']},
   {name:'2권 · 우주 탐험', s:['🛸','🪐','☄️','👽','🌍','🌕','🛰️','🔭','👨‍🚀','🌠','🌌','🌞','🌎','🌑','🚀','⭐','🌟','💫','✨','🌏','🌒','🌓','🌔','🌖','🌗','🌘','🌛','🌜','🌝','🏅']},
   {name:'3권 · 바다와 공룡', s:['🦕','🦖','🐊','🐢','🦈','🐋','🐡','🐠','🦑','🦀','🦞','🦐','🐚','🪸','🦭','🐧','🦦','🦩','🦜','🦚','🐉','🐲','🦎','🐍','🦂','🦇','🦉','🦅','🐺','💎']}
 ];
+STICKER_BOOKS.push({name:'4권 · 마지막 보물', s:['💍','🗝️','🪙','🏺','🧭','🗺️','⚱️','🔮','🎁','🥇']});
 const STICKERS = STICKER_BOOKS.flatMap(b=>b.s);
+/* 하루에 받을 수 있는 스티커는 20장(별 200개)까지, 한 과목은 하루 100문제까지 */
+const STICKER_DAY_MAX = 20, STAR_DAY_MAX = STICKER_DAY_MAX*10, SUBJ_DAY_MAX = 100;
+const subjCount = (s, k=dayKey()) => { const d=getLog()[k]||{}; return (d[s]&&d[s].n)||0; };
+const subjClosed = s => !!SUBJ[s] && subjCount(s) >= SUBJ_DAY_MAX;
 const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽해!','천재인가?','잘했어요!','바로 그거야!'];
 const WD = ['일','월','화','수','목','금','토'];
 
@@ -1359,6 +1364,10 @@ function shake(id){ const el=document.getElementById(id); if(!el) return; el.cla
 function updateStars(){ document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(Math.floor(stars/10),STICKERS.length)}장`; }
 function addStar(n){
   if(n<=0) return;
+  const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
+  n=Math.min(n, STAR_DAY_MAX-got);
+  if(n<=0){ if(!App.starFull){ App.starFull=true; setTimeout(()=>toast(`🏅 오늘 스티커 ${STICKER_DAY_MAX}장을 다 받았어요! 내일 또 모아요`),600); } return; }
+  store.set('starDay',{d:k, n:got+n}); App.starFull=false;
   const before=Math.floor(stars/10);
   stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush();
   if(Math.floor(stars/10)>before) setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600);
@@ -1418,6 +1427,7 @@ function logToday(s, ok, sub){
   if(sub){ const st=store.get('stat',{}), x=st[s+'|'+sub]||(st[s+'|'+sub]={n:0,ok:0}); x.n++; if(ok) x.ok++; store.set('stat',st); }
   cloudPush();
   if(dayTotal(k)===admin.goal) setTimeout(()=>{ toast('🎯 오늘 목표를 달성했어요!'); burst(); },900);
+  if(SUBJ[s] && e.n===SUBJ_DAY_MAX) setTimeout(()=>{ toast(`📕 오늘 ${SUBJ[s].name}는 ${SUBJ_DAY_MAX}문제를 채워서 닫아요. 다른 과목도 해 볼까?`); if(App.view===s) render(); },1600);
   courseCheck(s);
 }
 /* 단원 · 활동별 정답률: 5문제 넘게 풀었고 70% 아래면 ⚠️ */
@@ -1698,10 +1708,19 @@ function render(){
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];
   });
   if(App.view!=='review') RV=null;
+  if(subjClosed(App.view)){ renderClosed(App.view); return; }
   ({home:renderHome, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
 }
 
 /* ───── 홈 ───── */
+/* 한 과목을 하루 100문제 넘게 풀면 그날은 닫아요 */
+function renderClosed(s){
+  const others=Object.keys(SUBJ).filter(k=>k!==s && admin.subj[k] && !subjClosed(k));
+  view.innerHTML=`<div class="card center"><p class="big">📕 오늘 ${SUBJ[s].name}는 여기까지!</p>
+    <p>오늘 ${SUBJ[s].name} 문제를 ${subjCount(s)}개나 풀었어요. 정말 대단해요 👏<br><span class="sub">한 과목은 하루 ${SUBJ_DAY_MAX}문제까지 풀 수 있어요. 내일 다시 열려요.</span></p>
+    ${others.length?`<p class="sub">다른 과목도 해 볼까?</p><div class="subjects">${others.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>오늘 ${subjCount(k)}문제</small></button>`).join('')}</div>`:''}
+    <button class="big-btn" data-act="tab" data-v="home">🏠 홈으로</button></div>`;
+}
 function provHTML(){
   const [p,m]=PROVERBS[App.prov];
   return `<div class="card banner" id="banner">
@@ -3080,18 +3099,20 @@ function hqNext(ms){
   }, ms);
 }
 
-/* ───── 스티커: 한 권에 30장, 다 모으면 다음 권이 열려요 ───── */
+/* ───── 스티커: 한 권을 다 모으면 다음 권이 열려요 (모두 100장, 하루 20장까지) ───── */
 function renderSticker(){
   const got=Math.floor(stars/10), left=10-(stars%10), total=STICKERS.length;
+  const sd=store.get('starDay',{}), todayStk=Math.floor((sd.d===dayKey()?sd.n:0)/10);
+  let start=0;
   view.innerHTML=`
     <div class="card center">
-      <p class="big">모은 스티커 ${Math.min(got,total)}장</p>
-      <p class="sub">문제를 맞힐 때마다 별이 1개! 별 10개가 모이면 스티커 1장이에요.<br>다음 스티커까지 ⭐ ${left}개 남았어요. 한 권을 다 채우면 다음 권이 열려요.</p>
+      <p class="big">모은 스티커 ${Math.min(got,total)}장 / ${total}장</p>
+      <p class="sub">문제를 맞힐 때마다 별이 1개! 별 10개가 모이면 스티커 1장이에요.<br>다음 스티커까지 ⭐ ${left}개 남았어요. 한 권을 다 채우면 다음 권이 열려요.<br>스티커는 하루 ${STICKER_DAY_MAX}장까지 받을 수 있어요 (오늘 ${Math.min(todayStk,STICKER_DAY_MAX)}장).</p>
     </div>
-    ${STICKER_BOOKS.map((bk,bi)=>{ const start=bi*30, open=got>=start;
-      return `<div class="card" style="margin-top:12px"><div class="grass-head"><b>${open?'📖':'🔒'} ${bk.name}</b><span class="sub">${Math.max(0,Math.min(30,got-start))} / 30</span></div>
-        ${open?`<div class="sticker-grid" style="margin-top:6px">${bk.s.map((s,i)=> start+i<got ? `<div class="stk">${s}</div>` : `<div class="stk empty">?</div>`).join('')}</div>`
-              :`<p class="sub center">스티커 ${start}장을 모으면 열려요!</p>`}</div>`; }).join('')}
+    ${STICKER_BOOKS.map(bk=>{ const st=start, n=bk.s.length, open=got>=st; start+=n;
+      return `<div class="card" style="margin-top:12px"><div class="grass-head"><b>${open?'📖':'🔒'} ${bk.name}</b><span class="sub">${Math.max(0,Math.min(n,got-st))} / ${n}</span></div>
+        ${open?`<div class="sticker-grid" style="margin-top:6px">${bk.s.map((s,i)=> st+i<got ? `<div class="stk">${s}</div>` : `<div class="stk empty">?</div>`).join('')}</div>`
+              :`<p class="sub center">스티커 ${st}장을 모으면 열려요!</p>`}</div>`; }).join('')}
     ${got>=total?'<p class="center praise">🎉 스티커북을 모두 채웠어요! 부모님께 자랑해요!</p>':''}`;
 }
 
@@ -3420,7 +3441,7 @@ const ACT = {
   },
   reset: ()=>{
     if(!confirm(`${who}의 별, 스티커, 학습 기록, 읽은 글, 복습함을 모두 지울까요?`)) return;
-    ['stars','today','log','visits','hmock','hwrong','kread','hstory','mbest','stat','wrongs','studysec','books'].forEach(k=>store.del(k));
+    ['stars','today','starDay','log','visits','hmock','hwrong','kread','hstory','mbest','stat','wrongs','studysec','books'].forEach(k=>store.del(k));
     const now=Date.now(); ['hwrongAt','wrongsAt','booksAt','starsAt'].forEach(k=>store.set(k,now));
     stars=0; cloudReset(who); markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
   }
