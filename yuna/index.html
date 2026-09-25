@@ -448,6 +448,35 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 @keyframes celBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.1)}}
 .rain{position:fixed;top:-3rem;z-index:45;pointer-events:none;animation:rainFall 2.8s ease-in forwards}
 @keyframes rainFall{to{transform:translateY(112vh) rotate(360deg)}}
+/* 국어 글 읽기 · 독서 기록 · 영어 이야기 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:10px}
+.book{text-align:left;display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:18px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow);position:relative}
+.book .bk-e{font-size:2.2rem;line-height:1.1}
+.book b{font-weight:normal;font-size:1.12rem}
+.book small{color:var(--sub);font-size:.85rem}
+.book .done{position:absolute;top:8px;right:10px;font-size:.9rem;color:var(--ok)}
+.book.read{border-color:color-mix(in srgb,var(--ok) 55%,var(--line))}
+.kr-next{display:flex;align-items:center;gap:12px;text-align:left;width:100%;margin-top:4px}
+.kr-next .bk-e{font-size:2.6rem}
+.kr-page .kr-top{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.kr-page .kr-top .bk-e{font-size:2.6rem;line-height:1}
+.kr-page .kr-top b{flex:1;font-weight:normal;font-size:1.45rem}
+.kr-page p{font-size:1.22rem;line-height:1.9;margin:.5rem 0;text-indent:.6em;word-break:keep-all}
+.est{text-align:center;background:linear-gradient(180deg,color-mix(in srgb,var(--hi) 18%,var(--card)),var(--card))}
+.est-cover{font-size:.95rem;color:var(--sub)}
+.est-title{font-size:1.6rem;margin:2px 0 4px}
+.est-pic{font-size:4.6rem;line-height:1.2;margin:6px 0;letter-spacing:.04em}
+.est-en{display:block;width:100%;font-size:1.7rem;line-height:1.35;padding:10px 12px;border-radius:16px;background:var(--paper);border:2px dashed var(--accent);margin:4px 0 8px}
+.est-en span{font-size:1.1rem}
+.est-ko{min-height:2.6rem;font-size:1.2rem;margin-bottom:8px}
+.est-words{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-bottom:10px}
+.est-w{padding:.3rem .7rem;border-radius:999px;background:color-mix(in srgb,var(--hi) 35%,var(--paper));border:2px solid var(--line);font-size:1rem}
+.est-w .en{font-size:1.1rem;margin-right:4px}
+.est-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.est-dots{display:flex;gap:5px;justify-content:center}
+.est-dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.est-dots span.on{background:var(--accent)}
+.est-q{font-size:2.2rem;margin:6px 0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -523,7 +552,7 @@ document.getElementById('linkE4').href = GRADE_LINKS.e4;
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','charPick'];
-const PROFILE_KEYS = ['op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck'];
+const PROFILE_KEYS = ['op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
 /* 도진이 공부방과 같은 주소를 써도 관리자 설정이 섞이지 않게 공통 값은 e2y_ 로 따로 저장해요 (아이 기록은 예전처럼 e2_p_윤아_) */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2y_'+k : `e2_p_${name}_${k}`;
 const store = {
@@ -1154,7 +1183,7 @@ const LEVELS = {1:{name:'1단계',desc:'일의 자리에서만 받아올림 (예
 const WD = ['일','월','화','수','목','금','토'];
 
 /* ───── 상태 ───── */
-const App = { view:'home', mmode:'vertical', op:'add', level: store.get('level',1), emode:'abc', cat:'animal', qcat:'all', letter:'A',
+const App = { view:'home', mmode:'vertical', op:'add', level: store.get('level',1), emode:'story', est:null, epg:0, eko:false, krid:null, cat:'animal', qcat:'all', letter:'A',
   unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', klv:1, kact:'spell', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
 let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
@@ -1366,6 +1395,8 @@ async function cloudPull(name, docOnly){
       ['best_1','best_2','best_3'].forEach(k=>{ const b=betterBest(store.get(k,null,name), d[k]||null); if(b) store.set(k,b,name); });
       if(typeof d.hmock==='number' && d.hmock>store.get('hmock',0,name)) store.set('hmock',d.hmock,name);
       if(d.hwrong && (d.hwrongAt||0) > store.get('hwrongAt',0,name)){ store.set('hwrong',d.hwrong,name); store.set('hwrongAt',d.hwrongAt,name); }
+      ['kread2','estory'].forEach(k=>{ if(!d[k]) return; const o=store.get(k,{},name); for(const x in d[k]) o[x]=Math.max(o[x]===undefined?-1:o[x], d[k][x]); store.set(k,o,name); });
+      if(Array.isArray(d.books) && (d.booksAt||0) > store.get('booksAt',0,name)){ store.set('books',d.books,name); store.set('booksAt',d.booksAt,name); }
       const lp=kidPinsRaw()[name];
       if(d.pinAt && (!lp || d.pinAt > lp.at)){ const r=kidPinsRaw(); r[name]={h:d.pinH||null, at:d.pinAt}; store.set('kidpins',r); }
     }
@@ -1400,7 +1431,8 @@ async function cloudPushNow(name){
   try{
     const pin=kidPinsRaw()[name]||{};
     const doc={name, stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
-      hmock:store.get('hmock',0,name), hwrong:store.get('hwrong',{},name), hwrongAt:store.get('hwrongAt',0,name), pinH:pin.h||null, pinAt:pin.at||0};
+      hmock:store.get('hmock',0,name), hwrong:store.get('hwrong',{},name), hwrongAt:store.get('hwrongAt',0,name), pinH:pin.h||null, pinAt:pin.at||0,
+      kread2:store.get('kread2',{},name), estory:store.get('estory',{},name), books:store.get('books',[],name), booksAt:store.get('booksAt',0,name)};
     ['best_1','best_2','best_3'].forEach(k=>{ doc[k]=store.get(k,null,name); });
     await ref.set(doc,{merge:true});
     if(!who || who!==name) return; // 비밀번호만 바꾼 경우 날짜 기록은 건드리지 않아요
@@ -1413,7 +1445,7 @@ async function cloudReset(name){
     const ref=kidRef(name), qs=await ref.collection('daily').get();
     await Promise.all(qs.docs.map(d=>d.ref.delete()));
     const resetAt=Date.now(); store.set('resetAt',resetAt,name); await ref.set({resetAt},{merge:true});
-    await ref.set({name, stars:0, starsAt:Date.now(), updatedAt:Date.now(), best_1:null, best_2:null, best_3:null, hmock:0, hwrong:{}, hwrongAt:Date.now()},{merge:true});
+    await ref.set({name, stars:0, starsAt:Date.now(), updatedAt:Date.now(), best_1:null, best_2:null, best_3:null, hmock:0, hwrong:{}, hwrongAt:Date.now(), kread2:{}, estory:{}, books:[], booksAt:Date.now()},{merge:true});
   }catch(e){ console.warn('지우기 실패', e); }
 }
 
@@ -2125,9 +2157,9 @@ function vis(w){
 }
 function renderEng(){
   view.innerHTML=`
-    <div class="seg">${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','phonics','🧩 소리 합치기',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
+    <div class="seg">${pill('emode','story','📖 이야기',App.emode)}${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','phonics','🧩 소리 합치기',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
     <div id="ebody"></div>`;
-  ({abc:drawAbc, phonics:drawPhonics, words:drawWords, listen:drawQuiz, read:drawQuiz})[App.emode]();
+  ({story:drawEStory, abc:drawAbc, phonics:drawPhonics, words:drawWords, listen:drawQuiz, read:drawQuiz})[App.emode]();
 }
 /* 자음 + 모음 소리 합치기 (알파벳 순서) */
 const markSyl = (w,syl) => { const i=w.toLowerCase().indexOf(syl); return i<0 ? w : `${w.slice(0,i)}<span class="c-con">${w[i]}</span><span class="c-vow">${w[i+1]}</span>${w.slice(i+2)}`; };
@@ -2387,7 +2419,7 @@ function renderKorean(){
     <div class="seg">${Object.entries(KO_LV[App.klv].acts).map(([k,n])=>pill('kact',k,n,App.kact)).join('')}</div>
     <p class="desc">${KO_DESC[App.kact]}</p>
     <div id="kbody"></div>`;
-  drawK();
+  App.kact==='read' ? drawKRead() : App.kact==='log' ? drawBooks() : drawK();
 }
 function startK(){
   const list=[]; let guard=0;
@@ -2440,6 +2472,262 @@ function kSkip(){
   const q=K.list[K.i];
   K.tried=true; K.solved=true; beep(false); logToday('korean', false);
   K.note=`정답은 <b>${esc(q.ans)}</b>${q.explain?`<br><small>${q.explain}</small>`:''}`; drawK(); kNext(2600);
+}
+
+/* 국어 📚 글 읽기: 짧은 글 한 편 + 쉬운 문제 1 ~ 2개 (lv 1: 2학년 2학기 · 2: 3학년 1학기)
+   qs: [질문, 정답, [다른 보기], 풀이] */
+const KO_READS = [
+  {id:'r_snowman', lv:1, e:'⛄', t:'눈사람 만들기', paras:['밤새 하얀 눈이 펑펑 내렸어요. 나는 동생과 마당에 나가 눈을 굴렸어요.','큰 눈덩이 위에 작은 눈덩이를 올리고, 돌멩이로 눈을 붙여 주었어요. 멋진 눈사람이 생겼어요!'],
+    qs:[['눈사람의 눈은 무엇으로 붙였나요?','돌멩이',['나뭇잎','당근','단추'],'두 번째 문단을 보세요.'],['나는 누구와 함께 눈사람을 만들었나요?','동생',['아빠','친구','할머니'],'동생과 마당에 나갔어요.']]},
+  {id:'r_puppy', lv:1, e:'🐶', t:'우리 집 강아지 콩이', paras:['우리 집에는 콩이라는 강아지가 있어요. 콩이는 털이 까맣고 귀가 쫑긋해요.','내가 학교에서 돌아오면 콩이는 꼬리를 살랑살랑 흔들며 반겨 줘요.'],
+    qs:[['콩이의 털은 무슨 색인가요?','까만색',['하얀색','갈색','노란색'],'털이 까맣다고 했어요.'],['내가 돌아오면 콩이는 어떻게 하나요?','꼬리를 흔들며 반겨요.',['잠을 자요.','숨어요.','밥을 먹어요.'],'꼬리를 살랑살랑 흔들어요.']]},
+  {id:'r_rain', lv:1, e:'☔', t:'비 오는 날', paras:['아침부터 비가 주룩주룩 내렸어요. 나는 노란 우비를 입고 빨간 장화를 신었어요.','웅덩이를 밟으니 물이 첨벙 튀었어요. 비 오는 날도 참 재미있어요.'],
+    qs:[['내가 신은 장화는 무슨 색인가요?','빨간색',['노란색','파란색','초록색'],'빨간 장화를 신었어요.']]},
+  {id:'r_rabbit', lv:1, e:'🐰', t:'토끼와 거북이', paras:['토끼와 거북이가 달리기 시합을 했어요. 발이 빠른 토끼는 거북이를 보고 “나는 한숨 자고 가도 이기겠다.” 하며 나무 밑에서 잠을 잤어요.','거북이는 쉬지 않고 엉금엉금 기어갔어요. 토끼가 잠에서 깼을 때, 거북이는 벌써 결승선에 도착해 있었어요.'],
+    qs:[['시합에서 이긴 동물은?','거북이',['토끼','둘 다','아무도 없어요'],'거북이가 먼저 도착했어요.'],['토끼가 진 까닭은?','중간에 잠을 자서',['다리가 아파서','길을 잃어서','비가 와서'],'나무 밑에서 잠을 잤어요.']]},
+  {id:'r_market', lv:1, e:'🧺', t:'엄마와 시장에', paras:['엄마와 함께 시장에 갔어요. 가게마다 사과, 배, 감이 가득 쌓여 있었어요.','엄마는 빨간 사과를 다섯 개 사셨어요. 가게 할머니께서 귤 하나를 덤으로 주셨어요.'],
+    qs:[['엄마가 산 과일은?','사과',['배','감','귤'],'빨간 사과를 다섯 개 사셨어요.'],['가게 할머니께서 덤으로 주신 것은?','귤',['사과','배','감'],'귤 하나를 덤으로 주셨어요.']]},
+  {id:'r_moon', lv:1, e:'🌕', t:'둥근 보름달', paras:['추석날 밤, 하늘에 커다란 보름달이 떴어요. 할머니께서 “달님께 소원을 빌어 보렴.” 하셨어요.','나는 두 손을 모으고 “우리 가족 모두 건강하게 해 주세요.” 하고 빌었어요.'],
+    qs:[['내가 빈 소원은?','가족 모두 건강하게 해 주세요.',['장난감을 사 주세요.','비가 오게 해 주세요.','키가 크게 해 주세요.'],'두 번째 문단을 보세요.']]},
+  {id:'r_seed', lv:1, e:'🌻', t:'해바라기 씨앗', paras:['봄에 화분에 해바라기 씨앗을 심었어요. 날마다 물을 주었더니 초록 싹이 쏙 나왔어요.','여름이 되자 해바라기는 내 키보다 더 크게 자랐어요. 노란 꽃이 해님처럼 활짝 피었어요.'],
+    qs:[['해바라기 꽃은 무엇처럼 피었나요?','해님',['달님','별님','구름'],'해님처럼 활짝 피었어요.'],['씨앗을 심은 계절은?','봄',['여름','가을','겨울'],'봄에 씨앗을 심었어요.']]},
+  {id:'r_library', lv:1, e:'📚', t:'도서관에서', paras:['토요일에 아빠와 도서관에 갔어요. 도서관에서는 작은 목소리로 말하고, 뛰지 않아야 해요.','나는 공룡 책을 두 권 빌렸어요. 집에 와서 아빠와 함께 재미있게 읽었어요.'],
+    qs:[['도서관에서 지켜야 할 것은?','작은 목소리로 말해요.',['큰 소리로 노래해요.','뛰어다녀요.','음식을 먹어요.'],'첫 번째 문단을 보세요.'],['내가 빌린 책은 무엇에 대한 책인가요?','공룡',['자동차','우주','바다'],'공룡 책을 빌렸어요.']]},
+  {id:'r_frog', lv:2, e:'🐸', t:'올챙이가 개구리가 되기까지', paras:['개구리는 봄에 물속에 알을 낳아요. 알에서 깨어난 올챙이는 꼬리가 있고 다리가 없어서 물고기처럼 헤엄쳐요.','올챙이가 자라면 먼저 뒷다리가 나오고, 그다음에 앞다리가 나와요. 그러면서 꼬리는 점점 짧아지다가 없어져요.','다리가 다 나오고 꼬리가 없어지면 드디어 개구리가 되어 물 밖으로 폴짝 뛰어나와요.'],
+    qs:[['올챙이에게 먼저 나오는 다리는?','뒷다리',['앞다리','두 다리가 함께','다리가 나오지 않아요'],'두 번째 문단: 먼저 뒷다리가 나와요.'],['올챙이가 자라면서 꼬리는 어떻게 되나요?','점점 짧아지다가 없어져요.',['점점 길어져요.','두 개가 돼요.','색이 바뀌어요.'],'두 번째 문단 끝을 보세요.']]},
+  {id:'r_heungbu', lv:2, e:'🎃', t:'흥부와 박', paras:['마음씨 착한 흥부는 다리가 부러진 제비를 정성껏 치료해 주었어요. 이듬해 봄, 제비는 흥부에게 박씨 하나를 물어다 주었어요.','가을이 되어 커다란 박을 톱으로 슬근슬근 타니, 그 안에서 쌀과 금은보화가 쏟아져 나왔어요.','욕심 많은 형 놀부는 일부러 제비 다리를 부러뜨렸어요. 놀부가 받은 박에서는 도깨비들이 나와 놀부를 혼내 주었어요.'],
+    qs:[['흥부가 제비에게 한 일은?','부러진 다리를 치료해 주었어요.',['제비 집을 부수었어요.','제비를 쫓아냈어요.','제비에게 박을 주었어요.'],'첫 번째 문단을 보세요.'],['이 이야기가 알려 주는 것은?','착한 마음을 가지면 복을 받아요.',['욕심을 부리면 부자가 돼요.','제비는 무서워요.','박은 맛이 없어요.'],'흥부는 복을 받고 욕심 많은 놀부는 혼이 났어요.']]},
+  {id:'r_recycle', lv:2, e:'♻️', t:'분리배출을 해요', paras:['우리가 버리는 쓰레기 가운데에는 다시 쓸 수 있는 것이 많아요. 종이, 플라스틱, 캔, 유리병은 나누어 버리면 새 물건으로 다시 태어나요.','플라스틱 병은 안을 물로 헹구고, 붙어 있는 비닐 상표를 떼어서 버려요. 그래야 깨끗하게 다시 쓸 수 있어요.','분리배출을 잘하면 쓰레기가 줄어들고 지구도 건강해져요.'],
+    qs:[['플라스틱 병을 버리는 바른 방법은?','헹구고 상표를 떼어서 버려요.',['음료를 조금 남겨서 버려요.','종이와 함께 묶어서 버려요.','뚜껑째 불에 태워요.'],'두 번째 문단을 보세요.'],['분리배출을 하면 좋은 점은?','쓰레기가 줄고 지구가 건강해져요.',['쓰레기가 더 많아져요.','물건값이 비싸져요.','집이 더러워져요.'],'세 번째 문단을 보세요.']]},
+  {id:'r_sejong', lv:2, e:'📜', t:'한글을 만든 세종대왕', paras:['옛날에는 우리 글자가 없어서 어려운 한자를 빌려 썼어요. 글을 배우지 못한 백성들은 억울한 일이 있어도 글로 쓸 수 없었어요.','세종대왕은 백성들을 안타깝게 여겨 누구나 쉽게 배울 수 있는 글자를 만들었어요. 이것이 바로 한글이에요.','한글이 세상에 알려진 날을 기념하는 날이 10월 9일 한글날이에요.'],
+    qs:[['세종대왕이 한글을 만든 까닭은?','백성들이 쉽게 글을 배우게 하려고',['한자를 더 어렵게 하려고','외국에 팔려고','노래를 만들려고'],'두 번째 문단을 보세요.'],['한글날은 언제인가요?','10월 9일',['3월 1일','5월 5일','8월 15일'],'세 번째 문단을 보세요.']]},
+  {id:'r_friend', lv:2, e:'🤝', t:'새로 온 친구', paras:['우리 반에 지호라는 친구가 전학을 왔어요. 지호는 쉬는 시간에도 혼자 자리에 앉아 책만 보았어요.','나는 용기를 내어 “같이 딱지치기 할래?” 하고 물었어요. 지호는 수줍게 웃으며 고개를 끄덕였어요.','그날부터 지호와 나는 단짝 친구가 되었어요. 먼저 다가가길 정말 잘했어요.'],
+    qs:[['지호가 쉬는 시간에 혼자 있었던 까닭으로 알맞은 것은?','전학을 와서 아직 친구가 없어서',['책을 싫어해서','몸이 아파서','벌을 받아서'],'첫 번째 문단에서 지호는 전학 온 친구예요.'],['이 글에서 나의 마음으로 알맞은 것은?','먼저 다가가길 잘했다.',['지호가 싫다.','딱지치기는 재미없다.','혼자 노는 게 좋다.'],'마지막 문장을 보세요.']]},
+  {id:'r_bat', lv:2, e:'🦇', t:'박쥐는 어떻게 날까?', paras:['박쥐는 어두운 밤에 날아다니며 벌레를 잡아먹어요. 그런데 박쥐는 눈이 아주 나빠요.','박쥐는 입이나 코로 사람의 귀에는 들리지 않는 소리를 내요. 이 소리가 물건에 부딪혀 되돌아오면, 박쥐는 귀로 듣고 앞에 무엇이 있는지 알아내요.','그래서 박쥐는 캄캄한 동굴 속에서도 부딪히지 않고 날 수 있어요.'],
+    qs:[['박쥐가 앞에 있는 것을 알아내는 방법은?','소리를 내고 되돌아오는 소리를 들어요.',['눈으로 잘 봐요.','냄새를 맡아요.','손으로 더듬어요.'],'두 번째 문단을 보세요.'],['박쥐가 먹는 것은?','벌레',['과일만','풀','물고기만'],'첫 번째 문단: 벌레를 잡아먹어요.']]},
+  {id:'r_kite', lv:2, e:'🪁', t:'할아버지와 연날리기', paras:['설날에 할아버지와 방패연을 만들었어요. 한지에 구멍을 뚫고, 대나무 살을 붙이고, 실을 매달았어요.','바람이 부는 언덕에 올라 연을 띄웠어요. 처음에는 연이 자꾸 땅으로 떨어졌지만, 할아버지께서 실을 풀었다 감았다 하는 방법을 알려 주셨어요.','드디어 연이 하늘 높이 날아올랐어요. 나는 “할아버지, 최고예요!” 하고 외쳤어요.'],
+    qs:[['연을 만들 때 쓴 것이 아닌 것은?','플라스틱',['한지','대나무 살','실'],'첫 번째 문단에 나온 재료를 살펴봐요.'],['연이 처음에 자꾸 떨어졌을 때 할아버지께서 알려 주신 것은?','실을 풀었다 감았다 하는 방법',['연을 버리는 방법','뛰어가는 방법','연을 접는 방법'],'두 번째 문단을 보세요.']]},
+  {id:'r_water', lv:2, e:'💧', t:'물을 아껴 써요', paras:['물은 우리가 살아가는 데 꼭 필요해요. 하지만 깨끗한 물은 한없이 많지 않아요.','이를 닦을 때 컵에 물을 받아 쓰면 물을 많이 아낄 수 있어요. 샤워하는 시간을 줄이고, 수도꼭지를 꼭 잠그는 것도 좋은 방법이에요.','작은 습관이 모이면 소중한 물을 지킬 수 있어요.'],
+    qs:[['이 글의 중심 생각은?','물을 아껴 써야 해요.',['물을 많이 마셔요.','샤워를 자주 해요.','물은 한없이 많아요.'],'글 전체가 물을 아끼자는 내용이에요.'],['물을 아끼는 방법이 아닌 것은?','물을 틀어 놓고 이를 닦아요.',['컵에 물을 받아 이를 닦아요.','샤워 시간을 줄여요.','수도꼭지를 꼭 잠가요.'],'두 번째 문단을 보세요.']]}
+];
+
+/* 영어 📖 이야기: 그림과 함께 한 장씩 읽으며 영어와 친해져요
+   pages: [그림, 영어 문장, 우리말 뜻, [[낱말, 뜻], ...]] */
+const E_STORIES = [
+  {id:'s_coco', e:'🐱', t:'Coco the Cat', ko:'고양이 코코', pages:[
+    ['🐱','This is Coco.','이 아이는 코코예요.',[['this','이것, 이 아이']]],
+    ['🐱✨','Coco is a cat.','코코는 고양이예요.',[['cat','고양이']]],
+    ['🐱💭🐟','Coco is hungry.','코코는 배가 고파요.',[['hungry','배고픈']]],
+    ['🐱👀🐟','Coco sees a fish. Yum!','코코가 물고기를 봐요. 냠!',[['fish','물고기'],['see','보다']]],
+    ['😸🐟','Coco eats the fish.','코코가 물고기를 먹어요.',[['eat','먹다']]],
+    ['😺💤','Coco is happy. Good night, Coco!','코코는 행복해요. 잘 자, 코코!',[['happy','행복한'],['good night','잘 자']]]]},
+  {id:'s_dragon', e:'🐲', t:'Hello, Dragon!', ko:'안녕, 용아!', pages:[
+    ['🐲','Hello! I am a dragon.','안녕! 나는 용이야.',[['hello','안녕'],['dragon','용']]],
+    ['🐲💚','I am big and green.','나는 크고 초록색이야.',[['big','큰'],['green','초록색']]],
+    ['🐲🔥','I can make fire. Whoosh!','나는 불을 뿜을 수 있어. 휘익!',[['fire','불'],['can','~할 수 있다']]],
+    ['🐲☁️','I can fly high in the sky.','나는 하늘 높이 날 수 있어.',[['fly','날다'],['sky','하늘']]],
+    ['🐲🤝👦','Do you want to be my friend?','내 친구가 되어 줄래?',[['friend','친구']]],
+    ['🐲❤️👦','Yes! We are friends!','응! 우리는 친구야!',[['yes','응, 네']]]]},
+  {id:'s_apple', e:'🍎', t:'The Red Apple', ko:'빨간 사과', pages:[
+    ['🌳','Look at the tree.','나무를 보세요.',[['look','보다'],['tree','나무']]],
+    ['🌳🍎','There is a red apple.','빨간 사과가 하나 있어요.',[['red','빨간'],['apple','사과']]],
+    ['🐻🍎','A bear wants the apple.','곰이 사과를 먹고 싶어 해요.',[['bear','곰'],['want','원하다']]],
+    ['🐻🙆','The bear jumps. Jump, jump!','곰이 뛰어요. 폴짝, 폴짝!',[['jump','뛰다']]],
+    ['🍎⬇️🐻','The apple falls down. Boom!','사과가 떨어져요. 쿵!',[['down','아래로']]],
+    ['🐻😋','Thank you, tree!','고마워, 나무야!',[['thank you','고마워요']]]]},
+  {id:'s_ducks', e:'🦆', t:'Five Little Ducks', ko:'꼬마 오리 다섯 마리', pages:[
+    ['🦆🦆🦆🦆🦆','One, two, three, four, five ducks!','하나, 둘, 셋, 넷, 다섯 오리!',[['one','하나'],['five','다섯']]],
+    ['🦆🦆🦆🦆🦆💧','The ducks go to the pond.','오리들이 연못에 가요.',[['duck','오리'],['go','가다']]],
+    ['🦆🌊','Quack, quack! They swim.','꽥, 꽥! 오리들이 헤엄쳐요.',[['swim','헤엄치다']]],
+    ['🦆🦆🦆🦆🦆🐟','They see a little fish.','오리들이 작은 물고기를 봐요.',[['little','작은'],['fish','물고기']]],
+    ['🦆🦆🦆🦆🦆🏠','Now they go home.','이제 오리들은 집에 가요.',[['home','집']]],
+    ['🦆💤','Good night, little ducks!','잘 자, 꼬마 오리들아!',[['good night','잘 자']]]]},
+  {id:'s_rainbow', e:'🌈', t:'My Rainbow', ko:'나의 무지개', pages:[
+    ['🌧️','It is rainy.','비가 와요.',[['rainy','비 오는']]],
+    ['☀️','Now it is sunny.','이제 해가 났어요.',[['sunny','맑은, 해가 난']]],
+    ['🌈','Look! A rainbow!','봐요! 무지개예요!',[['rainbow','무지개']]],
+    ['🔴🟠🟡','Red, orange, yellow,','빨강, 주황, 노랑,',[['red','빨간색'],['yellow','노란색']]],
+    ['🟢🔵🟣','green, blue, and purple.','초록, 파랑, 그리고 보라.',[['blue','파란색'],['purple','보라색']]],
+    ['🌈😍','I love my rainbow!','나는 내 무지개가 정말 좋아요!',[['love','정말 좋아하다']]]]},
+  {id:'s_face', e:'😊', t:'This Is My Face', ko:'이건 내 얼굴이에요', pages:[
+    ['👀','These are my eyes. I can see.','이건 내 눈이에요. 나는 볼 수 있어요.',[['eye','눈']]],
+    ['👂','These are my ears. I can hear.','이건 내 귀예요. 나는 들을 수 있어요.',[['ear','귀'],['hear','듣다']]],
+    ['👃🌸','This is my nose. I can smell.','이건 내 코예요. 나는 냄새를 맡을 수 있어요.',[['nose','코'],['smell','냄새 맡다']]],
+    ['👄🍓','This is my mouth. I can eat.','이건 내 입이에요. 나는 먹을 수 있어요.',[['mouth','입'],['eat','먹다']]],
+    ['😊','This is my face. Smile!','이게 내 얼굴이에요. 웃어요!',[['face','얼굴'],['smile','웃다']]]]},
+  {id:'s_morning', e:'🌅', t:'Good Morning!', ko:'좋은 아침!', pages:[
+    ['⏰','Ring, ring! It is seven.','따르릉! 일곱 시예요.',[['seven','일곱']]],
+    ['🌅😃','Good morning, Mom!','좋은 아침이에요, 엄마!',[['good morning','좋은 아침'],['mom','엄마']]],
+    ['🪥','I brush my teeth.','나는 이를 닦아요.',[['brush','솔질하다, 닦다'],['teeth','이, 이빨']]],
+    ['🍞🥛','I eat bread and drink milk.','나는 빵을 먹고 우유를 마셔요.',[['bread','빵'],['milk','우유']]],
+    ['🎒🏫','I go to school.','나는 학교에 가요.',[['school','학교']]],
+    ['👋','Bye, Mom! See you!','엄마, 다녀올게요! 이따 봐요!',[['bye','안녕(헤어질 때)']]]]},
+  {id:'s_bee', e:'🐝', t:'Busy Bee', ko:'바쁜 꿀벌', pages:[
+    ['🐝','Buzz, buzz! I am a bee.','붕붕! 나는 꿀벌이에요.',[['bee','꿀벌']]],
+    ['🐝🌼','I fly to the flowers.','나는 꽃에게 날아가요.',[['flower','꽃']]],
+    ['🌼🌷🌻','Yellow flower, pink flower, big flower.','노란 꽃, 분홍 꽃, 큰 꽃.',[['pink','분홍색'],['big','큰']]],
+    ['🐝🍯','I make sweet honey.','나는 달콤한 꿀을 만들어요.',[['sweet','달콤한'],['honey','꿀']]],
+    ['🐝🏠','I go back to my home.','나는 우리 집으로 돌아가요.',[['home','집']]],
+    ['🐝😴','I am tired. Good night!','나는 피곤해요. 잘 자요!',[['tired','피곤한']]]]}
+];
+
+/* 국어: 두 단계 모두 맨 앞에 글 읽기, 맨 뒤에 독서 기록 */
+Object.values(KO_LV).forEach(L=>{ L.acts=Object.assign({read:'📚 글 읽기'}, L.acts, {log:'📒 독서 기록'}); });
+KO_DESC.read='짧은 글을 소리 내어 읽고, 쉬운 문제 1 ~ 2개를 풀어요. 모르면 글을 다시 읽어 봐요.';
+KO_DESC.log='읽은 책 제목과 한 줄 느낌을 남겨요. 쌓일수록 뿌듯해요!';
+
+/* 📚 글 읽기: 책장 → 글 읽기 → 문제 1 ~ 2개 */
+let KR=null;
+const krDone = () => store.get('kread2',{});
+const krPool = () => KO_READS.filter(p=>p.lv===App.klv);
+function krNext(after){ const r=krDone(), l=krPool(), i=after?l.findIndex(p=>p.id===after):-1; return l.slice(i+1).find(p=>r[p.id]===undefined)||l.find(p=>r[p.id]===undefined)||l[(i+1)%l.length]; }
+function drawKRead(){
+  const b=document.getElementById('kbody'); if(!b) return;
+  const p=KO_READS.find(x=>x.id===App.krid);
+  if(!p){
+    const r=krDone(), l=krPool(), nx=krNext();
+    b.innerHTML=`<button class="subj kr-next" data-act="krOpen" data-v="${nx.id}"><span class="bk-e">${nx.e}</span><span><small>👉 이어서 읽을 글</small><br><b>${nx.t}</b></span></button>
+      <p class="sub" style="margin:12px 0 6px">📚 읽은 글 ${l.filter(x=>r[x.id]!==undefined).length} / ${l.length}편</p>
+      <div class="shelf">${l.map(x=>`<button class="book ${r[x.id]!==undefined?'read':''}" data-act="krOpen" data-v="${x.id}">${r[x.id]!==undefined?`<span class="done">${r[x.id]===x.qs.length?'🏅':'✔'}</span>`:''}<span class="bk-e">${x.e}</span><b>${x.t}</b><small>문제 ${x.qs.length}개</small></button>`).join('')}</div>`;
+    return;
+  }
+  if(!KR || KR.id!==p.id) KR={id:p.id, phase:'read', i:0, score:0, tried:false, solved:false, picked:[], note:'', qs:p.qs.map(([q,a,o,ex])=>({q, ans:a, choices:shuffle([a,...o]), explain:ex}))};
+  let below='';
+  if(KR.phase==='read') below=`<button class="big-btn" data-act="krQuiz">✅ 다 읽었어요! 문제 풀기</button>`;
+  else if(KR.phase==='done') below=`<div class="card center"><p class="big">${KR.score===KR.qs.length?'🏆 한 번에 다 맞혔어요!':`${KR.qs.length}문제 중 ${KR.score}개를 한 번에 맞혔어요!`}</p><p>받은 별 ⭐ ${KR.earned}개</p>
+      <button class="big-btn" data-act="krOpen" data-v="${krNext(p.id).id}">📖 다음 글 읽기</button></div>`;
+  else {
+    const q=KR.qs[KR.i], cls=i=>KR.solved&&q.choices[i]===q.ans?'ok':(KR.picked.includes(i)?'no':'');
+    below=`<div class="card"><div class="qtop"><span>문제 ${KR.i+1} / ${KR.qs.length}</span><span>⭐ ${KR.score}</span></div>
+      <div class="sq ko-q">${esc(q.q)}</div>
+      <div class="choices words">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="krPick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
+      ${KR.note?`<div class="hint">${KR.note}</div>`:''}${KR.solved?'':skipBtn('krSkip')}</div>`;
+  }
+  b.innerHTML=`<div class="card kr-page"><div class="kr-top"><span class="bk-e">${p.e}</span><b>${p.t}</b><button class="ls-spk" data-act="krSay" aria-label="읽어 주기">🔊</button></div>
+    ${p.paras.map(t=>`<p>${esc(t)}</p>`).join('')}</div>${below}
+    <div class="center"><button class="linkbtn" data-act="krClose">◀ 책장으로</button></div>`;
+}
+function krPick(i){
+  if(!KR||KR.solved||KR.phase!=='quiz') return;
+  const q=KR.qs[KR.i];
+  if(q.choices[i]===q.ans){
+    KR.solved=true; beep(true); markO(); logToday('korean', !KR.tried);
+    if(!KR.tried){ KR.score++; addStar(1); }
+    KR.note=`<span class="praise">${praise()}</span>`; drawKRead(); krNextQ(1400);
+  } else {
+    if(KR.picked.includes(i)) return;
+    KR.tried=true; KR.picked.push(i); beep(false);
+    KR.note='💡 글을 다시 한번 읽어 봐요. '+esc(q.explain); drawKRead();
+  }
+}
+function krSkip(){
+  if(!KR||KR.solved||KR.phase!=='quiz') return;
+  const q=KR.qs[KR.i];
+  KR.tried=true; KR.solved=true; beep(false); logToday('korean', false);
+  KR.note=`정답은 <b>${esc(q.ans)}</b><br><small>${esc(q.explain)}</small>`; drawKRead(); krNextQ(2600);
+}
+function krNextQ(ms){
+  const me=KR;
+  setTimeout(()=>{
+    if(KR!==me) return;
+    KR.i++; KR.tried=false; KR.solved=false; KR.picked=[]; KR.note='';
+    if(KR.i>=KR.qs.length){
+      KR.phase='done'; KR.earned=KR.score+(KR.score===KR.qs.length?1:0);
+      if(KR.score===KR.qs.length){ addStar(1); burst(); }
+      const r=krDone(); r[KR.id]=Math.max(r[KR.id]===undefined?-1:r[KR.id], KR.score); store.set('kread2',r); cloudPush();
+    }
+    if(App.view==='korean' && App.kact==='read') drawKRead();
+  }, ms);
+}
+/* 📒 독서 기록 */
+function drawBooks(){
+  const b=document.getElementById('kbody'); if(!b) return;
+  const list=store.get('books',[]), ym=dayKey().slice(0,7), month=list.filter(x=>x.d.startsWith(ym)).length;
+  b.innerHTML=`<div class="card">
+    <p class="big" style="margin:0 0 8px">📒 오늘 읽은 책</p>
+    <div class="inrow" style="margin-bottom:8px"><input id="bkT" maxlength="40" placeholder="책 제목" autocomplete="off"></div>
+    <div class="inrow"><input id="bkL" maxlength="80" placeholder="한 줄 느낌 (예: 공룡이 멋있었다)" autocomplete="off"><button class="pill" data-act="addBook">남기기</button></div>
+    <p class="sub" style="font-size:.9rem;margin:8px 0 0">하루 3권까지 한 권마다 ⭐ 1개! 이번 달 ${month}권, 모두 ${list.length}권 읽었어요.</p></div>
+    <div class="shelf" style="margin-top:12px">${list.slice().reverse().map((x,i)=>`<div class="book"><span class="done" style="color:var(--sub)">${x.d.slice(5).replace('-','/')}</span>
+      <span class="bk-e">${['📕','📗','📘','📙'][(list.length-1-i)%4]}</span><b>${esc(x.t)}</b><small>${esc(x.l||'')}</small>
+      <button class="linkbtn" style="margin:4px 0 0;align-self:flex-end;font-size:.8rem" data-act="delBook" data-v="${x.at}">지우기</button></div>`).join('')||'<p class="sub" style="white-space:nowrap">📚 첫 책을 남겨 봐요!</p>'}</div>`;
+}
+
+/* 영어 📖 이야기: 그림책처럼 한 장씩 → 낱말 퀴즈 2문제 */
+let ESQ=null;
+const estPage = () => { const st=E_STORIES.find(s=>s.id===App.est); return st ? st.pages[Math.min(App.epg,st.pages.length-1)] : null; };
+function drawEStory(){
+  const eb=document.getElementById('ebody'); if(!eb) return;
+  const st=E_STORIES.find(s=>s.id===App.est), r=store.get('estory',{});
+  if(!st){
+    eb.innerHTML=`<p class="desc">영어를 몰라도 괜찮아요! 그림을 보며 한 장씩 넘기고, 🔊를 눌러 따라 말해 봐요. 다 읽으면 낱말 퀴즈 2문제! (${E_STORIES.filter(s=>r[s.id]!==undefined).length} / ${E_STORIES.length}권 읽음)</p>
+      <div class="shelf">${E_STORIES.map(s=>`<button class="book ${r[s.id]!==undefined?'read':''}" data-act="estOpen" data-v="${s.id}">${r[s.id]!==undefined?`<span class="done">${r[s.id]===2?'🏅':'✔'}</span>`:''}<span class="bk-e">${s.e}</span><b class="en">${s.t}</b><small>${s.ko}</small></button>`).join('')}</div>`;
+    return;
+  }
+  if(ESQ && ESQ.id===st.id){ drawEStoryQuiz(st); return; }
+  const n=st.pages.length, pg=Math.min(App.epg,n-1), [pic,en,ko,ws]=st.pages[pg];
+  eb.innerHTML=`<div class="card est">
+      <div class="est-cover">📖 ${st.ko}</div>
+      <div class="est-title en">${st.t}</div>
+      <div class="est-pic">${pic}</div>
+      <button class="est-en en" data-act="estSay">${esc(en)} <span>🔊</span></button>
+      <div class="est-ko">${App.eko?esc(ko):'<button class="pill" data-act="estKo">🤔 무슨 뜻일까? 눌러 보기</button>'}</div>
+      <div class="est-words">${ws.map(([w,m])=>`<button class="est-w" data-act="say" data-v="${esc(w)}"><span class="en">${esc(w)}</span>${esc(m)}</button>`).join('')}</div>
+      <div class="est-nav">
+        <button class="pill" data-act="estPage" data-v="-1" ${pg===0?'disabled style="opacity:.35"':''}>◀ 앞장</button>
+        <div><div class="est-dots">${st.pages.map((_,i)=>`<span class="${i===pg?'on':''}"></span>`).join('')}</div><div class="sub" style="font-size:.85rem;margin-top:4px">${pg+1} / ${n}쪽</div></div>
+        ${pg<n-1?'<button class="pill on" data-act="estPage" data-v="1">다음 장 ▶</button>':'<button class="pill on" data-act="estQuiz">📝 낱말 퀴즈!</button>'}
+      </div>
+    </div>
+    <div class="center"><button class="linkbtn" data-act="estClose">◀ 책장으로</button></div>`;
+}
+function startEStoryQuiz(st){
+  const all=[...new Set(E_STORIES.flatMap(s=>s.pages.flatMap(p=>p[3].map(x=>x[1]))))];
+  const mine=shuffle([...new Map(st.pages.flatMap(p=>p[3]).map(x=>[x[0],x])).values()]).slice(0,2);
+  ESQ={id:st.id, i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false,
+    list:mine.map(([w,m])=>({w, ans:m, choices:shuffle([m, ...shuffle(all.filter(x=>x!==m)).slice(0,3)])}))};
+}
+function drawEStoryQuiz(st){
+  const eb=document.getElementById('ebody'); if(!eb) return;
+  if(ESQ.done){
+    const nx=E_STORIES[(E_STORIES.findIndex(s=>s.id===st.id)+1)%E_STORIES.length];
+    eb.innerHTML=`<div class="card center"><p class="sub">${st.e} ${st.t}</p><p class="big">${ESQ.score===2?'🏆 2문제 모두 한 번에!':`2문제 중 ${ESQ.score}개를 한 번에 맞혔어요!`}</p>
+      <p>받은 별 ⭐ ${ESQ.earned}개</p>
+      <button class="big-btn" data-act="estOpen" data-v="${nx.id}">📖 다음 이야기: ${nx.e} ${nx.t}</button>
+      <div class="center"><button class="linkbtn" data-act="estOpen" data-v="${st.id}">↺ 이 이야기 다시 읽기</button> · <button class="linkbtn" data-act="estClose">책장으로</button></div></div>`;
+    return;
+  }
+  const q=ESQ.list[ESQ.i], cls=i=>ESQ.solved&&q.choices[i]===q.ans?'ok':(ESQ.picked.includes(i)?'no':'');
+  eb.innerHTML=`<div class="card center"><div class="qtop"><span>${st.e} 낱말 퀴즈 · ${ESQ.i+1} / 2</span><span>⭐ ${ESQ.score}</span></div>
+    <div class="est-q en">${esc(q.w)}</div><button class="spk" data-act="say" data-v="${esc(q.w)}">🔊 듣기</button>
+    <p class="sub">이야기에 나온 이 낱말의 뜻은?</p>
+    <div class="choices words">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="estPick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
+    ${ESQ.note?`<div class="hint">${ESQ.note}</div>`:''}${ESQ.solved?'':skipBtn('estSkip')}</div>`;
+}
+function estAnswer(i){
+  if(!ESQ||ESQ.solved||ESQ.done) return;
+  const q=ESQ.list[ESQ.i], skip=i<0;
+  if(!skip && q.choices[i]===q.ans){
+    ESQ.solved=true; beep(true); markO(); speak(q.w); logToday('eng', !ESQ.tried);
+    if(!ESQ.tried){ ESQ.score++; addStar(1); }
+    ESQ.note=`<span class="praise">${praise()}</span>`;
+  } else {
+    if(!skip && ESQ.picked.includes(i)) return;
+    if(!skip){ ESQ.tried=true; ESQ.picked.push(i); beep(false); ESQ.note='💡 이야기에서 이 낱말이 나온 장을 떠올려 봐요.'; drawEStory(); return; }
+    ESQ.tried=true; ESQ.solved=true; beep(false); logToday('eng', false); ESQ.note=`정답은 <b>${esc(q.ans)}</b>`;
+  }
+  drawEStory();
+  const me=ESQ;
+  setTimeout(()=>{
+    if(ESQ!==me) return;
+    ESQ.i++; ESQ.tried=false; ESQ.solved=false; ESQ.picked=[]; ESQ.note='';
+    if(ESQ.i>=ESQ.list.length){
+      ESQ.done=true; ESQ.earned=ESQ.score+(ESQ.score===2?1:0);
+      if(ESQ.score===2){ addStar(1); burst(); }
+      const r=store.get('estory',{}); r[ESQ.id]=Math.max(r[ESQ.id]===undefined?-1:r[ESQ.id], ESQ.score); store.set('estory',r); cloudPush();
+    } else setTimeout(()=>speak(ESQ.list[ESQ.i].w),300);
+    if(App.view==='eng' && App.emode==='story') drawEStory();
+  }, skip?2200:1400);
 }
 
 /* ───── 한국사 ───── */
@@ -2886,8 +3174,32 @@ const ACT = {
   replay: ()=>{ if(Q&&Q.cur) speak(Q.cur.w); },
   pick: v=>pick(+v),
   quizAgain: ()=>{ Q=null; drawQuiz(); },
-  klv: v=>{ App.klv=+v; App.kact=Object.keys(KO_LV[App.klv].acts)[0]; K=null; render(); },
+  klv: v=>{ App.klv=+v; App.kact=Object.keys(KO_LV[App.klv].acts)[0]; K=null; App.krid=null; KR=null; render(); },
   kact: v=>{ App.kact=v; K=null; render(); },
+  krOpen: v=>{ const p=KO_READS.find(x=>x.id===v); if(p && p.lv!==App.klv) App.klv=p.lv; App.kact='read'; App.krid=v; KR=null; render(); window.scrollTo(0,0); },
+  krClose: ()=>{ App.krid=null; KR=null; render(); },
+  krQuiz: ()=>{ if(KR){ KR.phase='quiz'; drawKRead(); const c=document.querySelector('.kr-page'); if(c) window.scrollTo({top:c.offsetTop+c.offsetHeight-80,behavior:'smooth'}); } },
+  krPick: v=>krPick(+v),
+  krSkip: ()=>krSkip(),
+  krSay: ()=>{ const p=KO_READS.find(x=>x.id===App.krid); if(p) speak(p.t+'. '+p.paras.join(' '),'ko'); },
+  addBook: ()=>{
+    const t=document.getElementById('bkT').value.trim(), l=document.getElementById('bkL').value.trim();
+    if(!t){ toast('책 제목을 적어 주세요'); return; }
+    const list=store.get('books',[]), today=list.filter(x=>x.d===dayKey()).length;
+    list.push({t, l, d:dayKey(), at:Date.now()}); while(list.length>300) list.shift();
+    store.set('books',list); store.set('booksAt',Date.now());
+    if(today<3){ addStar(1); toast('📒 기록했어요! ⭐ +1'); } else { toast('📒 기록했어요!'); cloudPush(); }
+    drawBooks();
+  },
+  delBook: v=>{ if(!confirm('이 기록을 지울까요?')) return; store.set('books', store.get('books',[]).filter(x=>String(x.at)!==v)); store.set('booksAt',Date.now()); cloudPush(); drawBooks(); },
+  estOpen: v=>{ App.est=v; App.epg=0; App.eko=false; ESQ=null; if(App.view!=='eng'){ App.emode='story'; go('eng'); } else { App.emode='story'; render(); window.scrollTo(0,0); } const p=estPage(); if(p) setTimeout(()=>speak(p[1]),350); },
+  estClose: ()=>{ App.est=null; ESQ=null; render(); },
+  estPage: v=>{ App.epg=Math.max(0,App.epg+ +v); App.eko=false; drawEStory(); const p=estPage(); if(p) speak(p[1]); },
+  estSay: ()=>{ const p=estPage(); if(p) speak(p[1]); },
+  estKo: ()=>{ App.eko=true; drawEStory(); },
+  estQuiz: ()=>{ const st=E_STORIES.find(s=>s.id===App.est); if(!st) return; startEStoryQuiz(st); drawEStory(); setTimeout(()=>speak(ESQ.list[0].w),300); },
+  estPick: v=>estAnswer(+v),
+  estSkip: ()=>estAnswer(-1),
   kpick: v=>kPick(+v),
   kskip: ()=>kSkip(),
   kAgain: ()=>{ K=null; drawK(); },
