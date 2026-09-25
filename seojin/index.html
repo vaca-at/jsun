@@ -576,6 +576,9 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .adm-head h3{margin:0;flex:1}
 .adm-all{padding:.55rem 1.1rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:1.05rem;box-shadow:0 3px 0 rgba(0,0,0,.2);font-family:var(--font-t),var(--font),'Jua',sans-serif;white-space:nowrap}
 .adm-all:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+/* 화면 아래 이용약관 · 개인정보처리방침 */
+.legal{max-width:780px;margin:0 auto;padding:4px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
+.legal a{color:var(--sub)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -604,6 +607,7 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 </aside>
 
 <main id="view"></main>
+<footer class="legal"><a href="../policy/terms.html">이용약관</a> · <a href="../policy/privacy.html"><b>개인정보처리방침</b></a></footer>
 
 <div class="login" id="login" hidden>
   <div class="login-box">
@@ -613,6 +617,7 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
     <div class="inrow" id="loginNew" hidden><input id="newWho" maxlength="8" placeholder="새 이름 적기" autocomplete="off"><button class="pill" data-act="addWho">들어가기</button></div>
     <button class="adminbtn" data-act="openMom">👩 엄마 모드</button>
     <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button>
+    <p class="legal" style="margin-top:14px"><a href="../policy/terms.html">이용약관</a> · <a href="../policy/privacy.html"><b>개인정보처리방침</b></a></p>
   </div>
 </div>
 
