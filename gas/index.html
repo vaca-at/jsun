@@ -78,6 +78,17 @@ table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.92rem}
 th,td{border:1px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}
 th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowrap}
 .tip{margin-top:10px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--acc-soft);border-radius:0 10px 10px 0;font-size:.92rem}
+/* 요점 정리 빈칸 (노란 칸, 누르면 보여요) */
+.blank{background:#FFD84D;color:transparent;border-radius:5px;padding:0 .2em;cursor:pointer;box-decoration-break:clone;-webkit-box-decoration-break:clone;transition:background .15s,color .15s;user-select:none}
+.blank:hover{background:#FFCB1F}
+.blank.open{background:#FFF3B8;color:#6B4E00;font-weight:700;user-select:text}
+:root[data-theme="dark"] .blank.open{background:#4A3D0A;color:#FFE27A}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .blank.open{background:#4A3D0A;color:#FFE27A} }
+.blank:focus-visible{outline:3px solid var(--acc);outline-offset:1px}
+.bbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.bbar .hint{flex:1 0 100%;font-size:.74rem;color:var(--sub)}
+.bbar button{border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;padding:.15rem .75rem;font-size:.74rem;min-height:2.1rem}
+.bbar button.fill{background:#FFD84D;border-color:#E8B800;color:#3A2A00;font-weight:700}
 .speak{border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;padding:.2rem .8rem;font-size:.82rem;float:right;margin-left:8px}
 
 /* 관리자 */
@@ -612,7 +623,7 @@ function guideView(){
     <h2>이용방법</h2>
     <p>가스기능사 필기시험을 차근차근 준비하는 공부 앱이에요. 위쪽 메뉴를 순서대로 따라가면 돼요.</p>
     <h3>1. 요점 정리</h3>
-    <p>주제별로 꼭 외울 내용을 표와 그림으로 정리했어요. <b>🔊 읽기</b>를 누르면 소리 내어 읽어 줘요.</p>
+    <p>주제별로 꼭 외울 내용을 표와 그림으로 정리했어요. 시험에 자주 나오는 단어와 숫자는 <b>노란 빈칸</b>으로 가려져 있어요. 빈칸을 누르면 답이 보이고, <b>빈칸 모두 보기 / 모두 가리기</b>로 한꺼번에 바꿀 수 있어요. <b>🔊 읽기</b>를 누르면 소리 내어 읽어 줘요.</p>
     <h3>2. 퀴즈로 공부하기</h3>
     <p><b>객관식 퀴즈</b>는 보기 4개 중에서 답을 골라요. <b>뒤집기 카드</b>는 카드를 눌러 답을 확인하고 "알아요 / 다시 볼래요"를 고르면 돼요.</p>
     <h3>3. 문제 풀기</h3>
@@ -806,66 +817,68 @@ function cyl(color, name, note, outline){
     <path d="M10 42 Q10 18 30 18 Q50 18 50 42 V118 Q50 127 41 127 H19 Q10 127 10 118 Z" fill="${color}" stroke="${outline?'#8793A1':'rgba(0,0,0,.25)'}" stroke-width="${outline?3:2}"/>
     <rect x="10" y="60" width="40" height="6" fill="rgba(255,255,255,.35)"/></svg><b>${name}</b>${note||''}</div>`;
 }
+/* 요점 정리 빈칸: B('답') 은 노란 칸으로 가려져요. 누르면 보여요. (시험에 자주 나오는 단어·숫자) */
+const B = t => `<span class="blank" role="button" tabindex="0" aria-label="빈칸, 눌러서 보기">${t}</span>`;
 const STUDY_RAW=[
  ['가스 용기 색깔 (공업용)', `
    <div class="cyls">
-    ${cyl('#2E8B57','산소','녹색')}${cyl('#F28C28','수소','주황색')}${cyl('#F2C200','아세틸렌','황색')}${cyl('#2F6FD1','탄산가스','청색')}
-    ${cyl('#FFFFFF','암모니아','백색',true)}${cyl('#7B4A2A','염소','갈색')}${cyl('#C3C9D0','LPG','밝은 회색')}${cyl('#8A939D','그 밖의 가스','회색')}
+    ${cyl('#2E8B57','산소',B('녹색'))}${cyl('#F28C28','수소',B('주황색'))}${cyl('#F2C200','아세틸렌',B('황색'))}${cyl('#2F6FD1','탄산가스',B('청색'))}
+    ${cyl('#FFFFFF','암모니아',B('백색'),true)}${cyl('#7B4A2A','염소',B('갈색'))}${cyl('#C3C9D0','LPG',B('밝은 회색'))}${cyl('#8A939D','그 밖의 가스',B('회색'))}
    </div>
-   <div class="tip">의료용은 색이 달라요. 의료용 산소는 백색이에요.<br>가연성가스 용기에는 빨간 글씨로 "연", 독성가스 용기에는 "독"이라고 써요.</div>`],
+   <div class="tip">의료용은 색이 달라요. 의료용 산소는 ${B('백색')}이에요.<br>가연성가스 용기에는 빨간 글씨로 "${B('연')}", 독성가스 용기에는 "${B('독')}"이라고 써요.</div>`],
  ['폭발범위 (공기 중, %)', `
    <table><tr><th>가스</th><th>폭발범위</th></tr>
-   <tr><td>수소</td><td>4 ~ 75</td></tr><tr><td>메탄</td><td>5 ~ 15</td></tr>
-   <tr><td>프로판</td><td>2.1 ~ 9.5</td></tr><tr><td>부탄</td><td>1.8 ~ 8.4</td></tr>
-   <tr><td>아세틸렌</td><td>2.5 ~ 81 (가장 넓어요)</td></tr><tr><td>일산화탄소</td><td>12.5 ~ 74</td></tr>
-   <tr><td>암모니아</td><td>15 ~ 28</td></tr></table>
-   <div class="tip">위험도 = (상한 − 하한) ÷ 하한<br>가연성가스: 하한 10% 이하, 또는 상한과 하한의 차가 20% 이상</div>`],
+   <tr><td>수소</td><td>${B('4 ~ 75')}</td></tr><tr><td>메탄</td><td>${B('5 ~ 15')}</td></tr>
+   <tr><td>프로판</td><td>${B('2.1 ~ 9.5')}</td></tr><tr><td>부탄</td><td>${B('1.8 ~ 8.4')}</td></tr>
+   <tr><td>아세틸렌</td><td>${B('2.5 ~ 81')} (가장 넓어요)</td></tr><tr><td>일산화탄소</td><td>${B('12.5 ~ 74')}</td></tr>
+   <tr><td>암모니아</td><td>${B('15 ~ 28')}</td></tr></table>
+   <div class="tip">위험도 = ${B('(상한 − 하한) ÷ 하한')}<br>가연성가스: 하한 ${B('10%')} 이하, 또는 상한과 하한의 차가 ${B('20%')} 이상</div>`],
  ['가벼운 가스, 무거운 가스', `
-   <p>비중 = 분자량 ÷ 29 (공기). 1보다 크면 공기보다 무거워요.</p>
+   <p>비중 = 분자량 ÷ ${B('29')} (공기). 1보다 크면 공기보다 무거워요.</p>
    <table><tr><th>가스</th><th>분자량</th><th>공기와 비교</th></tr>
-   <tr><td>수소</td><td>2</td><td>아주 가벼움</td></tr><tr><td>메탄(LNG)</td><td>16</td><td>가벼움 → 위로</td></tr>
-   <tr><td>암모니아</td><td>17</td><td>가벼움</td></tr><tr><td>프로판(LPG)</td><td>44</td><td>무거움 → 바닥에 고임</td></tr>
-   <tr><td>부탄(LPG)</td><td>58</td><td>무거움</td></tr></table>
-   <div class="tip">가스누출경보기: LPG는 바닥에서 30 cm 이내, 도시가스(LNG)는 천장에서 30 cm 이내</div>`],
+   <tr><td>수소</td><td>${B('2')}</td><td>아주 가벼움</td></tr><tr><td>메탄(LNG)</td><td>${B('16')}</td><td>${B('가벼움')} → 위로</td></tr>
+   <tr><td>암모니아</td><td>${B('17')}</td><td>가벼움</td></tr><tr><td>프로판(LPG)</td><td>${B('44')}</td><td>${B('무거움')} → 바닥에 고임</td></tr>
+   <tr><td>부탄(LPG)</td><td>${B('58')}</td><td>무거움</td></tr></table>
+   <div class="tip">가스누출경보기: LPG는 ${B('바닥')}에서 ${B('30 cm')} 이내, 도시가스(LNG)는 ${B('천장')}에서 ${B('30 cm')} 이내</div>`],
  ['가스 누설 시험지', `
    <table><tr><th>가스</th><th>시험지</th><th>색 변화</th></tr>
-   <tr><td>암모니아</td><td>적색 리트머스지</td><td>청색</td></tr>
-   <tr><td>염소</td><td>KI 전분지</td><td>청색</td></tr>
-   <tr><td>황화수소</td><td>연당지</td><td>흑색</td></tr>
-   <tr><td>일산화탄소</td><td>염화파라듐지</td><td>흑색</td></tr>
-   <tr><td>아세틸렌</td><td>염화제1구리착염지</td><td>적색</td></tr>
-   <tr><td>시안화수소</td><td>질산구리벤지딘지</td><td>청색</td></tr></table>`],
+   <tr><td>암모니아</td><td>${B('적색 리트머스지')}</td><td>${B('청색')}</td></tr>
+   <tr><td>염소</td><td>${B('KI 전분지')}</td><td>${B('청색')}</td></tr>
+   <tr><td>황화수소</td><td>${B('연당지')}</td><td>${B('흑색')}</td></tr>
+   <tr><td>일산화탄소</td><td>${B('염화파라듐지')}</td><td>${B('흑색')}</td></tr>
+   <tr><td>아세틸렌</td><td>${B('염화제1구리착염지')}</td><td>${B('적색')}</td></tr>
+   <tr><td>시안화수소</td><td>${B('질산구리벤지딘지')}</td><td>${B('청색')}</td></tr></table>`],
  ['압력과 온도 단위', `
-   <table><tr><th>1기압(atm)</th><td>760 mmHg = 1.0332 kgf/cm² = 101.325 kPa = 10.332 mH₂O</td></tr>
-   <tr><th>절대압력</th><td>대기압 + 게이지압력</td></tr>
-   <tr><th>절대온도</th><td>K = ℃ + 273</td></tr>
-   <tr><th>기체 1몰</th><td>0℃, 1기압에서 22.4 L</td></tr>
-   <tr><th>보일-샤를</th><td>P₁V₁/T₁ = P₂V₂/T₂ (온도는 절대온도로)</td></tr></table>
-   <div class="tip">도시가스 압력: 저압 0.1 MPa 미만, 중압 0.1 ~ 1 MPa 미만, 고압 1 MPa 이상</div>`],
+   <table><tr><th>1기압(atm)</th><td>${B('760')} mmHg = ${B('1.0332')} kgf/cm² = ${B('101.325')} kPa = ${B('10.332')} mH₂O</td></tr>
+   <tr><th>절대압력</th><td>${B('대기압 + 게이지압력')}</td></tr>
+   <tr><th>절대온도</th><td>K = ℃ + ${B('273')}</td></tr>
+   <tr><th>기체 1몰</th><td>0℃, 1기압에서 ${B('22.4 L')}</td></tr>
+   <tr><th>보일-샤를</th><td>P₁V₁/T₁ = P₂V₂/T₂ (온도는 ${B('절대온도')}로)</td></tr></table>
+   <div class="tip">도시가스 압력: 저압 ${B('0.1 MPa')} 미만, 중압 0.1 ~ ${B('1 MPa')} 미만, 고압 1 MPa 이상</div>`],
  ['꼭 외울 거리·높이', `
    <table>
-   <tr><th>가스계량기 높이</th><td>바닥에서 1.6 ~ 2 m</td></tr>
-   <tr><th>계량기와 떨어질 거리</th><td>전기계량기·전기개폐기 60 cm, 전기점멸기·접속기 30 cm, 절연 안 된 전선 15 cm</td></tr>
-   <tr><th>용기 보관 장소</th><td>2 m 안에 화기 금지, 40℃ 이하 보관</td></tr>
-   <tr><th>화기와 우회거리</th><td>가연성가스·산소 8 m, 그 밖의 가스 2 m</td></tr>
-   <tr><th>배관 고정</th><td>13 mm 미만 1 m, 13 ~ 33 mm 2 m, 33 mm 이상 3 m마다</td></tr>
-   <tr><th>배관 묻는 깊이</th><td>폭 8 m 이상 도로 1.2 m, 폭 4 ~ 8 m 도로 1 m, 공동주택 부지 0.6 m</td></tr>
-   <tr><th>배관 색</th><td>땅 위 황색 / 땅속 저압 황색, 중압 이상 적색</td></tr></table>`],
+   <tr><th>가스계량기 높이</th><td>바닥에서 ${B('1.6 ~ 2 m')}</td></tr>
+   <tr><th>계량기와 떨어질 거리</th><td>전기계량기·전기개폐기 ${B('60 cm')}, 전기점멸기·접속기 ${B('30 cm')}, 절연 안 된 전선 ${B('15 cm')}</td></tr>
+   <tr><th>용기 보관 장소</th><td>${B('2 m')} 안에 화기 금지, ${B('40℃')} 이하 보관</td></tr>
+   <tr><th>화기와 우회거리</th><td>가연성가스·산소 ${B('8 m')}, 그 밖의 가스 ${B('2 m')}</td></tr>
+   <tr><th>배관 고정</th><td>13 mm 미만 ${B('1 m')}, 13 ~ 33 mm ${B('2 m')}, 33 mm 이상 ${B('3 m')}마다</td></tr>
+   <tr><th>배관 묻는 깊이</th><td>폭 8 m 이상 도로 ${B('1.2 m')}, 폭 4 ~ 8 m 도로 ${B('1 m')}, 공동주택 부지 ${B('0.6 m')}</td></tr>
+   <tr><th>배관 색</th><td>땅 위 ${B('황색')} / 땅속 저압 ${B('황색')}, 중압 이상 ${B('적색')}</td></tr></table>`],
  ['연소', `
-   <p>연소 3요소: 가연물, 산소공급원, 점화원</p>
-   <table><tr><th>역화(백파이어)</th><td>분출속도 &lt; 연소속도 → 불꽃이 안으로 들어감</td></tr>
-   <tr><th>선화(리프팅)</th><td>분출속도 &gt; 연소속도 → 불꽃이 버너에서 뜸</td></tr>
-   <tr><th>메탄 완전연소</th><td>CH₄ + 2O₂ → CO₂ + 2H₂O</td></tr>
-   <tr><th>프로판 완전연소</th><td>C₃H₈ + 5O₂ → 3CO₂ + 4H₂O</td></tr></table>
-   <div class="tip">공기가 모자라면 불완전연소 → 일산화탄소(CO)가 생겨요.</div>`],
+   <p>연소 3요소: ${B('가연물')}, ${B('산소공급원')}, ${B('점화원')}</p>
+   <table><tr><th>역화(백파이어)</th><td>분출속도 ${B('&lt;')} 연소속도 → 불꽃이 안으로 들어감</td></tr>
+   <tr><th>선화(리프팅)</th><td>분출속도 ${B('&gt;')} 연소속도 → 불꽃이 버너에서 뜸</td></tr>
+   <tr><th>메탄 완전연소</th><td>CH₄ + ${B('2O₂')} → CO₂ + 2H₂O</td></tr>
+   <tr><th>프로판 완전연소</th><td>C₃H₈ + ${B('5O₂')} → 3CO₂ + 4H₂O</td></tr></table>
+   <div class="tip">공기가 모자라면 불완전연소 → ${B('일산화탄소(CO)')}가 생겨요.</div>`],
  ['설비와 기기', `
    <table>
-   <tr><th>안전밸브</th><td>스프링식(가장 많이 씀), 가용전식(염소·아세틸렌), 파열판식, 중추식</td></tr>
-   <tr><th>가스미터</th><td>막식(가정용), 습식(기준기·실험용), 루트식(대용량)</td></tr>
-   <tr><th>저압조정기</th><td>LPG 1단 감압식 조정압력 2.3 ~ 3.3 kPa</td></tr>
-   <tr><th>펌프 이상</th><td>캐비테이션(기포), 수격작용(압력 충격), 베이퍼록(흡입 쪽 기화), 서징</td></tr>
-   <tr><th>전기방식</th><td>희생양극법(마그네슘), 외부전원법, 배류법</td></tr>
-   <tr><th>비파괴검사</th><td>RT 방사선, UT 초음파, MT 자분, PT 침투</td></tr></table>`]
+   <tr><th>안전밸브</th><td>${B('스프링식')}(가장 많이 씀), ${B('가용전식')}(염소·아세틸렌), 파열판식, 중추식</td></tr>
+   <tr><th>가스미터</th><td>${B('막식')}(가정용), ${B('습식')}(기준기·실험용), ${B('루트식')}(대용량)</td></tr>
+   <tr><th>저압조정기</th><td>LPG 1단 감압식 조정압력 ${B('2.3 ~ 3.3 kPa')}</td></tr>
+   <tr><th>펌프 이상</th><td>${B('캐비테이션')}(기포), ${B('수격작용')}(압력 충격), ${B('베이퍼록')}(흡입 쪽 기화), 서징</td></tr>
+   <tr><th>전기방식</th><td>희생양극법(${B('마그네슘')}), 외부전원법, 배류법</td></tr>
+   <tr><th>비파괴검사</th><td>RT ${B('방사선')}, UT ${B('초음파')}, MT ${B('자분')}, PT ${B('침투')}</td></tr></table>`]
 ];
 
 /* 퀴즈로 공부하기: 주제마다 [앞면 질문, 뒷면 답, 덧붙임(없으면 ''), 그림] */
@@ -908,7 +921,9 @@ const topicTabs = act => `<div class="topics" role="tablist">${STUDY.map((x,i)=>
 function study(){
   const T=STUDY[S.topic]||STUDY[0], i=S.topic;
   $v.innerHTML = topicTabs('topic') +
-    `<section class="card" id="st"><button class="speak" data-read="st">🔊 읽기</button><h2>${T.t}</h2>${T.body}</section>
+    `<section class="card" id="st"><button class="speak" data-read="st">🔊 읽기</button><h2>${T.t}</h2>
+      <div class="bbar"><span class="hint">노란 칸을 누르면 답이 보여요</span><button class="fill" data-blanks="show">빈칸 모두 보기</button><button data-blanks="hide">모두 가리기</button></div>
+      ${T.body}</section>
     <div class="navrow">
       <button class="plain" data-topic="${(i+STUDY.length-1)%STUDY.length}">◀ 앞 주제</button>
       <button class="plain" data-topic="${(i+1)%STUDY.length}">다음 주제 ▶</button>
@@ -1152,6 +1167,7 @@ function wrongNote(){
 
 /* ───────── 클릭 처리 ───────── */
 document.addEventListener('click',e=>{
+  const bl=e.target.closest('.blank'); if(bl){ bl.classList.toggle('open'); return; }
   const b=e.target.closest('button'); if(!b) return;
   const d=b.dataset;
   if(d.size){ S.size=+d.size; save(); applySize(); return; }
@@ -1183,11 +1199,13 @@ document.addEventListener('click',e=>{
   if(d.again){ start(Q.kind==='wrong'?'wrong':Q.kind); return; }
   if(d.quit){ if(Q && Q.exam && !Q.done && !confirm('모의시험을 그만둘까요? 푼 문제는 기록에 남지만 점수는 저장되지 않아요.')) return; stopTimer(); const bk=Q?Q.back:'quiz'; Q=null; go(bk); return; }
   if(d.readq){ const it=Q.list[Q.i]; speak(it.q.q+'. '+it.opts.map((o,j)=>NUM[j]+' '+o).join('. ')); return; }
-  if(d.read){ const el=document.getElementById(d.read); if(el) speak(el.innerText.replace('🔊 읽기','')); return; }
+  if(d.blanks){ document.querySelectorAll('#st .blank').forEach(x=>x.classList.toggle('open',d.blanks==='show')); return; }
+  if(d.read){ const el=document.getElementById(d.read); if(!el) return; const c=el.cloneNode(true); c.querySelectorAll('.bbar,.speak').forEach(x=>x.remove()); c.querySelectorAll('.blank:not(.open)').forEach(x=>{ x.textContent=' 빈칸 '; }); document.body.appendChild(c); c.style.cssText='position:absolute;left:-9999px'; const t=c.innerText; c.remove(); speak(t); return; }
   if(d.clear){ delete S.wrong[d.clear]; save(); wrongNote(); toast('목록에서 뺐어요'); return; }
   if(d.reset){ if(confirm('푼 기록과 틀린 문제를 모두 지울까요?')){ S.stat={}; S.wrong={}; S.days={}; S.exams=[]; S.cardStat={}; save(); pushNow(); toast('기록을 지웠어요'); go('study'); } return; }
 });
 document.addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key===' ') && e.target.classList && e.target.classList.contains('blank')){ e.preventDefault(); e.target.classList.toggle('open'); return; }
   if(e.key==='Enter' && (e.target.id==='aem'||e.target.id==='apw')){ emailLogin(); return; }
   if(e.key==='Enter' && e.target.id==='apin'){ const b=document.querySelector('[data-apin]'); if(b) b.click(); return; }
   if((view!=='quiz'&&view!=='past'&&view!=='exam')||!Q||Q.done) return;
