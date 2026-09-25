@@ -320,6 +320,11 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .lvtab small{color:var(--sub);font-size:.85rem}
 .lvtab.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
 .lvtab.on b{color:var(--accent)}
+/* 수학 단계 탭 5개: 좁은 화면에서도 한 줄 제목 */
+.mlvtabs{grid-template-columns:repeat(auto-fit,minmax(7.4rem,1fr))}
+.mlvtabs .lvtab{padding:10px 4px}
+.mlvtabs .lvtab b{font-size:1.15rem;white-space:nowrap}
+.mlvtabs .lvtab small{font-size:.74rem}
 .hj-hero{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;text-align:center}
 .hj-big{font-size:7rem;line-height:1}
 .hj-mean{font-size:2.3rem}
@@ -514,6 +519,13 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .bal-dots{display:inline-flex;gap:3px}
 .bal-dots i{width:10px;height:10px;border-radius:3px}
 .bal-dots i.today{outline:2px solid var(--accent);outline-offset:1px}
+/* 한 과목 100문제 완주 축하 */
+.closed .cel-emo{font-size:4.6rem;line-height:1.1;display:inline-block;animation:celBounce 1s ease-in-out infinite}
+.cel-row{font-size:2rem;letter-spacing:.2em;margin:4px 0 8px}
+.closed .praise{font-size:1.9rem;margin:4px 0}
+@keyframes celBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-12px) scale(1.1)}}
+.rain{position:fixed;top:-3rem;z-index:45;pointer-events:none;animation:rainFall 2.8s ease-in forwards}
+@keyframes rainFall{to{transform:translateY(112vh) rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1495,7 +1507,7 @@ function logToday(s, ok, sub){
   if(sub){ const st=store.get('stat',{}), x=st[s+'|'+sub]||(st[s+'|'+sub]={n:0,ok:0}); x.n++; if(ok) x.ok++; store.set('stat',st); }
   cloudPush();
   if(dayTotal(k)===admin.goal) setTimeout(()=>{ toast('🎯 오늘 목표를 달성했어요!'); burst(); },900);
-  if(SUBJ[s] && e.n===SUBJ_DAY_MAX) setTimeout(()=>{ toast(`📕 오늘 ${SUBJ[s].name}는 ${SUBJ_DAY_MAX}문제를 채워서 닫아요. 다른 과목도 해 볼까?`); if(App.view===s) render(); },1600);
+  if(SUBJ[s] && e.n===SUBJ_DAY_MAX) setTimeout(()=>{ if(App.view===s) renderClosed(s,true); else { celebrate(); toast(`🏆 오늘 ${SUBJ[s].name} ${SUBJ_DAY_MAX}문제 완주! 정말 대단해요!`); } },1400);
 }
 /* 단원 · 활동별 정답률: 5문제 넘게 풀었고 70% 아래면 ⚠️ */
 function statRows(name=who){
@@ -1599,6 +1611,12 @@ async function cloudPull(name, docOnly){
     const ref=kidRef(name), snap=await ref.get();
     if(snap.exists){
       const d=snap.data();
+      // 관리자(대시보드 · 관리자 모드)가 기록을 지웠으면 이 기기에 남은 기록도 지워요
+      if(d.resetAt && d.resetAt > store.get('resetAt',0,name)){
+        PROFILE_KEYS.filter(k=>!KEEP_ON_RESET.includes(k)).forEach(k=>store.del(k,name));
+        store.set('resetAt',d.resetAt,name);
+        if(name===who){ stars=0; updateStars(); }
+      }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); }
       if(typeof d.hmock==='number' && d.hmock>store.get('hmock',0,name)) store.set('hmock',d.hmock,name);
       MAX_KEYS.forEach(k=>{ if(d[k]) store.set(k, mergeMax(store.get(k,{},name), d[k]), name); });
@@ -1628,9 +1646,12 @@ function cloudPush(){
   const name=who; clearTimeout(pushTimer);
   pushTimer=setTimeout(()=>cloudPushNow(name),1500);
 }
+/* 기록을 지워도 남겨 두는 것: 설정 · 고른 단계 */
+const KEEP_ON_RESET = ['settings','unit','mlv','hlv','hslv','elv','level','op','klv'];
 async function cloudPushNow(name){
   if(!await cloudInit()) return;
   const ref=kidRef(name); if(!ref) return;
+  try{ const snap=await ref.get(); if(snap.exists && (snap.data().resetAt||0) > store.get('resetAt',0,name)){ await cloudPull(name); if(who===name && App.view==='home') render(); return; } }catch(e){}
   const k=dayKey(), L=getLog(name);
   try{
     const pin=kidPinsRaw()[name]||{};
@@ -1648,8 +1669,9 @@ async function cloudReset(name){
   try{
     const ref=kidRef(name), qs=await ref.collection('daily').get();
     await Promise.all(qs.docs.map(d=>d.ref.delete()));
+    const resetAt=Date.now(); store.set('resetAt',resetAt,name); await ref.set({resetAt},{merge:true});
     const now=Date.now();
-    await ref.set({name, stars:0, starsAt:now, updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{}, wrongs:[], wrongsAt:now, books:[], booksAt:now});
+    await ref.set({name, resetAt, stars:0, starsAt:now, updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{}, wrongs:[], wrongsAt:now, books:[], booksAt:now});
   }catch(e){ console.warn('지우기 실패', e); }
 }
 
@@ -1780,13 +1802,29 @@ function render(){
 }
 
 /* ───── 홈 ───── */
-/* 한 과목을 하루 100문제 넘게 풀면 그날은 닫아요 */
-function renderClosed(s){
-  const others=Object.keys(SUBJ).filter(k=>k!==s && admin.subj[k] && !subjClosed(k));
-  view.innerHTML=`<div class="card center"><p class="big">📕 오늘 ${SUBJ[s].name}는 여기까지!</p>
-    <p>오늘 ${SUBJ[s].name} 문제를 ${subjCount(s)}개나 풀었어요. 정말 대단해요 👏<br><span class="sub">한 과목은 하루 ${SUBJ_DAY_MAX}문제까지 풀 수 있어요. 내일 다시 열려요.</span></p>
-    ${others.length?`<p class="sub">다른 과목도 해 볼까?</p><div class="subjects">${others.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>오늘 ${subjCount(k)}문제</small></button>`).join('')}</div>`:''}
+/* 한 과목을 하루 100문제 풀면 그날은 닫아요. 막힌 게 아니라 '완주'라서 크게 축하해 줘요 */
+const CHEERS = ['최고의 공부왕이에요!','정말 정말 대단해요!','끈기 대장이에요!','우와, 진짜 멋져요!','공부 챔피언 탄생!'];
+function celebrate(){
+  burst(); setTimeout(burst,500); setTimeout(burst,1000);
+  const E=['🎉','🎊','🥳','🏆','🌟','👏','💯','🎈','✨','🥇','👑','🍭','💖'];
+  for(let i=0;i<40;i++){
+    const s=document.createElement('span'); s.className='rain'; s.textContent=one(E);
+    s.style.left=(Math.random()*96)+'vw'; s.style.animationDelay=(Math.random()*1.8)+'s'; s.style.fontSize=(1.4+Math.random()*1.6)+'rem';
+    document.body.appendChild(s); setTimeout(()=>s.remove(),4800);
+  }
+}
+function renderClosed(s, party){
+  const nm=SUBJ[s].name, others=Object.keys(SUBJ).filter(k=>k!==s && admin.subj[k] && !subjClosed(k));
+  view.innerHTML=`<div class="card center closed">
+    <div class="cel-emo">🏆</div>
+    <p class="big">🎉 오늘 ${nm} ${subjCount(s)}문제 완주! 🎉</p>
+    <p class="praise">${who?josa(who,'아','야')+', ':''}${one(CHEERS)}</p>
+    <div class="cel-row">🥳👏💯🌟🎊</div>
+    <p>한 과목을 하루에 <b>${SUBJ_DAY_MAX}문제</b>나 푸는 건 정말 어려운 일이에요.<br>오늘 ${josa(nm,'은','는')} 충분히 잘했으니 푹 쉬게 해 주고,<br>다른 과목에서도 실력을 뽐내 볼까요? ✨</p>
+    <p class="sub">🌙 ${josa(nm,'은','는')} 내일 다시 열려요</p>
+    ${others.length?`<p class="big" style="font-size:1.25rem;margin-top:14px">👉 다음엔 어떤 과목?</p><div class="subjects">${others.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>오늘 ${subjCount(k)}문제</small></button>`).join('')}</div>`:'<p>🎊 오늘 모든 과목을 끝까지 해냈어요! 정말 최고예요!</p>'}
     <button class="big-btn" data-act="tab" data-v="home">🏠 홈으로</button></div>`;
+  if(party) celebrate();
 }
 function provHTML(){
   const [p,m]=PROVERBS[App.prov];
@@ -2441,7 +2479,7 @@ function renderSchool(){
   if(App.smode!=='learn') App.smode='quiz';
   const keys=[...MLV[App.mlv].keys,'mix_'+App.mlv];
   view.innerHTML=`
-    <div class="lvtabs" style="grid-template-columns:repeat(auto-fit,minmax(6.6rem,1fr))">${Object.entries(MLV).map(([k,L])=>`<button class="lvtab ${App.mlv===k?'on':''}" data-act="mlv" data-v="${k}"><b>${L.name}</b><small>${L.sub}</small></button>`).join('')}</div>
+    <div class="lvtabs mlvtabs">${Object.entries(MLV).map(([k,L])=>`<button class="lvtab ${App.mlv===k?'on':''}" data-act="mlv" data-v="${k}"><b>${L.name}</b><small>${L.sub}</small></button>`).join('')}</div>
     <div class="seg small">${keys.map(k=>pill('unit',k,UNITS[k].name+(!isMix(k)?weakTag('school',UNITS[k].short):''),App.unit)).join('')}</div>
     <div class="seg" style="display:grid;grid-template-columns:repeat(2,1fr)">
       ${isMix(App.unit)?'':pill('smode','learn','📖 설명',App.smode)}${pill('smode','quiz','✏️ 퀴즈 10문제',App.smode)}
