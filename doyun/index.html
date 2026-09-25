@@ -494,6 +494,10 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .sent-card.a{border-left:6px solid var(--ok);margin-left:18px}
 .big-en{font-size:1.8rem;text-align:center;margin:4px 0 8px}
 
+/* 이메일 · 비밀번호 칸은 테마(칠판 등)나 자동 완성과 상관없이 흰 바탕에 검은 글씨로 */
+.pinbox{-webkit-text-security:disc;text-security:disc}
+input.pinbox,input[type=email],input[type=password]{background:#fff!important;color:#1F3354!important;-webkit-text-fill-color:#1F3354!important;caret-color:#1F3354}
+input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #fff inset!important;-webkit-text-fill-color:#1F3354!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -2409,10 +2413,9 @@ function eTile(ti){
   if(E.built.length<q.tokens.length){ drawE4(); return; }
   const made=E.built.map(k=>q.tokens[k]).join(q.word?'':' ');
   if(made===q.ans){ e4Answer(true); return; }
-  E.note=`<small>💡 순서가 달라요. 다시 놓아 봐요!</small>`; E.built=[];
-  e4Answer(false); shake('eslots');
+  shake('eslots'); eSkip('❌ 순서가 달라요. '); // 틀리면 다시 놓지 않고 바로 정답을 보여 줘요
 }
-function eSkip(){
+function eSkip(pre=''){
   if(!E||E.solved||E.done) return;
   const q=E.list[E.i];
   if(!E.tried){ E.tried=true; addWrong('eng', q.sub, q.wrong); }
@@ -2421,7 +2424,7 @@ function eSkip(){
     const used=new Set(); E.built=[];
     q.ans.split(q.word?'':' ').forEach(t=>{ const k=q.tokens.findIndex((x,j)=>x===t&&!used.has(j)); used.add(k); E.built.push(k); });
   }
-  E.note=`정답은 <b class="en">${esc(q.ans)}</b>`; drawE4(); e4Next(2600);
+  E.note=`${pre}정답은 <b class="en">${esc(q.ans)}</b>`; drawE4(); e4Next(pre?3200:2600);
 }
 /* 자음 + 모음 소리 합치기 (알파벳 순서) */
 const markSyl = (w,syl) => { const i=w.toLowerCase().indexOf(syl); return i<0 ? w : `${w.slice(0,i)}<span class="c-con">${w[i]}</span><span class="c-vow">${w[i+1]}</span>${w.slice(i+2)}`; };
@@ -3046,7 +3049,7 @@ function drawHQ(){
     b.innerHTML=`${hqEraPills()}<div class="card center"><p class="sub">${HQ.lv}급 ${HQ_KIND[HQ.kind]}</p>${res}<p>받은 별: ⭐ ${HQ.score}개</p>
       ${HQ.wrong.length?`<p class="sub">틀린 ${HQ.wrong.length}문제는 📒 오답 노트와 🔁 복습함에 모았어요.</p>`:''}
       <button class="big-btn" data-act="hqStart" data-v="${HQ.kind}">다시 하기</button>
-      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div>'}</div>`;
+      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">◀ 뒤로 가기</button></div>'}</div>`;
     return;
   }
   const q=HQ.list[HQ.i], n=HQ.list.length;
@@ -3057,7 +3060,7 @@ function drawHQ(){
       <div class="choices words hs-ch">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="hqPick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
       ${HQ.solved && HQ.note ? `<div class="hint">${HQ.note}</div>` : ''}
       ${HQ.solved?'':skipBtn('hqSkip')}
-      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">그만하기</button></div>'}
+      ${HQ.kind==='quiz'?'':'<div class="center"><button class="linkbtn" data-act="hqQuit">◀ 뒤로 가기</button></div>'}
     </div>`;
 }
 const hqSub = () => HQ_KIND[HQ.kind==='wrong'?'quiz':HQ.kind];
@@ -3265,12 +3268,12 @@ function adminHTML(){
     <p class="lbl">📚 보이는 과목</p>
     <div class="seg">${keys.map(s=>tg('subj',s,SUBJ[s].name,admin.subj[s])).join('')}</div>
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
-    <div class="inrow"><input id="admMsg" maxlength="60" placeholder="예: 오늘도 화이팅! 코스 다 하면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
+    <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 코스 다 하면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
     ${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 관리자 비밀번호 바꾸기</p>
-    <div class="inrow"><input id="admPin" type="password" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
+    <div class="inrow"><input id="admPin" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="kidPinReset" data-v="${esc(n)}">${esc(n)} ${kidPins()[n]?'비밀번호 지우기':'(아직 없음)'}</button>`).join('')}</div>
     ${who?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
