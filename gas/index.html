@@ -76,7 +76,7 @@ p{margin:.4rem 0}
 
 table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.92rem}
 th,td{border:1px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}
-th{background:var(--acc-soft);font-weight:500;color:var(--head)}
+th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowrap}
 .tip{margin-top:10px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--acc-soft);border-radius:0 10px 10px 0;font-size:.92rem}
 .speak{border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;padding:.2rem .8rem;font-size:.82rem;float:right;margin-left:8px}
 
@@ -186,12 +186,12 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head)}
     </div>
   </div>
   <nav class="nav">
-    <button data-go="home">처음 화면</button>
     <button data-go="study">요점 정리</button>
     <button data-go="learn">카드로 익히기</button>
     <button data-go="quiz">문제 풀기</button>
     <button data-go="past">기출 유형</button>
     <button data-go="wrong">틀린 문제</button>
+    <button data-go="exam">모의시험</button>
   </nav>
 </header>
 <main id="view"></main>
@@ -511,45 +511,41 @@ function record(q, ok){
 }
 
 /* ───────── 화면 ───────── */
-let view='home';
-function go(v){ view=v; if(v!=='quiz') stopTimer(); render(); window.scrollTo(0,0); }
+let view='study';
+function go(v){ view=v; render(); window.scrollTo(0,0); }
 function render(){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===view));
   if(view==='admin'){ admOK?adminView():adminLogin(); return; }
-  ({home:home, study:study, learn:learn, quiz:quizMenu, past:pastMenu, wrong:wrongNote})[view]();
+  ({study:study, learn:learn, quiz:quizMenu, past:pastMenu, wrong:wrongNote, exam:examMenu})[view]();
 }
 
-function home(){
-  const all=QS.map(q=>q.id), done=solvedCount(all), wn=Object.keys(S.wrong).length, td=(S.days[today()]||{}).n||0;
+function examMenu(){
+  if(Q){ drawQ(); return; }
+  const all=QS.map(q=>q.id), done=solvedCount(all);
+  const fmt=ms=>{ const d=new Date(ms); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${pad(d.getMinutes())}`; };
+  const ex=S.exams.slice().reverse().slice(0,5);
   $v.innerHTML=`
   <section class="card">
-    <h2>오늘도 조금씩, 꾸준히</h2>
-    <p class="sub">하루 10문제씩 풀면 한 주에 문제 모음을 한 바퀴 돌 수 있어요.</p>
-    <div class="stats">
-      <div><span class="sub small">오늘 푼 문제</span><b>${td}개</b></div>
-      <div><span class="sub small">풀어 본 문제</span><b>${done} / ${QS.length}</b></div>
-      <div><span class="sub small">맞힌 비율</span><b>${rate(all)}%</b></div>
-    </div>
-    <div class="meter" aria-hidden="true"><i style="width:${Math.round(done/QS.length*100)}%"></i></div>
-    <button class="big" data-start="mix">오늘의 10문제 풀기</button>
-    <div class="row">
-      <button class="plain" data-go="study">요점 정리 보기</button>
-      <button class="plain" data-go="learn">카드로 익히기</button>
-      <button class="plain" data-go="past">단원별 기출 유형</button>
-      <button class="plain" data-go="wrong">틀린 문제 ${wn}개 보기</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>필기시험은 이렇게 봐요</h2>
+    <h2>실전 모의시험</h2>
+    <p class="sub small">실제 시험처럼 60문제를 60분 동안 풀고, 끝나고 한꺼번에 채점해요.</p>
     <table>
       <tr><th>방식</th><td>컴퓨터로 푸는 객관식(CBT), 4개 중 1개 고르기</td></tr>
       <tr><th>문제 수</th><td>60문제, 60분</td></tr>
       <tr><th>합격</th><td>100점 만점에 60점 이상 (60문제 중 36문제)</td></tr>
-      <tr><th>과목</th><td>가스의 성질, 안전관리, 설비와 기기가 섞여 나와요</td></tr>
+      <tr><th>과목</th><td>가스안전관리, 가스장치 및 기기, 가스일반이 섞여 나와요</td></tr>
     </table>
+    <button class="big" data-start="exam">모의시험 시작하기 (${Math.min(60,QS.length)}문제, 60분)</button>
     <p class="sub small">시험 날짜, 접수, 최신 출제 기준은 큐넷(q-net.or.kr, 1644-8000)에서 꼭 확인하세요. 이 앱의 문제는 공부용 연습 문제예요.</p>
-    <button class="plain" data-start="exam">실전처럼 모의시험 보기 (${Math.min(60,QS.length)}문제, 60분)</button>
+  </section>
+  <section class="card">
+    <h2>내 공부 기록</h2>
+    <div class="stats">
+      <div><span class="sub small">오늘 푼 문제</span><b>${(S.days[today()]||{}).n||0}개</b></div>
+      <div><span class="sub small">풀어 본 문제</span><b>${done} / ${QS.length}</b></div>
+      <div><span class="sub small">맞힌 비율</span><b>${rate(all)}%</b></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i style="width:${Math.round(done/QS.length*100)}%"></i></div>
+    ${ex.length?`<table><tr><th>날짜</th><th>점수</th><th>맞힌 문제</th></tr>${ex.map(x=>`<tr><td>${fmt(x.at)}</td><td>${x.score}점 ${x.score>=60?'✅':''}</td><td>${x.c} / ${x.n}</td></tr>`).join('')}</table>`:'<p class="sub small">아직 모의시험을 보지 않았어요.</p>'}
   </section>
   <p style="text-align:center"><button class="adminlink" data-admin="1">🔒 관리자</button></p>`;
 }
@@ -561,7 +557,7 @@ function adminLogin(){
     <h2>🔒 관리자</h2><p class="sub small">공부 기록을 보려면 비밀번호 4자리를 넣으세요.</p>
     <input id="apin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" class="pinbox">
     <button class="big" data-apin="1">들어가기</button>
-    <button class="plain" data-go="home">처음 화면으로</button></section>`;
+    <button class="plain" data-go="study">나가기</button></section>`;
   setTimeout(()=>{ const i=document.getElementById('apin'); if(i) i.focus(); },50);
 }
 async function adminView(){
@@ -602,7 +598,7 @@ async function adminView(){
       <div><span class="sub small">7일 공부 시간</span><b>${w7.min}분</b></div>
       <div><span class="sub small">전체 정답률</span><b>${t.n?Math.round(t.c/t.n*100):0}%</b></div>
     </div>
-    <div class="row"><button class="plain" data-admrefresh="1">새로 불러오기</button><button class="plain" data-go="home">나가기</button></div>
+    <div class="row"><button class="plain" data-admrefresh="1">새로 불러오기</button><button class="plain" data-go="study">나가기</button></div>
   </section>
   <section class="card"><h2>최근 2주</h2>
     <table><tr><th>날짜</th><th>푼 문제</th><th>정답률</th><th>카드</th><th>공부 시간</th></tr>${rows}</table></section>
@@ -816,7 +812,6 @@ function quizMenu(){
     ${subjHead('복습','다시 풀기와 실전')}
     <div class="units">
       ${unitBtn('wrong','틀린 문제만 다시',`모아 둔 틀린 문제 ${wn}개`)}
-      ${unitBtn('exam','실전 모의시험',`${Math.min(60,QS.length)}문제, 60분, 끝나고 한꺼번에 채점`,null,true)}
     </div>
     <button class="plain" data-go="past">단원별 기출 유형 보기 ›</button>
   </section>`;
@@ -868,17 +863,18 @@ function start(kind){
   else if(kind==='exam') pool=shuffle(QS).slice(0,60);
   else if(kind==='wrong'){ pool=shuffle(QS.filter(q=>S.wrong[q.id])).slice(0,10); if(!pool.length){ toast('틀린 문제가 없어요. 잘하셨어요!'); return; } }
   else pool=shuffle(QS.filter(q=>q.c===kind)).slice(0,10);
-  const back=(kind==='kmix'||UNITS[kind])?'past':'quiz';
+  const back=kind==='exam'?'exam':(kind==='kmix'||UNITS[kind])?'past':'quiz';
   Q={kind, back, exam:kind==='exam', list:pool.map(q=>({q, opts:shuffle(q.ch)})), i:0, picks:[], done:false, start:Date.now()};
   view=back; document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===back));
   stopTimer();
-  if(Q.exam) timerId=setInterval(()=>{ const t=document.getElementById('timer'); if(!t) return; const left=3600-Math.floor((Date.now()-Q.start)/1000); if(left<=0){ finishExam(); return; } t.textContent=fmtLeft(left); },1000);
+  if(Q.exam) timerId=setInterval(()=>{ if(!Q||!Q.exam||Q.done||view!=='exam') return; const left=3600-Math.floor((Date.now()-Q.start)/1000); if(left<=0){ finishExam(); return; } const t=document.getElementById('timer'); if(t) t.textContent=fmtLeft(left); },1000);
   drawQ(); window.scrollTo(0,0);
 }
 const fmtLeft=s=>`${Math.floor(s/60)}분 ${String(s%60).padStart(2,'0')}초`;
 const titleOf=()=>Q.exam?'실전 모의시험':Q.kind==='mix'?'섞어서 10문제':Q.kind==='kmix'?'기출 유형 섞어서':Q.kind==='wrong'?'틀린 문제 다시':unitName(Q.kind);
 
 function drawQ(){
+  if(Q.exam && !Q.done && Date.now()-Q.start>=3600000){ finishExam(); return; }
   if(Q.done){ drawResult(); return; }
   const it=Q.list[Q.i], q=it.q, pick=Q.picks[Q.i], n=Q.list.length;
   const answered = !Q.exam && pick!==undefined;
@@ -967,7 +963,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   const d=b.dataset;
   if(d.size){ S.size=+d.size; save(); applySize(); return; }
-  if(d.go){ const qv=d.go==='quiz'||d.go==='past'; if(qv && Q && !Q.done && Q.back===d.go){ view=d.go; render(); return; } if(qv) Q=null; go(d.go); return; }
+  if(d.go){ const qv=d.go==='quiz'||d.go==='past'||d.go==='exam'; if(qv && Q && !Q.done && Q.back===d.go){ view=d.go; render(); return; } if(qv && Q && Q.exam && !Q.done && !confirm('진행 중인 모의시험을 그만둘까요? 푼 답은 저장되지 않아요.')) return; if(qv) stopTimer(); if(qv) Q=null; go(d.go); return; }
   if(d.admin){ go('admin'); return; }
   if(d.apin){ const v=(document.getElementById('apin')||{}).value; if(v===ADMIN_PIN){ admOK=true; adminView(); } else toast('비밀번호가 달라요'); return; }
   if(d.admrefresh){ adminView(); return; }
@@ -993,11 +989,11 @@ document.addEventListener('click',e=>{
   if(d.readq){ const it=Q.list[Q.i]; speak(it.q.q+'. '+it.opts.map((o,j)=>NUM[j]+' '+o).join('. ')); return; }
   if(d.read){ const el=document.getElementById(d.read); if(el) speak(el.innerText.replace('🔊 읽기','')); return; }
   if(d.clear){ delete S.wrong[d.clear]; save(); wrongNote(); toast('목록에서 뺐어요'); return; }
-  if(d.reset){ if(confirm('푼 기록과 틀린 문제를 모두 지울까요?')){ S.stat={}; S.wrong={}; S.days={}; S.exams=[]; S.cardStat={}; save(); pushNow(); toast('기록을 지웠어요'); go('home'); } return; }
+  if(d.reset){ if(confirm('푼 기록과 틀린 문제를 모두 지울까요?')){ S.stat={}; S.wrong={}; S.days={}; S.exams=[]; S.cardStat={}; save(); pushNow(); toast('기록을 지웠어요'); go('study'); } return; }
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && e.target.id==='apin'){ const b=document.querySelector('[data-apin]'); if(b) b.click(); return; }
-  if((view!=='quiz'&&view!=='past')||!Q||Q.done) return;
+  if((view!=='quiz'&&view!=='past'&&view!=='exam')||!Q||Q.done) return;
   if(['1','2','3','4'].includes(e.key)) pickAns(+e.key-1);
   if(e.key==='Enter') next();
 });
@@ -1013,7 +1009,7 @@ setInterval(()=>{
 
 applySize();
 render();
-cloudPull().then(r=>{ if(r){ mergeRemote(r); if(view==='home') render(); } if(FIREBASE_CONFIG) pushNow(); });
+cloudPull().then(r=>{ if(r){ mergeRemote(r); if(view==='exam'||view==='quiz'||view==='past') render(); } if(FIREBASE_CONFIG) pushNow(); });
 </script>
 </body>
 </html>
