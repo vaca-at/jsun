@@ -1449,19 +1449,26 @@ function burst(){
     document.body.appendChild(s); setTimeout(()=>s.remove(),1000);
   }
 }
-let actx;
+/* 소리: 유튜브 음악처럼 다른 앱에서 나는 소리를 멈추지 않게 '같이 들리는(ambient)' 소리로 내요 (iPad · iPhone 사파리 16.4+)
+   효과음이 끝나면 오디오를 바로 쉬게 하고, 설정에서 소리를 끄면 오디오를 닫아요 */
+try{ if(navigator.audioSession) navigator.audioSession.type='ambient'; }catch(e){}
+let actx, actxRest;
 function beep(ok){
   if(!settings.sound) return;
   try{
     actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    clearTimeout(actxRest);
+    if(actx.state==='suspended') actx.resume();
     const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime;
     o.type='triangle'; o.connect(g); g.connect(actx.destination);
     if(ok){ o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(990,t+0.1); }
     else { o.frequency.setValueAtTime(240,t); o.frequency.setValueAtTime(180,t+0.12); }
     g.gain.setValueAtTime(0.15,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.35);
     o.start(t); o.stop(t+0.36);
+    actxRest=setTimeout(()=>{ try{ if(actx) actx.suspend(); }catch(e){} },700);
   }catch(e){}
 }
+function soundOff(){ try{ clearTimeout(actxRest); if(actx){ actx.close(); actx=null; } if('speechSynthesis' in window) speechSynthesis.cancel(); }catch(e){} }
 let enVoice=null, koVoice=null;
 function loadVoices(){
   if(!('speechSynthesis' in window)) return;
@@ -3512,6 +3519,7 @@ const FONTS = {
 };
 function applySettings(){
   document.body.dataset.theme=settings.theme;
+  if(!settings.sound) soundOff();
   const f=FONTS[settings.font]||FONTS.jua, r=document.documentElement.style;
   r.setProperty('--font',f.css);
   r.setProperty('--font-t',f.t||f.css);
