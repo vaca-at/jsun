@@ -229,7 +229,9 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
 <script>
 /* ▼▼▼ 여기만 바꾸면 돼요 ▼▼▼
    FIREBASE_CONFIG: 파이어베이스 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요.
-   null 로 두면 이 기기에만 기록돼요. 기록은 gas/{LEARNER_ID} 문서에 저장돼요. */
+   null 로 두면 이 기기에만 기록돼요.
+   기록은 기기마다 gas/{LEARNER_ID}/devices/{기기 번호} 문서에 따로 저장되고,
+   관리자 화면에서 모든 기기의 기록을 합쳐서 보여 줘요. 읽기는 관리자만 되도록 보안 규칙으로 막아요. */
 const FIREBASE_CONFIG = null;
 const LEARNER_ID   = 'learner1';   // 문서 이름 (영어·숫자)
 const LEARNER_NAME = '어르신';      // 관리자 화면에 보일 이름
@@ -491,20 +493,27 @@ function cloudInit(){
   }).catch(e=>{console.warn('온라인 기록 연결 실패',e); return null;});
   return cloud.ready;
 }
-const docRef=()=>cloud.db.collection('gas').doc(LEARNER_ID);
-async function cloudPull(){
+/* 기기 번호: 처음 열 때 한 번 만들어 이 기기에 저장해요 */
+if(!S.dev){ S.dev=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/-/g,''); save(); }
+const devCol=()=>cloud.db.collection('gas').doc(LEARNER_ID).collection('devices');
+/* 관리자 전용: 모든 기기의 기록을 불러와 합쳐요 */
+async function cloudPullAll(){
   if(!await cloudInit()) return null;
-  try{ const snap=await docRef().get(); return snap.exists?snap.data():null; }catch(e){ console.warn('불러오기 실패',e); return null; }
-}
-function mergeRemote(r){
-  if(!r) return;
-  const localEmpty=!Object.keys(S.stat).length;
-  Object.entries(r.stat||{}).forEach(([id,v])=>{ const l=S.stat[id]||[0,0]; S.stat[id]=[Math.max(l[0],v[0]||0),Math.max(l[1],v[1]||0)]; });
-  if(localEmpty) S.wrong=Object.assign({},r.wrong||{});
-  Object.entries(r.days||{}).forEach(([k,v])=>{ const l=dayObj(k); ['n','ok','cards','min'].forEach(f=>{ l[f]=Math.max(l[f]||0,v[f]||0); }); });
-  const seen=new Set(S.exams.map(x=>x.at)); (r.exams||[]).forEach(x=>{ if(!seen.has(x.at)) S.exams.push(x); }); S.exams.sort((a,b)=>a.at-b.at);
-  Object.entries(r.cardStat||{}).forEach(([t,v])=>{ const l=S.cardStat[t]||{k:0,a:0}; S.cardStat[t]={k:Math.max(l.k,v.k||0),a:Math.max(l.a,v.a||0)}; });
-  save();
+  try{
+    const snap=await devCol().get(); if(snap.empty) return {name:LEARNER_NAME, devices:0};
+    const D={name:LEARNER_NAME, stat:{}, wrong:{}, days:{}, exams:[], cardStat:{}, lastSeen:0, devices:snap.size};
+    snap.forEach(doc=>{ const r=doc.data();
+      if(r.name) D.name=r.name;
+      Object.entries(r.stat||{}).forEach(([id,v])=>{ const l=D.stat[id]||[0,0]; D.stat[id]=[l[0]+(v[0]||0),l[1]+(v[1]||0)]; });
+      Object.entries(r.wrong||{}).forEach(([id,v])=>{ D.wrong[id]=(D.wrong[id]||0)+(v||0); });
+      Object.entries(r.days||{}).forEach(([k,v])=>{ const l=D.days[k]||(D.days[k]={n:0,ok:0,cards:0,min:0}); ['n','ok','cards','min'].forEach(f=>{ l[f]+=v[f]||0; }); });
+      (r.exams||[]).forEach(x=>D.exams.push(x));
+      Object.entries(r.cardStat||{}).forEach(([t,v])=>{ const l=D.cardStat[t]||{k:0,a:0}; D.cardStat[t]={k:l.k+(v.k||0),a:l.a+(v.a||0)}; });
+      D.lastSeen=Math.max(D.lastSeen, r.lastSeen||0, r.updatedAt||0);
+    });
+    D.exams.sort((a,b)=>a.at-b.at);
+    return D;
+  }catch(e){ console.warn('불러오기 실패',e); return null; }
 }
 function totals(st=S.stat){ let c=0,w=0; Object.values(st).forEach(v=>{c+=v[0];w+=v[1];}); return {c,w,n:c+w}; }
 let pushT=null;
@@ -513,7 +522,7 @@ async function pushNow(){
   if(!await cloudInit()) return;
   const t=totals();
   try{
-    await docRef().set({name:LEARNER_NAME, updatedAt:Date.now(), lastSeen:S.lastSeen||Date.now(), solved:t.n, correct:t.c,
+    await devCol().doc(S.dev).set({name:LEARNER_NAME, updatedAt:Date.now(), lastSeen:S.lastSeen||Date.now(), solved:t.n, correct:t.c,
       stat:S.stat, wrong:S.wrong, days:S.days, exams:S.exams.slice(-40), cardStat:S.cardStat});
   }catch(e){ console.warn('저장 실패',e); }
 }
@@ -632,7 +641,7 @@ function privacyView(){
     <p>이 앱은 회원가입이 없고, 이름·전화번호·주소 같은 개인정보를 이용자에게 받지 않아요. 공부를 돕기 위해 다음 정보만 다뤄요.</p>
     <ul>
       <li><b>공부 기록</b>: 푼 문제와 정답 여부, 틀린 문제, 날짜별 푼 문제 수와 공부 시간, 모의시험 점수, 퀴즈 학습 결과, 글자 크기 설정</li>
-      ${on?'<li><b>온라인 기록</b>: 위 공부 기록과 관리자가 정한 학습자 표시 이름</li>':''}
+      ${on?'<li><b>온라인 기록</b>: 위 공부 기록, 관리자가 정한 학습자 표시 이름, 기기를 구분하는 임의의 번호(개인을 알아볼 수 없는 무작위 값)</li>':''}
       <li><b>관리자 로그인</b>: 관리자가 구글 계정으로 로그인할 때 확인하는 관리자 본인의 메일 주소 (학습자는 로그인하지 않아요)</li>
     </ul>
 
@@ -697,17 +706,22 @@ function adminLogin(){
 }
 async function googleLogin(){
   if(!await cloudInit()){ toast('로그인 준비에 실패했어요'); return; }
+  const isAdmin=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256(em)===ADMIN_EMAIL_SHA256; };
   try{
-    const r=await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    const em=((r.user&&r.user.email)||'').trim().toLowerCase();
-    if(em && await sha256(em)===ADMIN_EMAIL_SHA256){ admOK=true; adminView(); }
+    let u=firebase.auth().currentUser;
+    if(!(await isAdmin(u))) u=(await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())).user;
+    if(await isAdmin(u)){ admOK=true; adminView(); }
     else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
-  }catch(e){ console.warn('로그인 실패',e); toast('로그인하지 못했어요'); }
+  }catch(e){
+    console.warn('로그인 실패',e);
+    const m={'auth/unauthorized-domain':'Firebase에서 이 사이트 도메인을 승인해 주세요','auth/operation-not-allowed':'Firebase에서 Google 로그인을 켜 주세요','auth/popup-blocked':'팝업이 막혔어요. 팝업을 허용해 주세요','auth/popup-closed-by-user':'로그인 창을 닫았어요'}[e.code];
+    toast(m||'로그인하지 못했어요. 카카오톡 안에서 열었다면 크롬이나 사파리로 열어 주세요');
+  }
 }
 function adminLogout(){ admOK=false; if(FIREBASE_CONFIG && window.firebase && firebase.auth) firebase.auth().signOut().catch(()=>{}); toast('로그아웃했어요'); go('study'); }
 async function adminView(){
   $v.innerHTML=`<section class="card"><h2>공부 기록 불러오는 중…</h2></section>`;
-  const r = FIREBASE_CONFIG ? await cloudPull() : null;
+  const r = FIREBASE_CONFIG ? await cloudPullAll() : null;
   if(view!=='admin') return;
   const D = r || {name:LEARNER_NAME, stat:S.stat, wrong:S.wrong, days:S.days, exams:S.exams, cardStat:S.cardStat, lastSeen:S.lastSeen};
   const days=D.days||{}, stat=D.stat||{}, t=totals(stat);
@@ -735,7 +749,7 @@ async function adminView(){
   $v.innerHTML=`
   <section class="card">
     <h2>${esc(D.name||LEARNER_NAME)}님 공부 기록</h2>
-    <p class="sub small">${r?'☁️ 온라인 기록 (모든 기기 합산)':FIREBASE_CONFIG?'⚠️ 온라인 기록을 불러오지 못해 이 기기의 기록만 보여요':'💾 이 기기의 기록이에요 (온라인 기록 꺼짐)'}</p>
+    <p class="sub small">${r?`☁️ 온라인 기록 (기기 ${r.devices||0}대 합산)`:FIREBASE_CONFIG?'⚠️ 온라인 기록을 불러오지 못해 이 기기의 기록만 보여요':'💾 이 기기의 기록이에요 (온라인 기록 꺼짐)'}</p>
     <p>마지막 공부: <b>${fmtDT(D.lastSeen||D.updatedAt)}</b></p>
     <div class="stats">
       <div><span class="sub small">오늘</span><b>${(days[today()]||{}).n||0}문제</b></div>
@@ -1164,7 +1178,7 @@ setInterval(()=>{
 
 applySize();
 render();
-cloudPull().then(r=>{ if(r){ mergeRemote(r); if(view==='exam'||view==='quiz'||view==='past') render(); } if(FIREBASE_CONFIG) pushNow(); });
+if(FIREBASE_CONFIG) pushNow();
 </script>
 </body>
 </html>
