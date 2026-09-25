@@ -542,6 +542,27 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .wx-tip{grid-column:1/-1;text-align:center;font-size:.98rem;padding:6px 10px;border-radius:12px;background:color-mix(in srgb,var(--hi) 22%,var(--paper))}
 .wx-loc{background:none;border:none;color:var(--sub);text-decoration:underline;font-size:.78rem;padding:0}
 @media (max-width:520px){ .wx-time{font-size:1.7rem} .wx-ico{font-size:2.2rem} .wx-t{font-size:1.3rem} }
+/* 명작 도서관 · 책장으로 버튼 */
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:.55rem 1.2rem;border-radius:999px;background:var(--accent);color:#fff;border:none;box-shadow:var(--shadow);font-size:1.1rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
+.back-row{display:flex;justify-content:center;margin:12px 0 4px}
+.back-row.top{justify-content:flex-start;margin:0 0 8px}
+.lib-tile{margin-top:12px;width:100%;flex-direction:row;align-items:center;gap:14px;background:linear-gradient(135deg,color-mix(in srgb,var(--hi) 30%,var(--card)),var(--card))}
+.lib-shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5rem,1fr));gap:10px}
+.lib-book{text-align:left;display:flex;flex-direction:column;gap:3px;padding:12px;border-radius:18px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow);position:relative}
+.lib-book .bk-e{font-size:2.3rem;line-height:1.1}
+.lib-book b{font-weight:normal;font-size:1.12rem}
+.lib-book small{color:var(--sub);font-size:.82rem}
+.lib-book .done{position:absolute;top:8px;right:10px;font-size:.9rem;color:var(--ok)}
+.lib-book.read{border-color:color-mix(in srgb,var(--ok) 55%,var(--line))}
+.lib-page{text-align:center;background:linear-gradient(180deg,color-mix(in srgb,var(--hi) 16%,var(--card)),var(--card))}
+.lib-by{font-size:.9rem;color:var(--sub)}
+.lib-title{font-size:1.6rem;margin:2px 0 4px}
+.lib-pic{font-size:4.4rem;line-height:1.2;margin:6px 0;letter-spacing:.04em}
+.lib-text{font-size:1.28rem;line-height:1.9;text-align:left;margin:8px 4px 12px;min-height:7em;word-break:keep-all}
+.lib-nav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lib-dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.lib-dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.lib-dots span.on{background:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -606,7 +627,7 @@ const KID_IDS = { '서진':'seojin' };
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
-const PROFILE_KEYS = ['stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','mlv','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
+const PROFILE_KEYS = ['lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','mlv','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
 /* 다른 공부방(e2_ · e4_)과 같은 주소를 써도 섞이지 않게 e6_ 로 따로 저장해요 */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e6_'+k : `e6_p_${name}_${k}`;
 const store = {
@@ -1647,7 +1668,7 @@ function mergeMax(a, b){
   }
   return o;
 }
-const MAX_KEYS = ['kread','hstory','mbest','stat'];
+const MAX_KEYS = ['lib','kread','hstory','mbest','stat'];
 const LATEST_KEYS = [['hwrong','hwrongAt'],['wrongs','wrongsAt'],['books','booksAt']];
 async function cloudPull(name, docOnly){
   if(!KID_IDS[name] || !await cloudInit()) return false;
@@ -1842,7 +1863,7 @@ function render(){
   });
   if(App.view!=='review') RV=null;
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
+  ({home:renderHome, library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
 }
 
 /* ───── 홈 ───── */
@@ -2002,7 +2023,7 @@ function renderHome(){
       <button class="subj wide" data-act="tab" data-v="review"><span class="ico">🔁</span><span><b>틀린 문제 다시 풀기</b><br><small>모든 과목에서 틀린 문제 ${wn}개가 모여 있어요</small></span></button>
     </div>
     ${weakHTML()}
-    ${balanceHTML()}
+    ${libTileHTML()}${balanceHTML()}
     <div class="card grasscard">${grassHTML()}</div>
     <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openMom">👩 엄마 모드</button> <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
@@ -3639,6 +3660,194 @@ function kSkip(){
   K.note=`정답은 <b>${esc(q.ans)}</b>${q.explain?`<br><small>${q.explain}</small>`:''}`; drawK(); kNext(2600);
 }
 
+/* 📚 명작 도서관: 저작권이 끝난 세계 명작 · 우리 옛이야기를 아이 눈높이로 다시 쓴 단편
+   pages: [그림, 글]  qs: [질문, 정답, [다른 보기 3개]] */
+const LIB_BOOKS = [
+  {id:'bremen', e:'🐴', t:'브레멘 음악대', by:'그림 형제', pages:[
+    ['🐴','늙은 당나귀는 오랫동안 주인을 위해 무거운 짐을 날랐어요. 하지만 힘이 약해지자 주인은 당나귀를 쫓아내려 했어요. “그래, 브레멘에 가서 음악대가 되자!” 당나귀는 길을 떠났어요.'],
+    ['🐴🐶','길에서 숨을 헐떡이는 늙은 개를 만났어요. “나도 사냥을 못 한다고 쫓겨났어.” “그럼 나랑 같이 음악대를 하자. 너는 북을 치면 되겠다!”'],
+    ['🐴🐶🐱','조금 더 가자 얼굴이 시무룩한 고양이가 있었어요. 쥐를 잘 못 잡는다고 쫓겨난 고양이였지요. 셋은 함께 걸었어요.'],
+    ['🐴🐶🐱🐓','농장 울타리 위에서는 수탉이 목청껏 울고 있었어요. “내일 수프가 될 처지라 마지막으로 노래하는 거야.” “우리랑 가자! 너는 목소리가 정말 좋구나.”'],
+    ['🌲🏠','밤이 되자 넷은 숲속에서 불빛이 새어 나오는 집을 발견했어요. 창문으로 들여다보니 도둑들이 맛있는 음식을 차려 놓고 먹고 있었어요.'],
+    ['🐓🐱🐶🐴','넷은 꾀를 냈어요. 당나귀 위에 개가, 개 위에 고양이가, 고양이 위에 수탉이 올라갔어요. 그리고 한꺼번에 소리를 질렀어요. “히힝! 멍멍! 야옹! 꼬끼오!”'],
+    ['🏃‍♂️💨','무시무시한 소리에 깜짝 놀란 도둑들은 “괴물이다!” 하고 숲 밖으로 달아났어요.'],
+    ['🏠🎶','네 친구는 그 집에서 배불리 먹고 사이좋게 살았어요. 브레멘에는 끝내 가지 않았지만, 서로가 있어 매일매일 즐거웠답니다.']],
+    qs:[['동물들이 처음에 가려고 한 곳은?','브레멘',['서울','바다','왕궁'],'당나귀가 브레멘 음악대가 되자고 했어요.'],['도둑들이 달아난 까닭은?','무시무시한 소리에 놀라서',['경찰이 와서','비가 와서','음식이 없어서'],'넷이 한꺼번에 소리를 질렀어요.'],['이 이야기에서 알 수 있는 것은?','힘을 합치면 어려운 일도 해낼 수 있어요.',['혼자가 제일 좋아요.','도둑은 용감해요.','늙으면 아무것도 못 해요.'],'힘없는 동물들이 힘을 합쳐 도둑을 물리쳤어요.']]},
+  {id:'duckling', e:'🦢', t:'미운 아기 오리', by:'안데르센', pages:[
+    ['🥚🦆','어느 여름, 엄마 오리의 알들이 하나둘 깨어났어요. 그런데 가장 큰 알에서 나온 아기는 몸이 크고 회색이었어요. “어머, 정말 못생긴 아기네!”'],
+    ['🐥😢','형제들은 미운 아기 오리를 놀리고 쪼았어요. 닭과 칠면조도 비웃었어요. 슬퍼진 아기 오리는 결국 혼자 농장을 떠났어요.'],
+    ['🍂🌧️','가을이 되고 찬바람이 불었어요. 아기 오리는 갈대숲에 숨어 지냈어요. 어느 날 하늘을 나는 하얗고 아름다운 새들을 보고 넋을 잃었어요. “나도 저렇게 날 수 있으면 좋겠다.”'],
+    ['❄️🥶','겨울은 너무나 추웠어요. 연못이 꽁꽁 얼어 아기 오리는 얼음에 갇힐 뻔했어요. 친절한 농부가 구해 주었지만, 아기 오리는 겁이 나서 또 도망쳤어요.'],
+    ['🌸🌿','길고 긴 겨울이 지나고 봄이 왔어요. 아기 오리가 날개를 펴자 몸이 훨훨 하늘로 떠올랐어요. 날개가 어느새 크고 튼튼해져 있었어요.'],
+    ['🦢🦢🦢','호수에 내려앉자 그 아름다운 새들이 다가왔어요. 아기 오리는 고개를 숙였어요. 그런데 물에 비친 모습은 더 이상 미운 오리가 아니었어요. 눈부시게 하얀 백조였어요!'],
+    ['🦢✨','“새로 온 백조가 제일 아름다워!” 아이들이 외쳤어요. 백조는 행복했지만 뽐내지 않았어요. 힘들었던 날들을 잊지 않고, 따뜻한 마음을 가진 백조가 되었답니다.']],
+    qs:[['미운 아기 오리가 농장을 떠난 까닭은?','모두가 놀리고 괴롭혀서',['먹이가 없어서','엄마를 찾으려고','여행을 하고 싶어서'],'형제들과 다른 동물들이 놀렸어요.'],['미운 아기 오리는 자라서 무엇이 되었나요?','백조',['독수리','닭','거위'],'물에 비친 모습은 하얀 백조였어요.'],['이 이야기가 전하는 생각으로 알맞은 것은?','겉모습으로 남을 놀리면 안 돼요.',['못생기면 떠나야 해요.','겨울은 따뜻해요.','백조는 뽐내야 해요.'],'다르다고 놀림받던 아기가 사실은 아름다운 백조였어요.']]},
+  {id:'hansel', e:'🍭', t:'헨젤과 그레텔', by:'그림 형제', pages:[
+    ['🌲👦👧','가난한 나무꾼의 아이 헨젤과 그레텔은 숲에서 길을 잃고 말았어요. 헨젤이 길에 뿌려 둔 빵 부스러기를 새들이 모두 먹어 버렸거든요.'],
+    ['🍬🏠','배가 고파 헤매던 남매 앞에 놀라운 집이 나타났어요. 벽은 과자, 지붕은 케이크, 창문은 사탕으로 만든 집이었어요! 남매는 정신없이 과자를 뜯어 먹었어요.'],
+    ['🧙‍♀️','그때 문이 열리고 할머니가 나왔어요. “어서 들어오렴. 맛있는 걸 더 주마.” 하지만 할머니는 아이들을 잡아먹으려는 무서운 마녀였어요.'],
+    ['🔒👦','마녀는 헨젤을 우리에 가두고 매일 음식을 먹였어요. 눈이 나쁜 마녀가 헨젤의 손가락을 만져 살이 쪘는지 확인하면, 헨젤은 꾀를 내어 가느다란 뼈다귀를 내밀었어요.'],
+    ['🔥👧','기다리다 지친 마녀가 그레텔에게 말했어요. “아궁이에 불이 잘 붙었는지 들어가 보렴.” 그레텔은 “어떻게 들어가는지 모르겠어요.” 하고 모르는 척했어요.'],
+    ['💨🧙‍♀️','“이렇게 하면 되잖니!” 마녀가 몸을 숙여 아궁이를 들여다보는 순간, 그레텔은 힘껏 마녀를 밀고 문을 쾅 닫았어요.'],
+    ['💎🏡','그레텔은 오빠를 구해 냈어요. 둘은 마녀의 집에서 보석을 챙겨 집으로 돌아왔고, 아버지와 함께 행복하게 살았답니다.']],
+    qs:[['남매가 길을 잃은 까닭은?','새들이 빵 부스러기를 먹어 버려서',['비가 와서','지도를 잃어버려서','잠이 들어서'],'빵 부스러기가 없어져 돌아갈 길을 몰랐어요.'],['헨젤이 마녀를 속인 방법은?','손가락 대신 뼈다귀를 내밀었어요.',['숨어 버렸어요.','노래를 불렀어요.','잠든 척했어요.'],'눈이 나쁜 마녀를 뼈다귀로 속였어요.'],['헨젤과 그레텔에게서 배울 점은?','위험할 때 침착하게 꾀를 내요.',['모르는 사람을 따라가요.','과자를 많이 먹어요.','혼자 도망쳐요.'],'두 남매는 지혜로 위기를 이겨 냈어요.']]},
+  {id:'emperor', e:'👑', t:'벌거숭이 임금님', by:'안데르센', pages:[
+    ['👑👗','옛날에 새 옷을 무척 좋아하는 임금님이 살았어요. 임금님은 하루에도 몇 번씩 옷을 갈아입으며 거울 앞에서 뽐냈어요.'],
+    ['🧵🤥','어느 날 두 재봉사가 찾아왔어요. “저희는 세상에서 가장 멋진 옷감을 짭니다. 이 옷감은 어리석은 사람 눈에는 보이지 않지요.”'],
+    ['🪡❓','재봉사들은 빈 베틀 앞에서 열심히 옷을 짜는 척했어요. 신하들이 가 보니 아무것도 보이지 않았어요. 하지만 어리석다는 말을 들을까 봐 “정말 아름답군요!” 하고 거짓말을 했어요.'],
+    ['👑😳','임금님도 옷을 입어 보았어요. 거울에는 아무것도 보이지 않았지만, 임금님 역시 “훌륭하구나!” 하고 말했어요.'],
+    ['🎺👥','임금님은 새 옷을 입고 거리 행진에 나섰어요. 백성들도 모두 “멋진 옷이다!” 하고 외쳤어요. 아무도 보이지 않는다고 말하지 못했지요.'],
+    ['👦☝️','그때 한 아이가 큰 소리로 말했어요. “임금님이 아무것도 안 입었어요!”'],
+    ['😆👑','그 말에 사람들이 하나둘 웃음을 터뜨렸어요. “정말이네, 아무것도 안 입었어!” 임금님은 얼굴이 빨개졌지만 행진을 끝까지 해야 했답니다.']],
+    qs:[['재봉사들이 말한 옷감의 비밀은?','어리석은 사람 눈에는 보이지 않는다.',['물에 젖지 않는다.','밤에 빛난다.','절대 찢어지지 않는다.'],'재봉사들이 이렇게 거짓말을 했어요.'],['사람들이 옷이 안 보인다고 말하지 못한 까닭은?','어리석다는 말을 들을까 봐',['옷이 정말 보여서','임금님이 무서워서 노래해서','잠이 와서'],'모두 어리석어 보이기 싫었어요.'],['진실을 말한 사람은?','한 아이',['신하','재봉사','임금님'],'아이가 “아무것도 안 입었어요!” 하고 말했어요.']]},
+  {id:'antgrass', e:'🐜', t:'개미와 베짱이', by:'이솝', pages:[
+    ['☀️🐜','뜨거운 여름, 개미들은 줄지어 부지런히 먹이를 날랐어요. 땀을 뻘뻘 흘리면서도 쉬지 않았어요.'],
+    ['🎻🦗','나무 그늘에서는 베짱이가 바이올린을 켜며 노래했어요. “개미야, 이렇게 좋은 날에 왜 일만 하니? 나랑 놀자!”'],
+    ['🐜💬','“겨울이 오면 먹을 것이 없어. 지금 모아 두어야 해.” 개미가 말했지만 베짱이는 코웃음을 쳤어요. “겨울은 아직 멀었어!”'],
+    ['❄️🦗','드디어 겨울이 왔어요. 온 세상이 눈으로 덮이자 베짱이는 먹을 것을 찾을 수 없었어요. 춥고 배가 고파 덜덜 떨었어요.'],
+    ['🚪🐜','베짱이는 개미네 집 문을 두드렸어요. “개미야, 먹을 것 좀 나눠 줄 수 있니?”'],
+    ['🍲🦗','개미는 베짱이를 따뜻한 집 안으로 들였어요. “자, 먹어. 대신 봄이 오면 너도 준비하는 법을 배워 보자.” 베짱이는 고개를 끄덕였어요.'],
+    ['🌸🎶','봄이 되자 베짱이는 개미와 함께 일했어요. 일이 끝나면 베짱이가 연주하는 음악에 모두 신나게 춤을 추었답니다.']],
+    qs:[['여름에 개미가 열심히 일한 까닭은?','겨울에 먹을 것을 모아 두려고',['노래 대회에 나가려고','집을 크게 지으려고','베짱이에게 팔려고'],'겨울에는 먹을 것이 없기 때문이에요.'],['겨울에 베짱이가 어려움을 겪은 까닭은?','미리 먹을 것을 모아 두지 않아서',['바이올린이 부서져서','개미와 싸워서','길을 잃어서'],'여름 내내 놀기만 했어요.'],['이 이야기가 전하는 교훈은?','앞날을 생각해 미리 준비해요.',['노는 것이 가장 중요해요.','겨울에는 일하지 않아요.','친구를 돕지 말아요.'],'부지런히 준비한 개미는 겨울을 잘 났어요.']]},
+  {id:'sunwind', e:'🌬️', t:'해님과 바람', by:'이솝', pages:[
+    ['☀️🌬️','어느 날 해님과 바람이 서로 자기가 더 힘이 세다고 다투었어요. “내 입김 한 번이면 나무도 쓰러진다고!” 바람이 뽐냈어요.'],
+    ['🚶🧥','그때 두꺼운 외투를 입은 나그네가 길을 걸어갔어요. 해님이 말했어요. “저 나그네의 외투를 먼저 벗기는 쪽이 이기는 걸로 하자.”'],
+    ['🌪️🧥','바람이 먼저 나섰어요. 휘이잉! 세찬 바람을 불었어요. 그러자 나그네는 “아이, 추워!” 하며 외투를 더 꽁꽁 여몄어요.'],
+    ['🌪️😣','바람은 더 세게, 더 세게 불었어요. 하지만 바람이 셀수록 나그네는 외투를 더 단단히 붙잡았어요. 결국 바람은 지쳐 버렸어요.'],
+    ['☀️😊','이번에는 해님 차례예요. 해님은 따뜻한 햇볕을 부드럽게 비추었어요. 나그네는 “날씨가 좋아졌네.” 하며 단추를 풀었어요.'],
+    ['☀️🥵','해님이 조금 더 따스하게 비추자, 나그네는 “아이, 더워!” 하며 스스로 외투를 벗었어요. 해님이 이긴 거예요.'],
+    ['☀️🌬️🤝','바람은 부끄러워하며 말했어요. “힘으로 억지로 하는 것보다 따뜻한 마음이 더 힘이 세구나.”']],
+    qs:[['해님과 바람이 한 내기는?','나그네의 외투를 먼저 벗기기',['나무를 먼저 쓰러뜨리기','구름을 먼저 없애기','비를 먼저 내리게 하기'],'해님이 내기를 제안했어요.'],['바람이 세게 불자 나그네는 어떻게 했나요?','외투를 더 꽁꽁 여몄어요.',['외투를 벗었어요.','집으로 달려갔어요.','노래를 불렀어요.'],'추워서 외투를 붙잡았어요.'],['이 이야기의 교훈은?','억지로 하는 것보다 따뜻한 마음이 더 힘이 세요.',['바람이 가장 세요.','외투는 필요 없어요.','내기는 나빠요.'],'바람의 마지막 말을 보세요.']]},
+  {id:'matchgirl', e:'🕯️', t:'성냥팔이 소녀', by:'안데르센', pages:[
+    ['❄️👧','눈이 펑펑 내리는 한 해의 마지막 날 밤이었어요. 맨발의 작은 소녀가 추위에 떨며 성냥을 팔고 있었어요. “성냥 사세요, 성냥 사세요.” 하지만 아무도 사 주지 않았어요.'],
+    ['🔥✨','소녀는 너무 추워서 성냥 하나를 그었어요. 치익! 작은 불꽃 속에 따뜻한 난로가 보였어요. 그런데 불꽃이 꺼지자 난로도 사라졌어요.'],
+    ['🍗🎄','두 번째 성냥을 긋자 맛있는 음식이 차려진 식탁이 나타났고, 세 번째 성냥을 긋자 반짝이는 크리스마스트리가 나타났어요.'],
+    ['⭐👵','소녀는 다시 성냥을 그었어요. 그러자 세상에서 소녀를 가장 사랑해 주셨던 할머니가 환하게 웃고 계셨어요. “할머니, 저도 데려가 주세요!”'],
+    ['🔥🔥🔥','소녀는 할머니가 사라질까 봐 남은 성냥을 한꺼번에 모두 그었어요. 할머니는 소녀를 꼭 안고 따뜻하고 밝은 하늘나라로 날아올랐어요.'],
+    ['🌅','다음 날 아침, 사람들은 미소를 띤 채 잠든 소녀를 발견했어요. 사람들은 그제야 소녀를 돌보지 못한 것을 슬퍼했답니다.']],
+    qs:[['소녀가 성냥을 그은 까닭은?','너무 추워서',['집에 불을 켜려고','놀이를 하려고','성냥을 팔려고'],'추위를 녹이려고 성냥을 그었어요.'],['마지막에 불꽃 속에 나타난 사람은?','할머니',['엄마','선생님','임금님'],'소녀를 가장 사랑해 주셨던 할머니가 나타났어요.'],['이 이야기를 읽고 생각해 볼 점으로 알맞은 것은?','어려운 이웃에게 관심을 가져야 해요.',['성냥은 비싸게 팔아야 해요.','눈 오는 날은 재미있어요.','혼자 있는 것이 좋아요.'],'아무도 소녀를 돌보지 않았던 것을 생각해 봐요.']]},
+  {id:'happyprince', e:'🗿', t:'행복한 왕자', by:'오스카 와일드', pages:[
+    ['🗿✨','도시 높은 곳에 행복한 왕자 동상이 서 있었어요. 온몸은 금박으로 덮여 있었고, 두 눈은 파란 보석, 칼자루에는 빨간 루비가 박혀 있었어요.'],
+    ['🐦🌙','따뜻한 남쪽 나라로 떠나던 제비 한 마리가 왕자의 발밑에서 쉬었어요. 그때 물방울이 뚝 떨어졌어요. 왕자가 울고 있었던 거예요.'],
+    ['😢🏚️','“여기서는 가난한 사람들이 보여. 저기 아픈 아이가 있는데, 엄마는 오렌지 하나 살 돈이 없단다. 제비야, 내 칼의 루비를 저 집에 갖다줄래?”'],
+    ['🐦💎','제비는 루비를 물어다 주었어요. 다음 날에는 왕자의 한쪽 눈 보석을 가난한 작가에게, 또 다음 날에는 다른 눈 보석을 성냥팔이 소녀에게 가져다주었어요.'],
+    ['🐦🍂','“이제 왕자님은 앞을 볼 수 없으니, 제가 곁에 있을게요.” 제비는 남쪽으로 떠나지 않았어요. 그리고 왕자 몸의 금박을 한 장씩 떼어 가난한 사람들에게 나누어 주었어요.'],
+    ['❄️🐦','겨울이 왔어요. 추위를 견디지 못한 제비는 왕자의 발밑에서 조용히 눈을 감았어요. 그 순간 왕자의 납으로 된 심장이 쩍 하고 갈라졌어요.'],
+    ['😇','초라해진 동상을 보고 사람들은 녹여 버리자고 했어요. 하지만 하늘에서는 이 도시에서 가장 귀한 것 두 가지로 갈라진 심장과 작은 제비를 골랐답니다.']],
+    qs:[['왕자가 운 까닭은?','가난하고 힘든 사람들이 보여서',['비가 와서','제비가 떠나서','보석을 잃어버려서'],'높은 곳에서 가난한 사람들을 보았어요.'],['제비가 한 일은?','왕자의 보석과 금박을 가난한 사람들에게 나누어 주었어요.',['남쪽 나라로 먼저 떠났어요.','보석을 몰래 가졌어요.','왕자에게 노래만 불러 주었어요.'],'제비는 왕자의 부탁을 들어주었어요.'],['이 이야기에서 가장 귀한 것은 무엇이라고 했나요?','왕자의 갈라진 심장과 제비',['파란 보석','빨간 루비','금박'],'남을 위해 모든 것을 나눈 마음이 가장 귀했어요.']]},
+  {id:'axe', e:'🪓', t:'금도끼 은도끼', by:'우리 옛이야기', pages:[
+    ['🌲🪓','옛날에 마음씨 착한 나무꾼이 연못가에서 나무를 하고 있었어요. 그런데 그만 손이 미끄러져 쇠도끼가 연못에 퐁당 빠지고 말았어요.'],
+    ['😭💧','“아이고, 하나뿐인 도끼인데 이제 어쩌나.” 나무꾼이 엉엉 울자 연못에서 하얀 옷을 입은 산신령이 나타났어요.'],
+    ['🧙‍♂️✨','산신령은 번쩍이는 금도끼를 들고 물었어요. “이 금도끼가 네 도끼냐?” “아닙니다. 제 도끼는 그저 낡은 쇠도끼입니다.”'],
+    ['🧙‍♂️🥈','산신령은 은도끼를 들고 다시 물었어요. “그럼 이 은도끼가 네 것이냐?” “아닙니다.” 마지막으로 쇠도끼를 보여 주자 나무꾼은 “네, 그것이 제 도끼입니다!” 하고 기뻐했어요.'],
+    ['🎁','“참으로 정직하구나.” 산신령은 쇠도끼와 함께 금도끼와 은도끼도 모두 주었어요.'],
+    ['😏🪓','이 소문을 들은 욕심쟁이 나무꾼은 일부러 도끼를 연못에 던졌어요. 산신령이 금도끼를 들고 나타나자 “네, 그게 제 도끼예요!” 하고 거짓말을 했지요.'],
+    ['🧙‍♂️💢','“거짓말을 하다니!” 산신령은 금도끼는커녕 욕심쟁이의 쇠도끼까지 돌려주지 않고 사라져 버렸답니다.']],
+    qs:[['착한 나무꾼의 도끼는 어떤 도끼였나요?','쇠도끼',['금도끼','은도끼','나무 도끼'],'낡은 쇠도끼라고 말했어요.'],['산신령이 착한 나무꾼에게 금도끼와 은도끼까지 준 까닭은?','정직하게 말해서',['많이 울어서','힘이 세서','노래를 잘해서'],'“참으로 정직하구나.”'],['욕심쟁이 나무꾼은 어떻게 되었나요?','자기 쇠도끼까지 잃었어요.',['금도끼를 받았어요.','은도끼를 받았어요.','부자가 되었어요.'],'거짓말을 해서 벌을 받았어요.']]},
+  {id:'simcheong', e:'🌸', t:'효녀 심청', by:'우리 옛이야기', pages:[
+    ['👴👧','옛날 황해도에 앞을 보지 못하는 심 봉사와 딸 심청이 살았어요. 심청은 어려서부터 마을을 돌며 일을 해서 아버지를 정성껏 모셨어요.'],
+    ['🙏🍚','어느 날 스님이 말했어요. “부처님께 공양미 삼백 석을 바치면 아버지 눈을 뜰 수 있습니다.” 하지만 가난한 집에는 쌀 한 가마니도 없었어요.'],
+    ['⛵💰','마침 뱃사람들이 거친 바다에 바칠 처녀를 찾고 있었어요. 심청은 아버지를 위해 쌀 삼백 석을 받고 배를 타기로 했어요.'],
+    ['🌊👧','깊은 인당수에 이르자 심청은 “아버지, 부디 눈을 뜨세요.” 하고 치마를 뒤집어쓰고 바다에 몸을 던졌어요.'],
+    ['🐉🌸','하지만 바닷속 용왕님이 심청의 효심에 감동했어요. 용왕님은 심청을 커다란 연꽃에 태워 다시 바다 위로 올려 보냈어요.'],
+    ['👑🌸','바다에 떠 있는 아름다운 연꽃을 임금님께 바치자, 그 안에서 심청이 나왔어요. 심청은 왕비가 되었어요.'],
+    ['🎉👀','왕비가 된 심청은 아버지를 찾으려고 나라의 모든 봉사를 불러 잔치를 열었어요. 딸의 목소리를 들은 심 봉사는 “청아!” 하고 외치는 순간 번쩍 눈을 떴답니다.']],
+    qs:[['심청이 배를 타기로 한 까닭은?','아버지가 눈을 뜨게 하려고',['바다 구경을 하려고','왕비가 되려고','돈을 모아 집을 사려고'],'공양미 삼백 석을 마련하려고 했어요.'],['바닷속에서 심청을 구해 준 것은?','용왕님',['뱃사람','스님','임금님'],'용왕님이 연꽃에 태워 올려 보냈어요.'],['심청을 한마디로 나타내면?','효성이 지극한 딸',['욕심 많은 딸','겁 많은 딸','게으른 딸'],'아버지를 위해 모든 것을 바쳤어요.']]},
+  {id:'gyeonwoo', e:'🌌', t:'견우와 직녀', by:'우리 옛이야기', pages:[
+    ['👸🧵','하늘나라 옥황상제에게는 베를 아주 잘 짜는 딸 직녀가 있었어요. 은하수 건너편에는 소를 부지런히 돌보는 목동 견우가 살았어요.'],
+    ['💞','옥황상제의 허락으로 두 사람은 부부가 되었어요. 그런데 둘은 너무 행복한 나머지 일을 하지 않고 놀기만 했어요.'],
+    ['⚡👑','베틀에는 먼지가 쌓이고, 소들은 배가 고파 울었어요. 화가 난 옥황상제는 둘을 은하수 양쪽으로 떼어 놓고 일 년에 딱 한 번, 칠월 칠석에만 만나게 했어요.'],
+    ['🌌😢','드디어 칠월 칠석이 되었어요. 하지만 은하수에는 다리가 없어 둘은 강 건너에서 바라보며 눈물만 흘렸어요.'],
+    ['🐦‍⬛🐦🌉','이 모습을 본 까마귀와 까치들이 날아왔어요. 새들은 머리와 머리를 잇대어 은하수 위에 다리를 놓아 주었어요. 이 다리를 ‘오작교’라고 해요.'],
+    ['🌧️','견우와 직녀는 오작교에서 만나 기쁨의 눈물을 흘렸어요. 그래서 칠석날 내리는 비는 두 사람의 눈물이라고 전해진답니다.'],
+    ['🐦‍⬛','칠석이 지나면 까치와 까마귀의 머리가 벗겨져 있는데, 견우와 직녀가 밟고 지나갔기 때문이래요.']],
+    qs:[['옥황상제가 화가 난 까닭은?','견우와 직녀가 일을 하지 않고 놀기만 해서',['둘이 싸워서','소가 도망가서','비가 너무 많이 와서'],'베틀엔 먼지가 쌓이고 소들은 배가 고팠어요.'],['견우와 직녀가 만날 수 있는 날은?','칠월 칠석',['설날','추석','동지'],'일 년에 딱 한 번, 칠월 칠석이에요.'],['까마귀와 까치가 놓아 준 다리의 이름은?','오작교',['돌다리','구름다리','무지개다리'],'새들이 머리를 이어 오작교를 놓았어요.']]},
+  {id:'tortoise', e:'🐢', t:'토끼의 간', by:'우리 옛이야기', pages:[
+    ['🐉🤒','바닷속 용왕님이 큰 병에 걸렸어요. 의원이 말했어요. “육지에 사는 토끼의 간을 먹으면 나으실 수 있습니다.”'],
+    ['🐢🌊','충성스러운 자라가 토끼를 데려오겠다고 나섰어요. 자라는 헤엄치고 또 헤엄쳐 육지로 올라갔어요.'],
+    ['🐢🐰','“토끼님, 바닷속 용궁에 가면 맛있는 음식과 높은 벼슬이 기다리고 있어요.” 자라의 달콤한 말에 넘어간 토끼는 자라 등에 올라탔어요.'],
+    ['🏯😱','그런데 용궁에 도착하자 신하들이 토끼를 꽁꽁 묶었어요. “용왕님 병을 고치려면 네 간이 필요하다!” 토끼는 그제야 속은 것을 알았어요.'],
+    ['🐰💡','토끼는 침착하게 꾀를 냈어요. “아이고, 제 간은 너무 귀해서 육지의 바위틈에 꺼내 말려 두고 왔는데요! 다시 가서 가져오겠습니다.”'],
+    ['🐢🐰🏝️','용왕님은 그 말을 믿고 자라에게 토끼를 다시 육지로 데려다주라고 했어요.'],
+    ['🐰😜','육지에 닿자마자 토끼는 폴짝 뛰어내리며 말했어요. “간을 꺼내 놓고 다니는 동물이 어디 있니? 잘 가라, 자라야!” 토끼는 숲속으로 쏙 사라졌답니다.']],
+    qs:[['자라가 육지로 간 까닭은?','용왕님 병을 고칠 토끼의 간을 구하려고',['토끼와 놀려고','맛있는 풀을 먹으려고','집을 옮기려고'],'토끼의 간이 약이 된다고 했어요.'],['토끼가 용궁에서 빠져나온 방법은?','간을 육지에 두고 왔다고 꾀를 냈어요.',['헤엄쳐서 도망갔어요.','용왕님과 싸웠어요.','숨어 있었어요.'],'침착하게 꾀를 냈어요.'],['이 이야기에서 배울 점은?','위험할 때에도 침착하면 방법을 찾을 수 있어요.',['달콤한 말은 모두 믿어요.','바다는 무서워요.','거짓말은 언제나 좋아요.'],'토끼는 위기에서 침착하게 꾀를 냈어요.']]}
+];
+
+/* 📚 명작 도서관: 책장 → 한 장씩 읽기 → 퀴즈 3문제 (국어 기록으로 쳐요) */
+let LQ=null;
+const libDone = () => store.get('lib',{});
+const backBtn = (act, top) => `<div class="back-row ${top?'top':''}"><button class="back-btn" data-act="${act}">◀ 책장으로</button></div>`;
+function libTileHTML(){
+  const r=libDone(), n=LIB_BOOKS.filter(b=>r[b.id]!==undefined).length;
+  return `<button class="subj lib-tile" data-act="libOpen"><span class="ico">📚</span><span><b>명작 도서관</b><br><small>세계 명작 · 우리 옛이야기 ${n} / ${LIB_BOOKS.length}권 읽음</small></span></button>`;
+}
+function libNext(id){ const r=libDone(), i=LIB_BOOKS.findIndex(b=>b.id===id); return LIB_BOOKS.slice(i+1).find(b=>r[b.id]===undefined)||LIB_BOOKS.find(b=>r[b.id]===undefined&&b.id!==id)||LIB_BOOKS[(i+1)%LIB_BOOKS.length]; }
+function renderLibrary(){
+  const bk=LIB_BOOKS.find(b=>b.id===App.lib), r=libDone();
+  if(!bk){
+    view.innerHTML=`<div class="card"><p class="big" style="margin:0">📚 명작 도서관</p>
+      <p class="sub" style="margin:6px 0 0">오래도록 사랑받은 세계 명작과 우리 옛이야기예요. 한 장씩 넘기며 읽고, 다 읽으면 퀴즈 3문제! (${LIB_BOOKS.filter(b=>r[b.id]!==undefined).length} / ${LIB_BOOKS.length}권 읽음)</p></div>
+      <div class="lib-shelf" style="margin-top:12px">${LIB_BOOKS.map(b=>`<button class="lib-book ${r[b.id]!==undefined?'read':''}" data-act="libOpen" data-v="${b.id}">${r[b.id]!==undefined?`<span class="done">${r[b.id]===3?'🏅':'✔'} ${r[b.id]}/3</span>`:''}<span class="bk-e">${b.e}</span><b>${b.t}</b><small>${b.by}</small></button>`).join('')}</div>`;
+    return;
+  }
+  if(LQ && LQ.id===bk.id){ drawLibQuiz(bk); return; }
+  const n=bk.pages.length, pg=Math.min(App.lpg||0,n-1), [pic,text]=bk.pages[pg];
+  view.innerHTML=`${backBtn('libClose',true)}<div class="card lib-page">
+      <div class="lib-by">📖 ${bk.by}</div>
+      <div class="lib-title">${bk.t}</div>
+      <div class="lib-pic">${pic}</div>
+      <div class="lib-text">${esc(text)}</div>
+      <div class="lib-nav">
+        <button class="pill" data-act="libPage" data-v="-1" ${pg===0?'disabled style="opacity:.35"':''}>◀ 앞장</button>
+        <div><div class="lib-dots">${bk.pages.map((_,i)=>`<span class="${i===pg?'on':''}"></span>`).join('')}</div><div class="sub" style="font-size:.85rem;margin-top:4px">${pg+1} / ${n}쪽</div></div>
+        ${pg<n-1?'<button class="pill on" data-act="libPage" data-v="1">다음 장 ▶</button>':'<button class="pill on" data-act="libQuiz">📝 퀴즈!</button>'}
+      </div>
+      <div style="margin-top:10px"><button class="pill" data-act="libSay">🔊 읽어 주기</button></div>
+    </div>${backBtn('libClose')}`;
+}
+function drawLibQuiz(bk){
+  if(LQ.done){
+    const nx=libNext(bk.id);
+    view.innerHTML=`<div class="card center"><p class="sub">${bk.e} ${bk.t}</p><p class="big">${LQ.score===3?'🏆 3문제 모두 한 번에!':`3문제 중 ${LQ.score}개를 한 번에 맞혔어요!`}</p>
+      <p>받은 별 ⭐ ${LQ.earned}개</p>
+      <button class="big-btn" data-act="libOpen" data-v="${nx.id}">📖 다음 책: ${nx.e} ${nx.t}</button>
+      <div class="center"><button class="linkbtn" data-act="libOpen" data-v="${bk.id}">↺ 이 책 다시 읽기</button></div></div>${backBtn('libClose')}`;
+    return;
+  }
+  const q=LQ.list[LQ.i], cls=i=>LQ.solved&&q.choices[i]===q.ans?'ok':(LQ.picked.includes(i)?'no':'');
+  view.innerHTML=`${backBtn('libClose',true)}<div class="card"><div class="qtop"><span>${bk.e} ${bk.t} 퀴즈 · ${LQ.i+1} / 3</span><span>⭐ ${LQ.score}</span></div>
+    <div class="sq ko-q">${esc(q.q)}</div>
+    <div class="choices words">${q.choices.map((c,i)=>`<button class="choice ${cls(i)}" data-act="libPick" data-v="${i}"><span class="ct">${esc(c)}</span></button>`).join('')}</div>
+    ${LQ.note?`<div class="hint">${LQ.note}</div>`:''}${LQ.solved?'':skipBtn('libSkip')}</div>`;
+}
+function libAnswer(i){
+  if(!LQ||LQ.solved||LQ.done) return;
+  const q=LQ.list[LQ.i], skip=i<0;
+  if(!skip && q.choices[i]===q.ans){
+    LQ.solved=true; beep(true); markO(); logToday('korean', !LQ.tried, '명작 도서관');
+    if(!LQ.tried){ LQ.score++; addStar(1); }
+    LQ.note=`<span class="praise">${praise()}</span>`;
+  } else if(!skip){
+    if(LQ.picked.includes(i)) return;
+    LQ.tried=true; LQ.picked.push(i); beep(false); LQ.note='💡 이야기를 다시 떠올려 봐요. '+esc(q.explain); renderLibrary(); return;
+  } else {
+    LQ.tried=true; LQ.solved=true; beep(false); logToday('korean', false, '명작 도서관');
+    LQ.note=`정답은 <b>${esc(q.ans)}</b><br><small>${esc(q.explain)}</small>`;
+  }
+  renderLibrary();
+  const me=LQ;
+  setTimeout(()=>{
+    if(LQ!==me) return;
+    LQ.i++; LQ.tried=false; LQ.solved=false; LQ.picked=[]; LQ.note='';
+    if(LQ.i>=LQ.list.length){
+      LQ.done=true; LQ.earned=LQ.score+(LQ.score===3?1:0);
+      if(LQ.score===3){ addStar(1); burst(); }
+      const r=libDone(); r[LQ.id]=Math.max(r[LQ.id]===undefined?-1:r[LQ.id], LQ.score); store.set('lib',r); cloudPush();
+    }
+    if(App.view==='library') renderLibrary();
+  }, skip?2600:1400);
+}
+
 /* ───── 한국사 ───── */
 const hisPool = () => HISTORY.filter(x=>+App.hslv===8 || x.lv===9);
 const hisEras = () => ERAS.filter(e=>hisPool().some(x=>x.era===e[0]));
@@ -4119,6 +4328,13 @@ const spokenText = el => { const c=el.cloneNode(true); c.querySelectorAll('[data
 
 /* ───── 클릭 처리 ───── */
 const ACT = {
+  libOpen: v=>{ App.lib=v||null; App.lpg=0; LQ=null; go('library'); },
+  libClose: ()=>{ App.lib=null; LQ=null; render(); window.scrollTo(0,0); },
+  libPage: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; App.lpg=Math.max(0,Math.min(bk.pages.length-1,(App.lpg||0)+ +v)); renderLibrary(); window.scrollTo(0,0); },
+  libSay: ()=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) speak(bk.pages[Math.min(App.lpg||0,bk.pages.length-1)][1],'ko'); },
+  libQuiz: ()=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; LQ={id:bk.id, i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false, list:bk.qs.map(([q,a,o,ex])=>({q, ans:a, choices:shuffle([a,...o]), explain:ex}))}; renderLibrary(); window.scrollTo(0,0); },
+  libPick: v=>libAnswer(+v),
+  libSkip: ()=>libAnswer(-1),
   tab: v=>go(v),
   clockTile: ()=>{ const t=new Date(), h=t.getHours(), s=`${h<12?'오전':'오후'} ${h%12||12}시 ${t.getMinutes()}분이에요`; toast('⏰ 지금은 '+s); speak('지금은 '+s,'ko'); },
   grass: v=>grassInfo(v),
