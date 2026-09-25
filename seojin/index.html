@@ -586,6 +586,10 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .wx-pop .wx{margin:10px 0}
 .lib-sec{font-size:1.2rem;margin:16px 2px 8px}
 .lib-sec small{font-size:.85rem;color:var(--sub)}
+.lib-body{text-align:left;margin:10px 2px 14px}
+.lib-body p{font-size:1.2rem;line-height:1.95;margin:.7rem 0;word-break:keep-all}
+.lib-em{margin-right:6px;font-size:1.25rem}
+.lib-spk{border:none;background:none;font-size:.95rem;padding:0 2px;opacity:.65;vertical-align:middle}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -3951,18 +3955,11 @@ function renderLibrary(){
     return;
   }
   if(LQ && LQ.id===bk.id){ drawLibQuiz(bk); return; }
-  const n=bk.pages.length, pg=Math.min(App.lpg||0,n-1), [pic,text]=bk.pages[pg];
   view.innerHTML=`${backBtn('libClose',true)}<div class="card lib-page">
       <div class="lib-by">📖 ${bk.by}</div>
-      <div class="lib-title">${bk.t}</div>
-      <div class="lib-pic">${pic}</div>
-      <div class="lib-text">${esc(text)}</div>
-      <div class="lib-nav">
-        <button class="pill" data-act="libPage" data-v="-1" ${pg===0?'disabled style="opacity:.35"':''}>◀ 앞장</button>
-        <div><div class="lib-dots">${bk.pages.map((_,i)=>`<span class="${i===pg?'on':''}"></span>`).join('')}</div><div class="sub" style="font-size:.85rem;margin-top:4px">${pg+1} / ${n}쪽</div></div>
-        ${pg<n-1?'<button class="pill on" data-act="libPage" data-v="1">다음 장 ▶</button>':'<button class="pill on" data-act="libQuiz">📝 퀴즈!</button>'}
-      </div>
-      <div style="margin-top:10px"><button class="pill" data-act="libSay">🔊 읽어 주기</button></div>
+      <div class="lib-title">${bk.e} ${bk.t}</div>
+      <div class="lib-body">${bk.pages.map(([pic,text],i)=>`<p><span class="lib-em">${pic}</span>${esc(text)} <button class="lib-spk" data-act="libSay" data-v="${i}" aria-label="이 부분 읽어 주기">🔊</button></p>`).join('')}</div>
+      <button class="big-btn" data-act="libQuiz">✅ 다 읽었어요! 퀴즈 3문제 풀기</button>
     </div>${backBtn('libClose')}`;
 }
 function drawLibQuiz(bk){
@@ -4461,7 +4458,7 @@ const ACT = {
   libOpen: v=>{ App.lib=v||null; App.lpg=0; LQ=null; go('library'); },
   libClose: ()=>{ App.lib=null; LQ=null; render(); window.scrollTo(0,0); },
   libPage: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; App.lpg=Math.max(0,Math.min(bk.pages.length-1,(App.lpg||0)+ +v)); renderLibrary(); window.scrollTo(0,0); },
-  libSay: ()=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) speak(bk.pages[Math.min(App.lpg||0,bk.pages.length-1)][1],'ko'); },
+  libSay: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) speak(bk.pages[Math.min(+v||0,bk.pages.length-1)][1],'ko'); },
   libQuiz: ()=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; LQ={id:bk.id, i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false, list:bk.qs.map(([q,a,o,ex])=>({q, ans:a, choices:shuffle([a,...o]), explain:ex}))}; renderLibrary(); window.scrollTo(0,0); },
   libPick: v=>libAnswer(+v),
   libSkip: ()=>libAnswer(-1),
