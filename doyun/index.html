@@ -794,6 +794,44 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   .cx-v .vgrid{grid-template-columns:1.8rem repeat(var(--n),3.3rem)}
   .cx-q{font-size:1.55rem}
 }
+/* 내 캐릭터 방 */
+.me-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.me-head b{display:block;font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw);font-size:1.3rem}
+.me-head .sub{font-size:.85rem}
+.me-bank{display:flex;flex-direction:column;align-items:flex-end;line-height:1.25}
+.me-bank span{font-size:.78rem;color:var(--sub)}
+.me-bank b{font-size:1.5rem;color:var(--accent)}
+.me-bank small{font-size:.75rem;color:var(--sub)}
+.me-card{padding:10px}
+.me-stage{position:relative;height:260px;border-radius:calc(var(--rad) - 4px);overflow:hidden}
+.me-stage.mini{height:120px}
+.me-deco{position:absolute;font-size:2rem;opacity:.85}
+.me-floor{position:absolute;left:50%;bottom:26px;width:200px;height:34px;margin-left:-100px;border-radius:50%;background:rgba(0,0,0,.12)}
+.me-char{position:absolute;left:50%;bottom:36px;width:150px;height:150px;margin-left:-75px}
+.me-base{position:absolute;inset:0;font-size:120px;line-height:150px;text-align:center}
+.me-hat{position:absolute;left:50%;top:-34px;margin-left:-32px;font-size:64px;line-height:1}
+.me-acc{position:absolute;right:-38px;bottom:4px;font-size:52px;line-height:1}
+.me-acc.face{right:auto;left:50%;bottom:auto;top:40px;margin-left:-30px;font-size:60px}
+.me-pet{position:absolute;left:calc(50% - 170px);bottom:30px;font-size:56px;line-height:1}
+.me-buy{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;border-color:var(--accent)}
+.me-buy>div{flex:1;min-width:10rem}
+.me-buy .big-btn{width:auto;margin:0;padding:.6rem 1.2rem;font-size:1.05rem}
+.me-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(6.4rem,1fr));gap:10px}
+.me-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px 10px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);box-shadow:var(--shadow)}
+.me-item .me-ie,.me-buy .me-ie{font-size:2.3rem;line-height:1.1}
+.me-item b{font-size:.9rem;font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw)}
+.me-item small{font-size:.78rem;color:var(--sub)}
+.me-item small .no{opacity:.55}
+.me-item.own small{color:var(--ok)}
+.me-item.on{border-color:var(--accent);background:var(--soft)}
+.me-item.pick{border-color:var(--hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--hi) 45%,transparent)}
+@media (max-width:520px){
+  .me-stage{height:220px}
+  .me-base{font-size:96px}
+  .me-pet{left:calc(50% - 140px);font-size:44px}
+  .me-acc{right:-26px;font-size:42px}
+  .me-hat{font-size:52px;top:-24px;margin-left:-26px}
+}
 /* ═════════ 새 디자인 끝 ═════════ */
 </style>
 </head>
@@ -822,6 +860,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   <button class="dock-t" data-act="clockTile" aria-label="지금 시각 듣기"><small id="dkDate"></small><i id="dkAp"></i><b id="dkTime"></b></button>
   <button class="dock-t" data-act="libOpen" aria-label="명작 도서관"><span class="dk-ico">📚</span><small>도서관</small><b id="dkLib"></b></button>
   <button class="dock-t" data-act="tab" data-v="sticker" aria-label="스티커 보기"><span class="dk-ico">🏅</span><small>스티커</small><b id="dkStk"></b></button>
+  <button class="dock-t" data-act="tab" data-v="myroom" aria-label="내 캐릭터 방"><span class="dk-ico" id="dkMe">🐶</span><small>내 방</small><b style="font-size:.9rem">꾸미기</b></button>
   <button class="dock-t dk-wx" data-act="wxTile" aria-label="오늘 날씨 자세히 보기"><span class="dk-ico" id="dkWxIco">🌡️</span><b id="dkWxT">날씨</b><small id="dkWxS"></small></button>
 </aside>
 
@@ -866,7 +905,7 @@ const KID_IDS = { '도윤':'doyun' };
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
-const PROFILE_KEYS = ['csbest','lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
+const PROFILE_KEYS = ['deco','csbest','lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
 /* 도진이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e4_'+k : `e4_p_${name}_${k}`;
 const store = {
@@ -1709,7 +1748,7 @@ function markO(){
 const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v="${v}">⏭ 모르겠어요, 넘어가기</button>`;
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
-function updateStars(){ document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(Math.floor(stars/10),STICKERS.length)}장`; }
+function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(Math.floor(stars/10),STICKERS.length)}장`; }
 function addStar(n){
   if(n<=0) return;
   const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
@@ -1886,6 +1925,7 @@ async function cloudPull(name, docOnly){
         if(name===who){ stars=0; updateStars(); }
       }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); }
+      if(d.deco && (d.deco.at||0) > (store.get('deco',{},name).at||0)) store.set('deco',d.deco,name);
       if(typeof d.hmock==='number' && d.hmock>store.get('hmock',0,name)) store.set('hmock',d.hmock,name);
       MAX_KEYS.forEach(k=>{ if(d[k]) store.set(k, mergeMax(store.get(k,{},name), d[k]), name); });
       LATEST_KEYS.forEach(([k,at])=>{ if(d[k] && (d[at]||0) > store.get(at,0,name)){ store.set(k,d[k],name); store.set(at,d[at],name); } });
@@ -1923,7 +1963,7 @@ async function cloudPushNow(name){
   const k=dayKey(), L=getLog(name);
   try{
     const pin=kidPinsRaw()[name]||{};
-    const doc={name, stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
+    const doc={name, deco:store.get('deco',{},name), stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
       hmock:store.get('hmock',0,name), pinH:pin.h||null, pinAt:pin.at||0};
     MAX_KEYS.forEach(x=>{ doc[x]=store.get(x,{},name); });
     LATEST_KEYS.forEach(([x,at])=>{ doc[x]=store.get(x, x==='hwrong'?{}:[], name); doc[at]=store.get(at,0,name); });
@@ -1939,7 +1979,7 @@ async function cloudReset(name){
     await Promise.all(qs.docs.map(d=>d.ref.delete()));
     const resetAt=Date.now(); store.set('resetAt',resetAt,name); await ref.set({resetAt},{merge:true});
     const now=Date.now();
-    await ref.set({name, resetAt, stars:0, starsAt:now, updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{}, wrongs:[], wrongsAt:now, books:[], booksAt:now});
+    await ref.set({name, resetAt, deco:{at:Date.now()}, stars:0, starsAt:now, updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{}, wrongs:[], wrongsAt:now, books:[], booksAt:now});
   }catch(e){ console.warn('지우기 실패', e); }
 }
 
@@ -2067,7 +2107,7 @@ function render(){
   });
   if(App.view!=='review') RV=null;
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, math:renderCalc, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
+  ({home:renderHome, myroom:renderMyRoom, math:renderCalc, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
 }
 
 /* ───── 홈 ───── */
@@ -3753,6 +3793,80 @@ const CALC_LEVELS = [
     return cxH(`${(a/10).toFixed(1)} − ${cxD(b,2)} = {0}`,[ans],{dec:true,hint:`${(a/10).toFixed(1)}을(를) ${cxD(a*10,2)}으로 자리를 맞춰요: ${cxD(a*10,2)} − ${cxD(b,2)} = <b>${ans}</b>`}); }}
 ];
 
+/* ───── 내 캐릭터 방: 모은 별로 캐릭터 · 모자 · 소품 · 친구 · 배경을 사서 꾸며요 (다섯 방 공통) ─────
+   모은 별(stars)은 그대로 두고 쓴 별(deco.spent)을 따로 세요 → 스티커(모은 별 ÷ 10)는 줄지 않아요.
+   저장: 'deco' = {base, hat, acc, pet, bg, own:[…], spent, at} — at이 더 새로운 쪽을 따라요 (온라인 저장 포함) */
+const DECO_CATS = {base:'캐릭터', hat:'모자', acc:'소품', pet:'친구', bg:'배경'};
+const DECO_ITEMS = [
+  {id:'dog',k:'base',e:'🐶',n:'강아지',p:0},{id:'cat',k:'base',e:'🐱',n:'고양이',p:0},{id:'rabbit',k:'base',e:'🐰',n:'토끼',p:0},{id:'bear',k:'base',e:'🐻',n:'곰',p:0},
+  {id:'panda',k:'base',e:'🐼',n:'판다',p:0},{id:'fox',k:'base',e:'🦊',n:'여우',p:0},{id:'penguin',k:'base',e:'🐧',n:'펭귄',p:0},{id:'frog',k:'base',e:'🐸',n:'개구리',p:0},
+  {id:'lion',k:'base',e:'🦁',n:'사자',p:20},{id:'tiger',k:'base',e:'🐯',n:'호랑이',p:20},{id:'shark',k:'base',e:'🦈',n:'상어',p:30},{id:'dolphin',k:'base',e:'🐬',n:'돌고래',p:30},
+  {id:'dino',k:'base',e:'🦖',n:'공룡',p:50},{id:'unicorn',k:'base',e:'🦄',n:'유니콘',p:60},{id:'dragon',k:'base',e:'🐉',n:'용',p:80},
+  {id:'cap',k:'hat',e:'🧢',n:'야구 모자',p:10},{id:'ribbon',k:'hat',e:'🎀',n:'리본',p:10},{id:'straw',k:'hat',e:'👒',n:'밀짚모자',p:15},{id:'tophat',k:'hat',e:'🎩',n:'신사 모자',p:20},
+  {id:'grad',k:'hat',e:'🎓',n:'학사모',p:30},{id:'crown',k:'hat',e:'👑',n:'왕관',p:50},
+  {id:'glasses',k:'acc',e:'🕶️',n:'선글라스',p:15},{id:'balloon',k:'acc',e:'🎈',n:'풍선',p:10},{id:'icecream',k:'acc',e:'🍦',n:'아이스크림',p:10},{id:'ball',k:'acc',e:'⚽',n:'축구공',p:12},
+  {id:'guitar',k:'acc',e:'🎸',n:'기타',p:25},{id:'wand',k:'acc',e:'🪄',n:'요술봉',p:30},{id:'trophy',k:'acc',e:'🏆',n:'트로피',p:60},
+  {id:'chick',k:'pet',e:'🐣',n:'병아리',p:15},{id:'turtle',k:'pet',e:'🐢',n:'거북',p:20},{id:'hamster',k:'pet',e:'🐹',n:'햄스터',p:20},{id:'butterfly',k:'pet',e:'🦋',n:'나비',p:20},
+  {id:'octopus',k:'pet',e:'🐙',n:'문어',p:25},{id:'parrot',k:'pet',e:'🦜',n:'앵무새',p:30},
+  {id:'plain',k:'bg',e:'🏠',n:'기본 방',p:0,g:'linear-gradient(180deg,#F3F6FB 0%,#E7ECF5 100%)',d:[]},
+  {id:'sea',k:'bg',e:'🌊',n:'바닷속',p:20,g:'linear-gradient(180deg,#8FD3F4 0%,#3B8FD9 100%)',d:['🫧','🐠','🫧','🪸']},
+  {id:'forest',k:'bg',e:'🌳',n:'숲',p:20,g:'linear-gradient(180deg,#DFF5D8 0%,#9BD18A 100%)',d:['🌳','🌼','🍄','🌲']},
+  {id:'sunset',k:'bg',e:'🌇',n:'노을',p:25,g:'linear-gradient(180deg,#FFB38A 0%,#FF7E79 55%,#8E6CC8 100%)',d:['☁️','🌙']},
+  {id:'snow',k:'bg',e:'⛄',n:'눈 나라',p:30,g:'linear-gradient(180deg,#E8F3FF 0%,#C9DDF5 100%)',d:['❄️','⛄','❄️','🌨️']},
+  {id:'space',k:'bg',e:'🪐',n:'우주',p:40,g:'linear-gradient(180deg,#1B1B4B 0%,#3B2C7A 100%)',d:['⭐','🪐','✨','🌟']},
+  {id:'rainbow',k:'bg',e:'🌈',n:'무지개 언덕',p:50,g:'linear-gradient(180deg,#FFF7D6 0%,#D8F3E3 100%)',d:['🌈','☁️','🌸']}
+];
+const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
+function decoGet(){
+  const d=Object.assign({base:'dog', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0}, store.get('deco',{}));
+  DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
+  return d;
+}
+function decoSave(d){ d.at=Date.now(); store.set('deco',d); cloudPush(); drawMeTile(); }
+const decoLeft = () => Math.max(0, stars - (decoGet().spent||0));   // 쓸 수 있는 별
+function decoStage(d, big=true){
+  const bg=decoItem(d.bg)||decoItem('plain'), it=k=>d[k]?decoItem(d[k]):null, base=decoItem(d.base)||decoItem('dog');
+  const spots=[[8,14],[82,10],[14,58],[86,52]];
+  return `<div class="me-stage ${big?'':'mini'}" style="background:${bg.g}">
+    ${bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}
+    <div class="me-floor"></div>
+    <div class="me-char"><span class="me-base">${base.e}</span>
+      ${it('hat')?`<span class="me-hat">${it('hat').e}</span>`:''}
+      ${it('acc')?`<span class="me-acc ${d.acc==='glasses'?'face':''}">${it('acc').e}</span>`:''}</div>
+    ${it('pet')?`<span class="me-pet">${it('pet').e}</span>`:''}
+  </div>`;
+}
+function drawMeTile(){ const t=document.getElementById('dkMe'); if(t) t.textContent=(decoItem(decoGet().base)||decoItem('dog')).e; }
+function renderMyRoom(){
+  const d=decoGet(), cat=App.decoCat||'base', pick=App.decoPick, left=decoLeft();
+  const card=x=>{ const own=d.own.includes(x.id), on=d[x.k]===x.id, can=left>=x.p;
+    return `<button class="me-item ${on?'on':''} ${own?'own':''} ${pick===x.id?'pick':''}" data-act="decoTap" data-v="${x.id}">
+      <span class="me-ie">${x.e}</span><b>${x.n}</b>
+      <small>${on?(x.k==='base'||x.k==='bg'?'사용 중':'입는 중 · 벗기'):own?(x.p?'가지고 있어요':'무료'):`<span class="${can?'':'no'}">⭐ ${x.p}</span>`}</small></button>`; };
+  const P=pick?decoItem(pick):null;
+  view.innerHTML=`<div class="me-head"><div><b>${josa(who,'이의','의')} 캐릭터 방</b><span class="sub">모은 별로 꾸며요 · 별을 써도 스티커는 그대로예요</span></div>
+      <div class="me-bank"><span>쓸 수 있는 별</span><b>⭐ ${left}</b><small>모은 별 ${stars} · 쓴 별 ${d.spent||0}</small></div></div>
+    <div class="card me-card">${decoStage(d)}</div>
+    ${P?`<div class="me-buy card"><span class="me-ie">${P.e}</span><div><b>${P.n}</b><div class="sub">${left>=P.p?`별 ${P.p}개로 살까요? 사고 나면 쓸 수 있는 별은 ${left-P.p}개예요.`:`별이 ${P.p-left}개 더 필요해요. 문제를 풀어서 별을 모아요!`}</div></div>
+      ${left>=P.p?`<button class="big-btn me-yes" data-act="decoBuy" data-v="${P.id}">⭐ ${P.p} 사기</button>`:''}<button class="pill" data-act="decoTap" data-v="">닫기</button></div>`:''}
+    <div class="seg">${Object.entries(DECO_CATS).map(([k,n])=>`<button class="pill ${cat===k?'on':''}" data-act="decoCat" data-v="${k}">${n}</button>`).join('')}</div>
+    <div class="me-grid">${DECO_ITEMS.filter(x=>x.k===cat).map(card).join('')}</div>`;
+}
+function decoTap(id){
+  const d=decoGet(), x=decoItem(id); if(!x){ App.decoPick=null; renderMyRoom(); return; }
+  if(d.own.includes(id)){
+    if(x.k==='base'||x.k==='bg') d[x.k]=id; else d[x.k]=d[x.k]===id?null:id;   // 모자 · 소품 · 친구는 한 번 더 누르면 벗어요
+    App.decoPick=null; decoSave(d); renderMyRoom(); return;
+  }
+  App.decoPick=App.decoPick===id?null:id; renderMyRoom();
+}
+function decoBuy(id){
+  const d=decoGet(), x=decoItem(id); if(!x || d.own.includes(id)) return;
+  if(decoLeft()<x.p){ toast('별이 조금 모자라요'); return; }
+  d.spent=(d.spent||0)+x.p; d.own.push(id); d[x.k]=id; App.decoPick=null; decoSave(d);
+  beep(true); burst(); toast(`${x.e} ${x.n}을(를) 샀어요!`); renderMyRoom();
+}
+
 /* ───── 사회 · 과학: 단원마다 📖 설명 카드 + ✏️ 퀴즈 10문제 ───── */
 /* 사회 · 과학 (초4) */
 const CS_SOC_E4 = [
@@ -4408,6 +4522,9 @@ const ACT = {
   cxKey: v=>cxKey(v),
   cxSel: v=>{ if(CX&&!CX.done){ CX.sel=+v; drawCalc(); } },
   cxNext: ()=>{ CX=null; drawCalc(); },
+  decoCat: v=>{ App.decoCat=v; App.decoPick=null; renderMyRoom(); },
+  decoTap: v=>decoTap(v),
+  decoBuy: v=>decoBuy(v),
   startS: ()=>startS(),
   skey: v=>sKey(v),
   spick: v=>sPick(+v),
