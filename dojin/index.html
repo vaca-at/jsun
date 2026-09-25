@@ -1050,7 +1050,7 @@ function cloudInit(){
   if(cloud.ready) return cloud.ready;
   const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
   const base='https://www.gstatic.com/firebasejs/10.12.2/';
-  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>load(base+'firebase-auth-compat.js')).then(()=>{
     firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); cloud.ok=true; return cloud.db;
   }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
   return cloud.ready;
@@ -2298,7 +2298,56 @@ function drawSettings(){
     <button class="big-btn" data-act="closeSet">닫기</button>
     <div class="center"><button class="linkbtn" data-act="openAdmin">🔒 관리자 모드 (부모님용)</button></div>`;
 }
+/* 관리자 로그인: 온라인 저장(Firebase)이 켜져 있으면 이메일/비밀번호로 들어가요.
+   메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요. (가스 · 방 앱과 같은 관리자 계정) */
+const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
+async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const isAdminUser=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
+function admEnter(){
+  setMode='admin'; pinBuf=''; drawSettings();
+  const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+}
+function admEmailHTML(){
+  const f='display:block;width:100%;box-sizing:border-box;font:inherit;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;margin:4px 0 12px;background:var(--paper);color:inherit';
+  return `<h3>🔒 관리자 모드</h3>
+    <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 이메일과 비밀번호로 로그인하세요.</p>
+    <label class="lbl" for="admEm">이메일</label>
+    <input id="admEm" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" style="${f}">
+    <label class="lbl" for="admPw">비밀번호</label>
+    <input id="admPw" type="password" autocomplete="current-password" style="${f}">
+    <button class="big-btn" data-act="admLogin">로그인</button>
+    <button class="big-btn" data-act="closeSet" style="opacity:.8">닫기</button>
+    <div class="center"><button class="linkbtn" data-act="admReset">비밀번호를 잊었어요</button></div>`;
+}
+async function admEmailLogin(){
+  const em=((document.getElementById('admEm')||{}).value||'').trim().toLowerCase(), pw=(document.getElementById('admPw')||{}).value||'';
+  if(!em||!pw){ toast('이메일과 비밀번호를 넣어 주세요'); return; }
+  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
+  if(!await cloudInit()){ toast('온라인 저장에 연결하지 못했어요'); return; }
+  try{
+    const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
+    if(await isAdminUser(r.user)){ if(setMode==='pin') admEnter(); }
+    else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
+  }catch(e){
+    console.warn('로그인 실패',e);
+    const m={'auth/invalid-credential':'이메일이나 비밀번호가 맞지 않아요','auth/wrong-password':'비밀번호가 맞지 않아요','auth/user-not-found':'등록되지 않은 이메일이에요','auth/too-many-requests':'여러 번 틀려서 잠시 막혔어요. 조금 뒤에 다시 해 주세요','auth/operation-not-allowed':'Firebase에서 이메일/비밀번호 로그인을 켜 주세요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'}[e.code];
+    toast(m||'로그인하지 못했어요');
+  }
+}
+async function admEmailReset(){
+  const em=((document.getElementById('admEm')||{}).value||'').trim().toLowerCase();
+  if(!em){ toast('이메일을 먼저 넣어 주세요'); return; }
+  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
+  if(!await cloudInit()){ toast('온라인 저장에 연결하지 못했어요'); return; }
+  try{ await firebase.auth().sendPasswordResetEmail(em); toast('비밀번호 재설정 메일을 보냈어요'); }catch(e){ console.warn(e); toast('메일을 보내지 못했어요'); }
+}
+/* 이 기기에서 이미 로그인했으면 바로 관리자 모드로 */
+function admAuto(){
+  if(!FIREBASE_CONFIG) return;
+  cloudInit().then(ok=>{ if(!ok) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y && setMode==='pin') admEnter(); }); });
+}
 function pinHTML(){
+  if(FIREBASE_CONFIG) return admEmailHTML();
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도진 · 윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<h3>🔒 관리자 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
@@ -2350,8 +2399,9 @@ function adminHTML(){
     <div class="inrow"><input id="admMsg" maxlength="60" placeholder="예: 오늘도 화이팅! 20문제 풀면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
     ${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
-    <p class="lbl">🔑 비밀번호 바꾸기</p>
-    <div class="inrow"><input id="admPin" type="password" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>
+    ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
+    <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 비밀번호 바꾸기</p>
+    <div class="inrow"><input id="admPin" type="password" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
     <p class="lbl">👤 이름 관리 <small>(새 이름은 처음 화면에서 추가해요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="delWho" data-v="${esc(n)}">${esc(n)} ✕</button>`).join('')}</div>
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
@@ -2439,8 +2489,11 @@ const ACT = {
   hAgain: ()=>{ H=null; drawHQuiz(); },
   openSet: ()=>openModal('deco'),
   closeSet: ()=>closeModal(),
-  openAdmin: ()=>{ openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin') drawSettings(); }); },
+  openAdmin: ()=>{ openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
   pin: v=>pinKey(v),
+  admLogin: ()=>admEmailLogin(),
+  admReset: ()=>admEmailReset(),
+  admLogout: ()=>{ if(window.firebase && firebase.auth) firebase.auth().signOut().catch(()=>{}); toast('관리자에서 로그아웃했어요'); closeModal(); },
   set: (v,el)=>{
     const k=el.dataset.k;
     settings[k] = k==='size' ? +v : (k==='sound' ? v==='true' : v);
@@ -2477,6 +2530,7 @@ document.addEventListener('keydown',e=>{
     if(LP){ if(/^[0-9]$/.test(e.key)) lpinKey(e.key); else if(e.key==='Backspace') lpinKey('del'); return; }
     if(e.key==='Enter' && e.target.id==='newWho') addWho(); return;
   }
+  if(e.target.tagName==='INPUT'){ if(e.key==='Enter' && (e.target.id==='admEm'||e.target.id==='admPw')) ACT.admLogin(); return; }
   let fn=null;
   if(!document.getElementById('settings').hidden){ if(setMode==='pin') fn=pinKey; }
   else if(App.view==='math') fn=ACT.key;

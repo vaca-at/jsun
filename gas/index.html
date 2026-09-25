@@ -234,7 +234,14 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
    null 로 두면 이 기기에만 기록돼요.
    기록은 기기마다 gas/{LEARNER_ID}/devices/{기기 번호} 문서에 따로 저장되고,
    관리자 화면에서 모든 기기의 기록을 합쳐서 보여 줘요. 읽기는 관리자만 되도록 보안 규칙으로 막아요. */
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {   // 도윤 · 도진 · 방 앱과 같은 프로젝트(moon-15f88), 가스 앱은 gas 컬렉션만 써요
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c"
+};
 const LEARNER_ID   = 'learner1';   // 문서 이름 (영어·숫자)
 const LEARNER_NAME = '어르신';      // 관리자 화면에 보일 이름
 const ADMIN_PIN    = '0000';        // 온라인 기록을 끈 경우에만 쓰는 관리자 비밀번호 4자리, 꼭 바꾸세요
