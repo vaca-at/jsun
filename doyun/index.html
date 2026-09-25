@@ -1362,8 +1362,8 @@ const App = { view:'home', emode:'abc', cat:'animal', qcat:'all', letter:'A', el
   unit: store.get('unit','frac'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'story', hslv: store.get('hslv',9), story:null, spage:0, kact:'read', kgenre:'all', pid:null, phv:'a', smode:'learn', hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
 let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
-/* course: 오늘의 공부 코스 [과목, 문제 수] (관리자 모드에서 바꿔요) */
-const ADMIN_DEF = {pin:'0000', goal:25, subj:{korean:true,school:true,eng:true,hanja:true,history:true}, course:[{s:'korean',n:4},{s:'school',n:10},{s:'eng',n:5},{s:'hanja',n:3},{s:'history',n:3}], msg:''};
+/* 공부는 아이가 하고 싶은 과목을 골라서 해요. goal: 하루 목표 문제 수 (홈 막대 · 공부 잔디 색) */
+const ADMIN_DEF = {pin:'0000', goal:25, subj:{korean:true,school:true,eng:true,hanja:true,history:true}, msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
 let stars = 0;
@@ -1530,7 +1530,6 @@ function logToday(s, ok, sub){
   cloudPush();
   if(dayTotal(k)===admin.goal) setTimeout(()=>{ toast('🎯 오늘 목표를 달성했어요!'); burst(); },900);
   if(SUBJ[s] && e.n===SUBJ_DAY_MAX) setTimeout(()=>{ if(App.view===s) renderClosed(s,true); else { celebrate(); toast(`🏆 오늘 ${SUBJ[s].name} ${SUBJ_DAY_MAX}문제 완주! 정말 대단해요!`); } },1400);
-  courseCheck(s);
 }
 /* 단원 · 활동별 정답률: 5문제 넘게 풀었고 70% 아래면 ⚠️ */
 function statRows(name=who){
@@ -1601,7 +1600,7 @@ function tick(){
 
 /* ───── 온라인 저장 (Firebase Firestore) ─────
    아이 문서(e4/doyun): { name, stars, starsAt, hmock, hwrong, hwrongAt, kread, hstory, mbest, stat, wrongs, wrongsAt, books, booksAt, pinH, pinAt, updatedAt }
-   설정 문서(e4/settings): { goal, subj, course, msg, pinH, at }  ← 관리자 모드 설정 (모든 기기가 같이 써요)
+   설정 문서(e4/settings): { goal, subj, msg, pinH, at }  ← 관리자 모드 설정 (모든 기기가 같이 써요)
    날짜 문서(e4/doyun/daily/날짜): { visited, total, sec, korean:{n,ok}, school:{n,ok}, eng:{n,ok}, hanja:{n,ok}, history:{n,ok} }
    여러 기기에서 쓰면 문제 수 · 점수는 큰 쪽을, 별 · 목록은 나중에 바뀐 쪽을 따라요. */
 const cloud = { ready:null, db:null, ok:false };
@@ -1930,34 +1929,6 @@ function decoHTML(){
   </div>`;
 }
 function drawBanner(){ const b=document.getElementById('banner'); if(b) b.outerHTML=provHTML(); }
-/* 오늘의 공부 코스: 관리자가 정한 차례대로 [과목, 문제 수] */
-const courseList = () => (admin.course||ADMIN_DEF.course).filter(c=>SUBJ[c.s] && admin.subj[c.s] && c.n>0);
-const courseTotal = () => courseList().reduce((a,c)=>a+c.n,0);
-function courseState(){
-  const d=getLog()[dayKey()]||{};
-  return courseList().map(c=>({s:c.s, n:c.n, got:Math.min(c.n,(d[c.s]&&d[c.s].n)||0)}));
-}
-function courseCheck(s){
-  const st=courseState(), i=st.findIndex(c=>c.s===s);
-  if(i<0 || st[i].got!==st[i].n) return;
-  const d=getLog()[dayKey()]||{}; if(((d[s]&&d[s].n)||0)!==st[i].n) return; // 딱 채운 순간에만
-  const next=st.find(c=>c.got<c.n);
-  setTimeout(()=>toast(next ? `✅ ${SUBJ[s].name} 끝! 다음은 ${SUBJ[next.s].name}` : '🏁 오늘의 코스를 모두 마쳤어요!'), 1200);
-  if(!next) setTimeout(burst,1300);
-}
-function courseHTML(){
-  const st=courseState(); if(!st.length) return '';
-  const cur=st.find(c=>c.got<c.n);
-  return `<div class="card" style="margin-top:12px">
-    <div class="grass-head"><b>🗺️ 오늘의 공부 코스</b><span class="sub">${cur?'차례대로 하면 돼요':'🏁 모두 끝! 정말 잘했어요'}</span></div>
-    ${st.map((c,i)=>{ const done=c.got>=c.n, now=c===cur;
-      return `<button class="sent-card ${now?'q':''}" data-act="course" data-v="${c.s}" style="${done?'opacity:.6':''}">
-        <span class="emo" style="font-size:1.6rem">${done?'✅':now?'👉':'⬜'}</span>
-        <span style="flex:1"><b style="font-weight:normal;font-size:1.15rem">${i+1}. ${SUBJ[c.s].name}</b> <small>${c.s==='korean'?'긴 글 1편 (4문제)':c.n+'문제'}</small>
-        <div class="goal" style="margin:4px 0 0;height:8px"><i style="width:${Math.round(c.got/c.n*100)}%"></i></div></span>
-        <span class="sub">${c.got}/${c.n}</span></button>`; }).join('')}
-  </div>`;
-}
 function weakHTML(){
   const w=statRows().filter(r=>r.weak).slice(0,4); if(!w.length) return '';
   return `<div class="card" style="margin-top:12px"><div class="grass-head"><b>⚠️ 조금 더 연습하면 좋은 곳</b></div>
@@ -2004,7 +1975,6 @@ function renderHome(){
       <div class="sub">오늘의 목표 ${total} / ${goal}문제 ${total>=goal?'🎯 달성!':''} · ⏱ ${dayMin()}분 공부했어요</div>
       <div class="sub">${on.map(k=>`${SUBJ[k].name} ${(d[k]&&d[k].n)||0}개`).join(', ')}</div>
     </div>
-    ${courseHTML()}
     <div class="subjects">
       ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small>${subjTodayHTML(k)}</button>`).join('')}
       <button class="subj wide" data-act="tab" data-v="review"><span class="ico">🔁</span><span><b>틀린 문제 다시 풀기</b><br><small>모든 과목에서 틀린 문제 ${wn}개가 모여 있어요</small></span></button>
@@ -3651,7 +3621,6 @@ function adminHTML(){
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도윤이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  const course=admin.course||ADMIN_DEF.course;
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button></div>
@@ -3665,15 +3634,12 @@ function adminHTML(){
     ${stats.length?`<div class="scroll-x"><table class="tbl logtbl"><tr><th>과목</th><th>단원 · 활동</th><th>정답률</th><th>맞음/푼 문제</th></tr>
       ${stats.map(r=>`<tr><td>${SUBJ[r.s]?SUBJ[r.s].name:r.s}</td><td>${esc(r.sub)}${r.weak?' ⚠️':''}</td><td>${r.pct}%</td><td>${r.ok}/${r.n}</td></tr>`).join('')}</table></div>`:'<p class="sub">아직 기록이 없어요.</p>'}
     <p class="sub" style="font-size:.9rem">📚 읽은 긴 글 ${kr}편 · 🏯 읽은 이야기책 ${hs}권 · 📒 독서 기록 ${bn}권 · 🔁 복습함 ${wn}문제</p>
-    <p class="lbl">🗺️ 오늘의 공부 코스 <small>(차례와 문제 수 · 0이면 빠져요)</small></p>
-    ${course.map((c,i)=>`<div class="deco-row" style="margin-bottom:6px"><b style="min-width:5.5em">${i+1}. ${SUBJ[c.s]?SUBJ[c.s].name:c.s}</b>
-      <button class="pill" data-act="admCourse" data-k="-" data-v="${i}">−</button><span style="min-width:2.5em;text-align:center">${c.n}${c.s==='korean'?'':''}</span><button class="pill" data-act="admCourse" data-k="+" data-v="${i}">+</button>
-      <button class="pill" data-act="admCourse" data-k="up" data-v="${i}" ${i===0?'disabled style="opacity:.3"':''}>▲</button></div>`).join('')}
-    <p class="sub" style="font-size:.85rem">국어는 긴 글 1편 = 4문제예요. 하루 목표는 코스 합계 <b>${admin.goal}문제</b>로 저절로 맞춰져요.</p>
+    <p class="lbl">🎯 하루 목표 문제 수 <small>(홈 화면 막대와 공부 잔디 색의 기준이에요)</small></p>
+    <div class="seg">${[20,30,40,50,70].map(g=>tg('goal',g,g+'문제',admin.goal===g)).join('')}</div>
     <p class="lbl">📚 보이는 과목</p>
     <div class="seg">${keys.map(s=>tg('subj',s,SUBJ[s].name,admin.subj[s])).join('')}</div>
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
-    <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 코스 다 하면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
+    <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
     ${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
@@ -3710,7 +3676,6 @@ const ACT = {
   libSkip: ()=>libAnswer(-1),
   tab: v=>go(v),
   clockTile: ()=>{ const t=new Date(), h=t.getHours(), s=`${h<12?'오전':'오후'} ${h%12||12}시 ${t.getMinutes()}분이에요`; toast('⏰ 지금은 '+s); speak('지금은 '+s,'ko'); },
-  course: v=>{ if(v==='korean'){ App.kact='read'; } go(v); },
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),
   login: v=>loginPin(v),
@@ -3850,15 +3815,8 @@ const ACT = {
   adm: (v,el)=>{
     const k=el.dataset.k;
     if(k==='subj') admin.subj[v]=!admin.subj[v];
-    admin.goal=Math.max(1,courseTotal());
+    if(k==='goal') admin.goal=+v;
     saveAdmin(); drawSettings();
-  },
-  admCourse: (v,el)=>{
-    const c=(admin.course||ADMIN_DEF.course).map(x=>Object.assign({},x)), i=+v, k=el.dataset.k;
-    if(k==='+') c[i].n=Math.min(30, c[i].n+(c[i].s==='korean'?4:1));
-    if(k==='-') c[i].n=Math.max(0, c[i].n-(c[i].s==='korean'?4:1));
-    if(k==='up' && i>0) [c[i-1],c[i]]=[c[i],c[i-1]];
-    admin.course=c; admin.goal=Math.max(1,courseTotal()); saveAdmin(); drawSettings();
   },
   admMsg: ()=>{ admin.msg=document.getElementById('admMsg').value.trim(); saveAdmin(); toast('저장했어요'); },
   admStar: v=>{ stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawSettings(); },
