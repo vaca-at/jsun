@@ -6,11 +6,11 @@
 <title>가스기능사 필기 공부</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#EEF1F4; --paper:#FFFFFF; --ink:#1B2330; --sub:#526070; --line:#CBD3DC;
-  --yellow:#F5B800; --yink:#1B2330; --pipe:#E0A800;
+  --bg:#F4F6F9; --paper:#FFFFFF; --ink:#222831; --sub:#5F6B7A; --line:#DDE2E8;
+  --acc:#1D6FDB; --acc-ink:#FFFFFF; --acc-dk:#1557B0; --acc-soft:#EEF5FF; --acc-line:#8DB8F0; --head:#1B4B9A;
   --ok:#17703E; --okbg:#E1F2E7; --no:#B92B27; --nobg:#FBE4E3;
   --fs:22px;
   box-sizing:border-box;
@@ -19,42 +19,45 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#141A21; --paper:#1D252F; --ink:#EEF2F6; --sub:#AAB6C3; --line:#34414F;
+    --bg:#12171E; --paper:#1B222C; --ink:#EEF2F6; --sub:#AAB6C3; --line:#313C4A;
+    --acc:#5C9EF5; --acc-ink:#0E1620; --acc-dk:#3B7ED6; --acc-soft:#1A2A40; --acc-line:#3D6BA8; --head:#8DBBF7;
     --ok:#5CCB8C; --okbg:#173327; --no:#FF7D77; --nobg:#3A1C1C;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#141A21; --paper:#1D252F; --ink:#EEF2F6; --sub:#AAB6C3; --line:#34414F;
+  --bg:#12171E; --paper:#1B222C; --ink:#EEF2F6; --sub:#AAB6C3; --line:#313C4A;
+  --acc:#5C9EF5; --acc-ink:#0E1620; --acc-dk:#3B7ED6; --acc-soft:#1A2A40; --acc-line:#3D6BA8; --head:#8DBBF7;
   --ok:#5CCB8C; --okbg:#173327; --no:#FF7D77; --nobg:#3A1C1C;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{font-size:var(--fs);scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.65;word-break:keep-all;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.65;letter-spacing:-.01em;word-break:keep-all;-webkit-text-size-adjust:100%}
 button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:4px solid var(--yellow);outline-offset:2px}
+button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
 
-/* 머리: 가스 배관처럼 노랑·검정 경고 띠 */
-.top{background:var(--paper);border-bottom:2px solid var(--line)}
-.stripe{height:10px;background:repeating-linear-gradient(-45deg,#F5B800 0 16px,#1B2330 16px 32px)}
+/* 머리: 흰 바탕, 파란 제목, 둥근 메뉴 */
+.top{background:var(--paper);border-bottom:1px solid var(--line)}
+.stripe{height:4px;background:var(--acc)}
 .bar{max-width:760px;margin:0 auto;padding:12px 16px 6px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
-h1{margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
+h1{margin:0;font-size:1.2rem;font-weight:700;color:var(--head);letter-spacing:-.02em}
 .size{display:flex;gap:4px;align-items:center;font-size:.72rem;color:var(--sub)}
-.size button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:.15rem .55rem;font-size:.72rem}
-.size button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.nav button{min-height:3rem;border:2px solid var(--line);background:var(--paper);border-radius:12px;font-weight:600;font-size:.86rem;padding:.3rem .2rem}
-.nav button.on{background:var(--yellow);border-color:var(--yellow);color:var(--yink)}
+.size button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:.1rem .6rem;font-size:.72rem}
+.size button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.nav button{min-height:2.8rem;border:1px solid var(--line);background:var(--paper);border-radius:999px;font-weight:500;font-size:.82rem;padding:.25rem .2rem}
+.nav button.on{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:700}
 
 main{max-width:760px;margin:0 auto;padding:18px 16px 60px}
-.card{background:var(--paper);border:2px solid var(--line);border-radius:14px;padding:18px 18px;margin-bottom:16px}
-h2{font-size:1.1rem;margin:0 0 .5rem;font-weight:700}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px 18px;margin-bottom:16px}
+h2{font-size:1.15rem;margin:0 0 .5rem;font-weight:700;color:var(--head);letter-spacing:-.02em}
 p{margin:.4rem 0}
 .sub{color:var(--sub)}
 .small{font-size:.82rem}
 
-.big{display:block;width:100%;min-height:3.4rem;border:none;border-radius:14px;background:var(--yellow);color:var(--yink);font-weight:700;font-size:1.05rem;padding:.6rem 1rem;margin:10px 0;box-shadow:0 4px 0 #B78A00}
-.big:active{transform:translateY(3px);box-shadow:0 1px 0 #B78A00}
-.plain{display:block;width:100%;min-height:3.2rem;border:2px solid var(--ink);border-radius:14px;background:var(--paper);font-weight:600;font-size:1rem;padding:.5rem 1rem;margin:10px 0}
+.big{display:block;width:100%;min-height:3.3rem;border:none;border-radius:999px;background:var(--acc);color:var(--acc-ink);font-weight:700;font-size:1.02rem;padding:.55rem 1rem;margin:10px 0}
+.big:active{background:var(--acc-dk)}
+.plain{display:block;width:100%;min-height:3.1rem;border:1px solid var(--acc-line);border-radius:999px;background:var(--paper);color:var(--ink);font-weight:500;font-size:.98rem;padding:.45rem 1rem;margin:10px 0}
+.plain:active{background:var(--acc-soft)}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .row > *{flex:1 1 12rem}
 
@@ -72,10 +75,10 @@ p{margin:.4rem 0}
 .cyl b{display:block;font-size:.85rem}
 
 table{border-collapse:collapse;width:100%;margin:8px 0;font-size:.92rem}
-th,td{border:2px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}
-th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
-.tip{margin-top:10px;padding:10px 12px;border-left:6px solid var(--yellow);background:color-mix(in srgb,var(--yellow) 10%,var(--paper));border-radius:0 10px 10px 0;font-size:.92rem}
-.speak{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:.2rem .8rem;font-size:.82rem;float:right;margin-left:8px}
+th,td{border:1px solid var(--line);padding:.35rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--acc-soft);font-weight:500;color:var(--head)}
+.tip{margin-top:10px;padding:10px 12px;border-left:4px solid var(--acc);background:var(--acc-soft);border-radius:0 10px 10px 0;font-size:.92rem}
+.speak{border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;padding:.2rem .8rem;font-size:.82rem;float:right;margin-left:8px}
 
 /* 관리자 */
 .adminlink{border:none;background:none;color:var(--sub);font-size:.72rem;text-decoration:underline;padding:.5rem}
@@ -83,20 +86,20 @@ th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
 
 /* 주제 탭 */
 .topics{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
-.topics button{border:2px solid var(--line);background:var(--paper);border-radius:999px;padding:.3rem .85rem;font-size:.85rem;font-weight:600;min-height:2.6rem}
-.topics button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.topics button{border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;padding:.3rem .85rem;font-size:.85rem;font-weight:500;min-height:2.6rem}
+.topics button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc);font-weight:700}
 .navrow{display:flex;gap:10px}
 .navrow button{flex:1}
 
 /* 카드로 익히기: 뒤집는 카드 */
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.modes button{min-height:3rem;border:2px solid var(--line);background:var(--paper);border-radius:12px;font-weight:600;font-size:.9rem}
-.modes button.on{background:var(--yellow);border-color:var(--yellow);color:var(--yink)}
+.modes button{min-height:3rem;border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;font-weight:500;font-size:.9rem}
+.modes button.on{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
 .flip{perspective:1400px;margin:6px 0 4px;cursor:pointer;border:none;background:none;padding:0;width:100%;display:block}
 .flip-in{position:relative;min-height:13rem;transition:transform .55s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
 .flip.on .flip-in{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;border:3px solid var(--line);background:var(--paper);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center}
-.face.front{border-color:var(--ink)}
+.face.front{border-color:var(--acc-line)}
 .face.back{transform:rotateY(180deg);border-color:var(--ok);background:var(--okbg)}
 .face .fq{font-size:1.2rem;font-weight:700;line-height:1.5}
 .face .fa{font-size:1.45rem;font-weight:700;color:var(--ok);line-height:1.4}
@@ -118,9 +121,9 @@ th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
 .qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:var(--sub);font-size:.85rem;margin-bottom:6px}
 .qtext{font-size:1.1rem;font-weight:600;line-height:1.6;margin:.3rem 0 .8rem}
 .choices{display:flex;flex-direction:column;gap:10px}
-.ch{display:flex;gap:.6rem;align-items:flex-start;text-align:left;width:100%;min-height:3.2rem;border:2px solid var(--line);background:var(--paper);border-radius:12px;padding:.55rem .8rem;font-size:1rem;line-height:1.5}
+.ch{display:flex;gap:.6rem;align-items:flex-start;text-align:left;width:100%;min-height:3.2rem;border:1px solid var(--line);background:var(--paper);border-radius:12px;padding:.55rem .8rem;font-size:1rem;line-height:1.5}
 .ch b{flex:none;font-size:1.05rem}
-.ch.sel{border-color:var(--ink);border-width:3px}
+.ch.sel{border-color:var(--acc);background:var(--acc-soft);border-width:2px}
 .ch.ok{border-color:var(--ok);background:var(--okbg);border-width:3px}
 .ch.no{border-color:var(--no);background:var(--nobg);border-width:3px}
 .result{margin-top:14px;padding:12px 14px;border-radius:12px;font-size:.95rem}
@@ -131,21 +134,44 @@ th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
 .result.no strong{color:var(--no)}
 .timer{font-weight:700;color:var(--ink)}
 .grid-ans{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.6rem,1fr));gap:6px;margin-top:10px}
-.grid-ans button{min-height:2.4rem;border:2px solid var(--line);background:var(--paper);border-radius:8px;font-size:.8rem;padding:0}
-.grid-ans button.done{background:color-mix(in srgb,var(--yellow) 35%,var(--paper))}
-.grid-ans button.cur{border-color:var(--ink);border-width:3px}
+.grid-ans button{min-height:2.4rem;border:1px solid var(--line);background:var(--paper);border-radius:8px;font-size:.8rem;padding:0}
+.grid-ans button.done{background:var(--acc-soft);border-color:var(--acc-line)}
+.grid-ans button.cur{border-color:var(--acc);border-width:3px}
 
 .wrongitem{border-top:2px dashed var(--line);padding:12px 0}
 .wrongitem:first-of-type{border-top:none}
 .catbtn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
 .catbtn small{font-weight:400;color:var(--sub);font-size:.8rem}
-.subj{font-size:.8rem;font-weight:700;color:var(--sub);margin:14px 0 2px}
-.subj:first-of-type{margin-top:4px}
-.ext a{color:var(--ink);font-weight:600}
+/* 상위 카테고리: 둥근 머리칸 / 하위 카테고리: – 목록 */
+.subjh{position:relative;display:flex;align-items:center;justify-content:center;gap:.45rem;margin:22px 0 4px;min-height:2.6rem;padding:.35rem 1rem;background:var(--acc-soft);border:1.5px solid var(--acc-line);border-radius:999px;font-weight:500;font-size:.95rem;line-height:1.3;text-align:center;color:var(--ink)}
+.subjh:first-of-type{margin-top:8px}
+.subjh.wc{padding:.35rem 3.4rem}
+.subjh .no{flex:none;color:var(--acc);font-weight:700;font-size:.8rem}
+.subjh .cnt{position:absolute;right:1rem;top:50%;transform:translateY(-50%);font-weight:400;font-size:.7rem;color:var(--sub)}
+.units{display:flex;flex-direction:column;padding:2px 4px 0 10px}
+.unit{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:none;border-bottom:1px solid var(--line);background:none;padding:.55rem .25rem;min-height:2.9rem;border-radius:0}
+.unit:last-child{border-bottom:none}
+.unit::before{content:'–';flex:none;color:var(--sub);font-weight:400}
+.unit .t{flex:1;min-width:0}
+.unit .t b{display:block;font-size:.92rem;font-weight:500;line-height:1.4}
+.unit .t small{display:block;color:var(--sub);font-size:.72rem;line-height:1.4}
+.unit:hover .t b,.unit:active .t b{color:var(--acc)}
+.unit .p{flex:none;width:3.4rem;font-size:.68rem;color:var(--sub);text-align:right;line-height:1.3}
+.unit .p i{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:3px;overflow:hidden}
+.unit .p i u{display:block;height:100%;background:var(--acc)}
+.unit.hl .t b{color:var(--acc);font-weight:700}
+.ext a{color:var(--acc);font-weight:500}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1.1rem;border-radius:12px;font-size:.9rem;z-index:50}
 @media (max-width:520px){
-  .nav{grid-template-columns:repeat(3,1fr)}
-  .card{padding:14px}
+  /* 휴대폰: 고른 글자 크기의 85%로 */
+  html{font-size:calc(var(--fs) * .85)}
+  .bar{padding:10px 12px 4px}
+  h1{font-size:1.1rem}
+  .nav{grid-template-columns:repeat(3,1fr);gap:6px;padding:4px 12px 10px}
+  .nav button{min-height:2.5rem;font-size:.8rem}
+  main{padding:12px 12px 48px}
+  .card{padding:14px 12px;margin-bottom:12px}
+  .units{margin-left:4px;padding-left:8px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -784,15 +810,25 @@ function quizMenu(){
   $v.innerHTML=`
   <section class="card">
     <h2>무엇을 풀어 볼까요?</h2>
-    <button class="big catbtn" data-start="mix"><span>섞어서 10문제</span></button>
-    ${Object.entries(CATS).map(([k,c])=>{
-      const ids=QS.filter(q=>q.c===k).map(q=>q.id);
-      return `<button class="plain catbtn" data-start="${k}"><span>${c.name} 10문제<br><small>${c.sub}</small></span><small>${solvedCount(ids)}/${ids.length}</small></button>`;
-    }).join('')}
-    <button class="plain catbtn" data-start="wrong"><span>틀린 문제만 다시</span><small>${wn}개</small></button>
-    <button class="plain catbtn" data-start="exam"><span>실전 모의시험<br><small>${Math.min(60,QS.length)}문제, 60분, 끝나고 한꺼번에 채점</small></span></button>
+    <button class="big" data-start="mix">섞어서 10문제</button>
+    ${subjHead('과목별','기본 문제 10문제씩')}
+    <div class="units">${Object.entries(CATS).map(([k,c])=>unitBtn(k,c.name,c.sub,QS.filter(q=>q.c===k).map(q=>q.id))).join('')}</div>
+    ${subjHead('복습','다시 풀기와 실전')}
+    <div class="units">
+      ${unitBtn('wrong','틀린 문제만 다시',`모아 둔 틀린 문제 ${wn}개`)}
+      ${unitBtn('exam','실전 모의시험',`${Math.min(60,QS.length)}문제, 60분, 끝나고 한꺼번에 채점`,null,true)}
+    </div>
+    <button class="plain" data-go="past">단원별 기출 유형 보기 ›</button>
   </section>`;
 }
+/* 상위 카테고리 머리줄, 하위 카테고리 버튼 */
+const subjHead=(no,name,cnt)=>`<div class="subjh${cnt?' wc':''}"><span class="no">${no}</span><span>${name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
+function unitBtn(start,name,sub,ids,hl){
+  const n=ids?solvedCount(ids):0, tot=ids?ids.length:0;
+  const p=ids?`<span class="p">${n}/${tot}${n?' · '+rate(ids)+'%':''}<i><u style="width:${tot?Math.round(n/tot*100):0}%"></u></i></span>`:'';
+  return `<button class="unit${hl?' hl':''}" data-start="${start}"><span class="t"><b>${name}</b>${sub?`<small>${sub}</small>`:''}</span>${p}</button>`;
+}
+
 /* ───────── 기출 유형 (단원별) ───────── */
 function pastMenu(){
   if(Q){ drawQ(); return; }
@@ -810,10 +846,11 @@ function pastMenu(){
   </section>
   <section class="card">
     <h2>단원 고르기</h2>
-    ${SUBJS.map((s,si)=>`<p class="subj">${si+1}과목 · ${s}</p>`+Object.entries(UNITS).filter(([,u])=>u.s===si).map(([k,u])=>{
-      const ids=KQ.filter(q=>q.c===k).map(q=>q.id), n=solvedCount(ids);
-      return `<button class="plain catbtn" data-start="${k}"><span>${u.name}<br><small>${u.sub}</small></span><small>${n}/${ids.length}${n?'<br>'+rate(ids)+'%':''}</small></button>`;
-    }).join('')).join('')}
+    ${SUBJS.map((s,si)=>{
+      const us=Object.entries(UNITS).filter(([,u])=>u.s===si), ids=KQ.filter(q=>UNITS[q.c].s===si).map(q=>q.id);
+      return subjHead(si+1+'과목', s, `${solvedCount(ids)}/${ids.length}`)+
+        `<div class="units">${us.map(([k,u])=>unitBtn(k,u.name,u.sub,KQ.filter(q=>q.c===k).map(q=>q.id))).join('')}</div>`;
+    }).join('')}
   </section>
   <section class="card ext">
     <h2>실제 기출문제 원문 보기</h2>
