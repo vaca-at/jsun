@@ -348,6 +348,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .sheet{width:100%;max-width:560px;border-radius:24px 24px 0 0;max-height:88vh;overflow:auto;padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))}
 .sheet h3{margin:0 0 8px;font-weight:normal;font-size:1.4rem}
 .lbl{margin:14px 0 6px;color:var(--sub)}
+.reset-btn{display:block;width:100%;margin:6px 0 4px;padding:.7rem;border-radius:14px;border:2px solid var(--no);background:color-mix(in srgb,var(--no) 10%,var(--paper));color:var(--no);font-size:1.05rem}
 .danger{margin-top:18px;color:var(--no);text-decoration:underline;font-size:.95rem}
 .linkbtn{margin-top:16px;color:var(--sub);text-decoration:underline;font-size:.95rem}
 .pinrow{display:flex;justify-content:center;gap:14px;margin:14px 0 4px}
@@ -3957,7 +3958,8 @@ function adminHTML(){
     ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 관리자 비밀번호 바꾸기</p>
     <div class="inrow"><input id="admPin" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
-    ${who?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}`}
+    ${isMom()?'':`<p class="lbl">🗑️ 기록 초기화 <small>(별 · 스티커 · 푼 문제 · 공부 시간 · 복습함을 모두 지워요. 설정은 남아요)</small></p>
+    <button class="reset-btn" data-act="reset">🗑️ ${esc(admView)}의 기록 모두 지우기</button>`}`}
     <button class="big-btn" data-act="closeSet">나가기</button>`;
 }
 
@@ -4122,12 +4124,15 @@ const ACT = {
     if(!/^\d{4}$/.test(p)){ toast('숫자 4자리로 적어 주세요'); return; }
     admin.pinH=hashPin(p,'admin'); delete admin.pin; saveAdmin(); toast('비밀번호를 바꿨어요'); drawSettings();
   },
-  reset: ()=>{
-    if(isMom()) return;
-    if(!confirm(`${who}의 별, 스티커, 학습 기록, 읽은 글, 복습함을 모두 지울까요?`)) return;
-    ['stars','today','starDay','log','visits','hmock','hwrong','kread','hstory','mbest','stat','wrongs','studysec','books'].forEach(k=>store.del(k));
-    const now=Date.now(); ['hwrongAt','wrongsAt','booksAt','starsAt'].forEach(k=>store.set(k,now));
-    stars=0; cloudReset(who); markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
+  reset: async ()=>{
+    if(typeof isMom==='function' && isMom()) return;
+    const name=admView||who||getProfiles()[0];
+    if(!confirm(`${name}의 별, 스티커, 학습 기록, 공부 시간, 복습함을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.`)) return;
+    PROFILE_KEYS.filter(k=>!KEEP_ON_RESET.includes(k)).forEach(k=>store.del(k,name));
+    const now=Date.now(); ['hwrongAt','wrongsAt','booksAt','starsAt'].forEach(k=>store.set(k,now,name));
+    await cloudReset(name);   // 온라인 기록과 다른 기기의 기록도 지워져요
+    if(name===who){ stars=0; markVisit(); updateStars(); }
+    toast('🗑️ 기록을 모두 지웠어요'); drawSettings();
   }
 };
 document.addEventListener('click',e=>{
