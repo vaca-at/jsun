@@ -3915,8 +3915,57 @@ function pinKey(v){
   drawSettings(); shake('pinrow'); beep(false); toast('비밀번호가 틀렸어요');
   setTimeout(()=>{ if(setMode==='pin'){ pinBuf=''; drawSettings(); } },450);
 }
+/* ───── 관리자 모드: 다섯 방 아이들 모두 보기 (엄마 모드에서는 자기 아이만) ─────
+   다른 방 아이는 온라인 기록을 불러와서 간단히 보여 주고, 자세한 건 관리자 대시보드로 */
+const DASHBOARD_URL = 'https://vaca-at.github.io/study-admin/';
+const ALL_S_E4 = {korean:'국어', school:'학교수학', eng:'영어', hanja:'한자', history:'한국사'};
+const ALL_S_E2 = {math:'연산', school:'학교수학', korean:'국어', eng:'영어', hanja:'한자', history:'한국사'};
+const ALL_KIDS = [
+  {id:'doyun',  name:'도윤', ico:'🦈', grade:'e4', subj:ALL_S_E4, time:true},
+  {id:'dojin',  name:'도진', ico:'🐲', grade:'e2', subj:ALL_S_E2, time:false},
+  {id:'yuna',   name:'윤아', ico:'🐱', grade:'e2', subj:ALL_S_E2, time:false},
+  {id:'seojin', name:'서진', ico:'📘', grade:'e6', subj:Object.assign({},ALL_S_E4,{school:'수학'}), time:true},
+  {id:'seohee', name:'서희', ico:'🌸', grade:'e3', subj:Object.assign({},ALL_S_E4,{school:'수학'}), time:true}
+];
+let admOther = null;          // 다른 방 아이 id (null 이면 이 방 아이)
+const OTHER = {};             // 불러온 기록 {doc, days} 또는 {err}
+const isMomRole = () => typeof isMom==='function' && isMom();
+function allKidsSeg(names){
+  if(isMomRole()) return `<div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>`;
+  return `<div class="seg">${ALL_KIDS.map(k=>{ const here=names.includes(k.name);
+    const on = here ? (!admOther && admView===k.name) : admOther===k.id;
+    return `<button class="pill ${on?'on':''}" data-act="${here?'admWho':'admOther'}" data-v="${here?esc(k.name):k.id}">${k.ico} ${k.name}</button>`; }).join('')}</div>`;
+}
+async function loadOther(id){
+  const k=ALL_KIDS.find(x=>x.id===id);
+  try{
+    if(!await cloudInit()) throw new Error('온라인 저장에 연결하지 못했어요');
+    const ref=cloud.db.collection(k.grade).doc(k.id), [snap,qs]=await Promise.all([ref.get(), ref.collection('daily').get()]);
+    const days={}; qs.forEach(d=>{ days[d.id]=d.data(); });
+    OTHER[id]={doc:snap.exists?snap.data():{}, days};
+  }catch(e){ OTHER[id]={err:e.message||String(e)}; }
+  if(setMode==='admin' && admOther===id) drawSettings();
+}
+function otherKidHTML(names){
+  const k=ALL_KIDS.find(x=>x.id===admOther), r=OTHER[admOther];
+  const head=`<h3>🔒 관리자 모드</h3>${allKidsSeg(names)}`;
+  const foot=`<p class="center"><a class="pill" href="${DASHBOARD_URL}" target="_blank" rel="noopener">📚 관리자 대시보드에서 자세히 보기 ↗</a></p><button class="big-btn" data-act="closeSet">나가기</button>`;
+  if(!r) return head+'<p class="sub">기록을 불러오는 중…</p>'+foot;
+  if(r.err) return head+`<p class="sub">${k.name} 기록을 불러오지 못했어요: ${esc(r.err)}</p>`+foot;
+  const keys=Object.keys(k.subj), tot=d=>keys.reduce((a,s)=>a+((d[s]&&d[s].n)||0),0);
+  const agoTxt=ms=>{ if(!ms) return '기록 없음'; const m=Math.round((Date.now()-ms)/60000); return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'; };
+  let rows='';
+  for(let i=0;i<7;i++){ const t=new Date(); t.setDate(t.getDate()-i); const d=r.days[dayKey(t)]||{}, n=tot(d), ok=keys.reduce((a,s)=>a+((d[s]&&d[s].ok)||0),0);
+    rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${keys.map(s=>{ const e=d[s]; return e&&e.n?`<td>${e.ok}/${e.n}</td>`:'<td class="z">-</td>'; }).join('')}<td>${n?ok+'/'+n:'-'}</td>${k.time?`<td>${d.sec?Math.round(d.sec/60)+'분':'-'}</td>`:''}</tr>`; }
+  const st=r.doc.stars||0;
+  return head+`<div class="card" style="padding:12px"><b style="font-weight:normal;font-size:1.3rem">${k.ico} ${k.name}</b>
+      <p class="sub" style="margin:4px 0 0">⭐ 별 ${st}개 · 🏅 스티커 ${Math.min(100,Math.floor(st/10))}장 · 마지막 접속 ${agoTxt(r.doc.updatedAt)}</p></div>
+    <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
+    <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${k.subj[s]}</th>`).join('')}<th>합계</th>${k.time?'<th>시간</th>':''}</tr>${rows}</table></div>`+foot;
+}
 function adminHTML(){
   const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
+  if(admOther && !isMomRole()) return otherKidHTML(names);
   const L=getLog(admView), keys=Object.keys(SUBJ), sec=store.get('studysec',{},admView);
   let rows='';
   for(let i=0;i<7;i++){
@@ -3933,7 +3982,7 @@ function adminHTML(){
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
-    <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
+    ${allKidsSeg(names)}
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제 · 공부한 시간)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th><th>시간</th></tr>${rows}</table></div>
@@ -3983,7 +4032,8 @@ const ACT = {
   lpin: v=>lpinKey(v),
   kidPinReset: v=>{ if(!confirm(`${v}의 비밀번호를 지울까요? 다음에 들어갈 때 새로 만들어요.`)) return; setKidPin(v,null); cloudPushNow(v); toast('비밀번호를 지웠어요'); drawSettings(); },
   addWho: ()=>addWho(),
-  admWho: v=>{ admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
+  admOther: v=>{ admOther=v; drawSettings(); loadOther(v); },
+  admWho: v=>{ admOther=null; admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
   delWho: v=>{
     if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
     store.set('profiles', getProfiles().filter(n=>n!==v));
