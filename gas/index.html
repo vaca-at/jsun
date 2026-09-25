@@ -43,7 +43,7 @@ h1{margin:0;font-size:1.2rem;font-weight:700;color:var(--head);letter-spacing:-.
 .size{display:flex;gap:4px;align-items:center;font-size:.72rem;color:var(--sub)}
 .size button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:.1rem .6rem;font-size:.72rem}
 .size button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
-.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .nav button{min-height:2.8rem;border:1px solid var(--line);background:var(--paper);border-radius:999px;font-weight:500;font-size:.82rem;padding:.25rem .2rem}
 .nav button.on{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:700}
 
@@ -91,7 +91,7 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
 .navrow{display:flex;gap:10px}
 .navrow button{flex:1}
 
-/* 카드로 익히기: 뒤집는 카드 */
+/* 퀴즈로 공부하기: 뒤집는 카드 */
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .modes button{min-height:3rem;border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;font-weight:500;font-size:.9rem}
 .modes button.on{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
@@ -142,6 +142,13 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
 .wrongitem:first-of-type{border-top:none}
 .catbtn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
 .catbtn small{font-weight:400;color:var(--sub);font-size:.8rem}
+/* 문제 풀기 하위 탭 */
+.qtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.qtabs button{min-height:2.7rem;border:1px solid var(--acc-line);background:var(--paper);border-radius:999px;font-weight:500;font-size:.85rem;padding:.2rem .3rem;line-height:1.25}
+.qtabs button.on{background:var(--acc);border-color:var(--acc);color:var(--acc-ink);font-weight:700}
+.grid-ans button.gok{background:var(--okbg);border-color:var(--ok);color:var(--ok);font-weight:700}
+.grid-ans button.gno{background:var(--nobg);border-color:var(--no);color:var(--no);font-weight:700}
+.score{color:var(--ink);font-weight:500}
 /* 상위 카테고리: 둥근 머리칸 / 하위 카테고리: – 목록 */
 .subjh{position:relative;display:flex;align-items:center;justify-content:center;gap:.45rem;margin:22px 0 4px;min-height:2.6rem;padding:.35rem 1rem;background:var(--acc-soft);border:1.5px solid var(--acc-line);border-radius:999px;font-weight:500;font-size:.95rem;line-height:1.3;text-align:center;color:var(--ink)}
 .subjh:first-of-type{margin-top:8px}
@@ -180,8 +187,10 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
   html{font-size:calc(var(--fs) * .85)}
   .bar{padding:10px 12px 4px}
   h1{font-size:1.1rem}
-  .nav{grid-template-columns:repeat(3,1fr);gap:6px;padding:4px 12px 10px}
-  .nav button{min-height:2.5rem;font-size:.8rem}
+  .nav{grid-template-columns:repeat(6,1fr);gap:6px;padding:4px 12px 10px}
+  .nav button{min-height:2.5rem;font-size:.8rem;grid-column:span 2}
+  .nav button:nth-child(n+4){grid-column:span 3}
+  .qtabs button{font-size:.78rem}
   main{padding:12px 12px 48px}
   .card{padding:14px 12px;margin-bottom:12px}
   .units{margin-left:4px;padding-left:8px}
@@ -204,11 +213,10 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
   </div>
   <nav class="nav">
     <button data-go="study">요점 정리</button>
-    <button data-go="learn">카드로 익히기</button>
+    <button data-go="learn">퀴즈로 공부하기</button>
     <button data-go="quiz">문제 풀기</button>
     <button data-go="past">기출 유형</button>
     <button data-go="wrong">틀린 문제</button>
-    <button data-go="exam">모의시험</button>
   </nav>
 </header>
 <main id="view"></main>
@@ -448,7 +456,7 @@ const unitName=k=>(UNITS[k]||CATS[k]||{}).name||'';
 
 /* ───────── 저장 (이 기기에만) ───────── */
 const KEY='gasStudy_v1';
-let S={size:22, stat:{}, wrong:{}, days:{}, topic:0, lmode:'flip', exams:[], cardStat:{}, lastSeen:0};
+let S={size:22, stat:{}, wrong:{}, days:{}, topic:0, lmode:'pick', exams:[], cardStat:{}, lastSeen:0};
 try{ const s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s) S=Object.assign(S,s); }catch(e){}
 const save=()=>{ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} };
 
@@ -547,18 +555,17 @@ function render0(){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===view));
   const fab=document.querySelector('.fab'); if(fab) fab.classList.toggle('on',view==='admin');
   if(view==='admin'){ admOK?adminView():adminLogin(); return; }
-  ({study:study, learn:learn, quiz:quizMenu, past:pastMenu, wrong:wrongNote, exam:examMenu, guide:guideView, privacy:privacyView})[view]();
+  ({study:study, learn:learn, quiz:quizMenu, past:pastMenu, wrong:wrongNote, guide:guideView, privacy:privacyView})[view]();
 }
 
-function examMenu(){
-  if(Q){ drawQ(); return; }
+function examBody(){
   const all=QS.map(q=>q.id), done=solvedCount(all);
   const fmt=ms=>{ const d=new Date(ms); return `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${pad(d.getMinutes())}`; };
   const ex=S.exams.slice().reverse().slice(0,5);
-  $v.innerHTML=`
+  return `
   <section class="card">
-    <h2>실전 모의시험</h2>
-    <p class="sub small">실제 시험처럼 60문제를 60분 동안 풀고, 끝나고 한꺼번에 채점해요.</p>
+    <h2>모의시험 풀기</h2>
+    <p class="sub small">실제 시험처럼 60문제를 60분 안에 풀어요. 답을 고를 때마다 바로 정답과 해설이 나오고, 60분이 지나면 자동으로 끝나요.</p>
     <table>
       <tr><th>방식</th><td>컴퓨터로 푸는 객관식(CBT), 4개 중 1개 고르기</td></tr>
       <tr><th>문제 수</th><td>60문제, 60분</td></tr>
@@ -588,16 +595,19 @@ function guideView(){
     <p>가스기능사 필기시험을 차근차근 준비하는 공부 앱이에요. 위쪽 메뉴를 순서대로 따라가면 돼요.</p>
     <h3>1. 요점 정리</h3>
     <p>주제별로 꼭 외울 내용을 표와 그림으로 정리했어요. <b>🔊 읽기</b>를 누르면 소리 내어 읽어 줘요.</p>
-    <h3>2. 카드로 익히기</h3>
-    <p><b>뒤집기 카드</b>는 카드를 눌러 답을 확인하고 "알아요 / 다시 볼래요"를 고르면 돼요. <b>골라 맞히기</b>는 보기 4개 중에서 답을 골라요.</p>
+    <h3>2. 퀴즈로 공부하기</h3>
+    <p><b>객관식 퀴즈</b>는 보기 4개 중에서 답을 골라요. <b>뒤집기 카드</b>는 카드를 눌러 답을 확인하고 "알아요 / 다시 볼래요"를 고르면 돼요.</p>
     <h3>3. 문제 풀기</h3>
-    <p>섞어서 10문제, 또는 과목별로 10문제씩 풀어요. 답을 고르면 바로 정답과 해설이 나와요.</p>
+    <p>위쪽 탭에서 세 가지 중 하나를 골라요. 어느 것이든 답을 고르면 바로 정답과 해설이 나와요.</p>
+    <ul>
+      <li><b>과목별 풀기</b>: 과목을 골라 10문제씩</li>
+      <li><b>섞어서 풀기</b>: 모든 과목을 섞어 10문제나 20문제, 틀린 문제만 다시</li>
+      <li><b>모의시험 풀기</b>: 실제 시험처럼 60문제를 60분 안에. 60점 이상이면 합격 점수예요.</li>
+    </ul>
     <h3>4. 기출 유형</h3>
     <p>시험에 자주 나오는 내용을 과목과 단원별로 나눈 연습 문제예요. 약한 단원만 골라 풀 수 있어요.</p>
     <h3>5. 틀린 문제</h3>
     <p>틀린 문제가 저절로 모여요. 다시 풀어서 맞히면 목록에서 빠져요.</p>
-    <h3>6. 모의시험</h3>
-    <p>실제 시험처럼 60문제를 60분 동안 풀어요. 끝나고 한꺼번에 채점하고, 60점 이상이면 합격 점수예요.</p>
     <h3>편리한 기능</h3>
     <ul>
       <li><b>글자 크기</b>: 맨 위 "보통 / 크게 / 아주 크게"로 바꿔요.</li>
@@ -621,7 +631,7 @@ function privacyView(){
     <h3>1. 처리하는 정보</h3>
     <p>이 앱은 회원가입이 없고, 이름·전화번호·주소 같은 개인정보를 이용자에게 받지 않아요. 공부를 돕기 위해 다음 정보만 다뤄요.</p>
     <ul>
-      <li><b>공부 기록</b>: 푼 문제와 정답 여부, 틀린 문제, 날짜별 푼 문제 수와 공부 시간, 모의시험 점수, 카드 학습 결과, 글자 크기 설정</li>
+      <li><b>공부 기록</b>: 푼 문제와 정답 여부, 틀린 문제, 날짜별 푼 문제 수와 공부 시간, 모의시험 점수, 퀴즈 학습 결과, 글자 크기 설정</li>
       ${on?'<li><b>온라인 기록</b>: 위 공부 기록과 관리자가 정한 학습자 표시 이름</li>':''}
       <li><b>관리자 로그인</b>: 관리자가 구글 계정으로 로그인할 때 확인하는 관리자 본인의 메일 주소 (학습자는 로그인하지 않아요)</li>
     </ul>
@@ -746,7 +756,7 @@ async function adminView(){
     ${exams.length?`<table><tr><th>날짜</th><th>점수</th><th>맞힌 문제</th><th>걸린 시간</th></tr>${exams.map(x=>`<tr><td>${fmtDT(x.at)}</td><td>${x.score}점 ${x.score>=60?'✅':''}</td><td>${x.c} / ${x.n}</td><td>${Math.floor(x.sec/60)}분</td></tr>`).join('')}</table>`:'<p class="sub">아직 모의시험을 보지 않았어요.</p>'}</section>
   <section class="card"><h2>많이 틀린 문제</h2>
     ${worst.length?worst.map(x=>`<div class="wrongitem"><p><b>${esc(x.q.q)}</b></p><p class="small">정답: <b style="color:var(--ok)">${esc(x.q.ch[0])}</b> <span class="sub">(틀림 ${x.v[1]}번, 맞힘 ${x.v[0]}번)</span></p></div>`).join(''):'<p class="sub">아직 틀린 문제가 없어요.</p>'}</section>
-  ${cards?`<section class="card"><h2>카드로 익히기</h2><table><tr><th>주제</th><th>알아요</th><th>다시 볼래요</th></tr>${cards}</table></section>`:''}`;
+  ${cards?`<section class="card"><h2>퀴즈로 공부하기</h2><table><tr><th>주제</th><th>알아요</th><th>다시 볼래요</th></tr>${cards}</table></section>`:''}`;
 }
 
 /* 요점 정리 */
@@ -818,7 +828,7 @@ const STUDY_RAW=[
    <tr><th>비파괴검사</th><td>RT 방사선, UT 초음파, MT 자분, PT 침투</td></tr></table>`]
 ];
 
-/* 카드로 익히기: 주제마다 [앞면 질문, 뒷면 답, 덧붙임(없으면 ''), 그림] */
+/* 퀴즈로 공부하기: 주제마다 [앞면 질문, 뒷면 답, 덧붙임(없으면 ''), 그림] */
 const CYL = {산소:'#2E8B57',수소:'#F28C28',아세틸렌:'#F2C200',탄산가스:'#2F6FD1',암모니아:'#FFFFFF',염소:'#7B4A2A',LPG:'#C3C9D0'};
 const cylSvg = (c,o)=>`<svg viewBox="0 0 60 130" aria-hidden="true"><rect x="23" y="2" width="14" height="14" rx="3" fill="#6B7684"/><path d="M10 42 Q10 18 30 18 Q50 18 50 42 V118 Q50 127 41 127 H19 Q10 127 10 118 Z" fill="${c}" stroke="${o?'#8793A1':'rgba(0,0,0,.25)'}" stroke-width="${o?3:2}"/><rect x="10" y="60" width="40" height="6" fill="rgba(255,255,255,.35)"/></svg>`;
 const CARDS = [
@@ -863,10 +873,10 @@ function study(){
       <button class="plain" data-topic="${(i+STUDY.length-1)%STUDY.length}">◀ 앞 주제</button>
       <button class="plain" data-topic="${(i+1)%STUDY.length}">다음 주제 ▶</button>
     </div>
-    <button class="big" data-golearn="1">이 주제 카드로 익히기</button>`;
+    <button class="big" data-golearn="1">이 주제 퀴즈로 공부하기</button>`;
 }
 
-/* ───────── 카드로 익히기 ───────── */
+/* ───────── 퀴즈로 공부하기 (객관식 퀴즈 / 뒤집기 카드) ───────── */
 function cardRecord(topic, ok){
   const c=S.cardStat[topic]||{k:0,a:0}; ok?c.k++:c.a++; S.cardStat[topic]=c;
   dayObj().cards++; S.lastSeen=Date.now(); save(); cloudPush();
@@ -886,8 +896,8 @@ function learn(){
   if(!L || L.topic!==S.topic || L.mode!==S.lmode) newL();
   const cards=STUDY[L.topic].cards, n=L.order.length;
   const head = topicTabs('ltopic') + `<div class="modes">
-      <button class="${S.lmode==='flip'?'on':''}" data-lmode="flip">🃏 뒤집기 카드</button>
-      <button class="${S.lmode==='pick'?'on':''}" data-lmode="pick">👆 골라 맞히기</button></div>`;
+      <button class="${S.lmode==='pick'?'on':''}" data-lmode="pick">👆 객관식 퀴즈</button>
+      <button class="${S.lmode==='flip'?'on':''}" data-lmode="flip">🃏 뒤집기 카드</button></div>`;
   const dots = `<div class="dots2" aria-hidden="true">${L.order.map((_,k)=>`<i class="${L.res[k]===true?'k':L.res[k]===false?'a':''} ${k===L.i&&!L.done?'c':''}"></i>`).join('')}</div>`;
   if(L.done){
     const k=L.res.filter(x=>x===true).length, a=n-k;
@@ -937,19 +947,24 @@ let Q=null, timerId=null;
 function stopTimer(){ if(timerId){ clearInterval(timerId); timerId=null; } }
 function quizMenu(){
   if(Q){ drawQ(); return; }
-  const wn=Object.keys(S.wrong).length;
-  $v.innerHTML=`
-  <section class="card">
-    <h2>무엇을 풀어 볼까요?</h2>
-    <button class="big" data-start="mix">섞어서 10문제</button>
-    ${subjHead('과목별','기본 문제 10문제씩')}
+  const t=S.qtab||'cat', wn=Object.keys(S.wrong).length;
+  const tabs=`<div class="qtabs" role="tablist">${[['cat','과목별 풀기'],['mix','섞어서 풀기'],['exam','모의시험 풀기']].map(([k,l])=>`<button role="tab" aria-selected="${k===t}" class="${k===t?'on':''}" data-qtab="${k}">${l}</button>`).join('')}</div>`;
+  let body;
+  if(t==='cat') body=`<section class="card">
+    <h2>과목별 풀기</h2>
+    <p class="sub small">과목을 고르면 10문제씩 풀어요. 답을 고르면 바로 정답과 해설이 나와요.</p>
     <div class="units">${Object.entries(CATS).map(([k,c])=>unitBtn(k,c.name,c.sub,QS.filter(q=>q.c===k).map(q=>q.id))).join('')}</div>
-    ${subjHead('복습','다시 풀기와 실전')}
-    <div class="units">
-      ${unitBtn('wrong','틀린 문제만 다시',`모아 둔 틀린 문제 ${wn}개`)}
-    </div>
     <button class="plain" data-go="past">단원별 기출 유형 보기 ›</button>
   </section>`;
+  else if(t==='mix') body=`<section class="card">
+    <h2>섞어서 풀기</h2>
+    <p class="sub small">모든 과목과 기출 유형 문제를 골고루 섞어서 내요.</p>
+    <button class="big" data-start="mix">섞어서 10문제</button>
+    <button class="plain" data-start="mix20">섞어서 20문제</button>
+    <div class="units">${unitBtn('wrong','틀린 문제만 다시',`모아 둔 틀린 문제 ${wn}개`)}</div>
+  </section>`;
+  else body=examBody();
+  $v.innerHTML=tabs+body;
 }
 /* 상위 카테고리 머리줄, 하위 카테고리 버튼 */
 const subjHead=(no,name,cnt)=>`<div class="subjh${cnt?' wc':''}"><span class="no">${no}</span><span>${name}</span>${cnt?`<span class="cnt">${cnt}</span>`:''}</div>`;
@@ -993,64 +1008,67 @@ function pastMenu(){
 function start(kind){
   let pool;
   if(kind==='mix') pool=shuffle(QS).slice(0,10);
+  else if(kind==='mix20') pool=shuffle(QS).slice(0,20);
   else if(kind==='kmix') pool=shuffle(KQ).slice(0,20);
   else if(UNITS[kind]) pool=shuffle(KQ.filter(q=>q.c===kind));
   else if(kind==='exam') pool=shuffle(QS).slice(0,60);
   else if(kind==='wrong'){ pool=shuffle(QS.filter(q=>S.wrong[q.id])).slice(0,10); if(!pool.length){ toast('틀린 문제가 없어요. 잘하셨어요!'); return; } }
   else pool=shuffle(QS.filter(q=>q.c===kind)).slice(0,10);
-  const back=kind==='exam'?'exam':(kind==='kmix'||UNITS[kind])?'past':'quiz';
+  const back=(kind==='kmix'||UNITS[kind])?'past':'quiz';
   Q={kind, back, exam:kind==='exam', list:pool.map(q=>({q, opts:shuffle(q.ch)})), i:0, picks:[], done:false, start:Date.now()};
   view=back; document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===back));
   stopTimer();
-  if(Q.exam) timerId=setInterval(()=>{ if(!Q||!Q.exam||Q.done||view!=='exam') return; const left=3600-Math.floor((Date.now()-Q.start)/1000); if(left<=0){ finishExam(); return; } const t=document.getElementById('timer'); if(t) t.textContent=fmtLeft(left); },1000);
+  if(Q.exam) timerId=setInterval(()=>{ if(!Q||!Q.exam||Q.done||view!=='quiz') return; const left=3600-Math.floor((Date.now()-Q.start)/1000); if(left<=0){ finishExam(); return; } const t=document.getElementById('timer'); if(t) t.textContent=fmtLeft(left); },1000);
   drawQ(); window.scrollTo(0,0);
 }
 const fmtLeft=s=>`${Math.floor(s/60)}분 ${String(s%60).padStart(2,'0')}초`;
-const titleOf=()=>Q.exam?'실전 모의시험':Q.kind==='mix'?'섞어서 10문제':Q.kind==='kmix'?'기출 유형 섞어서':Q.kind==='wrong'?'틀린 문제 다시':unitName(Q.kind);
+const titleOf=()=>Q.exam?'실전 모의시험':Q.kind==='mix'?'섞어서 10문제':Q.kind==='mix20'?'섞어서 20문제':Q.kind==='kmix'?'기출 유형 섞어서':Q.kind==='wrong'?'틀린 문제 다시':unitName(Q.kind);
 
+const isOk=k=>{ const p=Q.picks[k]; return p!==undefined && p>=0 && Q.list[k].opts[p]===Q.list[k].q.ch[0]; };
 function drawQ(){
   if(Q.exam && !Q.done && Date.now()-Q.start>=3600000){ finishExam(); return; }
   if(Q.done){ drawResult(); return; }
   const it=Q.list[Q.i], q=it.q, pick=Q.picks[Q.i], n=Q.list.length;
-  const answered = !Q.exam && pick!==undefined;
+  const answered = pick!==undefined;
   const cls=j=>{
-    if(Q.exam) return pick===j?'sel':'';
     if(!answered) return '';
     if(it.opts[j]===q.ch[0]) return 'ok';
     return pick===j?'no':'';
   };
   const ok = answered && it.opts[pick]===q.ch[0];
+  const solved=Q.picks.filter(p=>p!==undefined).length, right=Q.list.filter((_,k)=>isOk(k)).length;
   $v.innerHTML=`
   <section class="card">
     <div class="qhead"><span>${titleOf()}</span><span>${Q.i+1} / ${n}</span>
       ${Q.exam?`<span>남은 시간 <span class="timer" id="timer">${fmtLeft(Math.max(0,3600-Math.floor((Date.now()-Q.start)/1000)))}</span></span>`:''}</div>
+    ${Q.exam?`<p class="small sub" style="margin:0 0 4px">지금까지 <span class="score">${solved}문제 중 ${right}문제 맞힘</span></p>`:''}
     <button class="speak" data-readq="1">🔊 읽기</button>
     <p class="qtext">${esc(q.q)}</p>
     <div class="choices">${it.opts.map((o,j)=>`<button class="ch ${cls(j)}" data-pick="${j}" ${answered?'disabled':''}><b>${NUM[j]}</b><span>${esc(o)}</span></button>`).join('')}</div>
     ${answered?`<div class="result ${ok?'ok':'no'}"><strong>${ok?'⭕ 맞았어요!':'❌ 아쉬워요. 정답은 '+NUM[it.opts.indexOf(q.ch[0])]+' '+esc(q.ch[0])}</strong>${esc(q.ex)}</div>`:''}
-    ${!Q.exam && !answered?`<button class="plain" data-skip="1">모르겠어요, 정답 보기</button>`:''}
+    ${!answered?`<button class="plain" data-skip="1">모르겠어요, 정답 보기</button>`:''}
     ${!Q.exam && answered?`<button class="big" data-next="1">${Q.i+1<n?'다음 문제':'결과 보기'}</button>`:''}
-    ${Q.exam?`<div class="row"><button class="plain" data-prev="1" ${Q.i===0?'disabled':''}>이전 문제</button><button class="big" data-next="1">${Q.i+1<n?'다음 문제':'답안 제출하기'}</button></div>
+    ${Q.exam?`<div class="row"><button class="plain" data-prev="1" ${Q.i===0?'disabled':''}>이전 문제</button><button class="big" data-next="1">${Q.i+1<n?'다음 문제':'시험 끝내기'}</button></div>
       <details><summary class="sub small" style="cursor:pointer;margin-top:8px">문제 번호로 이동하기</summary>
-      <div class="grid-ans">${Q.list.map((_,k)=>`<button class="${Q.picks[k]!==undefined?'done':''} ${k===Q.i?'cur':''}" data-jump="${k}">${k+1}</button>`).join('')}</div></details>`:''}
+      <div class="grid-ans">${Q.list.map((_,k)=>`<button class="${Q.picks[k]===undefined?'':isOk(k)?'gok':'gno'} ${k===Q.i?'cur':''}" data-jump="${k}">${k+1}</button>`).join('')}</div></details>`:''}
     <button class="plain" data-quit="1" style="border-style:dashed">그만 풀기</button>
   </section>`;
 }
 function pickAns(j){
   const it=Q.list[Q.i];
-  if(Q.exam){ Q.picks[Q.i]=j; drawQ(); return; }
   if(Q.picks[Q.i]!==undefined) return;
   Q.picks[Q.i]=j; record(it.q, it.opts[j]===it.q.ch[0]); drawQ();
 }
 function skipAns(){
   const it=Q.list[Q.i];
+  if(Q.picks[Q.i]!==undefined) return;
   Q.picks[Q.i]=-1; record(it.q,false); drawQ();
 }
 function next(){
   if(Q.exam){
     if(Q.i+1<Q.list.length){ Q.i++; drawQ(); window.scrollTo(0,0); return; }
     const empty=Q.list.filter((_,k)=>Q.picks[k]===undefined).length;
-    if(empty && !confirm(`아직 안 푼 문제가 ${empty}개 있어요. 그래도 제출할까요?`)) return;
+    if(empty && !confirm(`아직 안 푼 문제가 ${empty}개 있어요. 시험을 끝낼까요?`)) return;
     finishExam(); return;
   }
   if(Q.picks[Q.i]===undefined) return;
@@ -1058,8 +1076,7 @@ function next(){
 }
 function finishExam(){
   stopTimer();
-  Q.list.forEach((it,k)=>record(it.q, Q.picks[k]!==undefined && it.opts[Q.picks[k]]===it.q.ch[0]));
-  { const n=Q.list.length, c=Q.list.filter((it,k)=>Q.picks[k]!==undefined && it.opts[Q.picks[k]]===it.q.ch[0]).length;
+  { const n=Q.list.length, c=Q.list.filter((it,k)=>Q.picks[k]!==undefined && Q.picks[k]>=0 && it.opts[Q.picks[k]]===it.q.ch[0]).length;
     S.exams.push({at:Date.now(), n, c, score:Math.round(c/n*100), sec:Math.round((Date.now()-Q.start)/1000)}); save(); cloudPush(); }
   Q.done=true; drawQ(); window.scrollTo(0,0);
 }
@@ -1072,10 +1089,10 @@ function drawResult(){
     <h2>${titleOf()} 결과</h2>
     <div class="stats"><div><span class="sub small">맞힌 문제</span><b>${c} / ${n}</b></div><div><span class="sub small">점수</span><b>${score}점</b></div></div>
     <p>${Q.exam?(pass?'🎉 합격 점수(60점)를 넘었어요!':'합격 점수(60점)까지 조금 더 힘내세요.'):(c===n?'🎉 모두 맞혔어요!':'틀린 문제는 "틀린 문제"에 모아 두었어요.')}</p>
-    <button class="big" data-again="1">${Q.exam?'모의시험 다시 보기':UNITS[Q.kind]?'이 단원 다시 풀기':Q.kind==='kmix'?'20문제 더 풀기':'10문제 더 풀기'}</button>
+    <button class="big" data-again="1">${Q.exam?'모의시험 다시 보기':UNITS[Q.kind]?'이 단원 다시 풀기':(Q.kind==='kmix'||Q.kind==='mix20')?'20문제 더 풀기':'10문제 더 풀기'}</button>
     <button class="plain" data-quit="1">문제 고르는 화면으로</button>
   </section>
-  ${wrongs.length?`<section class="card"><h2>틀린 문제 다시 보기</h2>${wrongs.map(it=>`<div class="wrongitem"><p><b>${esc(it.q.q)}</b></p><p>정답: <b style="color:var(--ok)">${esc(it.q.ch[0])}</b></p><p class="sub small">${esc(it.q.ex)}</p></div>`).join('')}</section>`:''}`;
+  ${wrongs.length?`<section class="card"><h2>${Q.exam?'틀리거나 못 푼 문제':'틀린 문제 다시 보기'}</h2>${wrongs.map(it=>`<div class="wrongitem"><p><b>${esc(it.q.q)}</b></p><p>정답: <b style="color:var(--ok)">${esc(it.q.ch[0])}</b></p><p class="sub small">${esc(it.q.ex)}</p></div>`).join('')}</section>`:''}`;
 }
 
 /* 틀린 문제 노트 */
@@ -1098,11 +1115,12 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   const d=b.dataset;
   if(d.size){ S.size=+d.size; save(); applySize(); return; }
-  if(d.go){ const qv=d.go==='quiz'||d.go==='past'||d.go==='exam'; if(qv && Q && !Q.done && Q.back===d.go){ view=d.go; render(); return; } if(qv && Q && Q.exam && !Q.done && !confirm('진행 중인 모의시험을 그만둘까요? 푼 답은 저장되지 않아요.')) return; if(qv) stopTimer(); if(qv) Q=null; go(d.go); return; }
+  if(d.go){ const qv=d.go==='quiz'||d.go==='past'||d.go==='exam'; if(qv && Q && !Q.done && Q.back===d.go){ view=d.go; render(); return; } if(qv && Q && Q.exam && !Q.done && !confirm('진행 중인 모의시험을 그만둘까요? 푼 문제는 기록에 남지만 점수는 저장되지 않아요.')) return; if(qv) stopTimer(); if(qv) Q=null; go(d.go); return; }
   if(d.admin){ go('admin'); return; }
   if(d.apin){ const v=(document.getElementById('apin')||{}).value; if(v===ADMIN_PIN){ admOK=true; adminView(); } else toast('비밀번호가 달라요'); return; }
   if(d.admrefresh){ adminView(); return; }
   if(d.glogin){ googleLogin(); return; }
+  if(d.qtab){ S.qtab=d.qtab; save(); quizMenu(); return; }
   if(d.alogout){ adminLogout(); return; }
   if(d.start){ start(d.start); return; }
   if(d.topic!==undefined){ S.topic=+d.topic; save(); study(); window.scrollTo(0,0); tabIntoView(); return; }
@@ -1122,7 +1140,7 @@ document.addEventListener('click',e=>{
   if(d.prev){ if(Q.i>0){ Q.i--; drawQ(); } return; }
   if(d.jump!==undefined){ Q.i=+d.jump; drawQ(); return; }
   if(d.again){ start(Q.kind==='wrong'?'wrong':Q.kind); return; }
-  if(d.quit){ if(Q && Q.exam && !Q.done && !confirm('모의시험을 그만둘까요? 푼 답은 저장되지 않아요.')) return; stopTimer(); const bk=Q?Q.back:'quiz'; Q=null; go(bk); return; }
+  if(d.quit){ if(Q && Q.exam && !Q.done && !confirm('모의시험을 그만둘까요? 푼 문제는 기록에 남지만 점수는 저장되지 않아요.')) return; stopTimer(); const bk=Q?Q.back:'quiz'; Q=null; go(bk); return; }
   if(d.readq){ const it=Q.list[Q.i]; speak(it.q.q+'. '+it.opts.map((o,j)=>NUM[j]+' '+o).join('. ')); return; }
   if(d.read){ const el=document.getElementById(d.read); if(el) speak(el.innerText.replace('🔊 읽기','')); return; }
   if(d.clear){ delete S.wrong[d.clear]; save(); wrongNote(); toast('목록에서 뺐어요'); return; }
