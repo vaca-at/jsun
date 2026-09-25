@@ -179,8 +179,10 @@ th{background:var(--acc-soft);font-weight:500;color:var(--head);white-space:nowr
 /* 오른쪽 아래 떠 있는 관리자 버튼 */
 .fab{position:fixed;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:40;width:2.6rem;height:2.6rem;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 55%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:.45;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;transition:opacity .2s}
 .fab:hover,.fab:focus-visible,.fab.on{opacity:1}
-.gbtn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;min-height:3.1rem;border:1px solid var(--line);border-radius:999px;background:var(--paper);font-weight:500;margin:10px 0}
-.gbtn svg{width:1.2rem;height:1.2rem}
+.field{display:block;width:100%;font:inherit;font-size:1rem;padding:.55rem .8rem;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);margin:4px 0 10px}
+.field:focus{outline:2px solid var(--acc);border-color:var(--acc)}
+.flabel{display:block;font-size:.8rem;color:var(--sub);margin-top:6px}
+.linkbtn{border:none;background:none;color:var(--sub);font-size:.78rem;text-decoration:underline;padding:.4rem;display:block;margin:0 auto}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1.1rem;border-radius:12px;font-size:.9rem;z-index:50}
 @media (max-width:520px){
   /* 휴대폰: 고른 글자 크기의 85%로 */
@@ -236,7 +238,7 @@ const FIREBASE_CONFIG = null;
 const LEARNER_ID   = 'learner1';   // 문서 이름 (영어·숫자)
 const LEARNER_NAME = '어르신';      // 관리자 화면에 보일 이름
 const ADMIN_PIN    = '0000';        // 온라인 기록을 끈 경우에만 쓰는 관리자 비밀번호 4자리, 꼭 바꾸세요
-/* 관리자 구글 계정: 메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요.
+/* 관리자 계정(Firebase 이메일/비밀번호): 메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요.
    바꾸려면 새 메일 주소(소문자)의 SHA-256 값(16진수)을 넣으세요. */
 const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
 const POLICY_DATE  = '2026년 9월 25일';  // 개인정보처리방침 시행일
@@ -642,7 +644,7 @@ function privacyView(){
     <ul>
       <li><b>공부 기록</b>: 푼 문제와 정답 여부, 틀린 문제, 날짜별 푼 문제 수와 공부 시간, 모의시험 점수, 퀴즈 학습 결과, 글자 크기 설정</li>
       ${on?'<li><b>온라인 기록</b>: 위 공부 기록, 관리자가 정한 학습자 표시 이름, 기기를 구분하는 임의의 번호(개인을 알아볼 수 없는 무작위 값)</li>':''}
-      <li><b>관리자 로그인</b>: 관리자가 구글 계정으로 로그인할 때 확인하는 관리자 본인의 메일 주소 (학습자는 로그인하지 않아요)</li>
+      <li><b>관리자 로그인</b>: 관리자가 로그인할 때 쓰는 관리자 본인의 이메일 주소 (학습자는 로그인하지 않아요)</li>
     </ul>
 
     <h3>2. 처리 목적</h3>
@@ -686,37 +688,54 @@ function privacyView(){
 
 /* ───────── 관리자 화면 ───────── */
 let admOK=false;
-const GLOGO='<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 7l7.3 5.7c4.3-4 7-9.9 7-17.2z"/><path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C.9 16.5 0 20.1 0 24s.9 7.5 2.6 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2 1.4-4.7 2.3-8.6 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg>';
 async function sha256(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const isAdminUser=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256(em)===ADMIN_EMAIL_SHA256; };
 function adminLogin(){
   if(FIREBASE_CONFIG){
     $v.innerHTML=`<section class="card" style="max-width:440px;margin:0 auto">
-      <h2>🔒 관리자</h2><p class="sub small">관리자로 등록된 구글 계정으로 로그인하세요.</p>
-      <button class="gbtn" data-glogin="1">${GLOGO}<span>Google 계정으로 로그인</span></button>
-      <button class="plain" data-go="study">나가기</button></section>`;
+      <h2>🔒 관리자</h2><p class="sub small">관리자 이메일과 비밀번호로 로그인하세요.</p>
+      <label class="flabel" for="aem">이메일</label>
+      <input id="aem" class="field" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false">
+      <label class="flabel" for="apw">비밀번호</label>
+      <input id="apw" class="field" type="password" autocomplete="current-password">
+      <button class="big" data-elogin="1">로그인</button>
+      <button class="plain" data-go="study">나가기</button>
+      <button class="linkbtn" data-ereset="1">비밀번호를 잊었어요</button></section>`;
+    setTimeout(()=>{ const i=document.getElementById('aem'); if(i) i.focus(); },50);
+    // 이미 로그인돼 있으면 바로 들어가요
+    cloudInit().then(ok=>{ if(!ok) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y && view==='admin' && !admOK){ admOK=true; adminView(); } }); });
     return;
   }
   $v.innerHTML=`<section class="card" style="max-width:440px;margin:0 auto">
     <h2>🔒 관리자</h2>
-    <p class="sub small">구글 계정 로그인은 온라인 기록(Firebase)을 설정한 뒤에 쓸 수 있어요. 지금은 이 기기의 기록만 있어서 비밀번호 4자리로 들어가요.</p>
+    <p class="sub small">이메일 로그인은 온라인 기록(Firebase)을 설정한 뒤에 쓸 수 있어요. 지금은 이 기기의 기록만 있어서 비밀번호 4자리로 들어가요.</p>
     <input id="apin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" class="pinbox">
     <button class="big" data-apin="1">들어가기</button>
     <button class="plain" data-go="study">나가기</button></section>`;
   setTimeout(()=>{ const i=document.getElementById('apin'); if(i) i.focus(); },50);
 }
-async function googleLogin(){
+async function emailLogin(){
+  const em=((document.getElementById('aem')||{}).value||'').trim().toLowerCase(), pw=(document.getElementById('apw')||{}).value||'';
+  if(!em||!pw){ toast('이메일과 비밀번호를 넣어 주세요'); return; }
+  if(await sha256(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
   if(!await cloudInit()){ toast('로그인 준비에 실패했어요'); return; }
-  const isAdmin=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256(em)===ADMIN_EMAIL_SHA256; };
   try{
-    let u=firebase.auth().currentUser;
-    if(!(await isAdmin(u))) u=(await firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())).user;
-    if(await isAdmin(u)){ admOK=true; adminView(); }
+    const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
+    if(await isAdminUser(r.user)){ admOK=true; adminView(); }
     else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
   }catch(e){
     console.warn('로그인 실패',e);
-    const m={'auth/unauthorized-domain':'Firebase에서 이 사이트 도메인을 승인해 주세요','auth/operation-not-allowed':'Firebase에서 Google 로그인을 켜 주세요','auth/popup-blocked':'팝업이 막혔어요. 팝업을 허용해 주세요','auth/popup-closed-by-user':'로그인 창을 닫았어요'}[e.code];
-    toast(m||'로그인하지 못했어요. 카카오톡 안에서 열었다면 크롬이나 사파리로 열어 주세요');
+    const m={'auth/invalid-credential':'이메일이나 비밀번호가 맞지 않아요','auth/wrong-password':'비밀번호가 맞지 않아요','auth/user-not-found':'등록되지 않은 이메일이에요','auth/invalid-email':'이메일 형식이 맞지 않아요','auth/too-many-requests':'여러 번 틀려서 잠시 막혔어요. 조금 뒤에 다시 해 주세요','auth/operation-not-allowed':'Firebase에서 이메일/비밀번호 로그인을 켜 주세요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'}[e.code];
+    toast(m||'로그인하지 못했어요');
   }
+}
+async function emailReset(){
+  const em=((document.getElementById('aem')||{}).value||'').trim().toLowerCase();
+  if(!em){ toast('이메일을 먼저 넣어 주세요'); return; }
+  if(await sha256(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
+  if(!await cloudInit()){ toast('준비에 실패했어요'); return; }
+  try{ await firebase.auth().sendPasswordResetEmail(em); toast('비밀번호 재설정 메일을 보냈어요'); }
+  catch(e){ console.warn(e); toast('메일을 보내지 못했어요'); }
 }
 function adminLogout(){ admOK=false; if(FIREBASE_CONFIG && window.firebase && firebase.auth) firebase.auth().signOut().catch(()=>{}); toast('로그아웃했어요'); go('study'); }
 async function adminView(){
@@ -1133,7 +1152,8 @@ document.addEventListener('click',e=>{
   if(d.admin){ go('admin'); return; }
   if(d.apin){ const v=(document.getElementById('apin')||{}).value; if(v===ADMIN_PIN){ admOK=true; adminView(); } else toast('비밀번호가 달라요'); return; }
   if(d.admrefresh){ adminView(); return; }
-  if(d.glogin){ googleLogin(); return; }
+  if(d.elogin){ emailLogin(); return; }
+  if(d.ereset){ emailReset(); return; }
   if(d.qtab){ S.qtab=d.qtab; save(); quizMenu(); return; }
   if(d.alogout){ adminLogout(); return; }
   if(d.start){ start(d.start); return; }
@@ -1161,6 +1181,7 @@ document.addEventListener('click',e=>{
   if(d.reset){ if(confirm('푼 기록과 틀린 문제를 모두 지울까요?')){ S.stat={}; S.wrong={}; S.days={}; S.exams=[]; S.cardStat={}; save(); pushNow(); toast('기록을 지웠어요'); go('study'); } return; }
 });
 document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && (e.target.id==='aem'||e.target.id==='apw')){ emailLogin(); return; }
   if(e.key==='Enter' && e.target.id==='apin'){ const b=document.querySelector('[data-apin]'); if(b) b.click(); return; }
   if((view!=='quiz'&&view!=='past'&&view!=='exam')||!Q||Q.done) return;
   if(['1','2','3','4'].includes(e.key)) pickAns(+e.key-1);
