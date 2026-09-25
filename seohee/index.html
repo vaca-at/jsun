@@ -760,6 +760,45 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 .rc-r{margin-top:3px;color:var(--rc-c);font-size:.9rem}
 .rc-mm{margin-top:1px;color:var(--sub);font-size:.88rem}
 @media (max-width:640px){ .rc-pair{grid-template-columns:1fr} .rc-q{font-size:1.55rem} }
+/* 연산 (단계별) */
+.cx-lvs .pill{white-space:nowrap}
+.cx-v .vgrid{grid-template-columns:2.6rem repeat(var(--n),4.4rem)}
+.cx-h{text-align:center}
+.cx-q{font-size:1.8rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.25em .3em;font-variant-numeric:tabular-nums;word-break:keep-all}
+.cx-sub{width:100%;font-size:.7em;color:var(--sub);margin-bottom:4px}
+.cx-sw{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle}
+.cx-sw small{font-size:.8rem;color:var(--sub);line-height:1.2}
+.cx-slot{min-width:2.1em;height:1.45em;padding:0 .25em;border:3px dashed var(--sub);border-radius:10px;background:var(--paper);color:var(--ink);font:inherit;line-height:1}
+.cx-slot.on{border-style:solid;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
+.cx-slot.ok{border-style:solid;border-color:var(--ok);color:var(--ok)}
+.cx-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;font-size:.85em;margin:0 .1em}
+.cx-fr>i{font-style:normal;padding:0 .2em;min-width:1em;text-align:center}
+.cx-fr>i:first-child{border-bottom:.1em solid currentColor;padding-bottom:.06em;margin-bottom:.06em}
+.cx-fr .cx-slot{min-width:1.9em;height:1.3em;font-size:.95em}
+.cx-mx{display:inline-flex;align-items:center;gap:.08em;white-space:nowrap}
+.cx-mx>.cx-sw .cx-slot{min-width:1.4em}
+.cx-groups{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:2px 0 10px}
+.cx-g{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:4.8rem;padding:8px 10px;border:2px solid color-mix(in srgb,#0FA3B1 45%,var(--line));border-radius:14px;background:color-mix(in srgb,#0FA3B1 7%,var(--paper))}
+.cx-g i{width:14px;height:14px;border-radius:50%;background:#0FA3B1}
+.cx-pad .wide{grid-column:1/-1}
+@media (orientation:landscape) and (min-width:700px){
+  #cxbody:has(> .keypad){display:grid;grid-template-columns:minmax(0,1fr) 17rem;grid-template-rows:auto 1fr;column-gap:16px;align-items:start}
+  #cxbody:has(> .keypad) > .card{grid-column:1;grid-row:1 / span 2;margin:0}
+  #cxbody:has(> .keypad) > .keypad{grid-column:2;grid-row:1;margin:0;max-width:none}
+  #cxbody:has(> .keypad) > .skipbtn{grid-column:2;grid-row:2;margin-top:10px}
+  #cxbody .key{padding:.5rem 0;font-size:1.7rem}
+  #cxbody .key.fn{font-size:1rem}
+}
+@media (orientation:landscape) and (max-height:860px){
+  .cx-v .vgrid{grid-template-columns:2.2rem repeat(var(--n),3.8rem);background-size:3.8rem 3.8rem;background-position:2.2rem 0}
+  .cx-v .dg{font-size:2.6rem;height:3.5rem}
+  .cx-v .cell{width:3.2rem;height:3.5rem;font-size:2.5rem}
+  .cx-v .cell.carry{width:2.3rem;height:2.4rem;font-size:1.6rem}
+}
+@media (max-width:520px){
+  .cx-v .vgrid{grid-template-columns:1.8rem repeat(var(--n),3.3rem)}
+  .cx-q{font-size:1.55rem}
+}
 /* ═════════ 새 디자인 끝 ═════════ */
 </style>
 </head>
@@ -774,6 +813,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   </div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">홈</button>
+    <button class="tab" data-act="tab" data-v="math">연산</button>
     <button class="tab" data-act="tab" data-v="korean">국어</button>
     <button class="tab" data-act="tab" data-v="school">수학</button>
     <button class="tab" data-act="tab" data-v="eng">영어</button>
@@ -852,6 +892,7 @@ const SICO = {
   social: sicoSvg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z"/>')
 };
 const SUBJ = {
+  math:{name:'연산', ico:SICO.math, desc:'세 자리 덧셈 · 뺄셈부터 곱셈 · 나눗셈 · 소수까지 (10단계)'},
   korean:{name:'국어', ico:SICO.korean, desc:'1단계 초3-2 · 2단계 초4-1 · 3단계 초4-2 (긴 글 읽기 · 낱말 · 독서 기록)'},
   school:{name:'수학', ico:SICO.school, desc:'1단계 초3-1 · 2단계 초4-1 · 3단계 초4-2'},
   eng:{name:'영어', ico:SICO.eng, desc:'1단계 초3 · 2단계 초4 · 3단계 초5·6 단어와 문장'},
@@ -1758,7 +1799,7 @@ const App = { view:'home', emode:'abc', cat:'animal', qcat:'all', letter:'A', el
   prov: 0, provOpen:false };
 let settings = Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
 /* 공부는 아이가 하고 싶은 과목을 골라서 해요. goal: 하루 목표 문제 수 (홈 막대 · 공부 잔디 색) */
-const ADMIN_DEF = {pin:'0000', goal:25, subj:{korean:true,school:true,eng:true,hanja:true,history:true,social:true}, msg:''};
+const ADMIN_DEF = {pin:'0000', goal:25, subj:{math:true,korean:true,school:true,eng:true,hanja:true,history:true,social:true}, msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
 let stars = 0;
@@ -2230,7 +2271,7 @@ function render(){
   });
   if(App.view!=='review') RV=null;
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
+  ({home:renderHome, math:renderCalc, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
 }
 
 /* ───── 홈 ───── */
@@ -4164,6 +4205,145 @@ function libAnswer(i){
   }, skip?2600:1400);
 }
 
+/* ───── 연산 (단계별): 두 수 덧셈 · 뺄셈은 세로셈 판, 나머지는 가로식 □ 칸 (엔진은 방마다 같고, 단계표 CALC_LEVELS만 달라요) ───── */
+const cxR = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const cxPick = a => a[Math.floor(Math.random()*a.length)];
+const cxF = (n,d) => `<span class="cx-fr"><i>${n}</i><i>${d}</i></span>`;          // 분수
+const cxM = (w,n,d) => `<span class="cx-mx">${w}${cxF(n,d)}</span>`;                  // 대분수
+const cxD = (h,p) => { const s=(h/100).toFixed(p); return s; };                           // 소수 (100배 정수 → 글자)
+const cxTrim = s => String(s).includes('.') ? String(s).replace(/0+$/,'').replace(/\.$/,'') : String(s);
+const cxV = (a,b,op) => ({v:{a,b,op}});
+const cxH = (h,ans,o={}) => Object.assign({h, ans:ans.map(String)}, o);
+const cxDanTxt = (a,b) => Array.from({length:b},(_,i)=>a*(i+1)).join(', ');
+/* 세로셈 판 */
+function cxVert(P){
+  const {a,b,op}=P.v, ans=op==='-'?a-b:a+b, n=Math.max(String(a).length,String(b).length,String(ans).length);
+  const dig=(x,i)=>{ const s=String(x), k=s.length-1-i; return k>=0?s[k]:''; };
+  const show=P.showHint||P.done, marks=Array(n).fill(''), strike=Array(n).fill(false);
+  if(show){
+    if(op==='+'){ let c=0; for(let i=0;i<n;i++){ c=((+dig(a,i)||0)+(+dig(b,i)||0)+c)>=10?1:0; if(c&&i+1<n) marks[i+1]='1'; } }
+    else { const top=[...Array(n+1)].map((_,i)=>+dig(a,i)||0), org=top.slice();
+      for(let i=0;i<n;i++) if(top[i]<(+dig(b,i)||0)){ top[i]+=10; top[i+1]-=1; }
+      for(let i=0;i<n;i++) if(top[i]!==org[i]&&dig(a,i)!==''){ marks[i]=String(top[i]); strike[i]=true; } }
+  }
+  const cols=[...Array(n)].map((_,k)=>n-1-k), PL=['일','십','백','천','만'];
+  const cell=i=>`<button class="cell ${!P.done&&P.sel===i?'active':''} ${P.cells[i]!==''?'done':''}" data-act="cxSel" data-v="${i}" aria-label="${PL[i]}의 자리">${P.cells[i]}</button>`;
+  return `<div class="card board cx-v"><div class="vgrid" id="cxgrid" style="--n:${n}">
+    <div></div>${cols.map(i=>`<div class="colname">${PL[i]}</div>`).join('')}
+    <div></div>${cols.map(i=>`<div>${marks[i]?`<div class="cell carry done">${marks[i]}</div>`:''}</div>`).join('')}
+    <div></div>${cols.map(i=>`<div class="dg" ${strike[i]?'style="text-decoration:line-through;text-decoration-color:var(--no)"':''}>${dig(a,i)}</div>`).join('')}
+    <div class="dg op">${op==='-'?'−':'+'}</div>${cols.map(i=>`<div class="dg">${dig(b,i)}</div>`).join('')}
+    <div class="bar"></div>
+    <div></div>${cols.map(i=>`<div>${cell(i)}</div>`).join('')}
+  </div><div class="hint">${P.done?P.msg:P.showHint?cxVHint(P):'칸을 눌러 자리를 고르고 답을 써요.'}</div></div>`;
+}
+function cxVHint(P){
+  const {a,b,op}=P.v, PL=['일','십','백','천'], n=Math.max(String(a).length,String(b).length), d=(x,i)=>+String(x).padStart(n+1,'0').slice(-1-i)[0]||0, out=[];
+  if(op==='+'){ let c=0; for(let i=0;i<n;i++){ const s=d(a,i)+d(b,i)+c; out.push(`${PL[i]}의 자리: ${c?'1 + ':''}${d(a,i)} + ${d(b,i)} = ${s}${s>=10?` → <b>${s%10}</b> 쓰고 1 올림`:''}`); c=s>=10?1:0; } }
+  else { const top=[...Array(n+1)].map((_,i)=>d(a,i)); for(let i=0;i<n;i++){ const bi=d(b,i);
+    if(top[i]<bi){ out.push(`${PL[i]}의 자리: ${top[i]}에서 ${bi}을(를) 뺄 수 없어요 → 10을 빌려 와요: ${top[i]+10} − ${bi} = <b>${top[i]+10-bi}</b>`); top[i]+=10; top[i+1]-=1; }
+    else if(top[i]||bi||i<String(a).length) out.push(`${PL[i]}의 자리: ${top[i]} − ${bi} = <b>${top[i]-bi}</b>`); } }
+  return out.join('<br>');
+}
+/* 가로식: {0} {1} … 자리에 답 칸 */
+function cxHoriz(P){
+  const slot=i=>`<span class="cx-sw"><button class="cx-slot ${!P.done&&P.sel===i?'on':''} ${P.done?'ok':''}" data-act="cxSel" data-v="${i}" aria-label="${P.lab?P.lab[i]:'답'} 칸">${P.in[i]||''}</button>${P.lab&&!P.hideLab?`<small>${P.lab[i]}</small>`:''}</span>`;
+  return `<div class="card board cx-h">${P.fig||''}<div class="cx-q">${P.h.replace(/\{(\d)\}/g,(m,i)=>slot(+i))}</div>
+    <div class="hint">${P.done?P.msg:P.showHint&&P.hint?P.hint:P.ans.length>1?'칸을 눌러 고르고 답을 써요.':'답을 누르고 확인!'}</div></div>`;
+}
+function cxPad(P){
+  const ex=[]; if(P.dec) ex.push(['.','소수점 .']); if(P.ans&&P.ans.length>1) ex.push(['next','다음 칸 ▶']);
+  return `<div class="keypad cx-pad">${[7,8,9,4,5,6,1,2,3].map(k=>`<button class="key" data-act="cxKey" data-v="${k}">${k}</button>`).join('')}
+    <button class="key fn" data-act="cxKey" data-v="del">⌫ 지우기</button><button class="key" data-act="cxKey" data-v="0">0</button><button class="key ok" data-act="cxKey" data-v="ok">확인</button>
+    ${ex.map(([v,l])=>`<button class="key fn ${ex.length===1?'wide':''}" data-act="cxKey" data-v="${v}">${l}</button>`).join('')}</div>`;
+}
+let CX=null;
+function cxLv(){ if(App.clv===undefined) App.clv=store.get('clv',0); if(!CALC_LEVELS[App.clv]) App.clv=0; return CALC_LEVELS[App.clv]; }
+function cxNew(){
+  const lv=cxLv(), P=lv.g(App.cdan||'mix');
+  if(P.v){ const {a,b,op}=P.v, ans=op==='-'?a-b:a+b; P.n=Math.max(String(a).length,String(b).length,String(ans).length); P.cells=Array(P.n).fill(''); }
+  else P.in=P.ans.map(()=>'');
+  return Object.assign(P,{lv:App.clv, dan:App.cdan, sel:0, wrong:0, miss:false, showHint:false, done:false, msg:''});
+}
+function renderCalc(){
+  const lv=cxLv(), ok=store.get('cxok',{});
+  view.innerHTML=`<div class="seg small cx-lvs">${CALC_LEVELS.map((l,i)=>`<button class="pill ${i===App.clv?'on':''}" data-act="cxLv" data-v="${i}">${i+1}. ${l.n}${ok[i]>=20?' 🏅':ok[i]?' ✔':''}</button>`).join('')}</div>
+    ${lv.subs?`<div class="seg small">${Object.entries(lv.subs).map(([k,t])=>`<button class="pill ${(App.cdan||'mix')===k?'on':''}" data-act="cxDan" data-v="${k}">${t}</button>`).join('')}</div>`:''}
+    <p class="desc">${lv.d}${ok[App.clv]?` · 이 단계에서 맞힌 문제 <b>${ok[App.clv]}</b>개`:''}</p><div id="cxbody"></div>`;
+  drawCalc();
+}
+function drawCalc(){
+  const b=document.getElementById('cxbody'); if(!b) return;
+  if(!CX || CX.lv!==App.clv || CX.dan!==App.cdan) CX=cxNew();
+  b.innerHTML=(CX.v?cxVert(CX):cxHoriz(CX)) + (CX.done?`<button class="big-btn" data-act="cxNext">다음 문제 ▶</button>`:cxPad(CX)+skipBtn('cxKey','skip'));
+}
+function cxAnsTxt(P){ if(P.v){ const {a,b,op}=P.v; return String(op==='-'?a-b:a+b); } return P.lab?P.ans.map((x,i)=>`${P.lab[i]} ${x}`).join(', '):P.ans.join(', '); }
+function cxKey(v){
+  const P=CX; if(!P||P.done) return;
+  const lvName=CALC_LEVELS[P.lv].n;
+  if(v==='skip'){
+    P.done=true; logToday('math', false, lvName);
+    if(P.v){ const s=cxAnsTxt(P); P.cells=P.cells.map((_,i)=>s[s.length-1-i]||''); } else P.in=P.ans.slice();
+    P.msg=`정답은 <b>${cxAnsTxt(P)}</b> 이에요.${P.v?`<br><small>${cxVHint(P)}</small>`:P.hint?`<br><small>${P.hint}</small>`:''}`; drawCalc(); return;
+  }
+  if(P.v){
+    if(/^\d$/.test(v)){ P.cells[P.sel]=v; if(P.sel<P.n-1) P.sel++; drawCalc(); return; }
+    if(v==='del'){ if(P.cells[P.sel]===''&&P.sel>0) P.sel--; P.cells[P.sel]=''; drawCalc(); return; }
+    if(v!=='ok') return;
+    const hi=P.cells.slice().reverse(), f=hi.findIndex(x=>x!=='');
+    if(P.cells[0]===''){ toast('일의 자리부터 써요'); return; }
+    if(hi.slice(f).some(x=>x==='')){ toast('빈 칸이 있어요'); return; }
+    return cxCheck(+hi.join('')===+cxAnsTxt(P));
+  }
+  const cur=P.in[P.sel]||'';
+  if(/^\d$/.test(v)){ if(cur.length<8) P.in[P.sel]=cur+v; drawCalc(); return; }
+  if(v==='.'){ if(!cur.includes('.')) P.in[P.sel]=(cur||'0')+'.'; drawCalc(); return; }
+  if(v==='del'){ P.in[P.sel]=cur.slice(0,-1); drawCalc(); return; }
+  if(v==='next'){ P.sel=(P.sel+1)%P.ans.length; drawCalc(); return; }
+  if(v!=='ok') return;
+  const empty=P.in.findIndex(x=>x===''||x==='.'); if(empty>=0){ P.sel=empty; toast(P.ans.length>1?'빈 칸을 모두 채워요':'답을 써요'); drawCalc(); return; }
+  cxCheck(P.ans.every((x,i)=>Math.abs(parseFloat(P.in[i])-parseFloat(x))<1e-9));
+}
+function cxCheck(ok){
+  const P=CX, lvName=CALC_LEVELS[P.lv].n;
+  if(ok){
+    P.done=true; beep(true); markO(); addStar(1); logToday('math', !P.miss, lvName); burst();
+    const c=store.get('cxok',{}); c[P.lv]=(c[P.lv]||0)+1; store.set('cxok',c);
+    P.msg=`<span class="praise">${praise()}</span>${P.hint&&P.miss?`<br><small>${P.hint}</small>`:''}`;
+    drawCalc();
+  } else {
+    P.wrong++; P.miss=true; beep(false);
+    if(P.v){ P.cells=P.cells.map(()=>''); P.sel=0; } else { P.in=P.in.map(()=>''); P.sel=0; }
+    if(P.wrong>=2) P.showHint=true; else toast('다시 한번 해 봐요');
+    drawCalc(); shake(P.v?'cxgrid':'cxbody');
+  }
+}
+/* 연산 단계표 (초3) — 초안: 교과 순서에 맞춰 넣었어요. 바꾸고 싶은 단계는 알려 주세요 */
+const cxCarry = (a,b) => a%10+b%10>=10 || Math.floor(a%100/10)+Math.floor(b%100/10)>=10;
+const cxBorrow = (a,b) => a%10<b%10 || Math.floor(a%100/10)<Math.floor(b%100/10);
+const CALC_LEVELS = [
+  {n:'세 자리 덧셈', d:'받아올림이 있는 세 자리 덧셈 · 예: 365 + 278', g:()=>{ let a,b; do{ a=cxR(101,599); b=cxR(101,999-a); }while(!cxCarry(a,b)); return cxV(a,b,'+'); }},
+  {n:'세 자리 뺄셈', d:'받아내림이 있는 세 자리 뺄셈 · 예: 512 − 247', g:()=>{ let a,b; do{ a=cxR(300,999); b=cxR(101,a-1); }while(!cxBorrow(a,b)); return cxV(a,b,'-'); }},
+  {n:'곱셈구구 복습', d:'2단부터 9단까지 섞어서', g:()=>{ const a=cxR(2,9), b=cxR(2,9); return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${a}단: ${cxDanTxt(a,b)}`}); }},
+  {n:'두 자리 × 한 자리', d:'두 자리 × 한 자리 · 예: 23 × 3, 47 × 6', g:()=>{ const a=cxR(12,99), b=cxR(2,9), t=a-a%10, o=a%10;
+    return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${t} × ${b} = ${t*b}, ${o} × ${b} = ${o*b} → ${t*b} + ${o*b} = <b>${a*b}</b>`}); }},
+  {n:'곱셈구구로 나눗셈', d:'나눗셈의 몫을 곱셈구구로 구해요 · 예: 56 ÷ 7', g:()=>{ const d=cxR(2,9), q=cxR(2,9), a=d*q;
+    return cxH(`${a} ÷ ${d} = {0}`,[q],{hint:`${d} × □ = ${a} → ${d}단에서 찾아요: ${d} × ${q} = ${a}`}); }},
+  {n:'나머지가 있는 나눗셈', d:'예: 47 ÷ 5 = 9 … 2', g:()=>{ const d=cxR(2,9), q=cxR(2,9), r=cxR(1,d-1), a=d*q+r;
+    return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} (나머지는 ${d}보다 작아요)`}); }},
+  {n:'세 자리 × 한 자리', d:'세 자리 × 한 자리 · 예: 312 × 4, 257 × 3', g:()=>{ const a=cxR(101,999), b=cxR(2,9), h=a-a%100, t=a%100-a%10, o=a%10;
+    return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${h} × ${b} = ${h*b}, ${t} × ${b} = ${t*b}, ${o} × ${b} = ${o*b} → 모두 더하면 <b>${a*b}</b>`}); }},
+  {n:'두 자리 × 두 자리', d:'두 자리 × 두 자리 · 예: 34 × 27', g:()=>{ const a=cxR(11,99), b=cxR(11,99), o=b%10, t=b-o;
+    return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${a} × ${o} = ${a*o}, ${a} × ${t} = ${a*t} → ${a*o} + ${a*t} = <b>${a*b}</b>`}); }},
+  {n:'두 자리 ÷ 한 자리', d:'두 자리 ÷ 한 자리 · 예: 84 ÷ 3, 75 ÷ 4', g:()=>{ const d=cxR(2,9), q=cxR(10,Math.floor(99/d)); const a=Math.min(99,d*q+cxR(0,d-1)), r=a-d*q;
+    return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} → 몫 ${q}, 나머지 ${r}`}); }},
+  {n:'분수와 소수 기초', d:'1/10 = 0.1 · 0.1이 몇 개인지 알아요', g:()=>{ const n=cxR(1,9), f=cxR(0,3), m=cxR(11,39);
+    if(f===0) return cxH(`0.1이 ${n}개이면 {0}`,[`0.${n}`],{dec:true,hint:`0.1이 ${n}개 → 0.${n}`});
+    if(f===1) return cxH(`${cxF(n,10)} = {0}`,[`0.${n}`],{dec:true,hint:`1/10 = 0.1 이니까 ${n}/10 = 0.${n}`});
+    if(f===2) return cxH(`0.${n} = ${cxF('{0}',10)}`,[n],{hint:`0.${n}은 1/10이 ${n}개 → ${n}/10`});
+    return cxH(`${(m/10).toFixed(1)}에는 0.1이 {0}개`,[m],{hint:`${(m/10).toFixed(1)} = ${Math.floor(m/10)}과 0.${m%10} → 0.1이 ${m}개`}); }}
+];
+
 /* ───── 사회 · 과학: 단원마다 📖 설명 카드 + ✏️ 퀴즈 10문제 ───── */
 /* 사회 · 과학 (초3) */
 const CS_SOC_E3 = [
@@ -4796,6 +4976,11 @@ const ACT = {
   mlv: v=>{ App.mlv=v; store.set('mlv',v); App.unit=MLV[v].keys[0]; store.set('unit',App.unit); S=null; render(); },
   smode: v=>{ App.smode=v; render(); window.scrollTo(0,0); },
   lsay: (v,el)=>{ const card=el.closest('.lesson'); if(card) speak(spokenText(card),'ko'); },
+  cxLv: v=>{ App.clv=+v; App.cdan='mix'; store.set('clv',App.clv); CX=null; render(); },
+  cxDan: v=>{ App.cdan=v; CX=null; render(); },
+  cxKey: v=>cxKey(v),
+  cxSel: v=>{ if(CX&&!CX.done){ CX.sel=+v; drawCalc(); } },
+  cxNext: ()=>{ CX=null; drawCalc(); },
   startS: ()=>startS(),
   skey: v=>sKey(v),
   spick: v=>sPick(+v),
