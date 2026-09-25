@@ -574,6 +574,14 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .lib-dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
 .lib-dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
 .lib-dots span.on{background:var(--accent)}
+/* 관리자 대시보드 팝업 */
+.admpop{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:2vh 2vw}
+.admpop[hidden]{display:none}
+.admpop-box{width:100%;max-width:1100px;height:100%;background:var(--bg);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+.admpop-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:2px solid var(--line);background:var(--paper)}
+.admpop-bar b{flex:1;font-weight:normal;font-size:1.15rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
+.admpop-box iframe{flex:1;width:100%;border:0;background:var(--bg)}
+@media (max-width:520px){ .admpop{padding:0} .admpop-box{border-radius:0} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -4245,6 +4253,16 @@ function otherKidHTML(names){
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${k.subj[s]}</th>`).join('')}<th>합계</th>${k.time?'<th>시간</th>':''}</tr>${rows}</table></div>`+foot;
 }
+/* 🔒 관리자 모드: 다섯 방을 한곳에서 보는 관리자 대시보드를 큰 팝업으로 열어요 */
+function openAdminPopup(){
+  const o=document.getElementById('admPop');
+  if(o){ o.hidden=false; return; }
+  const kid=Object.values(KID_IDS)[0]||'';
+  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자">
+    <div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자</b>
+      <button class="pill" data-act="admRoom">⚙️ 이 방 설정</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div>
+    <iframe src="${DASHBOARD_URL}?v=${kid}" title="공부방 관리자 대시보드"></iframe></div></div>`);
+}
 function adminHTML(){
   const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
   if(admOther && !isMomRole()) return otherKidHTML(names);
@@ -4437,7 +4455,9 @@ const ACT = {
   // 설정 · 관리자
   openSet: ()=>openModal('deco'),
   closeSet: ()=>closeModal(),
-  openAdmin: ()=>{ admRole='admin'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
+  openAdmin: ()=>openAdminPopup(),
+  admPopClose: ()=>{ const o=document.getElementById('admPop'); if(o) o.hidden=true; },
+  admRoom: ()=>{ ACT.admPopClose(); admRole='admin'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
   admLogin: ()=>admEmailLogin(),
   admReset: ()=>admEmailReset(),
   admLogout: ()=>{ if(window.firebase && firebase.auth) firebase.auth().signOut().catch(()=>{}); toast('관리자에서 로그아웃했어요'); closeModal(); },
@@ -4487,6 +4507,7 @@ document.addEventListener('click',e=>{
   const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el);
 });
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ const o=document.getElementById('admPop'); if(o && !o.hidden){ o.hidden=true; return; } }
   lastAct=Date.now();
   if(!document.getElementById('login').hidden){
     if(LP){ if(/^[0-9]$/.test(e.key)) lpinKey(e.key); else if(e.key==='Backspace') lpinKey('del'); return; }
