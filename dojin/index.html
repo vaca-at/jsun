@@ -542,25 +542,150 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .lib-em{margin-right:6px;font-size:1.25rem}
 .lib-spk{border:none;background:none;font-size:.95rem;padding:0 2px;opacity:.65;vertical-align:middle}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ═════════ 새 디자인 (다섯 방 공통 · 이 블록은 다섯 방에 똑같이) ═════════
+   디자인 2개: clean(깔끔 · 흰 카드) · bright(산뜻 · 과목 색 카드)
+   글씨 2개: f1 또박(G마켓 산스 + 온글잎 윤탱체) · f2 산들(G마켓 산스 제목 + 카페24 아네모네 에어 본문 + 오뮤 다예쁨체) */
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');font-weight:300;font-display:swap}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'OmuDaye';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2');font-weight:normal;font-display:swap}
+/* 아네모네 에어에는 · × ÷ ° ① → 같은 기호가 비어 있어요: 한글 · 영문 · 숫자만 쓰고 나머지는 G마켓 산스로 */
+@font-face{font-family:'Cafe24AnemoneAir';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202@1.0/Cafe24Ohsquareair.woff') format('woff');font-weight:normal;font-display:swap;unicode-range:U+0020-007E,U+2018-201D,U+2026,U+3131-318E,U+AC00-D7A3}
+
+body[data-theme="clean"]{--bg:#F4F6FA;--paper:#FFFFFF;--card:#FFFFFF;--ink:#16213A;--sub:#6B7589;--line:#E3E8F0;--accent:#1F4FD8;--accent-ink:#FFFFFF;--soft:#EAF0FE;--hi:#FFC53D;--ok:#12A37A;--no:#E5484D;--carry:#E5484D;--shadow:0 1px 2px rgba(22,33,58,.04),0 6px 16px rgba(22,33,58,.06);--rad:16px}
+body[data-theme="bright"]{--bg:#FFFFFF;--paper:#FFFFFF;--card:#F5F6F9;--ink:#1B1F2E;--sub:#6D7385;--line:#E4E7EE;--accent:#FF6A3D;--accent-ink:#FFFFFF;--soft:#FFEFE8;--hi:#FFC53D;--ok:#12A37A;--no:#E5484D;--carry:#E5484D;--shadow:none;--rad:22px}
+/* 과목 색 */
+[data-v="korean"]{--c:#E8604C}
+[data-v="school"]{--c:#2F7BE5}
+[data-v="math"]{--c:#0FA3B1}
+[data-v="eng"]{--c:#7A5AF0}
+[data-v="hanja"]{--c:#12A38A}
+[data-v="history"]{--c:#E39A1B}
+[data-v="social"]{--c:#D6457F}
+.sico{width:1em;height:1em;display:inline-block;vertical-align:-.14em;flex:none}
+
+/* ── 상단 바 ── */
+header{background:var(--paper);border-bottom:1px solid var(--line);padding:0 16px}
+.toprow{min-height:60px;gap:10px}
+h1{flex:1;display:flex;align-items:center;gap:10px;text-align:left;font-size:1.12rem;font-weight:var(--tw);min-width:0}
+h1 button{font-weight:inherit;min-width:0}
+h1 button::after{color:var(--sub)}
+.logo-m{flex:none;width:32px;height:32px;border-radius:9px;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:18px}
+body[data-theme="bright"] .logo-m{border-radius:11px;background:linear-gradient(135deg,#FF8A4C,#FF5A5F)}
+.decobar{margin:0;max-width:none;flex:none;gap:8px;justify-content:flex-end;overflow:visible}
+.dseg{display:flex;align-items:center;padding:3px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.dseg-l{font-size:.7rem;color:var(--sub);padding:0 5px 0 6px;white-space:nowrap}
+.dchip,.dchip.on{border:0;padding:.3rem .7rem;border-radius:7px;background:transparent;font-size:.8rem;color:var(--sub);font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw)}
+.dchip.on{background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(22,33,58,.14)}
+body[data-theme="bright"] .dseg{border-radius:999px;background:#F1F2F6;border-color:transparent}
+body[data-theme="bright"] .dchip{border-radius:999px}
+body[data-theme="bright"] .dchip.on{background:var(--ink);color:#fff;box-shadow:none}
+.starbox{display:flex;align-items:center;gap:6px;height:36px;padding:0 13px;border:0;border-radius:999px;background:var(--soft);color:var(--accent);font-size:.95rem;font-family:var(--font-t),var(--font),sans-serif;font-weight:var(--tw)}
+.iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--sub);display:grid;place-items:center;font-size:17px}
+.iconbtn:hover{color:var(--ink)}
+.tabs{gap:2px;margin-top:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab,.tab.on{flex:none;padding:.72rem .95rem .66rem;border:0;border-bottom:3px solid transparent;border-radius:0;background:none;font-size:.98rem;color:var(--sub)}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+body[data-theme="bright"] .tabs{gap:4px;padding:6px 0 10px}
+body[data-theme="bright"] .tab,body[data-theme="bright"] .tab.on{border:0;border-radius:999px;padding:.5rem 1rem}
+body[data-theme="bright"] .tab.on{background:var(--ink);color:#fff}
+
+/* ── 카드 · 버튼 ── */
+main{padding-left:12px}
+.card,.subj,.who,.sea,.dock-t,.wcard,.lvtab,.book,.lib-book,.sent-card,.hs-tile{border:1px solid var(--line);border-radius:var(--rad);box-shadow:var(--shadow)}
+body[data-theme="bright"] :is(.card,.subj,.who,.sea,.dock-t,.wcard,.lvtab,.book,.lib-book,.sent-card,.hs-tile){border-color:transparent}
+.sent-card.q{border-left:5px solid var(--accent)}
+.sent-card.a{border-left:5px solid var(--ok)}
+.pill{border:1.5px solid var(--line);background:var(--paper)}
+.pill.on{background:var(--soft);border-color:var(--accent);color:var(--accent)}
+body[data-theme="bright"] .pill.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.big-btn{border-radius:14px;font-size:1.18rem;box-shadow:0 6px 16px color-mix(in srgb,var(--accent) 26%,transparent)}
+.big-btn:active{transform:scale(.98);box-shadow:0 2px 6px color-mix(in srgb,var(--accent) 26%,transparent)}
+body[data-theme="bright"] .big-btn{border-radius:999px}
+.key{border:1px solid var(--line);border-radius:14px;box-shadow:0 2px 0 var(--line)}
+.key:active{transform:translateY(2px);box-shadow:none}
+.choice{border-width:2px;border-radius:16px}
+.lvtab{border-width:2px}
+.lvtab.on{border-color:var(--accent);background:var(--soft)}
+.abc-tile,.hj-tile,.era,.unit-tag,.tile{border-width:1.5px}
+.tile{box-shadow:0 2px 0 var(--line)}
+.spk,.ls-spk{background:var(--soft);color:var(--accent)}
+.replay{background:var(--soft);box-shadow:none}
+.adminbtn,.skipbtn{border:1px solid var(--line)}
+.sheet{border-radius:22px 22px 0 0}
+.toast{box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.msg{background:var(--soft);border-color:transparent}
+
+/* ── 홈: 인사 · 과목 카드 ── */
+.hello .big{font-size:1.6rem}
+.goal{height:10px;background:color-mix(in srgb,var(--line) 80%,transparent)}
+.goal i{background:var(--accent)}
+body[data-theme="bright"] .hello{background:linear-gradient(120deg,#FFE7DB,#FFF4D6)}
+body[data-theme="bright"] .hello .goal{background:rgba(255,255,255,.8)}
+.subj{position:relative;overflow:hidden;padding:18px;gap:5px}
+.subj .ico{width:2.75rem;height:2.75rem;margin-bottom:6px;border-radius:12px;display:grid;place-items:center;font-size:1.45rem;line-height:1;background:color-mix(in srgb,var(--c,var(--accent)) 12%,var(--paper));color:var(--c,var(--accent))}
+.subj .ico .hanja{font-size:1.35rem}
+.subj b{font-size:1.25rem;font-weight:var(--tw)}
+.subj small{font-size:.86rem}
+.subj .bal-dots .l1{background:color-mix(in srgb,var(--c,var(--ok)) 30%,var(--paper))}
+.subj .bal-dots .l2{background:color-mix(in srgb,var(--c,var(--ok)) 55%,var(--paper))}
+.subj .bal-dots .l3{background:color-mix(in srgb,var(--c,var(--ok)) 78%,var(--paper))}
+.subj .bal-dots .l4{background:var(--c,var(--ok))}
+.subj .bal-dots i.today{outline-color:var(--c,var(--accent))}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]){background:var(--c);color:#fff;box-shadow:0 10px 22px color-mix(in srgb,var(--c) 28%,transparent)}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"])::after{content:"";position:absolute;right:-34px;bottom:-44px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12);pointer-events:none}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) :is(small,.subj-today){color:rgba(255,255,255,.88)}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .subj-today b{color:#fff}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .ico{background:rgba(255,255,255,.22);color:#fff}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots i{background:rgba(255,255,255,.25)}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots :is(.l1,.l2,.l3,.l4){background:#fff}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots .l1{opacity:.5}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots .l2{opacity:.7}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots .l3{opacity:.85}
+body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="math"],[data-v="eng"],[data-v="hanja"],[data-v="history"],[data-v="social"]) .bal-dots i.today{outline-color:#fff}
+
+/* ── 오른쪽 타일 ── */
+.dock-t{border-radius:16px;padding:11px 4px}
+.dock-t b{font-weight:var(--tw)}
+
+@media (max-width:520px){
+  header{padding:0 10px}
+  .toprow{flex-wrap:wrap;min-height:0;padding:8px 0 4px;gap:8px}
+  h1{font-size:1rem;gap:8px}
+  .logo-m{width:28px;height:28px;border-radius:8px}
+  .decobar{order:3;width:100%;justify-content:center}
+  .dchip,.dchip.on{padding:.26rem .6rem;font-size:.76rem}
+  .starbox{height:32px;padding:0 10px}
+  .iconbtn{width:32px;height:32px}
+  .tabs{display:flex}
+  .tab,.tab.on{padding:.6rem .7rem .55rem;font-size:.9rem}
+  main{padding-left:10px}
+  .subj .ico{width:2.3rem;height:2.3rem;font-size:1.2rem}
+  .subj b{font-size:1.1rem}
+}
+/* ═════════ 새 디자인 끝 ═════════ */
 </style>
 </head>
-<body data-theme="note">
+<body data-theme="clean">
 <header>
   <div class="toprow">
-    <h1><button id="whoBtn" data-act="showLogin" aria-label="그림 다시 고르기">도진이의 공부방</button></h1>
-    <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
-    <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침">🔄</button>
-    <button class="iconbtn" data-act="openSet" aria-label="설정">⚙️</button>
+    <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="showLogin" aria-label="그림 다시 고르기">도진이의 공부방</button></h1>
+    <div class="decobar" id="decobar"></div>
+    <div class="starbox" title="모은 별"><svg class="sico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9Z"/></svg> <span id="starCount">0</span></div>
+    <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
+    <button class="iconbtn" data-act="openSet" aria-label="설정"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
   </div>
-  <div class="decobar" id="decobar"></div>
   <div class="tabs">
-    <button class="tab" data-act="tab" data-v="home">🏠 홈</button>
-    <button class="tab" data-act="tab" data-v="math">➕➖ 연산</button>
-    <button class="tab" data-act="tab" data-v="school">📐 학교수학</button>
-    <button class="tab" data-act="tab" data-v="korean">📖 국어</button>
-    <button class="tab" data-act="tab" data-v="eng">🔤 영어</button>
-    <button class="tab" data-act="tab" data-v="hanja"><span class="hanja">漢</span> 한자</button>
-    <button class="tab" data-act="tab" data-v="history">🏯 한국사</button>
+    <button class="tab" data-act="tab" data-v="home">홈</button>
+    <button class="tab" data-act="tab" data-v="math">연산</button>
+    <button class="tab" data-act="tab" data-v="school">학교수학</button>
+    <button class="tab" data-act="tab" data-v="korean">국어</button>
+    <button class="tab" data-act="tab" data-v="eng">영어</button>
+    <button class="tab" data-act="tab" data-v="hanja">한자</button>
+    <button class="tab" data-act="tab" data-v="history">한국사</button>
   </div>
 </header>
 
@@ -631,13 +756,24 @@ const store = {
 })();
 
 /* ───── 데이터 ───── */
+/* 과목 아이콘 (선 그림 · 과목 색은 CSS의 [data-v]에서). 새 과목은 SICO에 하나 더해서 SUBJ의 ico로 써요 */
+const sicoSvg = d => `<svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const SICO = {
+  korean: sicoSvg('<path d="M12 6c-2-1.5-5-2-8-1.5v13c3-.5 6 0 8 1.5 2-1.5 5-2 8-1.5v-13c-3-.5-6 0-8 1.5Zm0 0v13"/>'),
+  school: sicoSvg('<path d="M4 20V4l16 16H4Zm4-4v-3l3 3H8M4 8h2M4 12h2"/>'),
+  math: sicoSvg('<path d="M7.5 4v7M4 7.5h7M14 7.5h6M5 15l5 5M10 15l-5 5M14 16h6M14 19.5h6"/>'),
+  eng: sicoSvg('<path d="M3 19 7.5 5 12 19M4.8 14.5h5.4M15 5v14"/><circle cx="18" cy="15.6" r="3.1"/>'),
+  hanja: '<span class="hanja">漢</span>',
+  history: sicoSvg('<path d="M2 8c4 0 7-2 10-4 3 2 6 4 10 4M5 8v11M19 8v11M3 19h18M9 19v-5h6v5M5 12h14"/>'),
+  social: sicoSvg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z"/>')
+};
 const SUBJ = {
-  math:{name:'연산', ico:'➕', desc:'덧셈 · 뺄셈 세로셈 (받아올림 · 받아내림)'},
-  school:{name:'학교수학', ico:'📐', desc:'2학년 2학기 교과서 단원'},
-  korean:{name:'국어', ico:'📖', desc:'받아쓰기 · 말놀이 · 높임말 (1 · 2단계)'},
-  eng:{name:'영어', ico:'🔤', desc:'알파벳, 단어, 듣고 고르기'},
+  math:{name:'연산', ico:SICO.math, desc:'덧셈 · 뺄셈 세로셈 (받아올림 · 받아내림)'},
+  school:{name:'학교수학', ico:SICO.school, desc:'2학년 2학기 교과서 단원'},
+  korean:{name:'국어', ico:SICO.korean, desc:'받아쓰기 · 말놀이 · 높임말 (1 · 2단계)'},
+  eng:{name:'영어', ico:SICO.eng, desc:'알파벳, 단어, 듣고 고르기'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 한자 카드와 퀴즈'},
-  history:{name:'한국사', ico:'🏯', desc:'시대 공부, 한능검 준비'}
+  history:{name:'한국사', ico:SICO.history, desc:'시대 공부, 한능검 준비'}
 };
 const ABC = [
   {l:'A',w:'apple',e:'🍎'},{l:'B',w:'bear',e:'🐻'},{l:'C',w:'cat',e:'🐱'},{l:'D',w:'dog',e:'🐶'},
@@ -1244,7 +1380,7 @@ const WD = ['일','월','화','수','목','금','토'];
 const App = { view:'home', mmode:'vertical', op:'add', level: store.get('level',1), emode:'story', est:null, epg:0, eko:false, krid:null, cat:'animal', qcat:'all', letter:'A',
   unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', klv:1, kact:'spell', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%PROVERBS.length, provOpen:false };
-let settings = Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
+let settings = Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,korean:true,eng:true,hanja:true,history:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
@@ -1617,10 +1753,11 @@ function showLogin(){
 function loadProfile(name){
   who=name; store.set('lastWho',name);
   App.level=store.get('level',1); App.op=store.get('op','add'); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
-  settings=Object.assign({theme:'note',font:'combo3',size:1,sound:true}, store.get('settings',{}));
+  settings=Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
-  if(settings.fontV!==2){ if(settings.font==='combo1') settings.font='combo3'; settings.fontV=2; }
-  if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='combo3'; // 한 가지 글씨체는 없어졌어요
+  if(settings.fontV!==3){ settings.theme='clean'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 깔끔 · 또박으로
+  if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='f1';
+  if(!['clean','bright'].includes(settings.theme)) settings.theme='clean';
   stars=store.get('stars',0);
   V=C=Q=S=H=HQ=K=null; App.view='home'; lastDay=dayKey();
   markVisit(); applySettings(); updateStars();
@@ -1754,17 +1891,18 @@ function drawDockExtra(){
   if(Date.now()-wxTry>60000){ wxTry=Date.now(); loadWeather(); }
 }
 setInterval(drawDockExtra, 5000); setTimeout(drawDockExtra, 300);
-const DECO_THEME = {note:'📒<i> 공책</i>', chalk:'🟩<i> 칠판</i>', crayon:'🖍️<i> 크레파스</i>'};
-const DECO_FONT = {combo1:'🎈 말랑', combo2:'✏️ 손글씨', combo3:'📖 또박'};
+const DECO_THEME = {clean:'깔끔', bright:'산뜻'};
+const DECO_FONT = {f1:'또박', f2:'산들'};
+/* 상단: 디자인 2개 · 글씨 2개 고르는 단추 */
 function drawDecoBar(){
   const b=document.getElementById('decobar'); if(!b) return;
-  const chip=(k,v,label)=>`<button title="${label.replace(/<[^>]+>/g,'').trim()}" class="dchip ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
-  b.innerHTML=Object.entries(DECO_THEME).map(([v,l])=>chip('theme',v,l)).join('')+'<span class="dsep"></span>'+Object.entries(DECO_FONT).map(([v,l])=>chip('font',v,l)).join('');
+  const seg=(k,list,label)=>`<div class="dseg" role="group" aria-label="${label}"><span class="dseg-l">${label}</span>${Object.entries(list).map(([v,l])=>`<button class="dchip ${String(settings[k])===v?'on':''}" data-act="set" data-k="${k}" data-v="${v}" aria-pressed="${String(settings[k])===v}">${l}</button>`).join('')}</div>`;
+  b.innerHTML=seg('theme',DECO_THEME,'디자인')+seg('font',DECO_FONT,'글씨');
 }
 function decoHTML(){
   const s=(k,v,label)=>`<button class="pill ${String(settings[k])===String(v)?'on':''}" data-act="set" data-k="${k}" data-v="${v}">${label}</button>`;
   return `<div class="card deco">
-    <div class="deco-row"><b>🎨 디자인</b><div class="seg">${s('theme','note','📒 공책')}${s('theme','chalk','🟩 칠판')}${s('theme','crayon','🖍️ 크레파스')}</div></div>
+    <div class="deco-row"><b>🎨 디자인</b><div class="seg">${Object.entries(DECO_THEME).map(([v,l])=>s('theme',v,l)).join('')}</div></div>
     <div class="deco-row"><b>✏️ 글씨</b><div class="seg">${Object.entries(FONTS).filter(([k,f])=>f.combo).map(([k,f])=>`<button class="pill ${settings.font===k?'on':''}" data-act="set" data-k="font" data-v="${k}" style="font-family:${f.t};font-weight:${f.tw||'normal'}">${f.name}</button>`).join('')}</div></div>
   </div>`;
 }
@@ -3360,11 +3498,10 @@ function renderSticker(){
 }
 
 /* ───── 꾸미기(설정) · 관리자 모드 ───── */
-/* 글씨 조합 3개(제목 · 본문 · 포인트) + 한 가지 글씨체. scale은 본문 글씨 크기 보정 */
+/* 글씨 조합 2개(제목 · 본문 · 손글씨). 상단 '글씨' 단추로 골라요 */
 const FONTS = {
-  combo1:{name:'🎈 말랑 조합', combo:true, t:"'GMarketSans'", css:"'NexonLv2Gothic'", p:"'MitmiFont'", tw:700, scale:1},
-  combo2:{name:'✏️ 손글씨 조합', combo:true, t:"'OwnglyphYuntaeng'", css:"'GangwonEducationSaeum'", p:"'OngleipKimkonghae'", scale:1.2},
-  combo3:{name:'📖 또박 조합', combo:true, t:"'OngleipTterom'", css:"'NanumSquare'", p:"'OwnglyphYuntaeng'", scale:1},
+  f1:{name:'또박', combo:true, t:"'GMarketSans'", css:"'GMarketSans'", p:"'OwnglyphYuntaeng'", tw:700, scale:1},
+  f2:{name:'산들', combo:true, t:"'GMarketSans'", css:"'Cafe24AnemoneAir','GMarketSans'", p:"'OmuDaye'", tw:700, scale:1},
   jua:{name:'주아체', css:"'Jua'", scale:1}   // 글꼴을 못 불러올 때만 쓰는 기본값
 };
 function applySettings(){
