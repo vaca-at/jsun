@@ -477,6 +477,21 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .est-dots span{width:10px;height:10px;border-radius:50%;background:var(--line)}
 .est-dots span.on{background:var(--accent)}
 .est-q{font-size:2.2rem;margin:6px 0}
+/* 쉬어가는 코너 탭 · 여행 표현 */
+.bn-tabs{display:flex;gap:4px;flex-wrap:wrap}
+.bn-tabs .pill{font-size:.82rem;padding:.2rem .6rem}
+.bn-read{text-align:center;font-size:1.05rem;color:var(--accent);margin:0 0 2px}
+/* 오늘 날씨 · 시간 */
+.wx{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;margin-bottom:12px}
+.wx-time{font-family:var(--font-t),var(--font),'Jua',sans-serif;font-size:2.2rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.wx-date{color:var(--sub);font-size:.92rem}
+.wx-now{display:flex;align-items:center;gap:10px;justify-content:flex-end;text-align:right}
+.wx-ico{font-size:2.8rem;line-height:1}
+.wx-t{font-size:1.6rem;line-height:1.1}
+.wx-sub{color:var(--sub);font-size:.85rem}
+.wx-tip{grid-column:1/-1;text-align:center;font-size:.98rem;padding:6px 10px;border-radius:12px;background:color-mix(in srgb,var(--hi) 22%,var(--paper))}
+.wx-loc{background:none;border:none;color:var(--sub);text-decoration:underline;font-size:.78rem;padding:0}
+@media (max-width:520px){ .wx-time{font-size:1.7rem} .wx-ico{font-size:2.2rem} .wx-t{font-size:1.3rem} }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1192,6 +1207,33 @@ const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
 let stars = 0;
 let V = null, C = null, Q = null, S = null, H = null, HQ = null, K = null;
+/* 쉬어가는 코너: 여행에서 바로 쓰는 아주 쉬운 표현 [표현, 읽는 법, 뜻, 그림] */
+const JA_TRAVEL = [
+  ['こんにちは','곤니치와','안녕하세요 (낮 인사)','👋'],['おはようございます','오하요 고자이마스','좋은 아침이에요','🌅'],['こんばんは','곤방와','안녕하세요 (저녁 인사)','🌙'],
+  ['ありがとうございます','아리가토 고자이마스','고맙습니다','🙏'],['すみません','스미마센','실례합니다 · 죄송해요','🙇'],['はい / いいえ','하이 / 이이에','네 / 아니요','🙆'],
+  ['これは いくらですか?','고레와 이쿠라데스카?','이건 얼마예요?','💴'],['これを ください','고레오 쿠다사이','이거 주세요','👉'],['おいしい!','오이시이!','맛있어요!','😋'],
+  ['トイレは どこですか?','토이레와 도코데스카?','화장실은 어디예요?','🚻'],['えきは どこですか?','에키와 도코데스카?','역은 어디예요?','🚉'],['いただきます','이타다키마스','잘 먹겠습니다','🍱'],
+  ['ごちそうさまでした','고치소사마데시타','잘 먹었습니다','😊'],['おねがいします','오네가이시마스','부탁해요','🤲'],['わかりません','와카리마센','모르겠어요','🤔'],
+  ['だいじょうぶです','다이조부데스','괜찮아요','👌'],['かわいい!','카와이이!','귀여워요!','🥰'],['すごい!','스고이!','대단해요!','🤩'],
+  ['さようなら','사요나라','안녕히 가세요','👋'],['はじめまして','하지메마시테','처음 뵙겠습니다','🤝'],['わたしは かんこくじんです','와타시와 칸코쿠진데스','저는 한국 사람이에요','🇰🇷'],
+  ['みずを ください','미즈오 쿠다사이','물 주세요','💧'],['もう いちど おねがいします','모- 이치도 오네가이시마스','한 번 더 말해 주세요','🔁'],['しゃしんを とっても いいですか?','샤신오 톳테모 이이데스카?','사진 찍어도 돼요?','📸'],
+  ['カードで いいですか?','카-도데 이이데스카?','카드로 내도 돼요?','💳'],['いりぐち / でぐち','이리구치 / 데구치','입구 / 출구','🚪'],['たのしかった!','타노시캇타!','즐거웠어요!','🎉'],
+  ['またね!','마타네!','또 만나!','🙌'],['げんきです','겐키데스','잘 지내요','💪'],['いくつですか?','이쿠츠데스카?','몇 개예요?','🔢']
+];
+const EN_TRAVEL = [
+  ['Hello!','헬로!','안녕하세요!','👋'],['Thank you.','땡큐.','고맙습니다.','🙏'],['Excuse me.','익스큐즈 미.','실례합니다.','🙋'],
+  ['I\'m sorry.','아임 쏘리.','죄송해요.','🙇'],['How much is it?','하우 머치 이즈 잇?','얼마예요?','💵'],['This one, please.','디스 원, 플리즈.','이거 주세요.','👉'],
+  ['Where is the restroom?','웨어 이즈 더 레스트룸?','화장실은 어디예요?','🚻'],['Where is the station?','웨어 이즈 더 스테이션?','역은 어디예요?','🚉'],['Water, please.','워터, 플리즈.','물 주세요.','💧'],
+  ['It\'s delicious!','잇츠 딜리셔스!','맛있어요!','😋'],['Can you help me?','캔 유 헬프 미?','도와주실 수 있어요?','🆘'],['I don\'t understand.','아이 돈트 언더스탠드.','이해가 안 돼요.','🤔'],
+  ['Say it again, please.','세이 잇 어겐, 플리즈.','한 번 더 말해 주세요.','🔁'],['Can I take a picture?','캔 아이 테이크 어 픽처?','사진 찍어도 돼요?','📸'],['One ticket, please.','원 티켓, 플리즈.','표 한 장 주세요.','🎫'],
+  ['Check, please.','체크, 플리즈.','계산할게요.','🧾'],['I\'m from Korea.','아임 프롬 코리아.','저는 한국에서 왔어요.','🇰🇷'],['Nice to meet you.','나이스 투 밋 유.','만나서 반가워요.','🤝'],
+  ['Have a nice day!','해브 어 나이스 데이!','좋은 하루 보내세요!','🌈'],['See you later!','씨 유 레이터!','나중에 봐요!','🙌'],['Can I pay by card?','캔 아이 페이 바이 카드?','카드로 내도 돼요?','💳'],
+  ['I\'m lost.','아임 로스트.','길을 잃었어요.','🗺️'],['Where is the bus stop?','웨어 이즈 더 버스 스탑?','버스 정류장은 어디예요?','🚏'],['A table for four, please.','어 테이블 포 포, 플리즈.','네 명 자리 주세요.','🍽️'],
+  ['No ice, please.','노 아이스, 플리즈.','얼음은 빼 주세요.','🧊'],['What time does it open?','왓 타임 더즈 잇 오픈?','몇 시에 열어요?','⏰'],['I\'m just looking.','아임 저스트 룩킹.','그냥 구경하는 중이에요.','👀'],
+  ['Can I try this on?','캔 아이 트라이 디스 온?','입어 봐도 돼요?','👕'],['It\'s so beautiful!','잇츠 쏘 뷰티풀!','정말 아름다워요!','😍'],['Goodbye!','굿바이!','안녕히 계세요!','👋']
+];
+const todayIdx = n => Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%n;
+App.bnTab='prov'; App.ja=todayIdx(JA_TRAVEL.length); App.en=todayIdx(EN_TRAVEL.length);
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
 /* 관리자(사이트 주인)와 엄마(윤아 엄마)는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디만 바꿀 수 있어요 */
 let admRole = 'admin';
@@ -1253,6 +1295,7 @@ function speak(text, lang='en'){
   speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
   if(lang==='ko'){ u.lang='ko-KR'; u.rate=0.85; if(koVoice) u.voice=koVoice; }
+  else if(lang==='ja'){ u.lang='ja-JP'; u.rate=0.8; const jv=speechSynthesis.getVoices().find(v=>v.lang && v.lang.replace('_','-').startsWith('ja')); if(jv) u.voice=jv; }
   else { u.lang='en-US'; u.rate=0.8; if(enVoice) u.voice=enVoice; }
   speechSynthesis.speak(u);
 }
@@ -1601,9 +1644,26 @@ function renderClosed(s, party){
   if(party) celebrate();
 }
 function provHTML(){
+  const tab=App.bnTab||'prov';
+  const tabs=`<div class="bn-tabs">${[['prov','📜 속담'],['ja','🇯🇵 일본어'],['en','🇺🇸 영어']].map(([v,l])=>`<button class="pill ${tab===v?'on':''}" data-act="bnTab" data-v="${v}">${l}</button>`).join('')}</div>`;
+  if(tab!=='prov'){
+    const L=tab==='ja'?JA_TRAVEL:EN_TRAVEL, i=tab==='ja'?App.ja:App.en, [t,r,m,e]=L[i];
+    return `<div class="card banner" id="banner">
+    <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 여행 ${tab==='ja'?'일본어':'영어'}</span><span class="bn-tag">${i+1} / ${L.length}</span></div>
+    ${tabs}
+    <div class="bn-p ${tab==='en'?'en':''}" ${tab==='ja'?'lang="ja"':''}>${e} ${esc(t)}</div>
+    <p class="bn-read">[${r}]</p>
+    <div class="bn-m">${m}</div>
+    <div class="bn-btns">
+      <button class="pill" data-act="bnMove" data-v="-1" aria-label="이전 표현">◀</button>
+      <button class="pill" data-act="bnSay">🔊 들어 보기</button>
+      <button class="pill" data-act="bnMove" data-v="1" aria-label="다음 표현">▶</button>
+    </div></div>`;
+  }
   const [p,m]=PROVERBS[App.prov];
   return `<div class="card banner" id="banner">
     <div class="bn-top"><span class="bn-tag">☕ 쉬어가는 코너 · 오늘의 속담</span><span class="bn-tag">${App.prov+1} / ${PROVERBS.length}</span></div>
+    ${tabs}
     <div class="bn-p">“${p}”</div>
     <div class="bn-m">${m}</div>
     ${App.provOpen?`<div class="bn-ex">🧒 이럴 때 써요: ${PROVERB_EX[App.prov]}</div>`:''}
@@ -1614,6 +1674,41 @@ function provHTML(){
       <button class="pill" data-act="provMove" data-v="1" aria-label="다음 속담">▶</button>
     </div></div>`;
 }
+/* ───── 오늘 날씨 · 시간 (Open-Meteo, 키 없이 쓰는 무료 날씨. 30분마다 새로 받아요) ───── */
+const WX_DEF = {lat:37.5665, lon:126.978, name:'서울'};
+const WX_CODE = {0:['☀️','맑음'],1:['🌤️','대체로 맑음'],2:['⛅','구름 조금'],3:['☁️','흐림'],45:['🌫️','안개'],48:['🌫️','안개'],51:['🌦️','이슬비'],53:['🌦️','이슬비'],55:['🌦️','이슬비'],
+  56:['🌧️','어는 비'],57:['🌧️','어는 비'],61:['🌧️','비'],63:['🌧️','비'],65:['🌧️','많은 비'],66:['🌧️','어는 비'],67:['🌧️','어는 비'],71:['🌨️','눈'],73:['🌨️','눈'],75:['❄️','많은 눈'],77:['🌨️','싸락눈'],
+  80:['🌦️','소나기'],81:['🌦️','소나기'],82:['⛈️','강한 소나기'],85:['🌨️','눈 소나기'],86:['🌨️','눈 소나기'],95:['⛈️','천둥 번개'],96:['⛈️','천둥 번개'],99:['⛈️','천둥 번개']};
+const wxGet = k => { try{ return JSON.parse(localStorage.getItem('wx_'+k)); }catch(e){ return null; } };
+const wxSet = (k,v) => { try{ localStorage.setItem('wx_'+k, JSON.stringify(v)); }catch(e){} };
+function wxTip(w){
+  if(w.rain>=50) return '☂️ 비 소식이 있어요. 우산 챙겨요!';
+  if(w.max>=30) return '🥵 많이 더워요. 물을 자주 마셔요!';
+  if(w.min<=0) return '🧣 추워요. 따뜻하게 입어요!';
+  if(w.code>=71 && w.code<=86) return '⛄ 눈이 와요. 미끄러우니 천천히 걸어요!';
+  return '😊 공부하기 딱 좋은 날씨예요!';
+}
+function weatherHTML(){
+  setTimeout(loadWeather,0);
+  const t=new Date(), h=t.getHours();
+  const w=wxGet('data'), loc=wxGet('loc')||WX_DEF, c=w?(WX_CODE[w.code]||['🌡️','날씨']):null;
+  return `<div class="card wx" id="wxCard">
+    <div><div class="wx-time" id="wxTime">${h<12?'오전':'오후'} ${h%12||12}:${pad(t.getMinutes())}</div><div class="wx-date">${t.getMonth()+1}월 ${t.getDate()}일 ${WD[t.getDay()]}요일</div></div>
+    <div class="wx-now">${w?`<span class="wx-ico">${c[0]}</span><span><span class="wx-t">${Math.round(w.temp)}°</span><br><span class="wx-sub">${c[1]} · 최고 ${Math.round(w.max)}° 최저 ${Math.round(w.min)}°<br>비 올 확률 ${w.rain}% · ${esc(loc.name)} <button class="wx-loc" data-act="wxLoc">📍 내 위치</button></span></span>`:'<span class="wx-sub">날씨를 불러오는 중…</span>'}</div>
+    ${w?`<div class="wx-tip">${wxTip(w)}</div>`:''}
+  </div>`;
+}
+async function loadWeather(force){
+  const w=wxGet('data'), loc=wxGet('loc')||WX_DEF;
+  if(!force && w && Date.now()-w.at<30*60000 && w.lat===loc.lat) return;
+  try{
+    const u=`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`;
+    const d=await (await fetch(u)).json();
+    wxSet('data',{at:Date.now(), lat:loc.lat, temp:d.current.temperature_2m, code:d.current.weather_code, max:d.daily.temperature_2m_max[0], min:d.daily.temperature_2m_min[0], rain:d.daily.precipitation_probability_max[0]??0});
+    const card=document.getElementById('wxCard'); if(card && App.view==='home') card.outerHTML=weatherHTML();
+  }catch(e){ console.warn('날씨를 불러오지 못했어요', e); }
+}
+setInterval(()=>{ const el=document.getElementById('wxTime'); if(el){ const t=new Date(), h=t.getHours(); el.textContent=`${h<12?'오전':'오후'} ${h%12||12}:${pad(t.getMinutes())}`; } }, 1000);
 const DECO_THEME = {note:'📒<i> 공책</i>', chalk:'🟩<i> 칠판</i>', crayon:'🖍️<i> 크레파스</i>'};
 const DECO_FONT = {combo1:'🎈 말랑', combo2:'✏️ 손글씨', combo3:'📖 또박'};
 function drawDecoBar(){
@@ -1663,6 +1758,7 @@ function renderHome(){
   const left=10-(stars%10);
   view.innerHTML=`
     ${admin.msg?`<div class="card msg">💌 ${esc(admin.msg)}</div>`:''}
+    ${weatherHTML()}
     <div class="card hello">
       <div class="big">안녕, ${josa(who,'아','야')}! 오늘은 뭘 공부해 볼까?</div>
       <div class="goal"><i style="width:${pct}%"></i></div>
@@ -3105,13 +3201,13 @@ function adminHTML(){
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
     <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 20문제 풀면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
     <p class="lbl">👩 엄마 비밀번호 ${isMom()?'바꾸기':`<small>(${momPinH()?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
-    <div class="inrow"><input id="momPin" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>
+    <div class="inrow"><input id="momPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>
     ${!isMom()&&momPinH()?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
     ${isMom()?'':`${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}`}
     ${isMom()?'':FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 비밀번호 바꾸기</p>
-    <div class="inrow"><input id="admPin" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
+    <div class="inrow"><input id="admPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="kidPinReset" data-v="${esc(n)}">${esc(n)} ${kidPins()[n]?'비밀번호 지우기':'(아직 없음)'}</button>`).join('')}</div>
     ${who&&!isMom()?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
@@ -3140,6 +3236,11 @@ const ACT = {
     if(v===who){ who=null; fromLogin=true; }
     admView=who; drawSettings();
   },
+  bnTab: v=>{ App.bnTab=v; drawBanner(); },
+  bnMove: v=>{ if(App.bnTab==='ja') App.ja=(App.ja+ +v+JA_TRAVEL.length)%JA_TRAVEL.length; else App.en=(App.en+ +v+EN_TRAVEL.length)%EN_TRAVEL.length; drawBanner(); },
+  bnSay: ()=>{ if(App.bnTab==='ja') speak(JA_TRAVEL[App.ja][0].replace(/ \/ /g,'、'),'ja'); else speak(EN_TRAVEL[App.en][0]); },
+  wxLoc: ()=>{ if(!navigator.geolocation){ toast('이 기기는 위치를 알 수 없어요'); return; }
+    navigator.geolocation.getCurrentPosition(p=>{ wxSet('loc',{lat:+p.coords.latitude.toFixed(3), lon:+p.coords.longitude.toFixed(3), name:'내 위치'}); loadWeather(true); toast('📍 내 위치 날씨로 바꿨어요'); }, ()=>toast('위치를 쓸 수 없어서 서울 날씨를 보여 줘요')); },
   provMove: v=>{ App.prov=(App.prov+ +v+PROVERBS.length)%PROVERBS.length; App.provOpen=false; drawBanner(); },
   provMean: ()=>{ App.provOpen=!App.provOpen; drawBanner(); },
   provSay: ()=>speak(PROVERBS[App.prov][0],'ko'),
