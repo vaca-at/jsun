@@ -498,6 +498,28 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .pinbox{-webkit-text-security:disc;text-security:disc}
 input.pinbox,input[type=email],input[type=password]{background:#fff!important;color:#1F3354!important;-webkit-text-fill-color:#1F3354!important;caret-color:#1F3354}
 input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit-box-shadow:0 0 0 40px #fff inset!important;-webkit-text-fill-color:#1F3354!important}
+/* 과목 골고루: 최근 7일 과목별 문제 수 */
+.balcard{margin-top:12px}
+.bal-wrap{overflow-x:auto;margin:0 -4px}
+.bal{width:100%;border-collapse:collapse;text-align:center}
+.bal th{font-weight:normal;color:var(--sub);padding:2px 1px;font-size:.78rem;line-height:1.15}
+.bal th small{display:block;font-size:.7rem}
+.bal th.today{color:var(--accent)}
+.bal .bal-s{text-align:left;white-space:nowrap;color:var(--ink);font-size:.9rem;padding-right:6px}
+.bal .bal-s .hanja{font-size:1em}
+.bal td{padding:2px 1px}
+.bal td>span{display:flex;align-items:center;justify-content:center;min-width:1.6rem;height:1.6rem;border-radius:7px;font-size:.78rem;color:var(--ink)}
+.bal .bal-t{font-size:.85rem;color:var(--sub)}
+.bal .l0,.bal-dots .l0{background:color-mix(in srgb,var(--line) 55%,transparent)}
+.bal .l1,.bal-dots .l1{background:color-mix(in srgb,var(--ok) 25%,var(--paper))}
+.bal .l2,.bal-dots .l2{background:color-mix(in srgb,var(--ok) 45%,var(--paper))}
+.bal .l3,.bal-dots .l3{background:color-mix(in srgb,var(--ok) 70%,var(--paper))}
+.bal .l4,.bal-dots .l4{background:var(--ok);color:#fff}
+.subj-today{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-size:.85rem;color:var(--sub);margin-top:2px}
+.subj-today b{font-size:.95rem!important;color:var(--ink)}
+.bal-dots{display:inline-flex;gap:3px}
+.bal-dots i{width:10px;height:10px;border-radius:3px}
+.bal-dots i.today{outline:2px solid var(--accent);outline-offset:1px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1787,6 +1809,33 @@ function weakHTML(){
   return `<div class="card" style="margin-top:12px"><div class="grass-head"><b>⚠️ 조금 더 연습하면 좋은 곳</b></div>
     ${w.map(r=>`<div class="sub" style="padding:3px 0">${SUBJ[r.s]?SUBJ[r.s].name:r.s} › ${esc(r.sub)} · 정답률 ${r.pct}% (${r.ok}/${r.n})</div>`).join('')}</div>`;
 }
+/* ───── 과목 골고루: 최근 7일 동안 날마다 과목별로 몇 문제를 풀었는지 ───── */
+const BAL_DAYS = 7;
+function balDays(){ const t=new Date(); return Array.from({length:BAL_DAYS},(_,i)=>{ const d=new Date(t.getFullYear(),t.getMonth(),t.getDate()-(BAL_DAYS-1-i)); return {k:dayKey(d), w:WD[d.getDay()], dd:d.getDate()}; }); }
+const balN = (L,k,s) => (L[k]&&L[k][s]&&L[k][s].n)||0;
+const balLv = n => n===0 ? 0 : n<10 ? 1 : n<20 ? 2 : n<40 ? 3 : 4;
+/* 과목 타일: 오늘 푼 문제 수 + 최근 7일 칸 (진할수록 많이 풀었어요) */
+function subjTodayHTML(s){
+  const L=getLog(), days=balDays(), n=balN(L,days[BAL_DAYS-1].k,s);
+  return `<span class="subj-today">${n?`오늘 <b>${n}</b>문제`:'오늘 아직 안 했어요'}<span class="bal-dots" aria-hidden="true">${days.map((d,i)=>`<i class="l${balLv(balN(L,d.k,s))}${i===BAL_DAYS-1?' today':''}"></i>`).join('')}</span></span>`;
+}
+function balanceHTML(){
+  const L=getLog(), days=balDays(), on=Object.keys(SUBJ).filter(k=>admin.subj[k]), today=days[BAL_DAYS-1].k;
+  if(!on.length) return '';
+  const full=days.filter(d=>on.every(s=>balN(L,d.k,s)>0)).length;
+  const miss=on.filter(s=>!balN(L,today,s));
+  const wk=on.map(s=>[s,days.reduce((a,d)=>a+balN(L,d.k,s),0)]);
+  const sum=wk.reduce((a,x)=>a+x[1],0), low=wk.slice().sort((a,b)=>a[1]-b[1])[0];
+  const tip = miss.length ? `👉 오늘 아직 안 한 과목: <b>${miss.map(s=>SUBJ[s].name).join(', ')}</b>` : '🌈 오늘은 모든 과목을 골고루 했어요!';
+  const lowTip = sum && low[1] < sum/on.length/2 ? `<br>💡 최근 7일 동안 <b>${josa(SUBJ[low[0]].name,'을','를')}</b> 가장 적게 했어요 (${low[1]}문제).` : '';
+  return `<div class="card balcard"><div class="grass-head"><b>🍱 과목 골고루 (최근 7일)</b><span class="sub">🌈 모든 과목 한 날 ${full}일</span></div>
+    <div class="bal-wrap"><table class="bal">
+      <tr><th></th>${days.map((d,i)=>`<th class="${i===BAL_DAYS-1?'today':''}">${i===BAL_DAYS-1?'오늘':d.w}<small>${d.dd}일</small></th>`).join('')}<th>합</th></tr>
+      ${wk.map(([s,t])=>`<tr><th class="bal-s">${SUBJ[s].ico} ${SUBJ[s].name}</th>${days.map(d=>{ const n=balN(L,d.k,s); return `<td><span class="l${balLv(n)}">${n||''}</span></td>`; }).join('')}<td class="bal-t">${t}</td></tr>`).join('')}
+      <tr><th class="bal-s">골고루</th>${days.map(d=>{ const c=on.filter(s=>balN(L,d.k,s)>0).length; return `<td>${c===on.length?'🌈':c?`<small class="sub">${c}/${on.length}</small>`:''}</td>`; }).join('')}<td></td></tr>
+    </table></div>
+    <div class="sub" style="margin-top:8px;line-height:1.6">${tip}${lowTip}</div></div>`;
+}
 function renderHome(){
   const d=getLog()[dayKey()]||{};
   const on=Object.keys(SUBJ).filter(k=>admin.subj[k]);
@@ -1802,10 +1851,11 @@ function renderHome(){
     </div>
     ${courseHTML()}
     <div class="subjects">
-      ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small></button>`).join('')}
+      ${on.map(k=>`<button class="subj" data-act="tab" data-v="${k}"><span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small>${subjTodayHTML(k)}</button>`).join('')}
       <button class="subj wide" data-act="tab" data-v="review"><span class="ico">🔁</span><span><b>틀린 문제 다시 풀기</b><br><small>모든 과목에서 틀린 문제 ${wn}개가 모여 있어요</small></span></button>
     </div>
     ${weakHTML()}
+    ${balanceHTML()}
     <div class="card grasscard">${grassHTML()}</div>
     <div style="margin-top:12px">${provHTML()}</div>
     <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
