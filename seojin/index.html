@@ -579,6 +579,7 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
   <div class="toprow">
     <h1><button id="whoBtn" data-act="showLogin" aria-label="이름 바꾸기">예비초6 공부방</button></h1>
     <div class="starbox" title="모은 별">⭐ <span id="starCount">0</span></div>
+    <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침">🔄</button>
     <button class="iconbtn" data-act="openSet" aria-label="설정">⚙️</button>
   </div>
   <div class="decobar" id="decobar"></div>
@@ -4346,6 +4347,11 @@ const spokenText = el => { const c=el.cloneNode(true); c.querySelectorAll('[data
 
 /* ───── 클릭 처리 ───── */
 const ACT = {
+  reloadApp: async ()=>{
+    toast('🔄 새로 불러와요…');
+    try{ if(FIREBASE_CONFIG && who && KID_IDS[who]){ clearTimeout(pushTimer); await Promise.race([cloudPushNow(who), new Promise(r=>setTimeout(r,2500))]); } }catch(e){}
+    location.replace(location.pathname+'?v='+Date.now());
+  },
   libOpen: v=>{ App.lib=v||null; App.lpg=0; LQ=null; go('library'); },
   libClose: ()=>{ App.lib=null; LQ=null; render(); window.scrollTo(0,0); },
   libPage: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; App.lpg=Math.max(0,Math.min(bk.pages.length-1,(App.lpg||0)+ +v)); renderLibrary(); window.scrollTo(0,0); },
