@@ -41,7 +41,7 @@ h1{margin:0;font-size:1.25rem;font-weight:700;letter-spacing:-.01em}
 .size{display:flex;gap:4px;align-items:center;font-size:.72rem;color:var(--sub)}
 .size button{border:2px solid var(--line);background:var(--paper);border-radius:10px;padding:.15rem .55rem;font-size:.72rem}
 .size button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.nav{max-width:760px;margin:0 auto;padding:6px 16px 12px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 .nav button{min-height:3rem;border:2px solid var(--line);background:var(--paper);border-radius:12px;font-weight:600;font-size:.86rem;padding:.3rem .2rem}
 .nav button.on{background:var(--yellow);border-color:var(--yellow);color:var(--yink)}
 
@@ -139,6 +139,9 @@ th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
 .wrongitem:first-of-type{border-top:none}
 .catbtn{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
 .catbtn small{font-weight:400;color:var(--sub);font-size:.8rem}
+.subj{font-size:.8rem;font-weight:700;color:var(--sub);margin:14px 0 2px}
+.subj:first-of-type{margin-top:4px}
+.ext a{color:var(--ink);font-weight:600}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:.6rem 1.1rem;border-radius:12px;font-size:.9rem;z-index:50}
 @media (max-width:520px){
   .nav{grid-template-columns:repeat(3,1fr)}
@@ -161,6 +164,7 @@ th{background:color-mix(in srgb,var(--yellow) 18%,var(--paper));font-weight:600}
     <button data-go="study">요점 정리</button>
     <button data-go="learn">카드로 익히기</button>
     <button data-go="quiz">문제 풀기</button>
+    <button data-go="past">기출 유형</button>
     <button data-go="wrong">틀린 문제</button>
   </nav>
 </header>
@@ -273,6 +277,123 @@ const QS = [
  ['equip','가스가 새는 것을 감지하면 자동으로 밸브를 잠그는 장치는?',['가스누출 자동차단장치','가스미터','조정기','부취제 주입기'],'경보기와 연결되어 누출이 감지되면 가스를 자동으로 막아요.']
 ].map(([c,q,ch,ex],i)=>({id:'q'+i, c, q, ch, ex}));
 
+/* ───────── 기출 유형 (단원별) ─────────
+   시험에 자주 나오는 내용을 새로 쓴 연습 문제예요. 실제 기출 원문이 아니에요.
+   형식은 위 문제 모음과 같아요: [단원, 문제, [정답, 오답, 오답, 오답], 해설] */
+const SUBJS = ['가스안전관리','가스장치 및 기기','가스일반'];
+const UNITS = {
+  k_hp:  {s:0, name:'고압가스 안전관리', sub:'고압가스 기준, 거리, 안전밸브, 방폭'},
+  k_lpg: {s:0, name:'LPG 안전관리', sub:'충전량, 저장능력, 용기 보관실'},
+  k_city:{s:0, name:'도시가스 안전관리', sub:'배관, 정압기, 부취제, 사용시설'},
+  k_cyl: {s:0, name:'용기와 운반', sub:'각인, 내압시험, 운반 기준'},
+  k_fac: {s:1, name:'저장·기화·공급 설비', sub:'기화 방식, 이송, 조정기, 탱크'},
+  k_pump:{s:1, name:'압축기와 펌프', sub:'펌프 종류, 상사법칙, 윤활유'},
+  k_meas:{s:1, name:'계측기기와 가스 분석', sub:'압력계, 온도계, 유량계, 분석법'},
+  k_mat: {s:1, name:'재료·배관·부식', sub:'신축이음, 스케줄 번호, 전기방식, 열처리'},
+  k_base:{s:2, name:'기초 이론', sub:'온도, 기체 법칙, 열량, 확산'},
+  k_fire:{s:2, name:'연소와 폭발', sub:'발화점, 폭굉, 혼합가스, 소화'},
+  k_gas: {s:2, name:'가스의 종류와 성질', sub:'산소, 수소, 염소, 암모니아 등'}
+};
+const KQ = [
+ ['k_hp','온도 15℃에서 압력이 0 Pa만 넘어도 고압가스로 보는 가스는?',['아세틸렌','산소','수소','질소'],'압축아세틸렌은 15℃에서 0 Pa을 넘으면 고압가스예요. 그만큼 위험한 가스라는 뜻이에요.'],
+ ['k_hp','35℃에서 압력이 0 Pa만 넘어도 고압가스로 보는 액화가스는?',['액화산화에틸렌','액화프로판','액화질소','액화탄산가스'],'액화시안화수소, 액화브롬화메탄, 액화산화에틸렌은 35℃에서 0 Pa만 넘어도 고압가스예요.'],
+ ['k_hp','가연성가스 저장탱크끼리 떨어뜨려야 하는 거리는?',['두 탱크 최대지름을 더한 값의 1/4 이상','두 탱크 최대지름을 더한 값의 1/2 이상','두 탱크 최대지름을 더한 값 이상','상관없다'],'두 탱크 최대지름 합의 1/4 이상이에요. 그 값이 1 m보다 작으면 1 m 이상 떨어뜨려요.'],
+ ['k_hp','액화산소 저장탱크 둘레에 쌓는 방류둑의 용량은 저장능력의 몇 % 이상인가요?',['60%','30%','80%','100%'],'보통은 저장능력만큼의 용량이지만, 액화산소 저장탱크는 60% 이상이면 돼요.'],
+ ['k_hp','고압가스 설비 안전밸브의 작동압력은 얼마인가요?',['내압시험압력의 8/10 이하','내압시험압력의 1.5배','상용압력의 1/2','최고충전압력의 2배'],'안전밸브는 내압시험압력의 8/10 이하에서 작동해야 해요.'],
+ ['k_hp','수소 속에 산소가 몇 % 이상 섞여 있으면 압축하면 안 되나요?',['2%','4%','10%','20%'],'아세틸렌·에틸렌·수소 속 산소가 2% 이상이면 압축 금지예요. 그 밖의 가연성가스는 4%예요.'],
+ ['k_hp','많은 양의 물을 제독제로 쓸 수 있는 독성가스는?',['암모니아','염소','포스겐','황화수소'],'물로 제독하는 가스: 암모니아, 산화에틸렌, 염화메탄. 염소와 포스겐은 가성소다·소석회를 써요.'],
+ ['k_hp','방폭구조 가운데 "내압방폭구조"의 기호는?',['d','p','o','e'],'d 내압, p 압력, o 유입, e 안전증, ia·ib 본질안전 방폭구조예요.'],
+
+ ['k_lpg','LPG 저장탱크에 액화가스를 채울 때, 내용적의 몇 %를 넘지 않아야 하나요?',['90%','70%','95%','100%'],'온도가 오르면 액체가 늘어나서 빈 공간이 필요해요. 저장탱크는 90%, 소형저장탱크는 85%까지예요.'],
+ ['k_lpg','LPG 용기 충전량 공식 W = V ÷ C에서 프로판의 충전상수 C는?',['2.35','2.05','1.5','0.9'],'프로판 2.35, 부탄 2.05예요. V는 용기 내용적(L), W는 충전량(kg)이에요.'],
+ ['k_lpg','내용적 47 L인 용기에 프로판을 채울 수 있는 양은? (C = 2.35)',['20 kg','10 kg','47 kg','110 kg'],'W = V ÷ C = 47 ÷ 2.35 = 20 kg이에요.'],
+ ['k_lpg','LPG 용기 보관실의 자연환기 통풍구 면적은 바닥면적 1 m²마다 얼마 이상인가요?',['300 cm²','30 cm²','100 cm²','1000 cm²'],'바닥면적 1 m²마다 300 cm² 이상이고, LPG는 무거워서 통풍구를 바닥 가까이 둬요.'],
+ ['k_lpg','LPG 자동차 충전기의 충전호스 길이는?',['5 m 이내','10 m 이내','15 m 이내','20 m 이내'],'충전호스는 5 m 이내로 하고, 끊어질 때 가스를 막는 장치를 달아요.'],
+ ['k_lpg','LPG 용기 보관에 대한 설명으로 틀린 것은?',['충전용기와 잔가스용기를 섞어 둔다','40℃ 이하로 보관한다','넘어지지 않게 한다','직사광선을 피한다'],'충전용기와 잔가스용기는 구분해서 보관해요.'],
+ ['k_lpg','LPG를 겨울철에 쓸 때 기화가 잘 안 되는 성분은?',['부탄','프로판','메탄','수소'],'부탄은 끓는점이 약 −0.5℃라서 추우면 잘 기화되지 않아요. 프로판은 약 −42℃예요.'],
+
+ ['k_city','도시가스 정압기의 3가지 기능이 아닌 것은?',['부취 기능','감압 기능','정압 기능','폐쇄 기능'],'정압기는 압력을 낮추고(감압), 일정하게 유지하며(정압), 사용이 없을 때 닫아요(폐쇄).'],
+ ['k_city','양파 썩는 냄새가 나며 냄새가 가장 강한 부취제는?',['TBM','THT','DMS','LNG'],'TBM 양파 썩는 냄새(강함), THT 석탄가스 냄새(보통), DMS 마늘 냄새(약함)예요.'],
+ ['k_city','도로 밑 도시가스 배관은 다른 시설물과 몇 m 이상 떨어뜨려야 하나요?',['0.3 m','0.1 m','1 m','3 m'],'배관 외면에서 다른 시설물까지 0.3 m 이상 떨어뜨려요.'],
+ ['k_city','도시가스 사용시설에서 연소기에 연결하는 호스의 길이는?',['3 m 이내','5 m 이내','8 m 이내','10 m 이내'],'호스는 3 m 이내로 하고, T자로 나누어 쓰지 않아요.'],
+ ['k_city','도시가스 배관 가까이 땅을 팔 때, 배관 주위 몇 m 안에서는 사람 손으로 파야 하나요?',['1 m','3 m','5 m','10 m'],'배관 주위 1 m 이내는 기계가 아닌 인력으로 굴착해요.'],
+ ['k_city','도시가스의 원료인 LNG는 약 몇 ℃에서 액체가 되나요?',['−162℃','−42℃','−0.5℃','−273℃'],'메탄은 약 −162℃에서 액화돼요. 액화하면 부피가 약 1/600로 줄어요.'],
+
+ ['k_cyl','가스 용기에 새긴 표시 가운데 "V"의 뜻은?',['내용적(L)','내압시험압력','최고충전압력','용기 질량'],'V 내용적, W 질량, TP 내압시험압력, FP 최고충전압력이에요.'],
+ ['k_cyl','용기 신규 내압시험에서 합격하는 영구증가율은?',['10% 이하','20% 이하','30% 이하','50% 이하'],'영구증가율(시험 뒤 남은 부피 증가 ÷ 전체 증가)이 10% 이하면 합격이에요.'],
+ ['k_cyl','아세틸렌을 충전할 때의 압력은?',['2.5 MPa 이하','10 MPa 이하','25 MPa 이하','0.1 MPa 이하'],'충전 중 2.5 MPa 이하, 충전 뒤에는 15℃에서 1.5 MPa 이하예요.'],
+ ['k_cyl','고압가스를 싣는 차량의 경계표지 글자는?',['위험 고압가스','주의 가스','가스 운반중','화기 엄금'],'차량 앞뒤에 붉은 글씨로 "위험 고압가스"라고 써요.'],
+ ['k_cyl','가연성가스 용기와 산소 용기를 한 차에 실을 때 지켜야 할 것은?',['용기 밸브가 서로 마주 보지 않게 싣는다','밸브끼리 마주 보게 싣는다','뉘어서 겹쳐 싣는다','함께 묶어 한 덩어리로 싣는다'],'밸브에서 샌 가스가 서로 섞이지 않도록 마주 보지 않게 실어요.'],
+ ['k_cyl','시안화수소를 충전한 용기는 충전한 뒤 며칠을 넘기지 않아야 하나요?',['60일','7일','30일','1년'],'시안화수소는 오래 두면 중합폭발할 수 있어서 60일을 넘기지 않아요. (순도 98% 이상이고 착색되지 않은 것은 예외)'],
+ ['k_cyl','가스 용기 밸브를 여는 올바른 방법은?',['천천히 연다','빠르게 한 번에 연다','망치로 두드려 연다','긴 쇠막대로 세게 돌린다'],'갑자기 열면 마찰열·충격으로 사고가 날 수 있어요.'],
+
+ ['k_fac','LPG 강제기화방식의 장점이 아닌 것은?',['기화기 설비가 필요 없다','추운 날에도 가스를 공급할 수 있다','공급 가스 조성이 일정하다','설치 면적이 작다'],'강제기화방식은 기화기를 따로 설치해요. 대신 추위에 강하고 가스 조성이 일정해요.'],
+ ['k_fac','LPG를 압축기로 옮겨 담을 때의 장점은?',['충전 시간이 짧고 잔가스를 회수할 수 있다','재액화가 절대 일어나지 않는다','베이퍼록이 잘 생긴다','아무 설비도 필요 없다'],'압축기 이송은 빠르고 잔가스 회수가 되지만, 재액화·드레인이 생길 수 있어요.'],
+ ['k_fac','2단 감압식 조정기의 장점이 아닌 것은?',['조정기 수가 적어 관리가 쉽다','공급 압력이 안정된다','배관을 가늘게 할 수 있다','배관 압력 손실을 보충할 수 있다'],'2단 감압식은 조정기가 많이 필요한 것이 단점이에요.'],
+ ['k_fac','구형(공 모양) 저장탱크의 특징으로 맞는 것은?',['같은 용량에서 표면적이 작고 강도가 높다','표면적이 가장 크다','만들기가 가장 쉽다','압력에 약하다'],'구형은 표면적이 작아 재료가 적게 들고, 힘이 고르게 퍼져 강해요.'],
+ ['k_fac','고압식 가스홀더에 해당하는 것은?',['구형 가스홀더','유수식 가스홀더','무수식 가스홀더','습식 가스미터'],'저압식은 유수식·무수식, 고압식은 원통형·구형 가스홀더예요.'],
+
+ ['k_pump','다음 중 용적형 펌프는?',['기어펌프','원심펌프','축류펌프','사류펌프'],'용적형: 왕복펌프, 기어·베인 같은 회전펌프. 터보형: 원심·축류·사류펌프예요.'],
+ ['k_pump','원심펌프의 회전수를 2배로 하면 양정(올리는 높이)은?',['4배','2배','8배','변하지 않는다'],'상사법칙: 유량은 회전수에, 양정은 회전수의 제곱에, 동력은 세제곱에 비례해요.'],
+ ['k_pump','캐비테이션(공동현상)을 막는 방법이 아닌 것은?',['펌프 회전수를 높인다','흡입 배관을 짧게 한다','펌프를 낮게 설치한다','양흡입 펌프를 쓴다'],'회전수는 낮춰야 해요.'],
+ ['k_pump','펌프 입구·출구 압력계 바늘이 흔들리고, 유량이 주기적으로 변하는 현상은?',['서징','캐비테이션','베이퍼록','수격작용'],'서징(맥동)이라고 해요.'],
+ ['k_pump','산소 압축기에 쓰는 윤활제는?',['물 또는 10% 이하 묽은 글리세린수','광유(기름)','진한 황산','석유류'],'산소는 기름과 만나면 폭발할 수 있어서 기름을 쓰지 않아요.'],
+ ['k_pump','염소 압축기에 쓰는 윤활제는?',['진한 황산','물','광유','글리세린'],'염소는 진한 황산을 윤활제로 써요. 수소·아세틸렌·LPG는 양질의 광유를 써요.'],
+ ['k_pump','여러 단으로 나누어 압축하는(다단압축) 목적이 아닌 것은?',['가스 온도를 높이려고','동력을 줄이려고','온도 상승을 막으려고','효율을 높이려고'],'다단압축은 온도가 너무 오르는 것을 막아요.'],
+ ['k_pump','왕복동식 압축기의 특징이 아닌 것은?',['가스가 연속으로 흘러 맥동이 없다','높은 압력을 얻기 쉽다','기름이 가스에 섞일 수 있다','설치 면적이 크다'],'왕복동식은 피스톤이 오가서 맥동(흐름이 끊겼다 이어지는 것)이 있어요.'],
+
+ ['k_meas','탄성식 압력계 가운데 가장 많이 쓰는 것은?',['부르동관 압력계','마노미터','자유피스톤식 압력계','침종식 압력계'],'부르동관은 휘어진 관이 압력에 따라 펴지는 원리예요.'],
+ ['k_meas','부르동관 압력계를 교정할 때 기준으로 쓰는 압력계는?',['자유피스톤식 압력계','다이어프램 압력계','벨로스 압력계','전기저항 압력계'],'자유피스톤식은 정확한 1차 압력계라서 기준기로 써요.'],
+ ['k_meas','열전대 온도계의 원리는?',['제베크 효과','보일의 법칙','파스칼의 원리','베르누이 정리'],'서로 다른 두 금속을 이어 온도차를 주면 전기가 생기는 제베크 효과를 써요.'],
+ ['k_meas','가장 높은 온도까지 잴 수 있는 열전대는?',['백금-백금로듐(PR)','크로멜-알루멜(CA)','철-콘스탄탄(IC)','구리-콘스탄탄(CC)'],'PR은 약 1600℃까지 잴 수 있어요.'],
+ ['k_meas','차압식 유량계가 아닌 것은?',['로터미터','오리피스','벤투리미터','플로노즐'],'로터미터는 면적식이에요. 차압식은 베르누이 정리를 이용해요.'],
+ ['k_meas','피토관으로 재는 것은?',['유속','온도','습도','가스 성분'],'피토관은 전압과 정압의 차(동압)로 흐르는 속도를 재요.'],
+ ['k_meas','오르자트 가스분석에서 성분을 분석하는 순서는?',['CO₂ → O₂ → CO','O₂ → CO → CO₂','CO → CO₂ → O₂','CO₂ → CO → O₂'],'흡수액: CO₂ 수산화칼륨, O₂ 알칼리성 피로갈롤, CO 암모니아성 염화제1구리예요.'],
+ ['k_meas','가스크로마토그래피의 캐리어가스로 쓰지 않는 것은?',['산소','헬륨','수소','질소'],'캐리어가스: 헬륨, 수소, 아르곤, 질소. 반응하지 않는 가스를 써요.'],
+ ['k_meas','백금선 위에서 가연성가스를 태워 저항 변화로 누출을 알아내는 검지 방식은?',['접촉연소식','반도체식','시험지법','검지관법'],'접촉연소식은 가연성가스 검지에 많이 써요.'],
+
+ ['k_mat','신축 흡수량이 크고 고온·고압에 잘 견디는 신축이음은?',['루프형','슬리브형','벨로스형','스위블형'],'루프형은 관을 둥글게 구부려 만들어요. 설치 공간이 큰 것이 단점이에요.'],
+ ['k_mat','배관의 스케줄 번호(Sch)를 구하는 식은? (P: 사용압력 kg/cm², S: 허용응력 kg/mm²)',['10 × P ÷ S','P ÷ S','100 × S ÷ P','P × S'],'Sch = 10 × P ÷ S. 번호가 클수록 관이 두꺼워요.'],
+ ['k_mat','땅속 배관의 전기방식에서 방식전위는? (포화황산동 기준전극)',['−0.85 V 이하','+0.85 V 이상','0 V','+5 V 이상'],'포화황산동 기준전극으로 −0.85 V 이하가 되도록 해요.'],
+ ['k_mat','서로 다른 금속이 닿아 한쪽이 빨리 녹는 부식은?',['이종금속 접촉 부식(갈바닉 부식)','응력 부식','입계 부식','고온 부식'],'전위가 낮은 금속이 먼저 녹아요.'],
+ ['k_mat','초저온 용기 재료로 알맞지 않은 것은?',['탄소강','9% 니켈강','18-8 스테인리스강','알루미늄 합금'],'탄소강은 아주 차가워지면 쉽게 깨져요(저온취성).'],
+ ['k_mat','구리와 아연의 합금은?',['황동','청동','두랄루민','주철'],'황동 = 구리 + 아연, 청동 = 구리 + 주석이에요.'],
+ ['k_mat','가스용 폴리에틸렌관(PE관) 설치 기준으로 맞는 것은?',['땅속에 묻어서만 쓴다','햇빛 드는 곳에 노출해 쓴다','건물 외벽에 설치한다','고온 배관에 쓴다'],'PE관은 햇빛(자외선)에 약해서 땅속 매설용으로만 써요.'],
+ ['k_mat','암모니아 설비에 쓰면 안 되는 재료는?',['구리와 구리 합금','탄소강','스테인리스강','주철'],'암모니아는 구리를 부식시켜요.'],
+ ['k_mat','용접한 뒤 남은 내부 응력을 없애려고 하는 열처리는?',['풀림','담금질','뜨임','불림'],'담금질 단단하게, 뜨임 질기게, 풀림 부드럽게·응력 제거, 불림 조직을 고르게 해요.'],
+
+ ['k_base','100℃는 화씨로 몇 ℉인가요?',['212℉','100℉','180℉','373℉'],'℉ = ℃ × 9/5 + 32 = 180 + 32 = 212℉예요.'],
+ ['k_base','압력이 일정할 때 0℃ 기체를 273℃로 데우면 부피는?',['2배','그대로','1/2','273배'],'샤를의 법칙: 부피는 절대온도에 비례해요. 273 K → 546 K라서 2배예요.'],
+ ['k_base','이상기체 상태방정식 PV = nRT에서 R 값은? (atm·L/mol·K)',['0.082','8.314','22.4','1.0332'],'R = 0.082 atm·L/mol·K = 8.314 J/mol·K예요.'],
+ ['k_base','물 1 kg의 온도를 1℃ 올리는 데 필요한 열량은?',['1 kcal','1 cal','4.186 kcal','100 kcal'],'1 kcal = 약 4.186 kJ예요.'],
+ ['k_base','온도는 변하지 않고 상태만 바뀌는 데 쓰이는 열은?',['잠열','현열','비열','반응열'],'물의 증발잠열 약 539 kcal/kg, 얼음의 융해잠열 약 80 kcal/kg이에요.'],
+ ['k_base','수소(분자량 2)는 산소(분자량 32)보다 몇 배 빨리 퍼지나요?',['4배','2배','8배','16배'],'그레이엄의 법칙: 확산속도는 분자량의 제곱근에 반비례. √(32 ÷ 2) = 4배예요.'],
+ ['k_base','혼합기체의 전체 압력은 각 성분 압력의 합과 같다는 법칙은?',['돌턴의 분압법칙','보일의 법칙','샤를의 법칙','헨리의 법칙'],'전압 = 분압의 합이에요.'],
+ ['k_base','압력을 아무리 높여도 기체를 액체로 만들 수 없게 되는 온도의 경계는?',['임계온도','비점','융점','발화점'],'임계온도보다 높으면 압축해도 액화되지 않아요.'],
+
+ ['k_fire','불씨 없이 스스로 불이 붙는 가장 낮은 온도는?',['발화점(착화점)','인화점','비점','임계온도'],'인화점은 불씨를 가까이 댔을 때 불이 붙는 가장 낮은 온도예요.'],
+ ['k_fire','폭굉(데토네이션)의 전파 속도는?',['1000 ~ 3500 m/s','0.1 ~ 10 m/s','30 ~ 50 m/s','10만 m/s 이상'],'보통 연소는 0.1 ~ 10 m/s, 폭굉은 음속보다 빨라요.'],
+ ['k_fire','폭굉유도거리가 짧아지는(위험해지는) 조건이 아닌 것은?',['관 지름이 굵을수록','압력이 높을수록','점화 에너지가 클수록','관 속에 장애물이 있을수록'],'관 지름이 가늘수록 짧아져요.'],
+ ['k_fire','메탄 50%, 프로판 50%인 혼합가스의 폭발하한은? (메탄 5%, 프로판 2.1%)',['약 2.96%','약 3.55%','약 5%','약 7.1%'],'르샤틀리에 식: 100/L = 50/5 + 50/2.1 ≈ 33.8 → L ≈ 2.96%'],
+ ['k_fire','혼자서도 분해하며 폭발할 수 있는 가스는?',['아세틸렌','프로판','이산화탄소','메탄'],'분해폭발: 아세틸렌, 산화에틸렌, 히드라진. 중합폭발: 시안화수소예요.'],
+ ['k_fire','탱크 속 액화가스가 끓으면서 탱크가 터지는 폭발은?',['블레비(BLEVE)','증기운 폭발(UVCE)','분진 폭발','분해 폭발'],'비등액체팽창증기폭발이라고 해요.'],
+ ['k_fire','최소점화에너지가 작아지는(불이 잘 붙는) 조건은?',['압력이 높을 때','산소가 적을 때','온도가 낮을 때','열전도율이 클 때'],'압력·온도·산소 농도가 높을수록 작은 에너지로도 불이 붙어요.'],
+ ['k_fire','프로판 1몰을 완전연소하는 데 필요한 이론공기량은 약 몇 몰인가요?',['23.8몰','5몰','10몰','50몰'],'산소 5몰 ÷ 0.21(공기 중 산소) ≈ 23.8몰이에요.'],
+ ['k_fire','가스 밸브를 잠가 불을 끄는 소화 방법은?',['제거소화','질식소화','냉각소화','억제소화'],'탈 것(가연물)을 없애는 방법이에요.'],
+
+ ['k_gas','액체 산소의 색은?',['담청색(연한 파란색)','무색','황록색','적갈색'],'산소 기체는 무색·무취, 액체는 담청색이에요. 끓는점 약 −183℃.'],
+ ['k_gas','염소 기체의 색은?',['황록색','무색','담청색','흰색'],'염소는 황록색이고 자극적인 냄새가 나는 독성가스예요.'],
+ ['k_gas','수소와 염소를 섞어 햇빛을 쬐면 폭발하는 반응은?',['염소폭명기','수소폭명기','산소폭명기','불소폭명기'],'H₂ + Cl₂ → 2HCl. 수소폭명기는 수소 2 : 산소 1이에요.'],
+ ['k_gas','카바이드(CaC₂)에 물을 부으면 생기는 가스는?',['아세틸렌','메탄','수소','암모니아'],'CaC₂ + 2H₂O → Ca(OH)₂ + C₂H₂'],
+ ['k_gas','질소와 수소로 암모니아를 만드는 방법은?',['하버-보슈법','오스트발트법','솔베이법','접촉법'],'N₂ + 3H₂ → 2NH₃'],
+ ['k_gas','일산화탄소가 몸에 위험한 이유는?',['혈액 속 헤모글로빈과 산소보다 훨씬 잘 결합해서','피부를 녹여서','냄새가 너무 강해서','공기보다 아주 무거워서'],'헤모글로빈과 결합하는 힘이 산소보다 200 ~ 300배 강해 산소 운반을 막아요.'],
+ ['k_gas','다음 중 허용농도가 가장 낮은(가장 독한) 가스는?',['포스겐','암모니아','일산화탄소','이산화탄소'],'포스겐 0.1 ppm, 암모니아 25 ppm, 일산화탄소 50 ppm, 이산화탄소 5000 ppm이에요(TLV-TWA).'],
+ ['k_gas','공기 속에 부피로 약 78% 들어 있는 가스는?',['질소','산소','아르곤','이산화탄소'],'공기: 질소 약 78%, 산소 약 21%, 아르곤 약 1%예요.'],
+ ['k_gas','고체 상태를 드라이아이스라고 부르는 가스는?',['이산화탄소','질소','암모니아','프로판'],'이산화탄소는 소화제로도 써요.']
+].map(([c,q,ch,ex],i)=>({id:'k'+i, c, q, ch, ex}));
+QS.push(...KQ);
+const unitName=k=>(UNITS[k]||CATS[k]||{}).name||'';
+
 /* ───────── 저장 (이 기기에만) ───────── */
 const KEY='gasStudy_v1';
 let S={size:22, stat:{}, wrong:{}, days:{}, topic:0, lmode:'flip', exams:[], cardStat:{}, lastSeen:0};
@@ -369,7 +490,7 @@ function go(v){ view=v; if(v!=='quiz') stopTimer(); render(); window.scrollTo(0,
 function render(){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===view));
   if(view==='admin'){ admOK?adminView():adminLogin(); return; }
-  ({home:home, study:study, learn:learn, quiz:quizMenu, wrong:wrongNote})[view]();
+  ({home:home, study:study, learn:learn, quiz:quizMenu, past:pastMenu, wrong:wrongNote})[view]();
 }
 
 function home(){
@@ -388,6 +509,7 @@ function home(){
     <div class="row">
       <button class="plain" data-go="study">요점 정리 보기</button>
       <button class="plain" data-go="learn">카드로 익히기</button>
+      <button class="plain" data-go="past">단원별 기출 유형</button>
       <button class="plain" data-go="wrong">틀린 문제 ${wn}개 보기</button>
     </div>
   </section>
@@ -435,6 +557,11 @@ async function adminView(){
     const tot=QS.filter(q=>q.c===k).length, p=a+b?Math.round(a/(a+b)*100):0;
     return `<tr><td>${c.name}</td><td>${seen} / ${tot}</td><td>${a+b?p+'%':'-'} ${a+b&&p<60?'⚠️':''}</td></tr>`;
   }).join('');
+  const unitRows=Object.entries(UNITS).map(([k,u])=>{
+    let a=0,b=0,seen=0; const qs=KQ.filter(q=>q.c===k); qs.forEach(q=>{ const v=stat[q.id]; if(v){ seen++; a+=v[0]; b+=v[1]; } });
+    const p=a+b?Math.round(a/(a+b)*100):0;
+    return `<tr><td>${u.name}</td><td>${seen} / ${qs.length}</td><td>${a+b?p+'%':'-'} ${a+b&&p<60?'⚠️':''}</td></tr>`;
+  }).join('');
   const worst=QS.map(q=>({q, v:stat[q.id]||[0,0]})).filter(x=>x.v[1]>0).sort((a,b)=>b.v[1]-a.v[1]||a.v[0]-b.v[0]).slice(0,10);
   const exams=(D.exams||[]).slice().reverse().slice(0,10);
   const cards=STUDY.map((x,i)=>{ const c=(D.cardStat||{})[i]; return c?`<tr><td>${SHORT[i]}</td><td>${c.k}</td><td>${c.a}</td></tr>`:''; }).join('');
@@ -456,6 +583,8 @@ async function adminView(){
   <section class="card"><h2>과목별</h2>
     <table><tr><th>과목</th><th>풀어 본 문제</th><th>정답률</th></tr>${catRows}</table>
     <p class="sub small">⚠️ 정답률 60% 미만이에요. 이 과목의 요점 정리를 같이 봐 드리면 좋아요.</p></section>
+  <section class="card"><h2>기출 유형 단원별</h2>
+    <table><tr><th>단원</th><th>풀어 본 문제</th><th>정답률</th></tr>${unitRows}</table></section>
   <section class="card"><h2>모의시험 기록</h2>
     ${exams.length?`<table><tr><th>날짜</th><th>점수</th><th>맞힌 문제</th><th>걸린 시간</th></tr>${exams.map(x=>`<tr><td>${fmtDT(x.at)}</td><td>${x.score}점 ${x.score>=60?'✅':''}</td><td>${x.c} / ${x.n}</td><td>${Math.floor(x.sec/60)}분</td></tr>`).join('')}</table>`:'<p class="sub">아직 모의시험을 보지 않았어요.</p>'}</section>
   <section class="card"><h2>많이 틀린 문제</h2>
@@ -664,20 +793,53 @@ function quizMenu(){
     <button class="plain catbtn" data-start="exam"><span>실전 모의시험<br><small>${Math.min(60,QS.length)}문제, 60분, 끝나고 한꺼번에 채점</small></span></button>
   </section>`;
 }
+/* ───────── 기출 유형 (단원별) ───────── */
+function pastMenu(){
+  if(Q){ drawQ(); return; }
+  const allK=KQ.map(q=>q.id);
+  $v.innerHTML=`
+  <section class="card">
+    <h2>단원별 기출 유형</h2>
+    <p class="sub small">시험에 자주 나오는 내용을 단원별로 모은 연습 문제예요. 실제 기출 원문은 아니에요.</p>
+    <div class="stats">
+      <div><span class="sub small">풀어 본 문제</span><b>${solvedCount(allK)} / ${KQ.length}</b></div>
+      <div><span class="sub small">맞힌 비율</span><b>${rate(allK)}%</b></div>
+    </div>
+    <div class="meter" aria-hidden="true"><i style="width:${Math.round(solvedCount(allK)/KQ.length*100)}%"></i></div>
+    <button class="big" data-start="kmix">모든 단원 섞어서 20문제</button>
+  </section>
+  <section class="card">
+    <h2>단원 고르기</h2>
+    ${SUBJS.map((s,si)=>`<p class="subj">${si+1}과목 · ${s}</p>`+Object.entries(UNITS).filter(([,u])=>u.s===si).map(([k,u])=>{
+      const ids=KQ.filter(q=>q.c===k).map(q=>q.id), n=solvedCount(ids);
+      return `<button class="plain catbtn" data-start="${k}"><span>${u.name}<br><small>${u.sub}</small></span><small>${n}/${ids.length}${n?'<br>'+rate(ids)+'%':''}</small></button>`;
+    }).join('')).join('')}
+  </section>
+  <section class="card ext">
+    <h2>실제 기출문제 원문 보기</h2>
+    <p class="small">2016년 10월 CBT로 바뀐 뒤로 시험 문제는 공개되지 않아요. 그 전에 공개된 기출문제는 아래 사이트에서 풀 수 있어요. (문제의 저작권은 한국산업인력공단에 있어요.)</p>
+    <p class="small">· <a href="https://www.comcbt.com/xe/ks" target="_blank" rel="noopener">전자문제집 CBT (comcbt.com)</a><br>
+    · <a href="https://www.q-net.or.kr" target="_blank" rel="noopener">큐넷 (시험 일정·출제 기준)</a></p>
+  </section>`;
+}
+
 function start(kind){
   let pool;
   if(kind==='mix') pool=shuffle(QS).slice(0,10);
+  else if(kind==='kmix') pool=shuffle(KQ).slice(0,20);
+  else if(UNITS[kind]) pool=shuffle(KQ.filter(q=>q.c===kind));
   else if(kind==='exam') pool=shuffle(QS).slice(0,60);
   else if(kind==='wrong'){ pool=shuffle(QS.filter(q=>S.wrong[q.id])).slice(0,10); if(!pool.length){ toast('틀린 문제가 없어요. 잘하셨어요!'); return; } }
   else pool=shuffle(QS.filter(q=>q.c===kind)).slice(0,10);
-  Q={kind, exam:kind==='exam', list:pool.map(q=>({q, opts:shuffle(q.ch)})), i:0, picks:[], done:false, start:Date.now()};
-  view='quiz'; document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go==='quiz'));
+  const back=(kind==='kmix'||UNITS[kind])?'past':'quiz';
+  Q={kind, back, exam:kind==='exam', list:pool.map(q=>({q, opts:shuffle(q.ch)})), i:0, picks:[], done:false, start:Date.now()};
+  view=back; document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.go===back));
   stopTimer();
   if(Q.exam) timerId=setInterval(()=>{ const t=document.getElementById('timer'); if(!t) return; const left=3600-Math.floor((Date.now()-Q.start)/1000); if(left<=0){ finishExam(); return; } t.textContent=fmtLeft(left); },1000);
   drawQ(); window.scrollTo(0,0);
 }
 const fmtLeft=s=>`${Math.floor(s/60)}분 ${String(s%60).padStart(2,'0')}초`;
-const titleOf=()=>Q.exam?'실전 모의시험':Q.kind==='mix'?'섞어서 10문제':Q.kind==='wrong'?'틀린 문제 다시':CATS[Q.kind].name;
+const titleOf=()=>Q.exam?'실전 모의시험':Q.kind==='mix'?'섞어서 10문제':Q.kind==='kmix'?'기출 유형 섞어서':Q.kind==='wrong'?'틀린 문제 다시':unitName(Q.kind);
 
 function drawQ(){
   if(Q.done){ drawResult(); return; }
@@ -742,7 +904,7 @@ function drawResult(){
     <h2>${titleOf()} 결과</h2>
     <div class="stats"><div><span class="sub small">맞힌 문제</span><b>${c} / ${n}</b></div><div><span class="sub small">점수</span><b>${score}점</b></div></div>
     <p>${Q.exam?(pass?'🎉 합격 점수(60점)를 넘었어요!':'합격 점수(60점)까지 조금 더 힘내세요.'):(c===n?'🎉 모두 맞혔어요!':'틀린 문제는 "틀린 문제"에 모아 두었어요.')}</p>
-    <button class="big" data-again="1">${Q.exam?'모의시험 다시 보기':'10문제 더 풀기'}</button>
+    <button class="big" data-again="1">${Q.exam?'모의시험 다시 보기':UNITS[Q.kind]?'이 단원 다시 풀기':Q.kind==='kmix'?'20문제 더 풀기':'10문제 더 풀기'}</button>
     <button class="plain" data-quit="1">문제 고르는 화면으로</button>
   </section>
   ${wrongs.length?`<section class="card"><h2>틀린 문제 다시 보기</h2>${wrongs.map(it=>`<div class="wrongitem"><p><b>${esc(it.q.q)}</b></p><p>정답: <b style="color:var(--ok)">${esc(it.q.ch[0])}</b></p><p class="sub small">${esc(it.q.ex)}</p></div>`).join('')}</section>`:''}`;
@@ -768,7 +930,7 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
   const d=b.dataset;
   if(d.size){ S.size=+d.size; save(); applySize(); return; }
-  if(d.go){ if(d.go==='quiz' && Q && !Q.done){ view='quiz'; render(); return; } if(d.go==='quiz') Q=null; go(d.go); return; }
+  if(d.go){ const qv=d.go==='quiz'||d.go==='past'; if(qv && Q && !Q.done && Q.back===d.go){ view=d.go; render(); return; } if(qv) Q=null; go(d.go); return; }
   if(d.admin){ go('admin'); return; }
   if(d.apin){ const v=(document.getElementById('apin')||{}).value; if(v===ADMIN_PIN){ admOK=true; adminView(); } else toast('비밀번호가 달라요'); return; }
   if(d.admrefresh){ adminView(); return; }
@@ -790,7 +952,7 @@ document.addEventListener('click',e=>{
   if(d.prev){ if(Q.i>0){ Q.i--; drawQ(); } return; }
   if(d.jump!==undefined){ Q.i=+d.jump; drawQ(); return; }
   if(d.again){ start(Q.kind==='wrong'?'wrong':Q.kind); return; }
-  if(d.quit){ if(Q && Q.exam && !Q.done && !confirm('모의시험을 그만둘까요? 푼 답은 저장되지 않아요.')) return; stopTimer(); Q=null; go('quiz'); return; }
+  if(d.quit){ if(Q && Q.exam && !Q.done && !confirm('모의시험을 그만둘까요? 푼 답은 저장되지 않아요.')) return; stopTimer(); const bk=Q?Q.back:'quiz'; Q=null; go(bk); return; }
   if(d.readq){ const it=Q.list[Q.i]; speak(it.q.q+'. '+it.opts.map((o,j)=>NUM[j]+' '+o).join('. ')); return; }
   if(d.read){ const el=document.getElementById(d.read); if(el) speak(el.innerText.replace('🔊 읽기','')); return; }
   if(d.clear){ delete S.wrong[d.clear]; save(); wrongNote(); toast('목록에서 뺐어요'); return; }
@@ -798,7 +960,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && e.target.id==='apin'){ const b=document.querySelector('[data-apin]'); if(b) b.click(); return; }
-  if(view!=='quiz'||!Q||Q.done) return;
+  if((view!=='quiz'&&view!=='past')||!Q||Q.done) return;
   if(['1','2','3','4'].includes(e.key)) pickAns(+e.key-1);
   if(e.key==='Enter') next();
 });
