@@ -571,6 +571,11 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 .admpop-bar b{flex:1;font-weight:normal;font-size:1.15rem;font-family:var(--font-t),var(--font),'Jua',sans-serif}
 .admpop-box iframe{flex:1;width:100%;border:0;background:var(--bg)}
 @media (max-width:520px){ .admpop{padding:0} .admpop-box{border-radius:0} }
+/* 관리자 모드 제목 옆 '전체 관리자' 바로가기 */
+.adm-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.adm-head h3{margin:0;flex:1}
+.adm-all{padding:.55rem 1.1rem;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:1.05rem;box-shadow:0 3px 0 rgba(0,0,0,.2);font-family:var(--font-t),var(--font),'Jua',sans-serif;white-space:nowrap}
+.adm-all:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -1318,8 +1323,8 @@ const STICKER_BOOKS = [
 ];
 STICKER_BOOKS.push({name:'4권 · 마지막 보물', s:['💍','🗝️','🪙','🏺','🧭','🗺️','⚱️','🔮','🎁','🥇']});
 const STICKERS = STICKER_BOOKS.flatMap(b=>b.s);
-/* 하루에 받을 수 있는 스티커는 20장(별 200개)까지, 한 과목은 하루 100문제까지 */
-const STICKER_DAY_MAX = 20, STAR_DAY_MAX = STICKER_DAY_MAX*10, SUBJ_DAY_MAX = 100;
+/* 하루에 받을 수 있는 스티커는 20장(별 200개)까지, 한 과목은 하루 300문제까지 */
+const STICKER_DAY_MAX = 20, STAR_DAY_MAX = STICKER_DAY_MAX*10, SUBJ_DAY_MAX = 300;
 const subjCount = (s, k=dayKey()) => { const d=getLog()[k]||{}; return (d[s]&&d[s].n)||0; };
 const subjClosed = s => !!SUBJ[s] && subjCount(s) >= SUBJ_DAY_MAX;
 const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽해!','천재인가?','잘했어요!','바로 그거야!'];
@@ -1876,7 +1881,7 @@ function render(){
 }
 
 /* ───── 홈 ───── */
-/* 한 과목을 하루 100문제 풀면 그날은 닫아요. 막힌 게 아니라 '완주'라서 크게 축하해 줘요 */
+/* 한 과목을 하루 300문제 풀면 그날은 닫아요. 막힌 게 아니라 '완주'라서 크게 축하해 줘요 */
 const CHEERS = ['최고의 공부왕이에요!','정말 정말 대단해요!','끈기 대장이에요!','우와, 진짜 멋져요!','공부 챔피언 탄생!'];
 function celebrate(){
   burst(); setTimeout(burst,500); setTimeout(burst,1000);
@@ -4164,7 +4169,7 @@ function admEnter(){
 }
 function admEmailHTML(){
   const f='display:block;width:100%;box-sizing:border-box;font:inherit;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;margin:4px 0 12px;background:var(--paper);color:inherit';
-  return `<h3>🔒 관리자 모드</h3>
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button></div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 이메일과 비밀번호로 로그인하세요.</p>
     <label class="lbl" for="admEm">이메일</label>
     <input id="admEm" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" style="${f}">
@@ -4229,54 +4234,8 @@ function pinKey(v){
   drawSettings(); shake('pinrow'); beep(false); toast('비밀번호가 틀렸어요');
   setTimeout(()=>{ if(setMode==='pin'){ pinBuf=''; drawSettings(); } },450);
 }
-/* ───── 관리자 모드: 다섯 방 아이들 모두 보기 (엄마 모드에서는 자기 아이만) ─────
-   다른 방 아이는 온라인 기록을 불러와서 간단히 보여 주고, 자세한 건 관리자 대시보드로 */
+/* 전체 관리자(다섯 방을 한곳에서 보는 관리자 대시보드) 주소 */
 const DASHBOARD_URL = 'https://vaca-at.github.io/study-admin/';
-const ALL_S_E4 = {korean:'국어', school:'학교수학', eng:'영어', hanja:'한자', history:'한국사'};
-const ALL_S_E2 = {math:'연산', school:'학교수학', korean:'국어', eng:'영어', hanja:'한자', history:'한국사'};
-const ALL_KIDS = [
-  {id:'doyun',  name:'도윤', ico:'🦈', grade:'e4', subj:ALL_S_E4, time:true},
-  {id:'dojin',  name:'도진', ico:'🐲', grade:'e2', subj:ALL_S_E2, time:false},
-  {id:'yuna',   name:'윤아', ico:'🐱', grade:'e2', subj:ALL_S_E2, time:false},
-  {id:'seojin', name:'서진', ico:'📘', grade:'e6', subj:Object.assign({},ALL_S_E4,{school:'수학'}), time:true},
-  {id:'seohee', name:'서희', ico:'🌸', grade:'e3', subj:Object.assign({},ALL_S_E4,{school:'수학'}), time:true}
-];
-let admOther = null;          // 다른 방 아이 id (null 이면 이 방 아이)
-const OTHER = {};             // 불러온 기록 {doc, days} 또는 {err}
-const isMomRole = () => typeof isMom==='function' && isMom();
-function allKidsSeg(names){
-  if(isMomRole()) return `<div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>`;
-  return `<div class="seg">${ALL_KIDS.map(k=>{ const here=names.includes(k.name);
-    const on = here ? (!admOther && admView===k.name) : admOther===k.id;
-    return `<button class="pill ${on?'on':''}" data-act="${here?'admWho':'admOther'}" data-v="${here?esc(k.name):k.id}">${k.ico} ${k.name}</button>`; }).join('')}</div>`;
-}
-async function loadOther(id){
-  const k=ALL_KIDS.find(x=>x.id===id);
-  try{
-    if(!await cloudInit()) throw new Error('온라인 저장에 연결하지 못했어요');
-    const ref=cloud.db.collection(k.grade).doc(k.id), [snap,qs]=await Promise.all([ref.get(), ref.collection('daily').get()]);
-    const days={}; qs.forEach(d=>{ days[d.id]=d.data(); });
-    OTHER[id]={doc:snap.exists?snap.data():{}, days};
-  }catch(e){ OTHER[id]={err:e.message||String(e)}; }
-  if(setMode==='admin' && admOther===id) drawSettings();
-}
-function otherKidHTML(names){
-  const k=ALL_KIDS.find(x=>x.id===admOther), r=OTHER[admOther];
-  const head=`<h3>🔒 관리자 모드</h3>${allKidsSeg(names)}`;
-  const foot=`<p class="center"><a class="pill" href="${DASHBOARD_URL}" target="_blank" rel="noopener">📚 관리자 대시보드에서 자세히 보기 ↗</a></p><button class="big-btn" data-act="closeSet">나가기</button>`;
-  if(!r) return head+'<p class="sub">기록을 불러오는 중…</p>'+foot;
-  if(r.err) return head+`<p class="sub">${k.name} 기록을 불러오지 못했어요: ${esc(r.err)}</p>`+foot;
-  const keys=Object.keys(k.subj), tot=d=>keys.reduce((a,s)=>a+((d[s]&&d[s].n)||0),0);
-  const agoTxt=ms=>{ if(!ms) return '기록 없음'; const m=Math.round((Date.now()-ms)/60000); return m<1?'방금':m<60?m+'분 전':m<1440?Math.round(m/60)+'시간 전':Math.round(m/1440)+'일 전'; };
-  let rows='';
-  for(let i=0;i<7;i++){ const t=new Date(); t.setDate(t.getDate()-i); const d=r.days[dayKey(t)]||{}, n=tot(d), ok=keys.reduce((a,s)=>a+((d[s]&&d[s].ok)||0),0);
-    rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${keys.map(s=>{ const e=d[s]; return e&&e.n?`<td>${e.ok}/${e.n}</td>`:'<td class="z">-</td>'; }).join('')}<td>${n?ok+'/'+n:'-'}</td>${k.time?`<td>${d.sec?Math.round(d.sec/60)+'분':'-'}</td>`:''}</tr>`; }
-  const st=r.doc.stars||0;
-  return head+`<div class="card" style="padding:12px"><b style="font-weight:normal;font-size:1.3rem">${k.ico} ${k.name}</b>
-      <p class="sub" style="margin:4px 0 0">⭐ 별 ${st}개 · 🏅 스티커 ${Math.min(100,Math.floor(st/10))}장 · 마지막 접속 ${agoTxt(r.doc.updatedAt)}</p></div>
-    <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
-    <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${k.subj[s]}</th>`).join('')}<th>합계</th>${k.time?'<th>시간</th>':''}</tr>${rows}</table></div>`+foot;
-}
 /* 🔒 관리자 모드: 다섯 방을 한곳에서 보는 관리자 대시보드를 큰 팝업으로 열어요 */
 function openAdminPopup(){
   const o=document.getElementById('admPop');
@@ -4284,12 +4243,11 @@ function openAdminPopup(){
   const kid=Object.values(KID_IDS)[0]||'';
   document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자">
     <div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자</b>
-      <button class="pill" data-act="admRoom">⚙️ 이 방 설정</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div>
+      <button class="pill" data-act="admPopClose">◀ 이 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div>
     <iframe src="${DASHBOARD_URL}?v=${kid}" title="공부방 관리자 대시보드"></iframe></div></div>`);
 }
 function adminHTML(){
   const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
-  if(admOther && !isMomRole()) return otherKidHTML(names);
   const L=getLog(admView), keys=Object.keys(SUBJ), sec=store.get('studysec',{},admView);
   let rows='';
   for(let i=0;i<7;i++){
@@ -4304,9 +4262,9 @@ function adminHTML(){
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (서진이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
-  return `<h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
+  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
-    ${allKidsSeg(names)}
+    <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제 · 공부한 시간)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th><th>시간</th></tr>${rows}</table></div>
@@ -4368,8 +4326,7 @@ const ACT = {
   lpin: v=>lpinKey(v),
   kidPinReset: v=>{ if(!confirm(`${v}의 비밀번호를 지울까요? 다음에 들어갈 때 새로 만들어요.`)) return; setKidPin(v,null); cloudPushNow(v); toast('비밀번호를 지웠어요'); drawSettings(); },
   addWho: ()=>addWho(),
-  admOther: v=>{ admOther=v; drawSettings(); loadOther(v); },
-  admWho: v=>{ admOther=null; admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
+  admWho: v=>{ admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
   delWho: v=>{
     if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
     store.set('profiles', getProfiles().filter(n=>n!==v));
@@ -4483,7 +4440,8 @@ const ACT = {
   // 설정 · 관리자
   openSet: ()=>openModal('deco'),
   closeSet: ()=>closeModal(),
-  openAdmin: ()=>openAdminPopup(),
+  openAdmin: ()=>ACT.admRoom(),
+  openAllAdmin: ()=>openAdminPopup(),
   admPopClose: ()=>{ const o=document.getElementById('admPop'); if(o) o.hidden=true; },
   admRoom: ()=>{ ACT.admPopClose(); admRole='admin'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
   admLogin: ()=>admEmailLogin(),
