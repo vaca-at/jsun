@@ -923,7 +923,7 @@ const KID_IDS = { '도진':'dojin' };
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','charPick'];
-const PROFILE_KEYS = ['deco','csbest','lib','op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
+const PROFILE_KEYS = ['stk','stkDay','deco','csbest','lib','op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2_'+k : `e2_p_${name}_${k}`;
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
@@ -1558,7 +1558,10 @@ const STICKER_BOOKS = [
 ];
 const STICKERS = STICKER_BOOKS.flatMap(b=>b.s);
 /* 하루에 받을 수 있는 스티커는 20장(별 200개)까지, 한 과목은 하루 300문제까지 */
-const STICKER_DAY_MAX = 20, STAR_DAY_MAX = STICKER_DAY_MAX*10, SUBJ_DAY_MAX = 300;
+/* 하루에 별은 300개까지, 스티커는 20장까지 (별과 따로 세요: 별이 더 모여도 그날 스티커는 20장까지) */
+const STICKER_DAY_MAX = 20, STAR_DAY_MAX = 300, SUBJ_DAY_MAX = 300;
+/* 모은 스티커 수: 'stk'에 따로 저장해요 (처음에는 예전처럼 별 ÷ 10에서 시작) */
+const stkCount = name => { const v=store.get('stk',null,name); return v===null ? Math.floor(store.get('stars',0,name)/10) : v; };
 const subjCount = (s, k=dayKey()) => { const d=getLog()[k]||{}; return (d[s]&&d[s].n)||0; };
 const subjClosed = s => !!SUBJ[s] && subjCount(s) >= SUBJ_DAY_MAX;
 const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽해!','천재인가?','잘했어요!','바로 그거야!'];
@@ -1680,16 +1683,19 @@ function markO(){
 const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v="${v}">⏭ 모르겠어요, 넘어가기</button>`;
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
-function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(Math.floor(stars/10),STICKERS.length)}장`; }
+function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(who?stkCount():0,STICKERS.length)}장`; }
 function addStar(n){
   if(n<=0) return;
   const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
   n=Math.min(n, STAR_DAY_MAX-got);
-  if(n<=0){ if(!App.starFull){ App.starFull=true; setTimeout(()=>toast(`🏅 오늘 스티커 ${STICKER_DAY_MAX}장을 다 받았어요! 내일 또 모아요`),600); } return; }
+  if(n<=0){ if(!App.starFull){ App.starFull=true; setTimeout(()=>toast(`⭐ 오늘 별 ${STAR_DAY_MAX}개를 다 모았어요! 내일 또 모아요`),600); } return; }
   store.set('starDay',{d:k, n:got+n}); App.starFull=false;
-  const before=Math.floor(stars/10);
-  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush();
-  if(Math.floor(stars/10)>before) setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600);
+  const stk0=stkCount(), before=Math.floor(stars/10);
+  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now());
+  const crossed=Math.floor(stars/10)-before, kd=store.get('stkDay',{}), sgot=kd.d===k?kd.n:0, give=Math.min(crossed, STICKER_DAY_MAX-sgot);
+  if(give>0){ store.set('stk',stk0+give); store.set('stkDay',{d:k, n:sgot+give}); setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600); }
+  else { store.set('stk',stk0); if(crossed>0 && !App.stkFull){ App.stkFull=true; setTimeout(()=>toast(`🏅 오늘 스티커 ${STICKER_DAY_MAX}장을 다 받았어요! 별은 계속 모여요`),600); } }
+  updateStars(); cloudPush();
 }
 
 /* ───── 학습 기록 (날짜별 · 과목별: 푼 문제 n, 맞은 문제 ok) ───── */
@@ -1808,7 +1814,7 @@ async function cloudPull(name, docOnly){
         store.set('resetAt',d.resetAt,name);
         if(name===who){ stars=0; updateStars(); }
       }
-      if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); }
+      if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); if(typeof d.stk==='number') store.set('stk',d.stk,name); }
       if(d.deco && (d.deco.at||0) > (store.get('deco',{},name).at||0)) store.set('deco',d.deco,name);
       ['best_1','best_2','best_3'].forEach(k=>{ const b=betterBest(store.get(k,null,name), d[k]||null); if(b) store.set(k,b,name); });
       if(typeof d.hmock==='number' && d.hmock>store.get('hmock',0,name)) store.set('hmock',d.hmock,name);
@@ -1822,6 +1828,7 @@ async function cloudPull(name, docOnly){
     const L=getLog(name), vis=store.get('visits',{},name), qs=await ref.collection('daily').get();
     qs.forEach(doc=>{
       const k=doc.id, d=doc.data();
+      if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{},name); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]},name); }); }
       if(d.visited) vis[k]=1;
       Object.keys(SUBJ).forEach(s=>{
         if(!d[s]) return;
@@ -1848,13 +1855,14 @@ async function cloudPushNow(name){
   const k=dayKey(), L=getLog(name);
   try{
     const pin=kidPinsRaw()[name]||{};
-    const doc={name, deco:store.get('deco',{},name), stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
+    const doc={name, stk:stkCount(name), deco:store.get('deco',{},name), stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
       hmock:store.get('hmock',0,name), hwrong:store.get('hwrong',{},name), hwrongAt:store.get('hwrongAt',0,name), pinH:pin.h||null, pinAt:pin.at||0,
       lib:store.get('lib',{},name), csbest:store.get('csbest',{},name), kread2:store.get('kread2',{},name), estory:store.get('estory',{},name), books:store.get('books',[],name), booksAt:store.get('booksAt',0,name)};
     ['best_1','best_2','best_3'].forEach(k=>{ doc[k]=store.get(k,null,name); });
     await ref.set(doc,{merge:true});
     if(!who || who!==name) return; // 비밀번호만 바꾼 경우 날짜 기록은 건드리지 않아요
-    await ref.collection('daily').doc(k).set(Object.assign({visited:!!store.get('visits',{},name)[k], total:dayTotal(k,L)}, L[k]||{}),{merge:true});
+    const sdn=(o=>o.d===k?o.n:0)(store.get('starDay',{},name)), kdn=(o=>o.d===k?o.n:0)(store.get('stkDay',{},name));
+    await ref.collection('daily').doc(k).set(Object.assign({visited:!!store.get('visits',{},name)[k], total:dayTotal(k,L), starsGot:sdn, stkGot:kdn}, L[k]||{}),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
 }
 async function cloudReset(name){
@@ -4254,13 +4262,13 @@ function hqNext(ms){
 
 /* ───── 스티커 ───── */
 function renderSticker(){
-  const got=Math.floor(stars/10), left=10-(stars%10), total=STICKERS.length;
-  const sd=store.get('starDay',{}), todayStk=Math.floor((sd.d===dayKey()?sd.n:0)/10);
+  const got=stkCount(), left=10-(stars%10), total=STICKERS.length;
+  const kd=store.get('stkDay',{}), todayStk=kd.d===dayKey()?kd.n:0, sd=store.get('starDay',{}), todayStar=sd.d===dayKey()?sd.n:0;
   let start=0;
   view.innerHTML=`
     <div class="card center">
       <p class="big">모은 스티커 ${Math.min(got,total)}장 / ${total}장</p>
-      <p class="sub">문제를 맞힐 때마다 별이 1개! 별 10개가 모이면 스티커 1장이에요.<br>다음 스티커까지 ⭐ ${left}개 남았어요. 한 권을 다 채우면 다음 권이 열려요.<br>스티커는 하루 ${STICKER_DAY_MAX}장까지 받을 수 있어요 (오늘 ${Math.min(todayStk,STICKER_DAY_MAX)}장).</p>
+      <p class="sub">문제를 맞힐 때마다 별이 1개! 별 10개가 모이면 스티커 1장이에요.<br>다음 스티커까지 ⭐ ${left}개 남았어요. 한 권을 다 채우면 다음 권이 열려요.<br>하루에 별은 ${STAR_DAY_MAX}개, 스티커는 ${STICKER_DAY_MAX}장까지 받을 수 있어요 (오늘 별 ${todayStar}개 · 스티커 ${Math.min(todayStk,STICKER_DAY_MAX)}장).</p>
     </div>
     ${STICKER_BOOKS.map(bk=>{ const st=start, n=bk.s.length, open=got>=st; start+=n;
       return `<div class="card" style="margin-top:12px"><div class="grass-head"><b>${open?'📖':'🔒'} ${bk.name}</b><span class="sub">${Math.max(0,Math.min(n,got-st))} / ${n}</span></div>
