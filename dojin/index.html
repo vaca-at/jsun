@@ -1820,28 +1820,45 @@ const EVENT_ROOMS = ['doyun','dojin','jia','yuna'];
 const MY_ROOM = Object.values(KID_IDS)[0];
 let EV = null, evSub = null;
 const evOn = () => !!(EV && EV.until > Date.now() && (EV.rooms||[]).includes(MY_ROOM));
+/* 상점 반값 세일 (family/event 의 saleUntil · 별 2배 이벤트와 따로 켜고 꺼요) */
+const saleOn = () => !!(EV && EV.saleUntil > Date.now() && (EV.rooms||[]).includes(MY_ROOM));
+const decoPrice = x => saleOn() && x.p ? Math.ceil(x.p/2) : x.p;
+const priceTag = x => saleOn() && x.p ? `<s style="opacity:.5">${x.p}</s> ${decoPrice(x)}` : `${x.p}`;
+let saleWas = false;
 const eStars = name => store.get('estars',0,name);
 function evListen(){
   if(evSub || !FIREBASE_CONFIG) return;
   evSub = cloudInit().then(db=>{ if(!db) return;
-    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(); EV=s.exists?s.data():null; drawEvent();
+    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(), wasS=saleOn(); EV=s.exists?s.data():null; drawEvent();
+      if(!wasS && saleOn() && who) toast('🛍️ 10분 동안 상점 반값 세일!');
       if(!was && evOn() && who){ burst(); toast(`🌈 별 ${EV.mult||2}배 이벤트가 시작됐어요!`); } }, e=>console.warn('이벤트를 읽을 수 없어요', e)); });
 }
 function drawEvent(){
   let bar=document.getElementById('evbar');
   if(!bar){ bar=document.createElement('div'); bar.id='evbar'; bar.className='evbar'; document.body.appendChild(bar); }
-  const on=evOn() && !!who; bar.hidden=!on; try{ document.body.classList.toggle('ev', on); }catch(e){} if(!on) return;
-  const left=Math.max(0, EV.until-Date.now()), m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
-  bar.innerHTML=`🌈 별 ${EV.mult||2}배 이벤트! <b>${m}:${pad(s)}</b> 남았어요 <span>· 이벤트 별 🌈 ${eStars()}</span>`;
+  const st=evOn() && !!who, sl=saleOn() && !!who;
+  if(sl!==saleWas){ saleWas=sl; try{ if(App.view==='myroom'||App.view==='room') renderMyRoom(); }catch(e){} }   // 세일이 켜지고 꺼질 때 가격을 다시 그려요
+  bar.hidden=!(st||sl); try{ document.body.classList.toggle('ev', st||sl); }catch(e){} if(!(st||sl)) return;
+  const mmss=t=>{ const l=Math.max(0,t-Date.now()); return `${Math.floor(l/60000)}:${String(Math.floor(l/1000)%60).padStart(2,'0')}`; };
+  bar.innerHTML=[st?`🌈 별 ${EV.mult||2}배 <b>${mmss(EV.until)}</b> <span>· 이벤트 별 🌈 ${eStars()}</span>`:'', sl?`🛍️ 상점 반값 <b>${mmss(EV.saleUntil)}</b>`:''].filter(Boolean).join(' · ');
 }
 async function evStart(min){
   if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
-  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()}); toast(`🎉 별 2배 이벤트 ${min}분 시작!`); }
+  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()},{merge:true}); toast(`🎉 별 2배 이벤트 ${min}분 시작!`); }
   catch(e){ console.warn(e); toast('이벤트를 켜지 못했어요 (온라인 규칙을 확인해 주세요)'); }
 }
 async function evStop(){
   if(!await cloudInit()) return;
   try{ await cloud.db.collection('family').doc('event').set({until:0, at:Date.now()},{merge:true}); toast('이벤트를 끝냈어요'); }catch(e){ console.warn(e); }
+}
+async function saleStart(min){
+  if(!await cloudInit()){ toast('온라인 연결이 있어야 세일을 켤 수 있어요'); return; }
+  try{ await cloud.db.collection('family').doc('event').set({saleUntil:Date.now()+min*60000, saleRate:0.5, rooms:EVENT_ROOMS, saleAt:Date.now()},{merge:true}); toast(`🛍️ 상점 반값 세일 ${min}분 시작!`); }
+  catch(e){ console.warn(e); toast('세일을 켜지 못했어요 (온라인 규칙을 확인해 주세요)'); }
+}
+async function saleStop(){
+  if(!await cloudInit()) return;
+  try{ await cloud.db.collection('family').doc('event').set({saleUntil:0, saleAt:Date.now()},{merge:true}); toast('세일을 끝냈어요'); }catch(e){ console.warn(e); toast('세일을 끝내지 못했어요 (온라인 규칙을 확인해 주세요)'); }
 }
 function addStar(n){
   if(n>0 && evOn()){   // 이벤트 중: 🌈 이벤트 별로 2배, 하루 제한 없이
@@ -3948,20 +3965,20 @@ function renderMyRoom(){
 function drawRoomShop(d, left){
   const b=document.getElementById('roombody'); if(!b) return;
   const cat=App.decoCat||'base', pick=App.decoPick, P=pick?decoItem(pick):null;
-  const card=x=>{ const own=d.own.includes(x.id), can=left>=x.p;
+  const card=x=>{ const own=d.own.includes(x.id), can=left>=decoPrice(x);
     const wearing=(x.k==='hat'||x.k==='acc') ? decoWearer(d,x.id) : null;
     const on = (x.k==='hat'||x.k==='acc') ? wearing===d.base : d[x.k]===x.id;
     const state = on ? (x.k==='base'||x.k==='bg'?'사용 중':'입는 중 · 벗기')
       : own ? (wearing ? `${decoItem(wearing).e} 쓰는 중` : (x.p?'가지고 있어요':'무료'))
-      : `<span class="${can?'':'no'}">⭐ ${x.p}</span>`;
+      : `<span class="${can?'':'no'}">⭐ ${priceTag(x)}</span>`;
     return `<button class="me-item ${on?'on':''} ${own?'own':''} ${pick===x.id?'pick':''}" data-act="decoTap" data-v="${x.id}">
       <span class="me-ie ${x.fx?'fx-'+x.fx:''}">${x.e}</span><b>${x.n}</b><small>${state}</small></button>`; };
   // 모자 · 소품은 사기 전에 지금 캐릭터에게 씌워 보기
   const tryD = P && (P.k==='hat'||P.k==='acc') ? Object.assign({}, d, {wear:Object.assign({}, d.wear, {[d.base]:Object.assign({hat:null,acc:null}, d.wear[d.base]||{}, {[P.k]:P.id})})}) : d;
   const shown = P && P.k!=='hat' && P.k!=='acc' ? Object.assign({}, d, {[P.k]:P.id}, P.k==='base'?{base:P.id}:{}) : tryD;
   b.innerHTML=`<div class="card me-card">${decoStage(shown)}${P?'<div class="me-try">👀 미리 보기</div>':''}</div>
-    ${P?`<div class="me-buy card"><span class="me-ie">${P.e}</span><div><b>${P.n}</b><div class="sub">${left>=P.p?`별 ${P.p}개로 살까요? 사고 나면 쓸 수 있는 별은 ${left-P.p}개예요.`:`별이 ${P.p-left}개 더 필요해요. 문제를 풀어서 별을 모아요!`}</div></div>
-      ${left>=P.p?`<button class="big-btn me-yes" data-act="decoBuy" data-v="${P.id}">⭐ ${P.p} 사기</button>`:''}<button class="pill" data-act="decoTap" data-v="">닫기</button></div>`:''}
+    ${P?`<div class="me-buy card"><span class="me-ie">${P.e}</span><div><b>${P.n}</b><div class="sub">${left>=decoPrice(P)?`별 ${decoPrice(P)}개로 살까요? 사고 나면 쓸 수 있는 별은 ${left-decoPrice(P)}개예요.`:`별이 ${decoPrice(P)-left}개 더 필요해요. 문제를 풀어서 별을 모아요!`}</div></div>
+      ${left>=decoPrice(P)?`<button class="big-btn me-yes" data-act="decoBuy" data-v="${P.id}">⭐ ${decoPrice(P)} 사기</button>`:''}<button class="pill" data-act="decoTap" data-v="">닫기</button></div>`:''}
     <div class="seg small">${Object.entries(DECO_CATS).map(([k,n])=>`<button class="pill ${cat===k?'on':''}" data-act="decoCat" data-v="${k}">${n}</button>`).join('')}</div>
     <div class="me-grid">${DECO_ITEMS.filter(x=>x.k===cat).sort((a,b)=>a.p-b.p).map(card).join('')}</div>`;
 }
@@ -3971,7 +3988,7 @@ function drawCharBook(d){
   b.innerHTML=`<p class="desc">누르면 그 캐릭터가 방에 나와요. 캐릭터마다 모자 · 소품을 따로 입어요.</p>
     <div class="cm-grid">${bases.map(x=>d.own.includes(x.id)
       ? `<button class="cm ${d.base===x.id?'on':''}" data-act="decoBase" data-v="${x.id}">${decoMini(d,x.id)}<b>${x.n}</b>${d.base===x.id?'<i>방에 있어요</i>':''}</button>`
-      : `<button class="cm none" data-act="decoGoShop" data-v="${x.id}"><span class="cm-sil">${x.e}</span><b>?</b><small>⭐ ${x.p}</small></button>`).join('')}</div>`;
+      : `<button class="cm none" data-act="decoGoShop" data-v="${x.id}"><span class="cm-sil">${x.e}</span><b>?</b><small>⭐ ${priceTag(x)}</small></button>`).join('')}</div>`;
 }
 function drawDecoLocker(d){
   const b=document.getElementById('roombody'); if(!b) return;
@@ -4018,8 +4035,9 @@ function decoTap(id){
 }
 function decoBuy(id){
   const d=decoGet(), x=decoItem(id); if(!x || d.own.includes(id)) return;
-  if(decoLeft()<x.p){ toast('별이 조금 모자라요'); return; }
-  d.spent=(d.spent||0)+x.p; d.own.push(id);
+  const price=decoPrice(x);
+  if(decoLeft()<price){ toast('별이 조금 모자라요'); return; }
+  d.spent=(d.spent||0)+price; d.own.push(id);
   if(x.k==='hat'||x.k==='acc') decoWear(d, d.base, x.k, id); else d[x.k]=id;
   App.decoPick=null; decoSave(d);
   beep(true); burst();
@@ -4614,7 +4632,9 @@ function adminHTML(){
       <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
-    </div>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
+    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
+      ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
+              :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
@@ -4721,6 +4741,8 @@ const ACT = {
   decoBuy: v=>decoBuy(v),
   evStart: v=>{ evStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
   evStop: ()=>{ evStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  saleStart: v=>{ saleStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  saleStop: ()=>{ saleStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
   roomv: v=>{ App.roomv=v; App.decoPick=null; App.lockPick=null; renderMyRoom(); },
   decoBase: v=>{ const d=decoGet(); d.base=v; decoSave(d); App.roomv='room'; renderMyRoom(); toast(`${decoItem(v).e} ${decoItem(v).n}${josa(decoItem(v).n,'이','가').slice(decoItem(v).n.length)} 방에 나왔어요`); },
   decoGoShop: v=>{ App.roomv='room'; App.decoCat='base'; App.decoPick=v; renderMyRoom(); },
