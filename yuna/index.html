@@ -4386,7 +4386,7 @@ function admEnter(){
 }
 function admEmailHTML(){
   const f='display:block;width:100%;box-sizing:border-box;font:inherit;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;margin:4px 0 12px;background:var(--paper);color:inherit';
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button></div>
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button></div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 이메일과 비밀번호로 로그인하세요.</p>
     <label class="lbl" for="admEm">이메일</label>
     <input id="admEm" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" style="${f}">
@@ -4476,7 +4476,7 @@ function adminHTML(){
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button>'}</div>
+  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
     <div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
       <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
@@ -4697,7 +4697,7 @@ const ACT = {
   reset: ()=>{
     if(isMom()) return;
     if(!confirm(`${who}의 별, 스티커, 학습 기록, 최고 기록을 모두 지울까요?`)) return;
-    ['stars','today','starDay','log','visits','best_1','best_2','best_3','hmock','hwrong'].forEach(k=>store.del(k)); store.set('hwrongAt',Date.now());
+    PROFILE_KEYS.filter(k=>!KEEP_ON_RESET.includes(k)).concat(['cxok']).forEach(k=>store.del(k)); store.set('hwrongAt',Date.now());
     stars=0; store.set('starsAt',Date.now()); cloudReset(who); markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
   }
 };

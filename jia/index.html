@@ -165,6 +165,44 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .cal-d.empty{background:none}
 .cal-leg{margin-top:10px;font-size:.85rem;color:var(--sub)}
 @media (max-width:760px){ .prog{grid-template-columns:1fr} }
+/* 엄마 · 관리자 모드 */
+.adm-links{text-align:center;color:var(--sub);font-size:.95rem;margin-top:18px}
+.adm-links button{color:var(--sub);text-decoration:underline;padding:6px}
+.kid-msg{margin-bottom:12px;padding:14px 20px;border-radius:18px;background:#E9F8F1;color:#0B6B4F;font-weight:700;font-size:1.15rem}
+.goalbar{height:14px;border-radius:999px;background:#F2ECE4;overflow:hidden;margin:-4px 0 14px}
+.goalbar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FF8A4C,#FF5A5F)}
+.modal{position:fixed;inset:0;z-index:95;background:rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center}
+.modal[hidden]{display:none}
+.sheet{width:100%;max-width:620px;max-height:90vh;overflow:auto;background:#fff;border-radius:26px 26px 0 0;padding:22px 22px calc(22px + env(safe-area-inset-bottom,0px));-webkit-user-select:text;user-select:text}
+.sheet h3{margin:0 0 6px;font-size:1.4rem}
+.sheet .sub{color:var(--sub);font-size:.9rem}
+.sheet .center{text-align:center}
+.adm-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.lbl{display:block;margin:16px 0 6px;font-weight:700}
+.lbl small{font-weight:500;color:var(--sub)}
+.inp{width:100%;font:inherit;padding:.7rem .9rem;border:2px solid var(--line);border-radius:14px;background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354}
+.inrow{display:flex;gap:8px}.inrow .inp{flex:1;min-width:0}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.scroll-x{overflow-x:auto}
+.atbl{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+.atbl th,.atbl td{border:1px solid var(--line);padding:.35rem .4rem;text-align:center}
+.atbl td.z{color:#C9C2B8}.atbl tr.today{background:#FFF6E0}
+.pinrow{display:flex;justify-content:center;gap:14px;margin:14px 0}
+.pinrow span{width:20px;height:20px;border-radius:50%;border:3px solid var(--sub)}
+.pinrow span.f{background:var(--accent);border-color:var(--accent)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:320px;margin:0 auto}
+.kp button{height:64px;border-radius:18px;background:#F7F3EE;font-size:1.6rem;font-weight:700}
+.adm-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.next.ghost{background:#EEE8E1;color:var(--ink)}
+.reset-btn{width:100%;padding:.8rem;border-radius:14px;border:2px solid var(--no);background:#FFF1F1;color:var(--no);font-weight:700}
+.linkbtn{color:var(--sub);text-decoration:underline;margin-top:8px}
+.pinbox{-webkit-text-security:disc}
+.admpop{position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:2vh 2vw}
+.admpop[hidden]{display:none}
+.admpop-box{width:100%;max-width:1100px;height:100%;background:#fff;border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.admpop-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--line)}
+.admpop-bar b{flex:1}
+.admpop-box iframe{flex:1;width:100%;border:0}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:999px;z-index:90;font-size:1.1rem;white-space:nowrap}
 .burst{position:fixed;pointer-events:none;font-size:2.2rem;z-index:80;animation:fly 1s ease-out forwards}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(200deg);opacity:0}}
@@ -209,8 +247,10 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
     <h1>지아야, 안녕!</h1>
     <div class="hand" style="font-size:1.6rem;color:var(--sub)">오늘은 어떤 친구랑 들어갈까?</div>
     <div class="gate" id="gate"></div>
+    <div class="adm-links"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>
   </div>
 </div>
+<div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="bar"><div class="bar-in">
   <div class="logo"><i>🌱</i>지아의 공부방</div>
   <span class="star">⭐ <span id="starCount">0</span></span>
@@ -262,7 +302,7 @@ function cloudInit(){
   if(cloud.ready) return cloud.ready;
   const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
   const base='https://www.gstatic.com/firebasejs/10.12.2/';
-  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>load(base+'firebase-auth-compat.js')).then(()=>{
     firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); return cloud.db;
   }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
   return cloud.ready;
@@ -448,10 +488,11 @@ const GATE = [['🐬','돌고래'],['🐳','고래'],['🐠','물고기'],['🐙
 function drawGate(){ $('gate').innerHTML=GATE.map(([e,n])=>`<button data-act="gate" data-v="${e}" aria-label="${n}랑 들어가기">${e}</button>`).join(''); }
 function renderHome(){
   const me=store.get('gate','🐬');
-  view.innerHTML=`<div class="hello"><span class="me">${me}</span><div><div class="hand">지아야, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
+  view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">지아야, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
     <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:todayN(k);
       return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?'별로 꾸미기':n?`오늘 ${n}개`:'아직 안 했어요'}</small></button>`; }).join('')}</div>
-    ${progressHTML()}`;
+    ${progressHTML()}
+    <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
 /* 첫 화면 진도: 오늘(영역별 큰 숫자) + 이번 달 달력(한 날마다 도장) */
 const STUDY = ['kor','math','eng','story'];
@@ -465,7 +506,8 @@ function progressHTML(){
     cells+=`<span class="cal-d ${d===t.getDate()?'today':''} ${n>=10?'lv2':n?'lv1':''}"><i>${d}</i>${n>=10?'🌟':n?'⭐':''}</span>`; }
   const tot=dayTotalOf(today);
   return `<div class="prog">
-    <div class="prog-card"><div class="prog-h"><b>오늘 한 공부</b><span class="big-n">${tot}<small>개</small></span></div>
+    <div class="prog-card"><div class="prog-h"><b>오늘 한 공부</b><span class="big-n">${tot}<small>/ ${admin.goal}개</small></span></div>
+      <div class="goalbar"><i style="width:${Math.min(100,Math.round(tot/(admin.goal||20)*100))}%"></i></div>
       <div class="prog-bars">${STUDY.map(k=>{ const n=(today[k]&&today[k].n)||0; return `<div class="pb" style="--c:${AREAS[k].c}"><span class="pb-ico">${AREAS[k].ico}</span><span class="pb-n">${n}</span><span class="pb-l">${AREAS[k].n}</span></div>`; }).join('')}</div></div>
     <div class="prog-card"><div class="prog-h"><b>${m+1}월 공부 달력</b><span class="big-n">${studied}<small>일</small></span></div>
       <div class="cal">${['일','월','화','수','목','금','토'].map(w=>`<span class="cal-w">${w}</span>`).join('')}${cells}</div>
@@ -574,10 +616,117 @@ function renderRoom(){
       return `<button class="me-item ${on?'on':''} ${own?'own':''} ${App.decoPick===x.id?'pick':''}" data-act="decoTap" data-v="${x.id}"><span class="e">${x.e}</span><b>${x.n}</b><small>${on?'사용 중':own?(x.p?'가지고 있어요':'무료'):'⭐ '+x.p}</small></button>`; }).join('')}</div></div>`;
 }
 
+/* ───── 엄마 모드 · 관리자 모드 (다른 다섯 방과 같은 방식) ─────
+   설정 문서 k7/settings: { goal, msg, momH, at } — 관리자 대시보드와 같이 써요 */
+const hashPin = (p, salt='') => { let h=2166136261; for(const ch of salt+'#'+p){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(16); };
+const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
+const DASHBOARD_URL = 'https://vaca-at.github.io/study-admin/';
+async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const isAdminUser = async u => { const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
+let admin = Object.assign({goal:20, msg:'', momH:''}, store.get('admin',{}));
+let admRole='admin', admMode=null, pinBuf='';
+async function cloudPullSettings(){
+  if(!await cloudInit()) return false;
+  try{ const snap=await cloud.db.collection(GRADE_ID).doc('settings').get(); if(!snap.exists) return false; const d=snap.data();
+    if((d.at||0) <= (admin.at||0)) return false;
+    ['goal','msg','momH'].forEach(k=>{ if(d[k]!==undefined && d[k]!==null) admin[k]=d[k]; }); admin.at=d.at; store.set('admin',admin); return true;
+  }catch(e){ console.warn('설정 불러오기 실패', e); return false; }
+}
+async function saveAdmin(){ admin.at=Date.now(); store.set('admin',admin);
+  if(await cloudInit()){ try{ await cloud.db.collection(GRADE_ID).doc('settings').set({goal:admin.goal, msg:admin.msg, momH:admin.momH||'', at:admin.at},{merge:true}); }catch(e){ console.warn('설정 저장 실패', e); } } }
+function openAdmModal(role){
+  admRole=role; pinBuf=''; admMode = role==='mom' ? 'pin' : 'email';
+  $('modal').hidden=false; drawAdm();
+  cloudPullSettings().then(ch=>{ if(ch) drawAdm(); });
+  if(role==='admin') cloudInit().then(ok=>{ if(!ok || !firebase.auth) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y){ admMode='panel'; drawAdm(); } }); });
+}
+function closeAdm(){ $('modal').hidden=true; admMode=null; const o=$('admPop'); if(o) o.hidden=true; render(); }
+function drawAdm(){
+  const b=$('sheet'), mom=admRole==='mom';
+  if(admMode==='pin'){
+    if(!admin.momH){ b.innerHTML=`<h3>👩 엄마 모드</h3><p class="center">아직 엄마 비밀번호가 없어요.<br><span class="sub">관리자에게 엄마 비밀번호를 받아 주세요.</span></p><button class="next" data-act="admClose">닫기</button>`; return; }
+    b.innerHTML=`<h3>👩 엄마 모드</h3><p class="sub center">엄마 비밀번호 4자리를 눌러 주세요.</p>
+      <div class="pinrow" id="pinrow">${[0,1,2,3].map(i=>`<span class="${i<pinBuf.length?'f':''}"></span>`).join('')}</div>
+      <div class="kp">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-act="admPin" data-v="${n}">${n}</button>`).join('')}<button data-act="admPin" data-v="del">⌫</button><button data-act="admPin" data-v="0">0</button><button data-act="admClose">취소</button></div>`;
+    return;
+  }
+  if(admMode==='email'){
+    b.innerHTML=`<div class="adm-top"><h3>🔒 관리자 모드</h3><button class="pill on" data-act="admAll">📚 전체 관리자 (6명) ↗</button></div>
+      <p class="sub">관리자 이메일과 비밀번호로 로그인하세요.</p>
+      <label class="lbl" for="admEm">이메일</label><input id="admEm" class="inp" type="email" autocomplete="username" autocapitalize="off" spellcheck="false">
+      <label class="lbl" for="admPw">비밀번호</label><input id="admPw" class="inp" type="password" autocomplete="current-password">
+      <div class="adm-btns"><button class="next" data-act="admLogin">로그인</button><button class="next ghost" data-act="admClose">닫기</button></div>`;
+    return;
+  }
+  // 기록 보기 · 설정
+  const L=store.get('log',{}), rows=[];
+  for(let i=0;i<7;i++){ const t=new Date(); t.setDate(t.getDate()-i); const d=L[dayKey(t)]||{}; let n=0, ok=0;
+    const cells=STUDY.map(k=>{ const e=d[k]; if(!e||!e.n) return '<td class="z">-</td>'; n+=e.n; ok+=e.ok||0; return `<td>${e.ok||0}/${e.n}</td>`; }).join('');
+    rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
+  const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (지아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 (6명) ↗</button>'}</div>
+    <p class="sub">${cloudTxt}</p>
+    <p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
+    <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${AREAS[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
+    <p class="lbl">🎯 하루 목표 <small>(첫 화면 막대의 기준)</small></p>
+    <div class="seg">${[10,15,20,30,40].map(g=>`<button class="pill ${admin.goal===g?'on':''}" data-act="admGoal" data-v="${g}">${g}개</button>`).join('')}</div>
+    <p class="lbl">💌 지아에게 한마디 <small>(첫 화면에 보여요)</small></p>
+    <div class="inrow"><input id="admMsg" class="inp" type="text" name="kid-note" autocomplete="off" maxlength="60" placeholder="예: 오늘도 화이팅! 🍦" value="${(admin.msg||'').replace(/"/g,'&quot;')}"><button class="pill on" data-act="admMsg">저장</button></div>
+    <p class="lbl">👩 엄마 비밀번호 ${mom?'바꾸기':`<small>(${admin.momH?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
+    <div class="inrow"><input id="momPin" class="inp pinbox" type="text" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill on" data-act="admMomPin">${admin.momH?'바꾸기':'정하기'}</button></div>
+    ${!mom&&admin.momH?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
+    ${mom?'':`<p class="lbl">⭐ 지아 별 관리 (지금 ${stars}개)</p>
+    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>
+    <p class="lbl">🗑️ 기록 초기화 <small>(별 · 꾸민 방 · 공부 기록을 모두 지워요. 설정은 남아요)</small></p>
+    <button class="reset-btn" data-act="admReset">🗑️ 지아의 기록 모두 지우기</button>
+    <p class="lbl">🔓 관리자 로그인</p><div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`}
+    <div class="adm-btns"><button class="next" data-act="admClose">나가기</button></div>`;
+}
+async function admLogin(){
+  const em=(($('admEm')||{}).value||'').trim().toLowerCase(), pw=($('admPw')||{}).value||'';
+  if(!em||!pw){ toast('이메일과 비밀번호를 넣어 주세요'); return; }
+  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
+  if(!await cloudInit() || !firebase.auth){ toast('온라인 저장에 연결하지 못했어요'); return; }
+  try{ const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
+    if(await isAdminUser(r.user)){ admMode='panel'; drawAdm(); cloudPull().then(()=>drawAdm()); } else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
+  }catch(e){ console.warn('로그인 실패',e);
+    toast({'auth/invalid-credential':'이메일이나 비밀번호가 맞지 않아요','auth/wrong-password':'비밀번호가 맞지 않아요','auth/too-many-requests':'여러 번 틀려서 잠시 막혔어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'}[e.code]||'로그인하지 못했어요'); }
+}
+async function admResetAll(){
+  if(!confirm('지아의 별, 꾸민 방, 공부 기록을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.')) return;
+  ['stars','starsAt','log','deco','mathDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} });
+  const now=Date.now(); stars=0; store.set('stars',0); store.set('starsAt',now); store.set('resetAt',now); updateStars();
+  if(await cloudInit()){ try{ const ref=kidRef(), qs=await ref.collection('daily').get(); await Promise.all(qs.docs.map(d=>d.ref.delete()));
+    await ref.set({name:who, resetAt:now, stars:0, starsAt:now, deco:{at:now}, mathDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
+  toast('🗑️ 기록을 모두 지웠어요'); drawAdm();
+}
+function openAllAdmin(){
+  const o=$('admPop'); if(o){ o.hidden=false; return; }
+  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자"><div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자 (6명)</b>
+    <button class="pill" data-act="admPopClose">◀ 지아 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div><iframe src="${DASHBOARD_URL}?v=jia" title="공부방 관리자 대시보드"></iframe></div></div>`);
+}
+
 /* ───── 눌렀을 때 ───── */
 const ACT = {
-  gate: v=>{ const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); },
+  gate: v=>{ const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); }); },
   go: v=>go(v),
+  openMom: ()=>openAdmModal('mom'),
+  openAdmin: ()=>openAdmModal('admin'),
+  admClose: ()=>closeAdm(),
+  admPin: v=>{ if(v==='del'){ pinBuf=pinBuf.slice(0,-1); drawAdm(); return; } if(pinBuf.length>=4) return; pinBuf+=v; drawAdm();
+    if(pinBuf.length<4) return;
+    if(hashPin(pinBuf,'mom')===admin.momH){ admMode='panel'; pinBuf=''; drawAdm(); cloudPull().then(()=>drawAdm()); }
+    else { beep(false); toast('비밀번호가 틀렸어요'); setTimeout(()=>{ pinBuf=''; drawAdm(); },400); } },
+  admLogin: ()=>admLogin(),
+  admLogout: ()=>{ try{ firebase.auth().signOut(); }catch(e){} toast('관리자에서 로그아웃했어요'); closeAdm(); },
+  admAll: ()=>openAllAdmin(),
+  admPopClose: ()=>{ const o=$('admPop'); if(o) o.hidden=true; },
+  admGoal: v=>{ admin.goal=+v; saveAdmin(); drawAdm(); },
+  admMsg: ()=>{ admin.msg=$('admMsg').value.trim(); saveAdmin(); toast('저장했어요'); },
+  admMomPin: ()=>{ const p=$('momPin').value; if(!/^\d{4}$/.test(p)){ toast('숫자 4자리로 적어 주세요'); return; } admin.momH=hashPin(p,'mom'); saveAdmin(); toast(admRole==='mom'?'엄마 비밀번호를 바꿨어요':'엄마 비밀번호를 정했어요. 엄마께 알려 주세요'); drawAdm(); },
+  admMomDel: ()=>{ if(admRole==='mom') return; if(!confirm('엄마 비밀번호를 지울까요?')) return; admin.momH=''; saveAdmin(); drawAdm(); },
+  admStar: v=>{ if(admRole==='mom') return; stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
+  admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
   sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글, 연산, 영어, 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
@@ -594,7 +743,7 @@ const ACT = {
     else App.decoPick=App.decoPick===v?null:v; renderRoom(); },
   decoBuy: v=>{ const d=decoGet(), x=decoItem(v); if(!x||d.own.includes(v)||decoLeft()<x.p) return; d.spent=(d.spent||0)+x.p; d.own.push(v); d[x.k]=v; App.decoPick=null; decoSave(d); beep(true); burst(); speak(`${x.n}을 샀어요!`); renderRoom(); }
 };
-document.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
+document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); return; } const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
 drawGate(); updateStars(); render();
 </script>
 </body>

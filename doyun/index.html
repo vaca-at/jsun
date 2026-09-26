@@ -950,6 +950,7 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
     <h2 id="loginTitle">오늘은 어떤 친구랑 공부할까?</h2>
     <div class="who-list" id="whoList"></div>
     <div class="inrow" id="loginNew" hidden><input id="newWho" maxlength="8" placeholder="새 이름 적기" autocomplete="off"><button class="pill" data-act="addWho">들어가기</button></div>
+    <button class="adminbtn" data-act="openMom">👩 엄마 모드</button>
     <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button>
     <p class="legal" style="margin-top:14px"><a href="../policy/terms.html">이용약관</a> · <a href="../policy/privacy.html"><b>개인정보처리방침</b></a></p>
   </div>
@@ -1754,6 +1755,10 @@ const EN_TRAVEL = [
 const todayIdx = n => Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%n;
 App.bnTab='prov'; App.ja=0; App.en=0; // 쉬어가는 코너는 늘 1번부터
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
+/* 도윤이 방: 관리자(사이트 주인)와 엄마는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디 · 엄마 비밀번호만 바꿀 수 있어요 */
+let admRole = 'admin';
+const isMom = () => admRole==='mom';
+const momPinH = () => admin.momH || '';
 const view = document.getElementById('view');
 
 /* ───── 공통 도구 ───── */
@@ -2105,7 +2110,7 @@ async function cloudReset(name){
 }
 
 /* 관리자 설정 (e4/settings): 나중에 바뀐 쪽을 따라요 */
-const SETTINGS_KEYS = ['goal','subj','course','msg','pinH'];
+const SETTINGS_KEYS = ['goal','subj','course','msg','pinH','momH'];
 async function cloudPullSettings(){
   if(!await cloudInit()) return false;
   try{
@@ -2396,7 +2401,7 @@ function renderHome(){
     ${balanceHTML()}
     <div class="card grasscard">${grassHTML()}</div>
     <div style="margin-top:12px">${provHTML()}</div>
-    <div class="center"><button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
+    <div class="center"><button class="adminbtn" data-act="openMom">👩 엄마 모드</button> <button class="adminbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
   tick();
 }
 
@@ -4578,7 +4583,7 @@ function drawSettings(){
     <p class="lbl">글자 크기</p><div class="seg">${s('size',1,'보통')}${s('size',1.15,'크게')}${s('size',1.3,'아주 크게')}</div>
     <p class="lbl">효과음</p><div class="seg">${s('sound',true,'🔔 켜기')}${s('sound',false,'🔕 끄기')}</div>
     <button class="big-btn" data-act="closeSet">닫기</button>
-    <div class="center"><button class="linkbtn" data-act="openAdmin">🔒 관리자 모드 (부모님용)</button></div>`;
+    <div class="center"><button class="linkbtn" data-act="openMom">👩 엄마 모드</button> · <button class="linkbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
 /* 관리자 로그인: 온라인 저장(Firebase)이 켜져 있으면 이메일/비밀번호로 들어가요.
    메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요. (가스 · 방 앱과 같은 관리자 계정) */
@@ -4591,7 +4596,7 @@ function admEnter(){
 }
 function admEmailHTML(){
   const f='display:block;width:100%;box-sizing:border-box;font:inherit;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;margin:4px 0 12px;background:var(--paper);color:inherit';
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button></div>
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button></div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 이메일과 비밀번호로 로그인하세요.</p>
     <label class="lbl" for="admEm">이메일</label>
     <input id="admEm" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" style="${f}">
@@ -4608,7 +4613,7 @@ async function admEmailLogin(){
   if(!await cloudInit()){ toast('온라인 저장에 연결하지 못했어요'); return; }
   try{
     const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
-    if(await isAdminUser(r.user)){ if(setMode==='pin') admEnter(); }
+    if(await isAdminUser(r.user)){ if(setMode==='pin' && !isMom()) admEnter(); }
     else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
   }catch(e){
     console.warn('로그인 실패',e);
@@ -4626,16 +4631,20 @@ async function admEmailReset(){
 /* 이 기기에서 이미 로그인했으면 바로 관리자 모드로 */
 function admAuto(){
   if(!FIREBASE_CONFIG) return;
-  cloudInit().then(ok=>{ if(!ok) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y && setMode==='pin') admEnter(); }); });
+  cloudInit().then(ok=>{ if(!ok) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y && setMode==='pin' && !isMom()) admEnter(); }); });
 }
 function pinHTML(){
-  if(FIREBASE_CONFIG) return admEmailHTML();
+  if(FIREBASE_CONFIG && !isMom()) return admEmailHTML();
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도윤이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  return `<h3>🔒 관리자 모드</h3>
+  if(isMom() && !momPinH()) return `<h3>👩 엄마 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
-    <p class="center sub">비밀번호 4자리를 눌러 주세요.</p>
+    <p class="center">아직 엄마 비밀번호가 없어요.<br><span class="sub">관리자에게 엄마 비밀번호를 받아 주세요.</span></p>
+    <button class="big-btn" data-act="closeSet">닫기</button>`;
+  return `<h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
+    <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
+    <p class="center sub">${isMom()?'엄마 비밀번호':'비밀번호'} 4자리를 눌러 주세요.</p>
     <div class="pinrow" id="pinrow">${[0,1,2,3].map(i=>`<span class="${i<pinBuf.length?'f':''}"></span>`).join('')}</div>
-    ${adminPinH()===hashPin(ADMIN_DEF.pin,'admin')?'<p class="center sub" style="font-size:.9rem">처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.</p>':''}
+    ${!isMom() && adminPinH()===hashPin(ADMIN_DEF.pin,'admin')?'<p class="center sub" style="font-size:.9rem">처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.</p>':''}
     ${keypad('c','pin').replace(/data-v="ok">확인/,'data-v="ok">취소')}`;
 }
 function pinKey(v){
@@ -4644,7 +4653,7 @@ function pinKey(v){
   if(!/^\d$/.test(v) || pinBuf.length>=4) return;
   pinBuf+=v;
   if(pinBuf.length<4){ drawSettings(); return; }
-  if(hashPin(pinBuf,'admin')===adminPinH()){
+  if(isMom() ? hashPin(pinBuf,'mom')===momPinH() : hashPin(pinBuf,'admin')===adminPinH()){
     setMode='admin'; pinBuf=''; drawSettings();
     const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
     return;
@@ -4680,12 +4689,12 @@ function adminHTML(){
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도윤이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3>
+  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
     <div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
       <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
-    </div><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button></div>
+    </div>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
@@ -4702,14 +4711,17 @@ function adminHTML(){
     <div class="seg">${keys.map(s=>tg('subj',s,SUBJ[s].name,admin.subj[s])).join('')}</div>
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
     <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
-    ${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
-    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
-    ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
+    <p class="lbl">👩 엄마 비밀번호 ${isMom()?'바꾸기':`<small>(${momPinH()?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
+    <div class="inrow"><input id="momPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>
+    ${!isMom()&&momPinH()?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
+    ${isMom()?'':`${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
+    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}`}
+    ${isMom()?'':FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 관리자 비밀번호 바꾸기</p>
     <div class="inrow"><input id="admPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="새 비밀번호 4자리"><button class="pill" data-act="admPin">바꾸기</button></div>`}
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="kidPinReset" data-v="${esc(n)}">${esc(n)} ${kidPins()[n]?'비밀번호 지우기':'(아직 없음)'}</button>`).join('')}</div>
-    ${who?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
+    ${who&&!isMom()?`<button class="danger" data-act="reset">${esc(who)}의 별과 기록 모두 지우기</button>`:''}
     <button class="big-btn" data-act="closeSet">나가기</button>`;
 }
 
@@ -4891,7 +4903,14 @@ const ACT = {
   openAdmin: ()=>ACT.admRoom(),
   openAllAdmin: ()=>openAdminPopup(),
   admPopClose: ()=>{ const o=document.getElementById('admPop'); if(o) o.hidden=true; },
-  admRoom: ()=>{ ACT.admPopClose(); openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
+  openMom: ()=>{ admRole='mom'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin') drawSettings(); }); },
+  admMomPin: ()=>{
+    const p=document.getElementById('momPin').value;
+    if(!/^\d{4}$/.test(p)){ toast('숫자 4자리로 적어 주세요'); return; }
+    admin.momH=hashPin(p,'mom'); saveAdmin(); toast(isMom()?'엄마 비밀번호를 바꿨어요':'엄마 비밀번호를 정했어요. 엄마께 알려 주세요'); drawSettings();
+  },
+  admMomDel: ()=>{ if(!confirm('엄마 비밀번호를 지울까요? 엄마 모드로 들어갈 수 없게 돼요.')) return; admin.momH=''; saveAdmin(); toast('엄마 비밀번호를 지웠어요'); drawSettings(); },
+  admRoom: ()=>{ ACT.admPopClose(); admRole='admin'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
   pin: v=>pinKey(v),
   admLogin: ()=>admEmailLogin(),
   admReset: ()=>admEmailReset(),
@@ -4909,15 +4928,17 @@ const ACT = {
     saveAdmin(); drawSettings();
   },
   admMsg: ()=>{ admin.msg=document.getElementById('admMsg').value.trim(); saveAdmin(); toast('저장했어요'); },
-  admStar: v=>{ stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawSettings(); },
+  admStar: v=>{ if(isMom()) return; stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawSettings(); },
   admPin: ()=>{
+    if(isMom()) return;
     const p=document.getElementById('admPin').value;
     if(!/^\d{4}$/.test(p)){ toast('숫자 4자리로 적어 주세요'); return; }
     admin.pinH=hashPin(p,'admin'); delete admin.pin; saveAdmin(); toast('비밀번호를 바꿨어요'); drawSettings();
   },
   reset: ()=>{
+    if(isMom()) return;
     if(!confirm(`${who}의 별, 스티커, 학습 기록, 읽은 글, 복습함을 모두 지울까요?`)) return;
-    ['stars','today','starDay','log','visits','hmock','hwrong','kread','hstory','mbest','stat','wrongs','studysec','books'].forEach(k=>store.del(k));
+    PROFILE_KEYS.filter(k=>!KEEP_ON_RESET.includes(k)).concat(['cxok']).forEach(k=>store.del(k));
     const now=Date.now(); ['hwrongAt','wrongsAt','booksAt','starsAt'].forEach(k=>store.set(k,now));
     stars=0; cloudReset(who); markVisit(); updateStars(); toast('기록을 지웠어요'); drawSettings();
   }
