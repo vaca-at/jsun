@@ -133,6 +133,7 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .bigcal .num{ font-size:.95em; font-weight:700; }
 .bigcal .sun .num{ color:var(--red); }
 .bigcal .sat .num{ color:#3B6FD8; }
+.bigcal .hname{ font-size:.72em; font-weight:400; color:var(--red); margin-left:2px; }
 .bigcal .plans{ flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; min-width:0; }
 .bigcal .plans i{ font-style:normal; font-size:.7em; line-height:1.35; background:color-mix(in srgb, var(--yellow) 38%, var(--card)); border-radius:4px; padding:1px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .bigcal .plans i.more{ background:none; color:var(--ink-soft); padding:0 2px; }
@@ -709,6 +710,11 @@ function renderMonth(){
     </div>`;
   renderToday(); renderCal(); renderPlans(); renderEditor();
 }
+/* ---------- 빨간 날 (공휴일) — 새 달이 필요하면 여기에 한 줄씩 더해요 ---------- */
+const HOLIDAYS = {
+  "2026-10-03": "개천절", "2026-10-05": "대체 휴일", "2026-10-09": "한글날",
+  "2026-12-25": "성탄절"
+};
 /* ---------- 달력 일정: diaryMonth/{YYYY-MM}.plans["YYYY-MM-DD"] = [{ t, at }] ---------- */
 let planDraft = "";
 const plansOf = ds => S.months[ds.slice(0, 7)]?.plans?.[ds] || [];
@@ -756,11 +762,12 @@ function renderCal(){
   for (let i = 0; i < first; i++) cells += "<div></div>";
   for (let d = 1; d <= last; d++){
     const ds = `${S.month}-${pad(d)}`, wd = (first + d - 1) % 7, plans = plansOf(ds);
-    const cls = [wd === 0 ? "sun" : wd === 6 ? "sat" : "", ds === t ? "today" : "", ds === S.writeDate ? "sel" : "", ds > t ? "future" : ""].join(" ");
+    const hol = HOLIDAYS[ds];
+    const cls = [hol || wd === 0 ? "sun" : wd === 6 ? "sat" : "", ds === t ? "today" : "", ds === S.writeDate ? "sel" : "", ds > t ? "future" : ""].join(" ");
     // 점 세 개: 엄마 · 도윤 · 도진 (색칠 = 그날 일기 씀)
     const dots = ORDER.map(w => `<i class="${wroteOn(ds, w) ? "on" : ""}" style="--c:${PEOPLE[w].color}" title="${PEOPLE[w].name}${wroteOn(ds, w) ? " 씀" : " 안 씀"}"></i>`).join("");
     cells += `<button class="${cls}" data-act="pick-date" data-v="${ds}" aria-label="${fmtDate(ds)}${plans.length ? ` · 일정 ${plans.length}개` : ""}">
-      <span class="num">${d}</span>
+      <span class="num">${d}${hol ? ` <span class="hname">${hol}</span>` : ""}</span>
       <span class="plans">${plans.slice(0, 3).map(p => `<i>${esc(p.t)}</i>`).join("")}${plans.length > 3 ? `<i class="more">+${plans.length - 3}</i>` : ""}</span>
       <span class="dots">${dots}</span></button>`;
   }
