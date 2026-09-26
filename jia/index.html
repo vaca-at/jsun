@@ -410,10 +410,10 @@ function drawEvent(){
 }
 async function evStart(min){
   if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
-  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()}); }
+  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()}); toast(`🎉 별 2배 이벤트 ${min}분 시작!`); }
   catch(e){ console.warn(e); toast('이벤트를 켜지 못했어요 (온라인 규칙을 확인해 주세요)'); }
 }
-async function evStop(){ if(!await cloudInit()) return; try{ await cloud.db.collection('family').doc('event').set({until:0, at:Date.now()},{merge:true}); }catch(e){ console.warn(e); } }
+async function evStop(){ if(!await cloudInit()) return; try{ await cloud.db.collection('family').doc('event').set({until:0, at:Date.now()},{merge:true}); toast('이벤트를 끝냈어요'); }catch(e){ console.warn(e); toast('이벤트를 끝내지 못했어요 (온라인 규칙을 확인해 주세요)'); } }
 function addStar(n=1){
   if(n>0 && evOn()){ store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
   stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
@@ -1073,6 +1073,8 @@ const ACT = {
   admLogin: ()=>admLogin(),
   admLogout: ()=>{ try{ firebase.auth().signOut(); }catch(e){} toast('관리자에서 로그아웃했어요'); closeAdm(); },
   admAll: ()=>openAllAdmin(),
+  evStart: v=>{ evStart(+v||10).then(()=>drawAdm()); },   // 관리자 모드의 '10분 이벤트 시작' 단추
+  evStop: ()=>{ evStop().then(()=>drawAdm()); },
   admPopClose: ()=>{ const o=$('admPop'); if(o) o.hidden=true; },
   admGoal: v=>{ admin.goal=+v; saveAdmin(); drawAdm(); },
   admMsg: ()=>{ admin.msg=$('admMsg').value.trim(); saveAdmin(); toast('저장했어요'); },
