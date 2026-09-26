@@ -241,6 +241,14 @@ mark{
 .cmt-in{ display:flex; gap:4px; margin-top:4px; }
 .cmt-in input{ flex:1; min-width:0; border:none; border-bottom:1.5px solid var(--line); background:transparent; padding:2px; }
 .cmt-in button{ border:none; background:none; color:var(--ink-soft); }
+.cmt-in b{ align-self:center; color:var(--cc); }
+.cmt-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; }
+.cmt-tool:hover{ opacity:1; }
+.emo{ display:flex; flex-wrap:wrap; gap:2px; margin-top:6px; padding:6px; border:1.5px dashed var(--line); border-radius:10px; background:var(--paper); }
+.emo button{ border:none; background:none; font-size:1.3em; padding:2px 4px; border-radius:8px; }
+.emo button:hover{ background:color-mix(in srgb, var(--yellow) 30%, transparent); }
+.rain{ position:fixed; top:-3rem; z-index:70; pointer-events:none; animation:rainfall 3s linear forwards; }
+@keyframes rainfall{ to{ transform:translateY(110vh) rotate(360deg); } }
 
 /* ---------- 책장 ---------- */
 .filters{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
@@ -396,9 +404,9 @@ function toast(msg){
 const S = {
   ok: false, tab: "month",
   writeDate: today(), dayDate: today(), month: thisMonth(), filter: "all",
-  entries: {}, status: {}, months: {}, study: {}, loaded: false,
+  entries: {}, status: {}, months: {}, study: {}, drafts: {}, loaded: false,
   weather: "", mood: "", qShift: 0, spell: null, formDirty: false,
-  unsub: null, unsubStatus: null, unsubMonths: null, unsubStudy: [], range: null
+  unsub: null, unsubStatus: null, unsubMonths: null, unsubStudy: [], unsubDrafts: null, range: null
 };
 const keyOf = (date, w) => `${date}_${w}`;
 const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
@@ -450,6 +458,14 @@ function startData(){
       if (g && document.activeElement !== g) g.value = S.months[S.month]?.goal || "";
     }, () => {});
   }
+  // 아이가 저장 전에 쓰고 있는 글 (자동 저장) → "✍️ 쓰는 중"
+  if (!S.unsubDrafts){
+    S.unsubDrafts = onSnapshot(collection(db, "diaryDraft"), snap => {
+      S.drafts = {};
+      snap.forEach(d => { S.drafts[d.id] = d.data(); });
+      refresh();
+    }, () => {});
+  }
   // 공부방 날짜별 공부 기록: e2/dojin/daily/{날짜}, e4/doyun/daily/{날짜}
   if (!S.unsubStudy.length){
     S.unsubStudy = KIDS.map(w => onSnapshot(collection(db, ...PEOPLE[w].room, "daily"), snap => {
@@ -462,6 +478,7 @@ function startData(){
 function stopData(){
   S.unsub && S.unsub(); S.unsubStatus && S.unsubStatus(); S.unsubMonths && S.unsubMonths();
   S.unsubStudy.forEach(u => u()); S.unsubStudy = []; S.study = {};
+  S.unsubDrafts && S.unsubDrafts(); S.unsubDrafts = null; S.drafts = {};
   S.unsub = S.unsubStatus = S.unsubMonths = null; S.range = null; S.entries = {}; S.loaded = false;
 }
 function ensureRange(){
@@ -506,9 +523,22 @@ function studiedToday(w){
   const ms = toMs(S.status[w]?.lastStudyAt); return ms && ymd(new Date(ms)) === today();
 }
 function minsToDue(){ const n = new Date(); return DUE_HOUR * 60 - (n.getHours() * 60 + n.getMinutes()); }
+// 그날 일기 상태: ✅ 다 써서 저장 · ✍️ 쓰는 중(저장 전) · ⬜ 아직 안 씀(오늘) · ❌ 안 씀(지난날)
+function drafting(w, date){
+  const d = S.drafts[w];
+  return !wroteOn(date, w) && d && d.date === date && countChars(d.content || "") > 0 ? countChars(d.content) : 0;
+}
+function diaryMark(w, date){
+  if (wroteOn(date, w)) return ["✅", "다 씀"];
+  const n = drafting(w, date);
+  if (n) return ["✍️", `쓰는 중 ${n}자`];
+  return date === today() ? ["⬜", "아직 안 씀"] : ["❌", "안 씀"];
+}
+const MARK_LEGEND = `<span class="soft" style="font-size:.8em">✅ 다 써서 저장함 · ✍️ 지금 쓰는 중(저장 전) · ⬜ 아직 안 씀 · ❌ 그날 안 씀</span>`;
 function kidState(w){
-  const s = studyOn(w, today()), left = minsToDue();
-  if (wroteOn(today(), w)) return ["✅ 오늘 일기 완료", "done"];
+  const s = studyOn(w, today()), left = minsToDue(), n = drafting(w, today());
+  if (wroteOn(today(), w)) return ["✅ 오늘 일기 다 써서 저장함", "done"];
+  if (n) return [`✍️ 지금 일기 쓰는 중 (${n}자, 아직 저장 전)`, left <= 0 ? "warn" : ""];
   if (left <= 0) return [s ? `🚨 공부 ${s.total}문제 했는데 8시가 지나도록 일기 없음` : "🚨 8시가 지났는데 일기가 없어요", "warn"];
   if (s) return [`📝 공부 ${s.total}문제 · 일기는 아직 (8시 마감)`, "warn"];
   return ["아직 오늘 공부·일기 전", ""];
@@ -590,7 +620,7 @@ function renderToday(){
         : `<span class="soft">아직 안 했어요</span>`}</div>
       <div class="tk-row"><span class="tk-lb">📔 오늘 일기</span>${e
         ? `<b>${esc(e.title || "제목 없음")}</b> <span class="soft">${e.chars ?? countChars(e.content || "")}자 ${e.stamp ? "· 🔴 " + esc(e.stamp) : "· 도장 전"}</span>`
-        : `<span class="soft">아직 안 썼어요</span>`}
+        : drafting(w, t) ? `<span>✍️ 쓰는 중 · ${drafting(w, t)}자 (아직 저장 전)</span>` : `<span class="soft">⬜ 아직 안 썼어요</span>`}
         <button class="btn" style="margin-left:auto; padding:0 10px; font-size:.85em" data-act="${e ? "open-day" : "tab"}" data-v="${e ? t : "kids"}">${e ? "읽기" : "👉 콕"}</button></div>
     </div>`;
   }).join("");
@@ -649,8 +679,9 @@ function renderEditor(){
     <div id="redpen"></div>
     <div class="kidpeek">
       <span class="soft">이 날 아이들</span>
-      ${KIDS.map(w => `<span style="--c:${PEOPLE[w].color}"><b>${PEOPLE[w].emoji} ${PEOPLE[w].name}</b> ${wroteOn(S.writeDate, w) ? "✅" : "—"}</span>`).join("")}
+      ${KIDS.map(w => { const [ic, lb] = diaryMark(w, S.writeDate); return `<span style="--c:${PEOPLE[w].color}"><b>${PEOPLE[w].emoji} ${PEOPLE[w].name}</b> ${ic} ${lb}</span>`; }).join("")}
       <button class="btn" style="margin-left:auto; padding:2px 10px" data-act="open-day" data-v="${S.writeDate}">📖 펼쳐보기</button>
+      <div style="flex-basis:100%">${MARK_LEGEND}</div>
     </div>`;
   updateGauge();
 }
@@ -828,7 +859,30 @@ async function poke(w){
 /* ============================================================
    ⑨ 하루 펼쳐보기
    ============================================================ */
-function renderDay(){
+// 한마디를 쓰는 중에 도장·하트로 화면이 새로 그려져도, 쓰던 글과 커서 자리를 그대로 지켜요.
+const cmt = { draft: {}, edit: null, emoji: null };   // draft[일기id] · edit {id, at, text} · emoji: 이모지 판 열린 일기id
+const EMOJIS = ["💖","❤️","🥰","😍","😊","😆","🤗","👍","👏","💪","🌟","⭐","✨","🎉","🏆","💯","🌈","🌷","🍀","🔥"];
+function keepFocus(fn){
+  const a = document.activeElement, key = a?.dataset?.cmt ? `[data-cmt="${a.dataset.cmt}"]` : a?.dataset?.cedit ? `[data-cedit="${a.dataset.cedit}"]` : null;
+  const s = key ? [a.selectionStart, a.selectionEnd] : null;
+  fn();
+  if (key){ const b = document.querySelector(key); if (b){ b.focus(); b.setSelectionRange(...s); } }
+}
+function rain(list){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !list.length) return;
+  for (let i = 0; i < 26; i++){
+    const s = document.createElement("span"); s.className = "rain"; s.textContent = list[i % list.length];
+    s.style.left = Math.random() * 96 + "vw"; s.style.animationDelay = Math.random() * 1.2 + "s"; s.style.fontSize = 1.3 + Math.random() * 1.4 + "rem";
+    document.body.append(s); setTimeout(() => s.remove(), 4200);
+  }
+}
+const emojisIn = t => t.match(/\p{Extended_Pictographic}/gu) || [];
+async function saveComments(id, fn){
+  const list = fn((S.entries[id]?.comments || []).slice());
+  await updateDoc(doc(db, "diary", id), { comments: list });
+}
+function renderDay(){ keepFocus(renderDayInner); }
+function renderDayInner(){
   const d = S.dayDate, t = today();
   $("#main").innerHTML = `
     <div class="daynav">
@@ -867,8 +921,19 @@ function dayCard(w, e){
       <span class="soft">${heartBy.map(k => PEOPLE[k]?.name || k).join(", ")}</span>
     </div>
     <div class="cmts">
-      ${(e.comments || []).map(c => `<p><b style="--cc:${PEOPLE[c.by]?.color || "inherit"}">${esc(PEOPLE[c.by]?.name || c.by)}</b> ${esc(c.text)}</p>`).join("")}
-      <div class="cmt-in"><input placeholder="한마디 남기기" maxlength="80" data-cmt="${e.id}"><button data-act="comment" data-id="${e.id}">남기기</button></div>
+      ${(e.comments || []).map(c => {
+        const who = `<b style="--cc:${PEOPLE[c.by]?.color || "inherit"}">${esc(PEOPLE[c.by]?.name || c.by)}</b>`;
+        if (cmt.edit && cmt.edit.id === e.id && cmt.edit.at === c.at) return `<div class="cmt-in">${who}
+          <input maxlength="120" data-cedit="${e.id}" value="${esc(cmt.edit.text)}">
+          <button data-act="emoji-open" data-id="${e.id}" aria-label="이모지 넣기">💖</button>
+          <button data-act="cedit-save" data-id="${e.id}">저장</button><button data-act="cedit-cancel">취소</button></div>`;
+        return `<p>${who} ${esc(c.text)}${c.edited ? ` <span class="soft" style="font-size:.75em">(고침)</span>` : ""}
+          ${c.by === ME ? `<button class="cmt-tool" data-act="cedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="cdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
+      }).join("")}
+      ${cmt.edit?.id === e.id ? "" : `<div class="cmt-in"><input placeholder="한마디 남기기" maxlength="120" data-cmt="${e.id}" value="${esc(cmt.draft[e.id] || "")}">
+        <button data-act="emoji-open" data-id="${e.id}" aria-label="이모지 넣기" title="이모지 넣기">💖</button>
+        <button data-act="comment" data-id="${e.id}">남기기</button></div>`}
+      ${cmt.emoji === e.id ? `<div class="emo">${EMOJIS.map(x => `<button data-act="emoji" data-id="${e.id}" data-v="${x}">${x}</button>`).join("")}</div>` : ""}
     </div>
   </div>`;
 }
@@ -957,7 +1022,39 @@ document.addEventListener("click", e => {
     case "comment": {
       const inp = document.querySelector(`[data-cmt="${id}"]`); const text = inp.value.trim(); if (!text) return;
       updateDoc(doc(db, "diary", id), { comments: arrayUnion({ by: ME, text, at: Date.now() }) })
-        .then(() => { inp.value = ""; }).catch(err => toast("한마디를 남기지 못했어요 (" + err.code + ")"));
+        .then(() => { cmt.draft[id] = ""; cmt.emoji = null; inp.value = ""; rain(emojisIn(text)); renderTab(); })
+        .catch(err => toast("한마디를 남기지 못했어요 (" + err.code + ")"));
+      break;
+    }
+    case "cedit": {
+      const c = (S.entries[id]?.comments || []).find(c => String(c.at) === v);
+      if (!c) break;
+      cmt.edit = { id, at: c.at, text: c.text }; cmt.emoji = null; renderTab();
+      const inp = document.querySelector(`[data-cedit="${id}"]`); inp?.focus(); inp?.setSelectionRange(inp.value.length, inp.value.length);
+      break;
+    }
+    case "cedit-cancel": cmt.edit = null; cmt.emoji = null; renderTab(); break;
+    case "cedit-save": {
+      const ed = cmt.edit, text = document.querySelector(`[data-cedit="${id}"]`)?.value.trim();
+      if (!ed || !text) break;
+      saveComments(id, list => list.map(c => c.at === ed.at && c.by === ME ? { ...c, text, edited: Date.now() } : c))
+        .then(() => { cmt.edit = null; cmt.emoji = null; toast("한마디를 고쳤어요 ✏️ 아이 화면에도 바로 바뀌어요"); rain(emojisIn(text)); renderTab(); })
+        .catch(err => toast("고치지 못했어요 (" + err.code + ")"));
+      break;
+    }
+    case "cdel": {
+      if (!confirm("이 한마디를 지울까요?")) break;
+      saveComments(id, list => list.filter(c => !(String(c.at) === v && c.by === ME)))
+        .then(() => toast("한마디를 지웠어요")).catch(err => toast("지우지 못했어요 (" + err.code + ")"));
+      break;
+    }
+    case "emoji-open": cmt.emoji = cmt.emoji === id ? null : id; renderTab(); break;
+    case "emoji": {
+      const inp = document.querySelector(cmt.edit?.id === id ? `[data-cedit="${id}"]` : `[data-cmt="${id}"]`); if (!inp) break;
+      const s = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? s;
+      inp.value = inp.value.slice(0, s) + v + inp.value.slice(en);
+      inp.focus(); inp.setSelectionRange(s + v.length, s + v.length);
+      inp.dispatchEvent(new Event("input", { bubbles: true }));
       break;
     }
   }
@@ -969,12 +1066,18 @@ document.addEventListener("input", e => {
     clearTimeout(spellTimer); spellTimer = setTimeout(renderSpell, 400);
   }
   else if (e.target.id === "title" || e.target.id === "useQ") S.formDirty = true;
+  else if (e.target.dataset?.cmt) cmt.draft[e.target.dataset.cmt] = e.target.value;
+  else if (e.target.dataset?.cedit && cmt.edit) cmt.edit.text = e.target.value;
 });
+// 이모지 판을 눌러도 입력 칸의 커서가 그대로 있게
+document.addEventListener("mousedown", e => { if (e.target.closest('[data-act="emoji"]')) e.preventDefault(); });
 document.addEventListener("change", e => {
   if (e.target.id === "mgoal" && e.target.value.trim() !== (S.months[S.month]?.goal || "")) saveGoal(e.target.value);
 });
 document.addEventListener("keydown", e => {
   if (e.target.dataset?.cmt && e.key === "Enter") document.querySelector(`[data-act="comment"][data-id="${e.target.dataset.cmt}"]`)?.click();
+  if (e.target.dataset?.cedit && e.key === "Enter") document.querySelector(`[data-act="cedit-save"][data-id="${e.target.dataset.cedit}"]`)?.click();
+  if (e.target.dataset?.cedit && e.key === "Escape") document.querySelector('[data-act="cedit-cancel"]')?.click();
   if (e.target.id === "mgoal" && e.key === "Enter") e.target.blur();
 });
 window.addEventListener("beforeunload", e => { if (S.formDirty){ e.preventDefault(); e.returnValue = ""; } });

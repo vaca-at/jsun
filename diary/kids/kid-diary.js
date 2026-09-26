@@ -42,6 +42,10 @@ export const KIDS = {
 };
 const MOM = { name: "엄마", emoji: "🌷", color: "#E6A3B8" };
 const WHO = k => k === "me" ? MOM : KIDS[k] || { name: k, emoji: "", color: "#999" };
+const FAMILY = ["me", "doyun", "dojin"];
+// 아이 화면에서 가족을 부르는 이름: 도진이에게 도윤이는 '형아', 도윤이에게 도진이는 '동생'
+const CALL = { dojin: { doyun: "도윤 형아" }, doyun: { dojin: "동생 도진" } };
+const nameFor = (viewer, w) => CALL[viewer]?.[w] || WHO(w).name;
 const WEATHERS = ["☀️", "⛅", "☁️", "🌧️", "⛈️", "❄️", "🌈"];
 const MOODS = ["😊", "😆", "🥰", "😐", "😢", "😠", "😴"];
 
@@ -189,7 +193,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
 
   const S = {
     view: "write", date: today(), entries: {}, status: {}, loaded: false,
-    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false, spellFailed: false, step: null
+    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false, spellFailed: false, step: null, fam: "all"
   };
   const keyOf = (date, w) => `${date}_${w}`;
   const mine = () => S.entries[keyOf(S.date, kid)];
@@ -204,7 +208,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     <nav class="kd-tabs">
       <button data-a="view" data-v="write">✏️ 일기 쓰기</button>
       <button data-a="view" data-v="mine">📔 내 일기장</button>
-      <button data-a="view" data-v="mom">🌷 엄마 일기</button>
+      <button data-a="view" data-v="family">👨‍👩‍👦 가족 일기<span data-kd="famnew"></span></button>
     </nav>
     <div data-kd="main"></div></div>`;
 
@@ -221,9 +225,9 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   const PRAISE_SELF = ["👍 스스로 찾아서 고쳤어요! 정말 대단해요!", "🦸 혼자 고치다니, 맞춤법 영웅이에요!", "🧠 똑똑해요! 선생님 도움 없이 고쳤어요!", "🏅 스스로 고치기 성공! 박수 짝짝짝!"];
   const PRAISE_DONE = ["오늘도 멋진 일기를 완성했어요!", "글 솜씨가 쑥쑥 자라고 있어요!", "끝까지 해낸 게 정말 자랑스러워요!", "엄마가 읽으면 정말 기뻐할 거예요!", "오늘 하루를 멋지게 기록했어요!"];
   const STEPS = [[.25, "👏 좋아요, 잘 시작했어요!"], [.5, "🌱 벌써 절반! 멋져요!"], [.75, "🔥 거의 다 왔어요! 조금만 더!"], [1, "🌟 목표 달성! 정말 대단해요! 이제 빨간펜을 불러 볼까요?"]];
-  function confetti(){
+  function confetti(list){
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    const E = ["🎉", "🎊", "⭐", "🌟", "💖", "👏", "✨", "🥳", "🏆", "🌈"];
+    const E = list?.length ? list : ["🎉", "🎊", "⭐", "🌟", "💖", "👏", "✨", "🥳", "🏆", "🌈"];
     for (let i = 0; i < 30; i++){
       const s = document.createElement("span"); s.className = "kd-rain"; s.textContent = one(E);
       s.style.left = Math.random() * 96 + "vw"; s.style.animationDelay = Math.random() * 1.5 + "s"; s.style.fontSize = 1.3 + Math.random() * 1.5 + "rem";
@@ -251,15 +255,24 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   function refresh(){
     const n = streak();
     $("[data-kd=streak]").textContent = n ? `🔥 ${n}일 연속!` : "🔥 오늘부터 시작!";
-    renderNudge();
++
     if (S.view === "write"){ if (!S.dirty) renderWrite(); }
     else render();
   }
   function render(){
     root.querySelectorAll(".kd-tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === S.view));
     if (S.view === "write") renderWrite();
-    else if (S.view === "mine") renderList(kid);
-    else renderList("me");
+    else if (S.view === "mine") renderList([kid]);
+    else {
+      store.set(`kd_famseen_${kid}`, Date.now()); famBadge();
+      renderList(FAMILY.filter(w => w !== kid && (S.fam === "all" || S.fam === w)), true);
+    }
+  }
+  // 가족이 새 일기를 쓰거나 고치면 탭에 🆕 을 붙여요
+  function famBadge(){
+    const seen = store.get(`kd_famseen_${kid}`) || 0;
+    const fresh = Object.values(S.entries).some(e => e.author !== kid && toMs(e.updatedAt) > seen);
+    const b = $("[data-kd=famnew]"); if (b) b.textContent = fresh ? " 🆕" : "";
   }
 
   /* ---------- 엄마 콕! ---------- */
@@ -566,7 +579,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         ${days >= 2 ? `<p>🔥 ${days}일 연속 일기! 대단한 끈기예요!</p>` : ""}
         <p>엄마가 곧 읽고 도장 찍어 줄 거예요 🌷</p>
         <button class="kd-btn" data-a="view" data-v="mine">📔 내 일기장 보기</button>
-        <button class="kd-btn" data-a="view" data-v="mom">🌷 엄마 일기 읽기</button></div>`;
+        <button class="kd-btn" data-a="view" data-v="family">👨‍👩‍👦 가족 일기 읽기</button></div>`;
       confetti();
       if (S.status.nudgeAt && !S.status.nudgeSeen) setDoc(doc(db, "diaryStatus", kid), { nudgeSeen: true }, { merge: true }).catch(() => {});
     } catch (err){
@@ -574,28 +587,46 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     } finally { btn.disabled = false; }
   }
 
-  /* ---------- 내 일기장 · 엄마 일기 ---------- */
-  function renderList(author){
-    const list = Object.values(S.entries).filter(e => e.author === author).sort((a, b) => b.date.localeCompare(a.date));
-    const who = WHO(author);
-    $("[data-kd=main]").innerHTML = `<div class="kd-list">${list.length ? list.map(e => {
-      const hearts = e.hearts || {};
-      const heartBy = Object.keys(hearts).filter(k => hearts[k]).map(k => WHO(k).name);
+  /* ---------- 내 일기장 · 가족 일기 ---------- */
+  const cmtDraft = {};   // 한마디 쓰던 글: 화면이 새로 그려져도 지켜요
+  function renderList(authors, family){
+    const a = document.activeElement, focusId = root.contains(a) ? a?.dataset?.cmt : null;
+    const sel = focusId ? [a.selectionStart, a.selectionEnd] : null;
+    const list = Object.values(S.entries).filter(e => authors.includes(e.author))
+      .sort((a, b) => b.date.localeCompare(a.date) || FAMILY.indexOf(a.author) - FAMILY.indexOf(b.author));
+    const chips = family ? `<div class="kd-days" style="margin-bottom:8px">
+      ${["all", ...FAMILY.filter(w => w !== kid)].map(w => `<button data-a="fam" data-v="${w}" class="${S.fam === w ? "on" : ""}">${w === "all" ? "모두" : WHO(w).emoji + " " + nameFor(kid, w)}</button>`).join(" ")}
+      </div>` : "";
+    $("[data-kd=main]").innerHTML = chips + `<div class="kd-list">${list.length ? list.map(e => {
+      const who = WHO(e.author), hearts = e.hearts || {};
+      const heartBy = Object.keys(hearts).filter(k => hearts[k]).map(k => nameFor(kid, k));
+      const mine = e.author === kid;
       return `<article style="--c:${who.color}">
         ${e.stamp ? `<div class="kd-stamp">${esc(e.stamp)}</div>` : ""}
-        <div class="meta"><b>${who.emoji} ${who.name}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span></div>
+        <div class="meta"><b>${who.emoji} ${mine ? "나" : nameFor(kid, e.author)}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span></div>
         ${e.question ? `<div class="kd-soft">💡 ${esc(e.question)}</div>` : ""}
         ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
         <div class="body">${esc(e.content)}</div>
         <div class="kd-cmts">
           <button class="kd-heart" data-a="heart" data-id="${e.id}" aria-label="하트">${hearts[kid] ? "❤️" : "🤍"}</button>
           <span class="kd-soft">${heartBy.join(", ")}</span>
-          ${(e.comments || []).map(c => `<p><b style="color:${WHO(c.by).color}">${esc(WHO(c.by).name)}</b> ${esc(c.text)}</p>`).join("")}
-          <div class="kd-cmt"><input maxlength="80" placeholder="${author === kid ? "엄마에게 답장하기" : "엄마에게 한마디"}" data-cmt="${e.id}"><button data-a="comment" data-id="${e.id}">남기기</button></div>
+          ${(e.comments || []).map(c => `<p><b style="color:${WHO(c.by).color}">${esc(c.by === kid ? "나" : nameFor(kid, c.by))}</b> ${esc(c.text)}</p>`).join("")}
+          <div class="kd-cmt"><input maxlength="120" placeholder="${mine ? "답장하기" : `${nameFor(kid, e.author)}에게 한마디 (칭찬해 주세요!)`}" data-cmt="${e.id}" value="${esc(cmtDraft[e.id] || "")}"><button data-a="comment" data-id="${e.id}">남기기</button></div>
         </div></article>`;
-    }).join("") : `<p class="kd-soft" style="text-align:center;padding:30px 0">${author === kid ? "아직 쓴 일기가 없어요. 오늘 첫 일기를 써 볼까요?" : "엄마 일기가 아직 없어요."}</p>`}</div>`;
+    }).join("") : `<p class="kd-soft" style="text-align:center;padding:30px 0">${family ? "아직 가족 일기가 없어요." : "아직 쓴 일기가 없어요. 오늘 첫 일기를 써 볼까요?"}</p>`}</div>`;
+    if (focusId){ const b = root.querySelector(`[data-cmt="${focusId}"]`); if (b){ b.focus(); b.setSelectionRange(...sel); } }
+    // 내 일기에 가족이 새 한마디를 남겼으면 그 이모지를 팡팡!
+    if (!family){
+      const seen = store.get(`kd_cmtseen_${kid}`) || 0;
+      const fresh = list.flatMap(e => e.comments || []).filter(c => c.by !== kid && Math.max(c.at || 0, c.edited || 0) > seen);
+      if (fresh.length){
+        const em = fresh.flatMap(c => c.text.match(/\p{Extended_Pictographic}/gu) || []);
+        confetti(em.length ? em : ["💖", "🌟", "👏"]);
+        toast(`💌 ${[...new Set(fresh.map(c => nameFor(kid, c.by)))].join(", ")}의 새 한마디가 왔어요!`);
+        store.set(`kd_cmtseen_${kid}`, Math.max(...fresh.map(c => Math.max(c.at || 0, c.edited || 0))));
+      }
+    }
   }
-
   /* ---------- 이벤트 ---------- */
   root.addEventListener("click", ev => {
     const a = ev.target.closest("[data-a]"); if (!a) return;
@@ -612,6 +643,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         S[a.dataset.a] = S[a.dataset.a] === v ? "" : v; S.dirty = true;
         a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.a]));
         saveDraft(); break;
+      case "fam": S.fam = v; render(); break;
       case "q-next": S.qShift++; $("[data-kd=q]").textContent = question(); break;
       case "spell": spell(root.querySelector(".kd-acts [data-a=spell]")); break;
       case "reveal": S.spell.errors[+a.dataset.i].shown = true; renderPen(); break;
@@ -638,7 +670,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       case "comment": {
         const inp = root.querySelector(`[data-cmt="${id}"]`), text = inp.value.trim(); if (!text) return;
         updateDoc(doc(db, "diary", id), { comments: arrayUnion({ by: kid, text, at: Date.now() }) })
-          .then(() => { inp.value = ""; }).catch(() => toast("한마디를 못 남겼어요"));
+          .then(() => { inp.value = ""; cmtDraft[id] = ""; toast("💌 한마디를 남겼어요! 받는 사람이 정말 기뻐할 거예요"); }).catch(() => toast("한마디를 못 남겼어요"));
         break;
       }
     }
@@ -650,6 +682,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
 +
       clearTimeout(penTimer); penTimer = setTimeout(renderPen, 350);
     } else if (k === "title" || k === "useq"){ S.dirty = true; saveDraft(); }
+    else if (ev.target.dataset?.cmt) cmtDraft[ev.target.dataset.cmt] = ev.target.value;
   });
   root.addEventListener("keydown", ev => {
     if (ev.target.dataset?.cmt && ev.key === "Enter") root.querySelector(`[data-a="comment"][data-id="${ev.target.dataset.cmt}"]`)?.click();
