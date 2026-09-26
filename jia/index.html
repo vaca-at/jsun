@@ -238,6 +238,11 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
   .slot.small,.tile.small{min-width:64px;height:64px;font-size:1.8rem}
   .tray{gap:10px;padding:12px;margin-top:10px}
 }
+.evbar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;padding:.45rem 1rem;border-radius:999px;background:linear-gradient(90deg,#FF7A7A,#FFB64D,#FFE45C,#7BDA8F,#5AB4FF,#A983FF);color:#2B2140;font-size:.95rem;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap}
+.evbar[hidden]{display:none}
+.evadm{margin:8px 0 12px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#FFF4D6,#F1E6FF);border:1.5px solid #E0C8FF}
+.evadm p{margin:.35rem 0}
+@media (max-width:520px){ .evbar{font-size:.82rem;padding:.35rem .8rem} .evbar span{display:none} }
 </style>
 </head>
 <body>
@@ -280,7 +285,34 @@ function burst(){ for(let i=0;i<14;i++){ const s=document.createElement('div'); 
   s.style.left=(innerWidth/2)+'px'; s.style.top=(innerHeight/2)+'px'; s.style.setProperty('--dx',(Math.random()*360-180)+'px'); s.style.setProperty('--dy',(Math.random()*-320-40)+'px');
   document.body.appendChild(s); setTimeout(()=>s.remove(),1000); } }
 function updateStars(){ $('starCount').textContent=stars; }
-function addStar(n=1){ stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
+/* ───── 가족 이벤트 (도윤 · 도진 · 지아 · 윤아 공통): 관리자가 켜면 10분 동안 별 2배 ─────
+   이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요. 온라인 문서 family/event = {until, mult, rooms, at} */
+const EVENT_ROOMS = ['doyun','dojin','jia','yuna'], MY_ROOM = 'jia';
+let EV = null, evSub = null;
+const evOn = () => !!(EV && EV.until > Date.now() && (EV.rooms||[]).includes(MY_ROOM));
+const eStars = () => store.get('estars',0);
+function evListen(){
+  if(evSub) return;
+  evSub = cloudInit().then(db=>{ if(!db) return;
+    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(); EV=s.exists?s.data():null; drawEvent();
+      if(!was && evOn()){ try{ toast(`🌈 별 ${EV.mult||2}배 이벤트가 시작됐어요!`); }catch(e){} } }, e=>console.warn('이벤트를 읽을 수 없어요', e)); });
+}
+function drawEvent(){
+  let bar=document.getElementById('evbar');
+  if(!bar){ bar=document.createElement('div'); bar.id='evbar'; bar.className='evbar'; document.body.appendChild(bar); }
+  const on=evOn(); bar.hidden=!on; try{ document.body.classList.toggle('ev', on); }catch(e){} if(!on) return;
+  const left=Math.max(0, EV.until-Date.now()), m=Math.floor(left/60000), s=String(Math.floor(left/1000)%60).padStart(2,'0');
+  bar.innerHTML=`🌈 별 ${EV.mult||2}배 이벤트! <b>${m}:${s}</b> 남았어요 <span>· 이벤트 별 🌈 ${eStars()}</span>`;
+}
+async function evStart(min){
+  if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
+  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()}); }
+  catch(e){ console.warn(e); toast('이벤트를 켜지 못했어요 (온라인 규칙을 확인해 주세요)'); }
+}
+async function evStop(){ if(!await cloudInit()) return; try{ await cloud.db.collection('family').doc('event').set({until:0, at:Date.now()},{merge:true}); }catch(e){ console.warn(e); } }
+function addStar(n=1){
+  if(n>0 && evOn()){ store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
+  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
 /* 날짜별 기록: log[날짜][영역] = {n, ok} (다른 방 · 관리자 대시보드와 같은 모양) */
 function logToday(area, ok=true){ const L=store.get('log',{}), k=dayKey(); L[k]=L[k]||{}; const e=L[k][area]=(typeof L[k][area]==='object'?L[k][area]:{n:0,ok:0}); e.n++; if(ok) e.ok++;
   const ks=Object.keys(L).sort(); while(ks.length>90) delete L[ks.shift()]; store.set('log',L); cloudPush(); }
@@ -315,6 +347,7 @@ async function cloudPull(){
     if(snap.exists){
       const d=snap.data();
       if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
+      if(typeof d.estars==='number' && (d.estarsAt||0) > store.get('estarsAt',0)){ store.set('estars',d.estars); store.set('estarsAt',d.estarsAt); }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0)){ store.set('stars',d.stars); store.set('starsAt',d.starsAt); }
       if(d.deco && (d.deco.at||0) > (store.get('deco',{}).at||0)) store.set('deco',d.deco);
       if(d.mathDone){ const m=store.get('mathDone',{}); for(const k in d.mathDone) m[k]=Math.max(m[k]||0,d.mathDone[k]); store.set('mathDone',m); }
@@ -333,7 +366,7 @@ async function cloudPushNow(){
   if(!await cloudInit()) return;
   try{
     const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
-    await ref.set({name:who, stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()},{merge:true});
+    await ref.set({name:who, estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()},{merge:true});
     const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
     await ref.collection('daily').doc(k).set(Object.assign({visited:true, total}, day),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
@@ -600,7 +633,7 @@ const DECO_ITEMS = [
 const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
 function decoGet(){ const d=Object.assign({base:'dolphin',hat:null,acc:null,pet:null,bg:'plain',own:[],spent:0}, store.get('deco',{})); DECO_ITEMS.forEach(x=>{ if(!x.p&&!d.own.includes(x.id)) d.own.push(x.id); }); return d; }
 function decoSave(d){ d.at=Date.now(); store.set('deco',d); cloudPush(); }
-const decoLeft = () => Math.max(0, stars-(decoGet().spent||0));
+const decoLeft = () => Math.max(0, stars+eStars()-(decoGet().spent||0));
 function decoStage(d){ const bg=decoItem(d.bg)||decoItem('plain'), it=k=>d[k]?decoItem(d[k]):null, base=decoItem(d.base)||decoItem('rabbit'), spots=[[8,14],[82,10],[14,58],[86,52]];
   return `<div class="me-stage" style="background:${bg.g}">${bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}<div class="me-floor"></div>
     <div class="me-char"><span class="me-base">${base.e}</span>${it('hat')?`<span class="me-hat">${it('hat').e}</span>`:''}${it('acc')?`<span class="me-acc ${d.acc==='glasses'?'face':''}">${it('acc').e}</span>`:''}</div>${it('pet')?`<span class="me-pet">${it('pet').e}</span>`:''}</div>`; }
@@ -665,6 +698,8 @@ function drawAdm(){
     rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
   const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (지아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 (6명) ↗</button>'}</div>
+    ${mom?'':`<div class="evadm"><b>🎉 가족 이벤트 · 별 2배</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
+      ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`:'<button class="pill on" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>'}</div>`}
     <p class="sub">${cloudTxt}</p>
     <p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
     <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${AREAS[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
@@ -741,10 +776,13 @@ const ACT = {
   decoTap: v=>{ const d=decoGet(), x=decoItem(v); if(!x){ App.decoPick=null; renderRoom(); return; }
     if(d.own.includes(v)){ if(x.k==='base'||x.k==='bg') d[x.k]=v; else d[x.k]=d[x.k]===v?null:v; App.decoPick=null; decoSave(d); }
     else App.decoPick=App.decoPick===v?null:v; renderRoom(); },
+  evStart: v=>{ evStart(+v||10).then(()=>{ try{ drawAdm(); }catch(e){ render(); } }); },
+  evStop: ()=>{ evStop().then(()=>{ try{ drawAdm(); }catch(e){ render(); } }); },
   decoBuy: v=>{ const d=decoGet(), x=decoItem(v); if(!x||d.own.includes(v)||decoLeft()<x.p) return; d.spent=(d.spent||0)+x.p; d.own.push(v); d[x.k]=v; App.decoPick=null; decoSave(d); beep(true); burst(); speak(`${x.n}을 샀어요!`); renderRoom(); }
 };
 document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); return; } const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
 drawGate(); updateStars(); render();
+evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 </script>
 </body>
 </html>
