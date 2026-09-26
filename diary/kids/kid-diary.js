@@ -13,7 +13,7 @@
    ============================================================ */
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where,
+  getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where,
   arrayUnion, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -99,6 +99,8 @@ const CSS = `
 .kd-btn.main{ background:var(--kc); border-color:var(--kc); color:#fff; font-weight:700; }
 .kd-btn.red{ border-color:var(--red); color:var(--red); }
 .kd-btn:disabled{ opacity:.5; cursor:wait; }
+.kd-btn.locked{ opacity:.6; cursor:not-allowed; border-style:dashed; }
+.kd-acts [data-kd=autosave]{ align-self:center; }
 .kd-soft{ color:var(--soft); font-size:.85em; }
 .kd-row{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin-bottom:10px; }
 .kd-days button{ border:2px solid var(--line); background:#fff; border-radius:10px; padding:2px 12px; }
@@ -178,7 +180,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
 
   const S = {
     view: "write", date: today(), entries: {}, status: {}, loaded: false,
-    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false
+    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false
   };
   const keyOf = (date, w) => `${date}_${w}`;
   const mine = () => S.entries[keyOf(S.date, kid)];
@@ -212,6 +214,10 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     S.loaded = true; refresh();
   }, err => toast("일기장을 열지 못했어요. 엄마에게 말해 주세요. (" + err.code + ")"));
   onSnapshot(doc(db, "diaryStatus", kid), d => { S.status = d.data() || {}; renderNudge(); }, () => {});
+  onSnapshot(doc(db, "diaryDraft", kid), d => {
+    S.cloud = d.data() || null;
+    if (S.view === "write" && !S.dirty && S.loaded) renderWrite();
+  }, () => {});
 
   function streak(){
     let d = today(); if (!S.entries[keyOf(d, kid)]) d = addDays(d, -1);
@@ -250,11 +256,20 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
 
   /* ---------- 쓰기 ---------- */
   const question = () => P.questions[(hash(S.date + kid) + S.qShift) % P.questions.length];
+  // 쓰던 글: 이 기기(localStorage)와 파이어베이스(diaryDraft/{아이}) 두 곳에 저장해요. 더 최근 것을 불러와요.
+  function pickDraft(e){
+    const local = store.get(draftKey());
+    const cloud = S.cloud && S.cloud.date === S.date ? S.cloud : null;
+    const d = [local, cloud].filter(x => x && x.content).sort((a, b) => (b.at || 0) - (a.at || 0))[0];
+    if (!d || d.content === e.content) return null;
+    if (e.content && (d.at || 0) < toMs(e.updatedAt)) return null;   // 저장한 일기가 더 새것이면 그걸 보여줘요
+    return d;
+  }
   function renderWrite(){
     root.querySelectorAll(".kd-tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === "write"));
     const e = mine() || {};
-    const draft = store.get(draftKey());
-    const useDraft = draft && draft.content && draft.content !== e.content;
+    const draft = pickDraft(e);
+    const useDraft = !!draft;
     const src = useDraft ? draft : e;
     S.weather = src.weather || ""; S.mood = src.mood || ""; S.spell = null; S.found = e.spellFound || 0;
     const q = e.question || question();
@@ -266,7 +281,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
           <button data-a="date" data-v="${y}" class="${S.date === y ? "on" : ""}">어제</button>
         </div>
         <b>${fmtDate(S.date)}</b>
-        <span class="kd-soft">${useDraft ? "📝 쓰던 일기를 불러왔어요" : e.content ? "✅ 저장한 일기예요. 고쳐서 다시 저장할 수 있어요" : ""}</span>
+        <span class="kd-soft">${useDraft ? "📝 쓰던 일기를 그대로 불러왔어요" : e.content ? "✅ 저장한 일기예요. 고쳐서 다시 저장할 수 있어요" : ""}</span>
       </div>
       <div class="kd-row">
         <div class="kd-pick"><span>날씨</span>${WEATHERS.map(v => `<button data-a="weather" data-v="${v}" class="${S.weather === v ? "on" : ""}">${v}</button>`).join("")}</div>
@@ -279,50 +294,56 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       <textarea class="kd-lined" data-kd="content" placeholder="오늘 있었던 일을 적어 보세요.">${esc(src.content || "")}</textarea>
       <div class="kd-gauge" data-kd="gauge"><span>✏️</span><div class="bar"><i></i></div><span class="kd-soft" data-kd="gtxt"></span></div>
       <div class="kd-acts">
-        <button class="kd-btn" data-a="voice">🎤 말로 쓰기</button>
+        <span class="kd-soft" data-kd="autosave"></span>
         <button class="kd-btn red" data-a="spell">🖍 빨간펜 검사</button>
         <button class="kd-btn main" data-a="save">💾 다 썼어요!</button>
       </div>
       <div data-kd="pen"></div>`;
-    S.dirty = !!useDraft;
+    S.dirty = useDraft;
     gauge();
   }
+  // 목표 글자 수를 다 채워야 빨간펜 선생님을 부를 수 있어요.
   function gauge(){
     const ta = $("[data-kd=content]"); if (!ta) return;
     const n = countChars(ta.value), g = P.goal;
     $("[data-kd=gauge] i").style.width = Math.min(100, n / g * 100) + "%";
     $("[data-kd=gauge]").classList.toggle("full", n >= g);
     $("[data-kd=gtxt]").textContent = n >= g ? `🌟 ${n}자! 목표 달성!` : n >= g / 2 ? `🌱 ${n} / ${g}자 · 절반 넘었어요!` : `${n} / ${g}자`;
+    const btn = $(".kd-acts [data-a=spell]");
+    if (btn && !S.checking){
+      btn.disabled = n < g; btn.classList.toggle("locked", n < g);
+      btn.textContent = n < g ? `🔒 빨간펜 (${g - n}자 더 쓰면 열려요)` : "🖍 빨간펜 검사";
+    }
   }
+  let cloudTimer = null;
   function saveDraft(){
     const c = $("[data-kd=content]"); if (!c) return;
-    store.set(draftKey(), { title: $("[data-kd=title]").value, content: c.value, weather: S.weather, mood: S.mood });
+    const d = { date: S.date, title: $("[data-kd=title]").value, content: c.value, weather: S.weather, mood: S.mood, at: Date.now() };
+    store.set(draftKey(), d);
+    const tag = $("[data-kd=autosave]"); if (tag) tag.textContent = "💾 저장하는 중…";
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(() => pushDraft(d), 2000);
   }
-
-  let rec = null;
-  function voice(btn){
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) return toast("이 기기에서는 말로 쓰기가 안 돼요. 크롬에서 열어 주세요.");
-    if (rec){ rec.stop(); return; }
-    rec = new SR(); rec.lang = "ko-KR"; rec.continuous = true; rec.interimResults = false;
-    rec.onresult = ev => {
-      let t = "";
-      for (let i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) t += ev.results[i][0].transcript;
-      if (!t) return;
-      const ta = $("[data-kd=content]"), v = ta.value;
-      ta.value = v + (v && !/\s$/.test(v) ? " " : "") + t.trim();
-      S.dirty = true; gauge(); saveDraft(); renderPen();
-    };
-    rec.onend = () => { rec = null; const b = $("[data-a=voice]"); if (b) b.textContent = "🎤 말로 쓰기"; };
-    rec.onerror = e => toast("말로 쓰기가 멈췄어요 (" + e.error + ")");
-    rec.start(); btn.textContent = "⏹ 그만 말하기";
+  function pushDraft(d){
+    cloudTimer = null;
+    setDoc(doc(db, "diaryDraft", kid), d)
+      .then(() => { const tag = $("[data-kd=autosave]"); if (tag) tag.textContent = `💾 자동 저장됨 ${new Date().getHours()}:${pad(new Date().getMinutes())}`; })
+      .catch(() => { const tag = $("[data-kd=autosave]"); if (tag) tag.textContent = "💾 이 기기에 저장됨"; });
   }
+  // 창을 닫거나 다른 앱으로 넘어가도 바로 저장해요.
+  function flushDraft(){
+    if (!cloudTimer) return;
+    clearTimeout(cloudTimer);
+    const d = store.get(draftKey()); if (d) pushDraft(d);
+  }
+  window.addEventListener("pagehide", flushDraft);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushDraft(); });
 
   /* ---------- 빨간펜 선생님 ---------- */
   async function spell(btn){
     const text = $("[data-kd=content]").value.trim();
-    if (countChars(text) < 5) return toast("조금 더 쓰고 검사해 볼까요?");
-    btn.disabled = true; btn.textContent = "🖍 선생님이 읽는 중…";
+    if (countChars(text) < P.goal) return toast(`${P.goal}자를 다 쓰면 빨간펜 선생님을 부를 수 있어요! (지금 ${countChars(text)}자)`);
+    S.checking = true; btn.disabled = true; btn.textContent = "🖍 선생님이 읽는 중…";
     try {
       const r = await fetch(spellApi, {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -340,7 +361,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     } catch {
       $("[data-kd=pen]").innerHTML = `<div class="kd-pen"><h3>빨간펜 선생님이 잠깐 쉬는 중이에요</h3>
         <p class="kd-soft">조금 있다가 다시 눌러 보세요. 일기 저장은 지금도 할 수 있어요.</p></div>`;
-    } finally { btn.disabled = false; btn.textContent = "🖍 빨간펜 검사"; }
+    } finally { S.checking = false; gauge(); }
   }
   // 지금 쓰여 있는 글 기준으로 동그라미를 다시 그려요. 아이가 직접 고치면 동그라미가 사라져요.
   function renderPen(){
@@ -408,7 +429,8 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         updatedAt: serverTimestamp(), ...spellResult(),
         ...(exists ? {} : { createdAt: serverTimestamp(), comments: [], hearts: {} })
       }, { merge: true });
-      store.del(draftKey()); S.dirty = false;
+      store.del(draftKey()); clearTimeout(cloudTimer); cloudTimer = null; S.dirty = false;
+      if (S.cloud && S.cloud.date === S.date) deleteDoc(doc(db, "diaryDraft", kid)).catch(() => {});
       const n = countChars(text);
       $("[data-kd=main]").innerHTML = `<div class="kd-party"><div class="big">${n >= P.goal ? "🌟" : "📔"}</div>
         <h3>${exists ? "고친 일기를 저장했어요!" : `${call(P.name)}, 오늘 일기 완성!`}</h3>
@@ -460,7 +482,6 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.a]));
         saveDraft(); break;
       case "q-next": S.qShift++; $("[data-kd=q]").textContent = question(); break;
-      case "voice": voice(a); break;
       case "spell": spell(root.querySelector(".kd-acts [data-a=spell]")); break;
       case "reveal": S.spell.errors[+a.dataset.i].shown = true; renderPen(); break;
       case "apply": {
