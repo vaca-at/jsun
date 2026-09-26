@@ -1083,7 +1083,7 @@ const SUBJ = {
   math:{name:'연산', ico:SICO.math, desc:'받아올림 덧셈부터 곱셈구구 · 세 자리 계산까지 (10단계)'},
   school:{name:'학교수학', ico:SICO.school, desc:'2학년 2학기 교과서 단원'},
   korean:{name:'국어', ico:SICO.korean, desc:'받아쓰기 · 말놀이 · 높임말 (1 · 2단계)'},
-  eng:{name:'영어', ico:SICO.eng, desc:'알파벳, 단어, 듣고 고르기'},
+  eng:{name:'영어', ico:SICO.eng, desc:'3단계 파닉스: 🌱알파벳 소리 · 🌿단어 읽기 · 🌳짧은 이야기'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'시대 공부, 한능검 준비'},
   social:{name:'사회', ico:SICO.social, desc:'우리 동네 · 가족 · 안전 → 초3 미리 보기'},
@@ -2311,6 +2311,19 @@ function diaryToast(){
   toast(h>=DIARY_DUE ? '🚨 8시가 넘었어요! 일기 먼저 써요 📔' : '📔 8시 전에 일기 써요! 위에 있는 버튼을 눌러요');
 }
 setTimeout(diaryWatch,0);
+/* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 윤아 공부방과 같은 파일) ───── */
+let engBox=null;
+function renderEng2(){
+  if(!engBox){
+    engBox=document.createElement('div');
+    engBox.innerHTML='<p class="center" style="padding:30px">🔤 영어를 여는 중…</p>';
+    import('/english/english.js')
+      .then(m=>m.mountEnglish({ el:engBox, kidId:KID_IDS[KID], grade:GRADE_ID, firebaseConfig:FIREBASE_CONFIG, name:KID,
+        host:{ speak:(t,l)=>speak(t,l||'en'), beep, addStar:n=>{ if(who) addStar(n); }, logToday:ok=>{ if(who) logToday('eng',ok); }, toast, burst } }))
+      .catch(e=>{ console.warn('영어를 열지 못했어요', e); engBox.innerHTML='<p class="center" style="padding:30px">영어를 열지 못했어요. 새로고침해 볼까요?</p>'; engBox=null; });
+  }
+  view.innerHTML=''; view.appendChild(engBox);
+}
 /* ───── 화면 전환 ───── */
 function go(v){ try{ if(RD) readStop(); }catch(e){} App.view=v; render(); window.scrollTo(0,0); }
 function render(){
@@ -2321,7 +2334,7 @@ function render(){
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];
   });
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, diary:renderDiary, myroom:renderMyRoom, social:()=>renderCS('social'), science:()=>renderCS('science'), library:renderLibrary, math:renderCalc, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
+  ({home:renderHome, diary:renderDiary, myroom:renderMyRoom, social:()=>renderCS('social'), science:()=>renderCS('science'), library:renderLibrary, math:renderCalc, school:renderSchool, korean:renderKorean, eng:renderEng2, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
 }
 
 /* ───── 홈 ───── */
