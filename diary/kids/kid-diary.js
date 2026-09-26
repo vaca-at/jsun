@@ -22,7 +22,7 @@ const DUE_HOUR = 20;   // 저녁 8시 전에 쓰기
 
 export const KIDS = {
   dojin: {
-    name: "도진", emoji: "🐣", color: "#7CC68A", level: "grade2", grade: "2학년", goal: 60, fs: "1.3rem",
+    name: "도진", emoji: "🐣", color: "#7CC68A", level: "grade2", grade: "2학년", goal: 60, fs: "1.3rem", autoFix: true,
     questions: [
       "오늘 제일 재미있었던 일은 뭐였나요?", "오늘 먹은 것 중에 제일 맛있었던 건?",
       "오늘 친구랑 무엇을 하고 놀았나요?", "오늘 새로 알게 된 것은?",
@@ -114,8 +114,14 @@ const CSS = `
 .kd-q label{ font-size:.85em; display:flex; gap:4px; align-items:center; }
 .kd-q button{ background:none; border:none; font-size:.85em; color:var(--soft); text-decoration:underline; }
 .kd-title{ width:100%; border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; font-size:1.1em; margin-bottom:10px; }
-.kd-lined{ width:100%; min-height:300px; resize:vertical; border:none; border-radius:6px; padding:4px 12px 4px 56px; line-height:40px;
-  background-color:#fff; background-attachment:local;
+.kd-editor{ position:relative; background:#fff; border-radius:6px; }
+.kd-hl{ position:absolute; inset:0; padding:4px 12px 4px 56px; line-height:40px; white-space:pre-wrap; overflow-wrap:break-word; word-break:normal; color:transparent; pointer-events:none; overflow:hidden; }
+.kd-hl mark{ color:transparent; background:rgba(255,222,70,.8); border-radius:4px; }
+.kd-hl mark.done{ background:rgba(110,210,140,.5); }
+.kd .hl-fix{ background:rgba(255,222,70,.8); border-radius:4px; padding:0 3px; }
+.kd .hl-done{ background:rgba(110,210,140,.5); border-radius:4px; padding:0 3px; }
+.kd-lined{ position:relative; display:block; width:100%; min-height:300px; resize:none; overflow:hidden; border:none; border-radius:6px; padding:4px 12px 4px 56px; line-height:40px; white-space:pre-wrap; overflow-wrap:break-word; word-break:normal;
+  background-color:transparent; background-attachment:local;
   background-image:linear-gradient(to right, transparent 44px, var(--red) 44px, var(--red) 46px, transparent 46px),
     repeating-linear-gradient(to bottom, transparent 0 39px, var(--line) 39px 40px);
   outline:1px solid var(--line); }
@@ -128,7 +134,7 @@ const CSS = `
 .kd-pen{ margin-top:16px; border:2.5px solid var(--red); border-radius:16px; padding:14px 16px; background:#fff; }
 .kd-pen h3{ margin:0 0 6px; color:var(--red); font-size:1.15em; }
 .kd-pen .praise{ background:#EEF8F0; border-radius:10px; padding:6px 10px; margin:6px 0 10px; }
-.kd-pen .preview{ white-space:pre-wrap; line-height:2.1; margin:8px 0 12px; padding:8px 10px; background:var(--paper); border-radius:10px; }
+
 .kd-pen mark{ background:none; color:inherit; padding:0 4px; border:2px solid var(--red); border-radius:48% 52% 45% 55% / 55% 45% 55% 45%; }
 .kd-pen mark sup{ color:var(--red); font-weight:700; }
 .kd-pen ol{ margin:0; padding-left:1.5em; }
@@ -156,7 +162,10 @@ const CSS = `
 .kd-toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:#fff; padding:8px 18px; border-radius:999px; z-index:999; max-width:90vw; text-align:center; font-family:inherit; }
 .kd-party{ text-align:center; padding:30px 10px; }
 .kd-party .big{ font-size:3em; }
-@media (max-width:600px){ .kd{ padding:12px; } .kd-lined{ padding-left:44px; background-image:linear-gradient(to right, transparent 34px, var(--red) 34px, var(--red) 36px, transparent 36px), repeating-linear-gradient(to bottom, transparent 0 39px, var(--line) 39px 40px); } }
+.kd-party p{ margin:6px 0; }
+.kd-rain{ position:fixed; top:-3rem; z-index:998; pointer-events:none; animation:kdrain 3s linear forwards; }
+@keyframes kdrain{ to{ transform:translateY(110vh) rotate(360deg); } }
+@media (max-width:600px){ .kd{ padding:12px; } .kd-hl{ padding-left:44px; } .kd-lined{ padding-left:44px; background-image:linear-gradient(to right, transparent 34px, var(--red) 34px, var(--red) 36px, transparent 36px), repeating-linear-gradient(to bottom, transparent 0 39px, var(--line) 39px 40px); } }
 @media (prefers-reduced-motion:reduce){ .kd *{ animation:none !important; transition:none !important; } }
 `;
 function injectStyle(){
@@ -180,7 +189,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
 
   const S = {
     view: "write", date: today(), entries: {}, status: {}, loaded: false,
-    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false
+    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false, spellFailed: false, step: null
   };
   const keyOf = (date, w) => `${date}_${w}`;
   const mine = () => S.entries[keyOf(S.date, kid)];
@@ -205,6 +214,21 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     if (!t){ t = document.createElement("div"); t.className = "kd-toast"; document.body.append(t); }
     t.textContent = msg; t.classList.remove("hide");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hide"), 2800);
+  }
+  /* 우리 아이들은 칭찬을 좋아해요 */
+  const one = a => a[Math.floor(Math.random() * a.length)];
+  const PRAISE_FIX = ["✨ 정확해요! 멋지게 고쳤어요!", "👍 우와, 잘 고쳤어요!", "💯 딱 맞았어요!", "🌟 역시 최고예요!", "😎 고치는 솜씨가 수준급이에요!"];
+  const PRAISE_SELF = ["👍 스스로 찾아서 고쳤어요! 정말 대단해요!", "🦸 혼자 고치다니, 맞춤법 영웅이에요!", "🧠 똑똑해요! 선생님 도움 없이 고쳤어요!", "🏅 스스로 고치기 성공! 박수 짝짝짝!"];
+  const PRAISE_DONE = ["오늘도 멋진 일기를 완성했어요!", "글 솜씨가 쑥쑥 자라고 있어요!", "끝까지 해낸 게 정말 자랑스러워요!", "엄마가 읽으면 정말 기뻐할 거예요!", "오늘 하루를 멋지게 기록했어요!"];
+  const STEPS = [[.25, "👏 좋아요, 잘 시작했어요!"], [.5, "🌱 벌써 절반! 멋져요!"], [.75, "🔥 거의 다 왔어요! 조금만 더!"], [1, "🌟 목표 달성! 정말 대단해요! 이제 빨간펜을 불러 볼까요?"]];
+  function confetti(){
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const E = ["🎉", "🎊", "⭐", "🌟", "💖", "👏", "✨", "🥳", "🏆", "🌈"];
+    for (let i = 0; i < 30; i++){
+      const s = document.createElement("span"); s.className = "kd-rain"; s.textContent = one(E);
+      s.style.left = Math.random() * 96 + "vw"; s.style.animationDelay = Math.random() * 1.5 + "s"; s.style.fontSize = 1.3 + Math.random() * 1.5 + "rem";
+      document.body.append(s); setTimeout(() => s.remove(), 4500);
+    }
   }
 
   /* ---------- 데이터 ---------- */
@@ -291,7 +315,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         <label><input type="checkbox" data-kd="useq" ${e.question ? "checked" : ""}> 이 질문으로 쓸래요</label>
         <button data-a="q-next">다른 질문</button></div>
       <input class="kd-title" data-kd="title" placeholder="제목" maxlength="40" value="${esc(src.title || "")}">
-      <textarea class="kd-lined" data-kd="content" placeholder="오늘 있었던 일을 적어 보세요.">${esc(src.content || "")}</textarea>
+      <div class="kd-editor"><div class="kd-hl" data-kd="hl" aria-hidden="true"></div><textarea class="kd-lined" data-kd="content" placeholder="오늘 있었던 일을 적어 보세요.">${esc(src.content || "")}</textarea></div>
       <div class="kd-gauge" data-kd="gauge"><span>✏️</span><div class="bar"><i></i></div><span class="kd-soft" data-kd="gtxt"></span></div>
       <div class="kd-acts">
         <span class="kd-soft" data-kd="autosave"></span>
@@ -299,8 +323,8 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         <button class="kd-btn main" data-a="save">💾 다 썼어요!</button>
       </div>
       <div data-kd="pen"></div>`;
-    S.dirty = useDraft;
-    gauge();
+    S.dirty = useDraft; S.step = null;
+    gauge(); drawHL();
   }
   // 목표 글자 수를 다 채워야 빨간펜 선생님을 부를 수 있어요.
   function gauge(){
@@ -308,7 +332,12 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     const n = countChars(ta.value), g = P.goal;
     $("[data-kd=gauge] i").style.width = Math.min(100, n / g * 100) + "%";
     $("[data-kd=gauge]").classList.toggle("full", n >= g);
-    $("[data-kd=gtxt]").textContent = n >= g ? `🌟 ${n}자! 목표 달성!` : n >= g / 2 ? `🌱 ${n} / ${g}자 · 절반 넘었어요!` : `${n} / ${g}자`;
+    const r = n / g;
+    $("[data-kd=gtxt]").textContent = n >= g ? `🌟 ${n}자! 목표 달성!` : n === 0 ? `✏️ 첫 글자를 써 볼까요? (목표 ${g}자)`
+      : r >= .75 ? `🔥 ${n} / ${g}자 · 거의 다 왔어요!` : r >= .5 ? `🌱 ${n} / ${g}자 · 절반 넘었어요!` : `${n} / ${g}자`;
+    const step = STEPS.filter(([t]) => r >= t).length;   // 단계를 넘을 때마다 한 번씩 칭찬해요
+    if (S.step != null && step > S.step) toast(STEPS[step - 1][1]);
+    S.step = step;
     const btn = $(".kd-acts [data-a=spell]");
     if (btn && !S.checking){
       btn.disabled = n < g; btn.classList.toggle("locked", n < g);
@@ -339,9 +368,66 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   window.addEventListener("pagehide", flushDraft);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushDraft(); });
 
-  /* ---------- 빨간펜 선생님 ---------- */
+  /* ---------- 빨간펜 선생님 ----------
+     도윤(초4): 고칠 곳에 노란 형광펜 → 힌트 보고 스스로 고치기
+     도진(초2): 빨간펜이 본문을 바로 고쳐 주고, 고친 곳은 초록 형광펜으로 보여 주기 */
+  const ENDS = /[.?!…~。)"'”’\]]$|\p{Extended_Pictographic}$/u;
+  // 틀린 곳이 아직 남았는지: '좋겠다 → 좋겠다.'처럼 고친 말이 틀린 말을 품고 있어도 정확히 가려요.
+  function wrongAt(er, text){
+    const off = er.right.indexOf(er.wrong);
+    let i = text.indexOf(er.wrong);
+    while (i >= 0){
+      if (off < 0 || !text.startsWith(er.right, i - off)) return i;
+      i = text.indexOf(er.wrong, i + 1);
+    }
+    return -1;
+  }
+  const isLeft = (er, text) => wrongAt(er, text) >= 0;
+  // 줄 끝(문장 끝)에 마침표가 없는 곳을 직접 찾아요. 빨간펜이 놓쳐도 꼭 잡혀요.
+  function periodErrors(text, known){
+    const out = []; let pos = 0;
+    for (const line of text.split("\n")){
+      const body = line.replace(/\s+$/, ""), end = pos + body.length;
+      pos += line.length + 1;
+      if (countChars(body) < 4 || ENDS.test(body)) continue;
+      if ([...known, ...out].some(er => { const i = wrongAt(er, text); return i >= 0 && i + er.wrong.length === end; })) continue;
+      // 고칠 곳을 정확히 짚으려고, 글 전체에서 한 번만 나오는 꼬리 낱말을 골라요
+      const words = [...body.matchAll(/\S+/g)];
+      let tail = "";
+      for (let n = 1; n <= words.length; n++){
+        const t = body.slice(words[words.length - n].index);
+        if (text.indexOf(t) === end - t.length && text.lastIndexOf(t) === end - t.length){ tail = t; break; }
+      }
+      if (!tail) continue;
+      out.push({ wrong: tail, right: tail + ".", kind: "문장부호",
+        hint: "문장이 끝났어요. 끝에 무엇을 찍어야 할까요?",
+        why: "문장이 끝나면 마침표(.)를 찍어요. 묻는 말이면 물음표(?), 놀란 말이면 느낌표(!)예요." });
+    }
+    return out;
+  }
+  // 고친 말로 바꾸고, 다른 고친 곳들의 자리도 함께 옮겨 줘요.
+  function applyOne(er){
+    const ta = $("[data-kd=content]"), text = ta.value, i = wrongAt(er, text);
+    if (i < 0) return;
+    const delta = er.right.length - er.wrong.length;
+    S.spell.errors.forEach(o => { if (o.applied && o.at > i) o.at += delta; });
+    ta.value = text.slice(0, i) + er.right + text.slice(i + er.wrong.length);
+    er.at = i; er.applied = true; er.shown = true;
+  }
+  function applyAll(){
+    const ta = $("[data-kd=content]"), text = ta.value;
+    const hits = S.spell.errors.map(er => ({ er, i: wrongAt(er, text) })).filter(h => h.i >= 0).sort((a, b) => a.i - b.i);
+    let out = "", pos = 0;
+    for (const h of hits){
+      if (h.i < pos) continue;   // 겹치는 건 건너뛰어요
+      out += text.slice(pos, h.i); h.er.at = out.length; out += h.er.right;
+      pos = h.i + h.er.wrong.length; h.er.applied = true; h.er.shown = true;
+    }
+    ta.value = out + text.slice(pos);
+  }
+
   async function spell(btn){
-    const text = $("[data-kd=content]").value.trim();
+    const ta = $("[data-kd=content]"), text = ta.value.trim();
     if (countChars(text) < P.goal) return toast(`${P.goal}자를 다 쓰면 빨간펜 선생님을 부를 수 있어요! (지금 ${countChars(text)}자)`);
     S.checking = true; btn.disabled = true; btn.textContent = "🖍 선생님이 읽는 중…";
     try {
@@ -351,75 +437,115 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       });
       if (!r.ok) throw new Error(r.status);
       const data = await r.json();
-      S.spell = {
-        praise: data.praise || "", cheer: data.cheer || "",
-        errors: (data.errors || []).map(er => ({ ...er, shown: false, applied: false }))
-      };
-      S.found = Math.max(S.found, S.spell.errors.length);
+      const errors = (data.errors || []).filter(er => er.wrong && er.right && er.wrong !== er.right)
+        .map(er => ({ ...er, shown: false, applied: false }));
+      errors.push(...periodErrors(ta.value, errors).map(er => ({ ...er, shown: false, applied: false })));
+      S.spell = { praise: data.praise || "", cheer: data.cheer || "", errors };
+      S.found = Math.max(S.found, errors.length);
+      if (P.autoFix && errors.length){ applyAll(); S.dirty = true; saveDraft(); }
+      S.spell.chars = countChars(ta.value); S.spellFailed = false; S.dirty = true;
       renderPen();
       $("[data-kd=pen]").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return true;
     } catch {
+      S.spellFailed = true;   // 선생님이 쉬는 중이면 저장은 막지 않아요
       $("[data-kd=pen]").innerHTML = `<div class="kd-pen"><h3>빨간펜 선생님이 잠깐 쉬는 중이에요</h3>
         <p class="kd-soft">조금 있다가 다시 눌러 보세요. 일기 저장은 지금도 할 수 있어요.</p></div>`;
+      return false;
     } finally { S.checking = false; gauge(); }
   }
-  // 지금 쓰여 있는 글 기준으로 동그라미를 다시 그려요. 아이가 직접 고치면 동그라미가 사라져요.
+
+  // 본문 칸 뒤에 형광펜을 칠해요. 노랑: 고칠 곳 · 초록: 고친 곳
+  function drawHL(){
+    const hl = $("[data-kd=hl]"), ta = $("[data-kd=content]"); if (!hl || !ta) return;
+    const text = ta.value, spans = [];
+    (S.spell?.errors || []).forEach(er => {
+      let i = wrongAt(er, text), len = er.wrong.length, cls = "fix";
+      if (i < 0 && er.applied){
+        i = er.at != null && text.startsWith(er.right, er.at) ? er.at : text.indexOf(er.right);
+        len = er.right.length; cls = "done";
+      }
+      if (i >= 0 && !spans.some(s => i < s.e && i + len > s.i)) spans.push({ i, e: i + len, cls });
+    });
+    spans.sort((a, b) => a.i - b.i);
+    let html = "", pos = 0;
+    spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<mark class="${s.cls}">${esc(text.slice(s.i, s.e))}</mark>`; pos = s.e; });
+    hl.innerHTML = html + esc(text.slice(pos)) + " ";
+    ta.style.height = "auto"; ta.style.height = Math.max(300, ta.scrollHeight) + "px";
+  }
+
   function renderPen(){
+    drawHL();
     const box = $("[data-kd=pen]"); if (!box || !S.spell) return;
     const text = $("[data-kd=content]").value;
     const { errors, praise, cheer } = S.spell;
-    errors.forEach(er => { er.left = text.includes(er.wrong); });
+    errors.forEach(er => { const was = er.left; er.left = isLeft(er, text); if (was && !er.left && !er.applied) toast(one(PRAISE_SELF)); });
     const left = errors.filter(er => er.left);
     const praiseHtml = praise ? `<div class="praise">👏 ${esc(praise)}</div>` : "";
     if (!errors.length){
       box.innerHTML = `<div class="kd-pen"><h3>💯 틀린 곳이 하나도 없어요!</h3>${praiseHtml}<p>${esc(cheer)}</p></div>`;
       return;
     }
-    const marks = [];
-    errors.forEach((er, i) => {
-      if (!er.left) return;
-      const idx = text.indexOf(er.wrong);
-      if (!marks.some(m => idx < m.end && idx + er.wrong.length > m.idx)) marks.push({ idx, end: idx + er.wrong.length, i });
-    });
-    marks.sort((a, b) => a.idx - b.idx);
-    let html = "", pos = 0;
-    marks.forEach(m => { html += esc(text.slice(pos, m.idx)) + `<mark>${esc(text.slice(m.idx, m.end))}<sup>${m.i + 1}</sup></mark>`; pos = m.end; });
-    html += esc(text.slice(pos));
-
-    const head = left.length
-      ? `🖍 동그라미 친 곳이 ${left.length}군데 있어요`
-      : `🎉 모두 고쳤어요!`;
-    const sub = left.length
-      ? `<p>힌트를 읽고 먼저 스스로 고쳐 보세요. 잘 모르겠으면 💡 정답 보기를 눌러요.</p>`
-      : `<p class="good">${esc(cheer) || "정말 멋져요!"} 이제 💾 다 썼어요! 를 눌러 저장해요.</p>`;
-    box.innerHTML = `<div class="kd-pen"><h3>${head}</h3>${praiseHtml}${sub}
-      ${left.length ? `<div class="preview">${html}</div>` : ""}
-      <ol>${errors.map((er, i) => `<li class="${er.left ? "" : "done"}">
+    const pair = er => `<span class="wrong">${esc(er.wrong)}</span> → <span class="right">${esc(er.right)}</span>`;
+    let head, sub, items;
+    if (P.autoFix){
+      head = `🖍 빨간펜 선생님이 ${errors.length}군데를 고쳐 줬어요`;
+      sub = `<p><span class="hl-done">초록색</span>으로 칠한 곳이 고친 곳이에요. 어떻게 바뀌었는지 소리 내어 읽어 봐요!</p>
+        <p class="good">${esc(cheer) || "정말 잘했어요!"} 고친 곳을 읽어 보고 💾 다 썼어요! 를 한 번 더 눌러요.</p>`;
+      items = errors.map((er, i) => `<li class="${er.left ? "" : "done"}">
+        ${er.kind ? `<span class="chip">${esc(er.kind)}</span>` : ""}${pair(er)}
+        <br><span class="kd-soft">${esc(er.why || er.hint)}</span>
+        ${er.left ? `<br><button class="mini" data-a="apply" data-i="${i}">✏️ 고치기</button>` : ""}</li>`).join("");
+    } else {
+      head = left.length ? `🖍 형광펜으로 칠한 곳이 ${left.length}군데 있어요` : `🎉 모두 고쳤어요!`;
+      sub = left.length
+        ? `<p>틀려도 괜찮아요! 고치면서 실력이 쑥쑥 자라요 🌱 일기 칸에 <span class="hl-fix">노란색</span>으로 칠한 곳을 찾아서 스스로 고쳐 보세요. 잘 모르겠으면 💡 정답 보기를 눌러요. 다 고쳐야 저장할 수 있어요!</p>`
+        : `<p class="good">${esc(cheer) || "정말 멋져요!"} 이제 💾 다 썼어요! 를 눌러 저장해요.</p>`;
+      items = errors.map((er, i) => `<li class="${er.left ? "" : "done"}">
         ${er.kind ? `<span class="chip">${esc(er.kind)}</span>` : ""}
-        ${er.left ? esc(er.hint)
+        ${er.left ? `<span class="hl-fix">${esc(er.wrong)}</span> ${esc(er.hint)}`
           : er.applied ? `<span class="good">✅ 고쳤어요</span> <span class="kd-soft">${esc(er.wrong)} → ${esc(er.right)}</span>`
           : `<span class="good">👍 스스로 고쳤어요!</span> <span class="kd-soft">${esc(er.right)}</span>`}
-        ${er.left ? (er.shown
-          ? `<div class="ans"><span class="wrong">${esc(er.wrong)}</span> → <span class="right">${esc(er.right)}</span><br><span class="kd-soft">${esc(er.why)}</span><br>
-              <button class="mini" data-a="apply" data-i="${i}">✏️ 이렇게 고칠래요</button></div>`
-          : `<div><button class="mini" data-a="reveal" data-i="${i}">💡 정답 보기</button></div>`) : ""}
-      </li>`).join("")}</ol>
-      ${left.length ? `<div style="text-align:right;margin-top:8px"><button class="kd-btn" data-a="spell">🔁 다시 검사</button></div>` : ""}
+        ${er.left ? `<div><button class="mini" data-a="find" data-i="${i}">👀 찾기</button>${er.shown
+            ? `<div class="ans">${pair(er)}<br><span class="kd-soft">${esc(er.why)}</span><br>
+                <button class="mini" data-a="apply" data-i="${i}">✏️ 이렇게 고칠래요</button></div>`
+            : `<button class="mini" data-a="reveal" data-i="${i}">💡 정답 보기</button>`}</div>` : ""}
+      </li>`).join("");
+    }
+    box.innerHTML = `<div class="kd-pen"><h3>${head}</h3>${praiseHtml}${sub}<ol>${items}</ol>
+      ${left.length && !P.autoFix ? `<div style="text-align:right;margin-top:8px"><button class="kd-btn" data-a="spell">🔁 다시 검사</button></div>` : ""}
     </div>`;
   }
   function spellResult(){
     if (!S.spell) return {};
-    const text = $("[data-kd=content]").value;
-    const left = S.spell.errors.filter(er => text.includes(er.wrong)).length;
-    const self = S.spell.errors.filter(er => !text.includes(er.wrong) && !er.shown).length;
-    return { spellChecked: true, spellFound: S.found, spellLeft: left, spellSelf: self };
+    const text = $("[data-kd=content]").value, errs = S.spell.errors;
+    return {
+      spellChecked: true, spellFound: S.found, spellAuto: !!P.autoFix,
+      spellLeft: errs.filter(er => isLeft(er, text)).length,
+      spellSelf: errs.filter(er => !isLeft(er, text) && !er.applied && !er.shown).length
+    };
   }
 
   /* ---------- 저장 ---------- */
   async function save(btn){
-    const text = $("[data-kd=content]").value.trim();
+    const ta = $("[data-kd=content]"), text = ta.value.trim(), n0 = countChars(text);
     if (!text) return toast("일기를 먼저 써 주세요 ✏️");
+    if (n0 < P.goal) return toast(`💪 조금만 더! ${P.goal - n0}자만 더 쓰면 완성이에요!`);
+    // 빨간펜을 안 불렀거나, 검사 뒤에 새로 많이 썼으면 빨간펜부터
+    if (!S.spellFailed && (!S.spell || n0 > S.spell.chars + 10)){
+      toast("🖍 저장하기 전에 빨간펜 선생님이 먼저 읽어 볼게요!");
+      const ok = await spell($(".kd-acts [data-a=spell]"));
+      if (ok && S.spell.errors.length) return;   // 고친 곳을 보고 다시 눌러요
+      if (!ok && !S.spellFailed) return;
+    }
+    const left = S.spell ? S.spell.errors.filter(er => isLeft(er, ta.value)).length : 0;
+    if (left){
+      toast(`✏️ 노란 형광펜 ${left}군데만 고치면 저장할 수 있어요! 거의 다 왔어요 💪`);
+      $("[data-kd=pen]").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
     const id = keyOf(S.date, kid), exists = !!S.entries[id];
+    const days = streak() + (exists || S.date !== today() ? 0 : 1);
     btn.disabled = true;
     try {
       await setDoc(doc(db, "diary", id), {
@@ -432,11 +558,16 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       store.del(draftKey()); clearTimeout(cloudTimer); cloudTimer = null; S.dirty = false;
       if (S.cloud && S.cloud.date === S.date) deleteDoc(doc(db, "diaryDraft", kid)).catch(() => {});
       const n = countChars(text);
-      $("[data-kd=main]").innerHTML = `<div class="kd-party"><div class="big">${n >= P.goal ? "🌟" : "📔"}</div>
-        <h3>${exists ? "고친 일기를 저장했어요!" : `${call(P.name)}, 오늘 일기 완성!`}</h3>
-        <p>${n}자를 썼어요.${n >= P.goal ? " 목표를 넘었어요, 대단해요!" : ""} 엄마가 곧 읽어 볼 거예요 🌷</p>
+      const fixed = S.spell ? S.spell.errors.length : 0;
+      $("[data-kd=main]").innerHTML = `<div class="kd-party"><div class="big">🎉</div>
+        <h3>${exists ? `고친 일기를 저장했어요! ${one(PRAISE_DONE)}` : `${call(P.name)}, 일기 완성! ${one(PRAISE_DONE)}`}</h3>
+        <p>✏️ ${n}자를 썼어요. ${n >= P.goal * 1.5 ? "목표를 훌쩍 넘었어요, 대단해요!" : "목표 달성!"}</p>
+        <p>${fixed ? `🖍 빨간펜이랑 ${fixed}군데를 고쳐서 글이 반짝반짝해졌어요!` : "💯 틀린 곳 하나 없이 썼어요. 맞춤법 왕이에요!"}</p>
+        ${days >= 2 ? `<p>🔥 ${days}일 연속 일기! 대단한 끈기예요!</p>` : ""}
+        <p>엄마가 곧 읽고 도장 찍어 줄 거예요 🌷</p>
         <button class="kd-btn" data-a="view" data-v="mine">📔 내 일기장 보기</button>
         <button class="kd-btn" data-a="view" data-v="mom">🌷 엄마 일기 읽기</button></div>`;
+      confetti();
       if (S.status.nudgeAt && !S.status.nudgeSeen) setDoc(doc(db, "diaryStatus", kid), { nudgeSeen: true }, { merge: true }).catch(() => {});
     } catch (err){
       toast("저장하지 못했어요. 엄마에게 알려 주세요 (" + err.code + ")");
@@ -485,9 +616,15 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       case "spell": spell(root.querySelector(".kd-acts [data-a=spell]")); break;
       case "reveal": S.spell.errors[+a.dataset.i].shown = true; renderPen(); break;
       case "apply": {
-        const er = S.spell.errors[+a.dataset.i], ta = $("[data-kd=content]");
-        ta.value = ta.value.replace(er.wrong, er.right); er.applied = true;
-        S.dirty = true; gauge(); saveDraft(); renderPen(); break;
+        applyOne(S.spell.errors[+a.dataset.i]); toast(one(PRAISE_FIX));
+  + renderPen(); break;
+      }
+      case "find": {
+        const er = S.spell.errors[+a.dataset.i], ta = $("[data-kd=content]"), i = wrongAt(er, ta.value);
+        if (i < 0) break;
+        ta.focus({ preventScroll: true }); ta.setSelectionRange(i, i + er.wrong.length);
+        root.querySelectorAll(".kd-hl mark.fix").forEach(m => { if (m.textContent === er.wrong) m.scrollIntoView({ behavior: "smooth", block: "center" }); });
+        break;
       }
       case "save": save(a); break;
       case "nudge-ok":
@@ -510,7 +647,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   root.addEventListener("input", ev => {
     const k = ev.target.dataset?.kd;
     if (k === "content"){
-      S.dirty = true; gauge(); saveDraft();
++
       clearTimeout(penTimer); penTimer = setTimeout(renderPen, 350);
     } else if (k === "title" || k === "useq"){ S.dirty = true; saveDraft(); }
   });
