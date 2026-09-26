@@ -267,6 +267,28 @@ mark{
 .cmt-in button{ border:none; background:none; color:var(--ink-soft); }
 .cmt-in b{ align-self:center; color:var(--cc); }
 .fx{ background:rgba(110,210,140,.45); border-radius:4px; padding:0 2px; }
+/* 즐겨찾기 */
+.links{ display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; margin-bottom:12px; font-size:.9em; }
+.lk{ display:inline-flex; align-items:center; gap:2px; background:var(--paper); border:1.5px solid var(--edge); border-radius:999px; padding:2px 6px 2px 12px; }
+.lk a{ color:var(--ink); text-decoration:none; }
+.lk a:hover{ text-decoration:underline; }
+.lk-edit{ border:1.5px dashed var(--ink-soft); background:none; border-radius:999px; padding:2px 10px; color:var(--ink-soft); }
+.lk-in{ flex-basis:100%; display:flex; gap:6px; flex-wrap:wrap; }
+.lk-in input{ flex:1; min-width:160px; border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; }
+/* 월말 리포트 */
+.rcard{ background:var(--card); border-radius:14px; border-top:8px solid var(--c); padding:14px 18px; margin-bottom:18px; box-shadow:0 2px 0 var(--edge); break-inside:avoid; }
+.rcard h3{ margin:0 0 6px; }
+.rstats{ grid-template-columns:repeat(4,minmax(0,1fr)); }
+.rrow{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:12px; }
+.rbox{ background:var(--paper); border-radius:10px; padding:10px 12px; }
+.rbox ol{ margin:6px 0; padding-left:1.4em; }
+.rbox.ai p{ margin:6px 0; }
+.bars{ display:flex; gap:10px; height:130px; margin:8px 0 4px; }
+.bar{ flex:1; display:flex; flex-direction:column; align-items:center; }
+.bar .col{ flex:1; width:70%; display:flex; align-items:flex-end; }
+.bar .col span{ width:100%; background:var(--c); border-radius:6px 6px 0 0; min-height:2px; }
+.bar em{ font-style:normal; font-size:.75em; }
+.bar small{ font-size:.7em; color:var(--ink-soft); }
 .fixes{ margin:4px 0 0; padding-left:1.2em; font-size:.8em; }
 .fixes s{ color:var(--red); }
 .cmt-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; }
@@ -293,7 +315,8 @@ mark{
 .welcome p{ font-size:1.2em; }
 
 @media (max-width:900px){
-  .mgrid, .kgrid, .todaykids, .below{ grid-template-columns:1fr; }
+  .mgrid, .kgrid, .todaykids, .below, .rrow{ grid-template-columns:1fr; }
+  .rstats{ grid-template-columns:repeat(2,minmax(0,1fr)); }
   .grid3{ grid-template-columns:1fr; }
 }
 @media (max-width:600px){
@@ -311,7 +334,7 @@ mark{
 @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
 @media print{
   body{ background:#fff; padding:0; }
-  header .switch, .who-row, .tabs, .banner, .filters, .noprint, .daynav button{ display:none !important; }
+  header .switch, .who-row, #linkBar, .tabs, .banner, .filters, .noprint, .daynav button{ display:none !important; }
   .notebook{ box-shadow:none; padding:0; }
   .shelf-list article{ break-inside:avoid; }
 }
@@ -339,6 +362,7 @@ mark{
   </header>
 
   <div class="who-row" id="authBar"></div>
+  <div id="linkBar"></div>
   <div id="banner"></div>
   <nav class="tabs" id="tabs"></nav>
   <main class="notebook" id="main"></main>
@@ -451,11 +475,11 @@ onAuthStateChanged(auth, user => {
     S.ok = true;
     $("#authBar").innerHTML = `<span class="soft">🌷 ${esc(user.email)}</span><button class="logout" data-act="logout">로그아웃</button>`;
     startData();
-    renderTabs(); goTab(S.tab);
+    renderTabs(); goTab(S.tab); renderLinks();
   } else {
     S.ok = false; stopData();
     if (user) signOut(auth);
-    $("#authBar").innerHTML = ""; $("#tabs").innerHTML = ""; $("#banner").innerHTML = "";
+    $("#authBar").innerHTML = ""; $("#tabs").innerHTML = ""; $("#banner").innerHTML = ""; $("#linkBar").innerHTML = "";
     $("#main").style.borderTop = "";
     $("#main").innerHTML = `<div class="welcome">
       <p>엄마만 들어올 수 있는 가족일기장이에요.</p>
@@ -489,6 +513,8 @@ function startData(){
       const g = $("#mgoal");
       if (g && document.activeElement !== g) g.value = S.months[S.month]?.goal || "";
       if (S.tab === "month"){ renderCal(); renderPlans(); }
+      if (S.tab === "report") renderReport();
+      renderLinks();
     }, () => {});
   }
   // 아이가 저장 전에 쓰고 있는 글 (자동 저장) → "✍️ 쓰는 중"
@@ -592,7 +618,49 @@ function renderBanner(){
   $("#banner").innerHTML = `<div class="banner"><b>📝 ${when} ${names}${josa} 아직 오늘 일기를 안 썼어요.</b>
     <div class="btns"><button class="btn" data-act="tab" data-v="kids">아이들 현황 보기</button></div></div>`;
 }
-const TABS = [["month","📅 엄마 다이어리","#F6C945"],["kids","👧 아이들 현황","#E6A3B8"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"]];
+/* ---------- ⭐ 즐겨찾기: diaryMonth/links.items = [{ name, url }] ---------- */
+const links = { edit: false };
+const DEFAULT_LINKS = [
+  { name: "📔 가족일기장", url: "https://jsun.site/diary/" },
+  { name: "🐯 도윤 공부방", url: "https://jsun.site/doyun/" },
+  { name: "🐣 도진 공부방", url: "https://jsun.site/dojin/" }
+];
+const linkItems = () => S.months.links?.items || DEFAULT_LINKS;
+function guessName(url){
+  try {
+    const u = new URL(url), seg = u.pathname.split("/").filter(Boolean)[0] || "";
+    const known = { diary: "📔 가족일기장", doyun: "🐯 도윤 공부방", dojin: "🐣 도진 공부방" };
+    if (u.hostname.endsWith("jsun.site") && known[seg]) return known[seg];
+    return u.hostname.replace(/^www\./, "") + (seg ? "/" + decodeURIComponent(seg) : "");
+  } catch { return url; }
+}
+function normUrl(s){
+  s = (s || "").trim(); if (!s) return "";
+  if (!/^https?:\/\//i.test(s)) s = "https://" + s;
+  try { const u = new URL(s); return /^https?:$/.test(u.protocol) && u.hostname.includes(".") ? u.href : ""; } catch { return ""; }
+}
+function renderLinks(){
+  const box = $("#linkBar"); if (!box) return;
+  if (!S.ok){ box.innerHTML = ""; return; }
+  box.innerHTML = `<div class="links"><b>⭐ 즐겨찾기</b>
+    ${linkItems().map((l, i) => `<span class="lk"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}</a>${links.edit
+      ? `<button class="cmt-tool" data-act="link-del" data-v="${i}" aria-label="${esc(l.name)} 지우기">✕</button>`
+      : `<button class="cmt-tool" data-act="link-copy" data-v="${esc(l.url)}" aria-label="주소 복사" title="주소 복사">📋</button>`}</span>`).join("")}
+    <button class="lk-edit" data-act="link-edit">${links.edit ? "완료" : "＋ 추가 · 편집"}</button>
+    ${links.edit ? `<div class="lk-in"><input id="lkIn" placeholder="주소를 붙여넣으세요 (예: jsun.site/diary)"><input id="lkName" placeholder="이름 (비워 두면 자동)" maxlength="20"><button class="btn" data-act="link-add">추가</button></div>` : ""}
+  </div>`;
+}
+function saveLinks(items){
+  return setDoc(doc(db, "diaryMonth", "links"), { items, updatedAt: serverTimestamp() }, { merge: true })
+    .then(() => true).catch(err => { toast("즐겨찾기를 저장하지 못했어요 (" + err.code + ")"); return false; });
+}
+function addLink(){
+  const url = normUrl($("#lkIn")?.value);
+  if (!url) return toast("주소를 붙여넣어 주세요");
+  const name = ($("#lkName")?.value || "").trim() || guessName(url);
+  saveLinks([...linkItems(), { name, url }]).then(ok => ok && toast(`⭐ '${name}'을 즐겨찾기에 넣었어요`));
+}
+const TABS = [["month","📅 엄마 다이어리","#F6C945"],["kids","👧 아이들 현황","#E6A3B8"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"],["report","📈 월말 리포트","#C9B6F0"]];
 function renderTabs(){
   $("#tabs").innerHTML = TABS.map(([k, label, c]) =>
     `<button style="--tc:${c}" class="${S.tab === k ? "on" : ""}" data-act="tab" data-v="${k}">${label}</button>`).join("");
@@ -614,6 +682,7 @@ function renderTab(){
   else if (S.tab === "kids") renderKids();
   else if (S.tab === "day") renderDay();
   else if (S.tab === "shelf") renderShelf();
+  else if (S.tab === "report") renderReport();
 }
 function monthNav(title){
   const { y, m } = monthInfo(S.month);
@@ -733,7 +802,6 @@ function renderEditor(){
       <span>✏️</span><div class="gauge" id="gauge"><i></i></div><span class="soft" id="gaugeTxt"></span>
     </div>
     <div class="actions">
-      <button class="btn" data-act="voice" id="voiceBtn">🎤 말로 쓰기</button>
       <button class="btn red" data-act="spell" id="spellBtn">🖍 맞춤법 검사</button>
       <button class="btn main" data-act="save" id="saveBtn">💾 저장하기</button>
     </div>
@@ -754,24 +822,6 @@ function updateGauge(){
   $("#gaugeTxt").textContent = n >= goal ? `${n}자` : `${n} / ${goal}자`;
 }
 
-let rec = null;
-function toggleVoice(){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return toast("이 브라우저에서는 말로 쓰기를 쓸 수 없어요. 크롬에서 열어 주세요.");
-  if (rec){ rec.stop(); return; }
-  rec = new SR(); rec.lang = "ko-KR"; rec.interimResults = false; rec.continuous = true;
-  rec.onresult = ev => {
-    let t = "";
-    for (let i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) t += ev.results[i][0].transcript;
-    if (!t) return;
-    const ta = $("#content"); const v = ta.value;
-    ta.value = v + (v && !/\s$/.test(v) ? " " : "") + t.trim();
-    S.formDirty = true; updateGauge();
-  };
-  rec.onend = () => { rec = null; const b = $("#voiceBtn"); if (b) b.textContent = "🎤 말로 쓰기"; };
-  rec.onerror = e => toast("말로 쓰기가 멈췄어요 (" + e.error + ")");
-  rec.start(); $("#voiceBtn").textContent = "⏹ 그만 말하기";
-}
 
 async function runSpell(){
   const text = $("#content").value.trim();
@@ -921,6 +971,88 @@ async function poke(w){
 /* ============================================================
    ⑨ 하루 펼쳐보기
    ============================================================ */
+/* ============================================================
+   ⑧-2 월말 성장 리포트
+   ============================================================ */
+const reportBusy = {};
+function reportData(w){
+  const p = PEOPLE[w], { last } = monthInfo(S.month), tm = thisMonth();
+  const elapsed = S.month < tm ? last : S.month === tm ? new Date().getDate() : 0;
+  const list = Object.values(S.entries).filter(e => e.author === w && e.date.startsWith(S.month)).sort((a, b) => a.date.localeCompare(b.date));
+  const chars = list.map(e => e.chars ?? countChars(e.content || ""));
+  // 주별 평균 글자 수 (1~7일, 8~14일 …)
+  const weeks = [0, 1, 2, 3, 4].map(i => {
+    const wk = list.filter(e => Math.floor((+e.date.slice(8) - 1) / 7) === i);
+    return wk.length ? Math.round(wk.reduce((a, e) => a + (e.chars ?? countChars(e.content || "")), 0) / wk.length) : 0;
+  }).slice(0, Math.ceil(last / 7));
+  const fixes = list.flatMap(e => e.spellFixes || []);
+  const pairs = {}, kinds = {};
+  fixes.forEach(f => { const k = `${f.wrong} → ${f.right}`; pairs[k] = (pairs[k] || 0) + 1; if (f.kind) kinds[f.kind] = (kinds[f.kind] || 0) + 1; });
+  const studyDays = Object.keys(S.study[w] || {}).filter(d => d.startsWith(S.month) && studyOn(w, d));
+  const probs = studyDays.reduce((a, d) => a + studyOn(w, d).total, 0), oks = studyDays.reduce((a, d) => a + studyOn(w, d).ok, 0);
+  return {
+    p, list, elapsed, weeks,
+    days: list.length, avg: chars.length ? Math.round(chars.reduce((a, b) => a + b, 0) / chars.length) : 0,
+    max: chars.length ? Math.max(...chars) : 0, goalDays: chars.filter(c => c >= p.goal).length,
+    stamps: list.filter(e => e.stamp).length, checked: list.filter(e => e.spellChecked).length,
+    fixes: fixes.length, self: fixes.filter(f => f.how === "self").length, ai: fixes.filter(f => f.how === "ai").length,
+    top: Object.entries(pairs).sort((a, b) => b[1] - a[1]).slice(0, 5), kinds,
+    studyDays: studyDays.length, probs, rate: probs ? Math.round(oks / probs * 100) : 0,
+    missed: studyDays.filter(d => !wroteOn(d, w) && (d < today() || minsToDue() <= 0)).length
+  };
+}
+function renderReport(){
+  $("#main").innerHTML = monthNav("성장 리포트") + `
+    <div class="noprint" style="text-align:right; margin-bottom:10px"><button class="btn" data-act="print">🖨 리포트 인쇄 · PDF로 저장</button></div>
+    ${KIDS.map(w => reportCard(w)).join("")}`;
+}
+function reportCard(w){
+  const r = reportData(w), p = r.p, ai = S.months[S.month]?.reports?.[w];
+  const maxW = Math.max(1, ...r.weeks, p.goal);
+  return `<section class="rcard" style="--c:${p.color}">
+    <h3>${p.emoji} ${p.name} <span class="soft">${p.grade} · ${monthInfo(S.month).m}월</span></h3>
+    <div class="kstats rstats">
+      <div><small>📔 일기 쓴 날</small><b>${r.days}일</b><small>${r.elapsed ? `${r.elapsed}일 중 ${Math.round(r.days / r.elapsed * 100)}%` : "—"} · 목표 달성 ${r.goalDays}일</small></div>
+      <div><small>✏️ 평균 · 최고 글자 수</small><b>${r.avg}자 · ${r.max}자</b><small>목표 ${p.goal}자</small></div>
+      <div><small>📚 공부한 날</small><b>${r.studyDays}일</b><small>${r.probs}문제 · 정답 ${r.rate}% · 공부만 하고 일기 안 쓴 날 ${r.missed}일</small></div>
+      <div><small>🖍 빨간펜</small><b>고친 곳 ${r.fixes}개</b><small>${r.ai ? `AI가 고쳐 줌 ${r.ai}개` : `스스로 고침 ${r.self}개 (${r.fixes ? Math.round(r.self / r.fixes * 100) : 0}%)`} · 🔴 도장 ${r.stamps}편</small></div>
+    </div>
+    <div class="rrow">
+      <div class="rbox"><b>📈 주별 평균 글자 수</b>
+        <div class="bars">${r.weeks.map((v, i) => `<div class="bar"><div class="col"><span style="height:${Math.round(v / maxW * 100)}%"></span></div><em>${v || "—"}</em><small>${i + 1}주</small></div>`).join("")}</div>
+        <small class="soft">목표 ${p.goal}자 · 막대가 높아질수록 글이 길어졌어요</small></div>
+      <div class="rbox"><b>🖍 자주 고친 맞춤법 TOP 5</b>
+        ${r.top.length ? `<ol>${r.top.map(([k, n]) => `<li>${esc(k)} <span class="soft">${n}번</span></li>`).join("")}</ol>` : `<p class="soft">이번 달엔 고친 기록이 아직 없어요.</p>`}
+        ${Object.keys(r.kinds).length ? `<div class="chips">${Object.entries(r.kinds).map(([k, n]) => `<i>${esc(k)} ${n}</i>`).join("")}</div>` : ""}</div>
+    </div>
+    <div class="rbox ai">
+      <b>🤖 선생님 총평</b>
+      ${ai ? `<p>${esc(ai.summary)}</p><p>🌟 ${esc(ai.highlight)}</p><p>💡 ${esc(ai.tip)}</p>
+        <small class="soft">${new Date(ai.at).toLocaleDateString("ko-KR")} 에 만든 총평</small>` : `<p class="soft">한 달 일기를 AI 선생님이 읽고 성장 총평을 써 줘요.</p>`}
+      <div class="noprint" style="margin-top:6px"><button class="btn" data-act="report-ai" data-w="${w}" ${!r.days || reportBusy[w] ? "disabled" : ""}>${reportBusy[w] ? "🤖 읽는 중… (30초쯤 걸려요)" : ai ? "🔁 총평 다시 만들기" : "🤖 AI 총평 만들기"}</button></div>
+    </div>
+  </section>`;
+}
+async function makeReport(w){
+  const r = reportData(w); if (!r.days) return;
+  reportBusy[w] = true; renderReport();
+  try {
+    const res = await fetch(SPELL_API, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "report", name: r.p.name, level: w === "dojin" ? "grade2" : "grade4", month: S.month,
+        stats: { 일기쓴날: r.days, 평균글자: r.avg, 최고글자: r.max, 목표글자: r.p.goal, 주별평균: r.weeks, 공부한날: r.studyDays, 공부만한날: r.missed, 고친곳: r.fixes, 스스로고침: r.self, 도장: r.stamps, 자주고친것: r.top },
+        entries: r.list.map(e => ({ date: e.date, title: e.title || "", content: e.content }))
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.summary) throw new Error(data.error || res.status);
+    await setDoc(doc(db, "diaryMonth", S.month), { reports: { [w]: { ...data, at: Date.now() } } }, { merge: true });
+    toast(`${r.p.name} 총평이 나왔어요 🤖`);
+  } catch { toast("총평을 만들지 못했어요. 잠시 뒤에 다시 눌러 주세요."); }
+  finally { reportBusy[w] = false; if (S.tab === "report") renderReport(); }
+}
+
 // 한마디를 쓰는 중에 도장·하트로 화면이 새로 그려져도, 쓰던 글과 커서 자리를 그대로 지켜요.
 const cmt = { draft: {}, edit: null, emoji: null };   // draft[일기id] · edit {id, at, text} · emoji: 이모지 판 열린 일기id
 const EMOJIS = ["💖","❤️","🥰","😍","😊","😆","🤗","👍","👏","💪","🌟","⭐","✨","🎉","🏆","💯","🌈","🌷","🍀","🔥"];
@@ -1079,7 +1211,6 @@ document.addEventListener("click", e => {
       a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.act]));
       break;
     case "q-next": S.qShift++; $("#qText").textContent = currentQuestion(); break;
-    case "voice": toggleVoice(); break;
     case "spell": runSpell(); break;
     case "fix": {
       const er = S.spell.errors[+v], ta = $("#content");
@@ -1101,6 +1232,13 @@ document.addEventListener("click", e => {
     }
     case "filter": S.filter = v; renderShelf(); break;
     case "print": window.print(); break;
+    case "report-ai": makeReport(a.dataset.w); break;
+    case "link-edit": links.edit = !links.edit; renderLinks(); if (links.edit) $("#lkIn")?.focus(); break;
+    case "link-add": addLink(); break;
+    case "link-del": saveLinks(linkItems().filter((_, i) => i !== +v)); break;
+    case "link-copy":
+      navigator.clipboard?.writeText(v).then(() => toast("📋 주소를 복사했어요")).catch(() => prompt("주소를 복사하세요", v));
+      break;
     case "poke": poke(a.dataset.w); break;
     case "stamp": {
       const cur = S.entries[id]?.stamp;
@@ -1162,6 +1300,12 @@ document.addEventListener("input", e => {
   else if (e.target.dataset?.cmt) cmt.draft[e.target.dataset.cmt] = e.target.value;
   else if (e.target.dataset?.cedit && cmt.edit) cmt.edit.text = e.target.value;
 });
+// 즐겨찾기: 주소를 붙여넣기만 하면 바로 추가돼요 (이름 칸을 먼저 적었으면 추가 버튼을 눌러요)
+document.addEventListener("paste", e => {
+  if (e.target.id !== "lkIn") return;
+  setTimeout(() => { if (normUrl(e.target.value) && !$("#lkName")?.value.trim()) addLink(); }, 0);
+});
+document.addEventListener("input", e => { if (e.target.id === "planIn") planDraft = e.target.value; });
 // 이모지 판을 눌러도 입력 칸의 커서가 그대로 있게
 document.addEventListener("mousedown", e => { if (e.target.closest('[data-act="emoji"]')) e.preventDefault(); });
 document.addEventListener("change", e => {
@@ -1172,6 +1316,8 @@ document.addEventListener("keydown", e => {
   if (e.target.dataset?.cedit && e.key === "Enter") document.querySelector(`[data-act="cedit-save"][data-id="${e.target.dataset.cedit}"]`)?.click();
   if (e.target.dataset?.cedit && e.key === "Escape") document.querySelector('[data-act="cedit-cancel"]')?.click();
   if (e.target.id === "mgoal" && e.key === "Enter") e.target.blur();
+  if ((e.target.id === "lkIn" || e.target.id === "lkName") && e.key === "Enter") addLink();
+  if (e.target.id === "planIn" && e.key === "Enter") document.querySelector('[data-act="plan-add"]')?.click();
 });
 window.addEventListener("beforeunload", e => { if (S.formDirty){ e.preventDefault(); e.returnValue = ""; } });
 

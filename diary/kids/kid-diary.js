@@ -188,7 +188,8 @@ function injectStyle(){
 /* ============================================================
    일기장 붙이기
    ============================================================ */
-export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API }){
+// onSaved({ date, first }): 공부방이 넘겨주는 함수. 그날 첫 저장이면 스티커를 주고 true 를 돌려줘요.
+export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, onSaved }){
   const P = KIDS[kid];
   if (!P) throw new Error("kid 는 dojin 또는 doyun 이어야 해요");
   injectStyle();
@@ -582,11 +583,14 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
       if (S.cloud && S.cloud.date === S.date) deleteDoc(doc(db, "diaryDraft", kid)).catch(() => {});
       const n = countChars(text);
       const fixed = S.spell ? S.spell.errors.length : 0;
+      let sticker = false;
+      try { sticker = !!onSaved?.({ date: S.date, first: !exists }); } catch {}
       $("[data-kd=main]").innerHTML = `<div class="kd-party"><div class="big">🎉</div>
         <h3>${exists ? `고친 일기를 저장했어요! ${one(PRAISE_DONE)}` : `${call(P.name)}, 일기 완성! ${one(PRAISE_DONE)}`}</h3>
         <p>✏️ ${n}자를 썼어요. ${n >= P.goal * 1.5 ? "목표를 훌쩍 넘었어요, 대단해요!" : "목표 달성!"}</p>
         <p>${fixed ? `🖍 빨간펜이랑 ${fixed}군데를 고쳐서 글이 반짝반짝해졌어요!` : "💯 틀린 곳 하나 없이 썼어요. 맞춤법 왕이에요!"}</p>
         ${days >= 2 ? `<p>🔥 ${days}일 연속 일기! 대단한 끈기예요!</p>` : ""}
+        ${sticker ? `<p style="font-size:1.2em">🏅 <b>일기 완성 스티커 1장</b>을 받았어요!</p>` : ""}
         <p>엄마가 곧 읽고 도장 찍어 줄 거예요 🌷</p>
         <button class="kd-btn" data-a="view" data-v="mine">📔 내 일기장 보기</button>
         <button class="kd-btn" data-a="view" data-v="family">👨‍👩‍👦 가족 일기 읽기</button></div>`;

@@ -2227,12 +2227,22 @@ function addWho(){
 
 /* ───── 📔 일기 (가족일기장 · 엄마 화면 jsun.site/diary 에서 봐요) ───── */
 let diaryBox=null;
+/* 그날 일기를 처음 저장하면 스티커 1장. 퀴즈 스티커의 하루 상한(stkDay)과는 따로 세요 */
+function diarySticker(info){
+  if(!info || !info.first || !who) return false;
+  const got=store.get('diaryStk',{});
+  if(got[info.date]) return false;
+  got[info.date]=1; store.set('diaryStk',got);
+  store.set('stk',stkCount()+1); updateStars(); cloudPush();
+  setTimeout(()=>toast('🏅 일기 완성 스티커 1장을 받았어요!'),900);
+  return true;
+}
 function renderDiary(){
   if(!diaryBox){
     diaryBox=document.createElement('div');
     diaryBox.innerHTML='<p class="center" style="padding:30px">📔 일기장을 여는 중…</p>';
     import('/diary/kids/kid-diary.js')
-      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'dojin', firebaseConfig:FIREBASE_CONFIG }))
+      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'dojin', firebaseConfig:FIREBASE_CONFIG, onSaved:diarySticker }))
       .catch(e=>{ console.warn('일기장을 열지 못했어요', e); diaryBox.innerHTML='<p class="center" style="padding:30px">일기장을 열지 못했어요. 새로고침해 볼까요?</p>'; diaryBox=null; });
   }
   view.innerHTML=''; view.appendChild(diaryBox);
