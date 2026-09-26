@@ -803,6 +803,10 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 @keyframes evPulse{from{box-shadow:0 4px 12px rgba(160,100,255,.35)}to{box-shadow:0 6px 22px rgba(255,120,120,.55)}}
 .evadm{margin:6px 0 12px;background:linear-gradient(135deg,#FFF4D6,#F1E6FF);border-color:#E0C8FF}
 .evadm p{margin:.35rem 0}
+.evgo{margin-left:8px;padding:.25rem .8rem;border-radius:999px;background:#1B1F2E;color:#fff;font-size:.9rem;font-weight:700}
+.gamepop{position:fixed;inset:0;z-index:300;background:#CFEBC0}
+.gamepop iframe{width:100%;height:100%;border:0;display:block}
+@media (max-width:520px){ .evbar{white-space:normal;width:max-content;max-width:calc(100vw - 20px);text-align:center;line-height:1.7} }
 @media (max-width:520px){ .evbar{font-size:.82rem;padding:.35rem .8rem} .evbar span{display:none} }
 /* 하루 약속 안내 */
 .dayrule{margin:12px 0 0;padding:9px 12px;border-radius:14px;background:color-mix(in srgb,var(--hi) 18%,var(--card));border:1.5px dashed var(--line);font-size:.88rem;color:var(--sub);line-height:1.5}
@@ -1941,22 +1945,25 @@ const saleOn = () => !!(EV && EV.saleUntil > Date.now() && (EV.rooms||[]).includ
 const decoPrice = x => saleOn() && x.p ? Math.ceil(x.p/2) : x.p;
 const priceTag = x => saleOn() && x.p ? `<s style="opacity:.5">${x.p}</s> ${decoPrice(x)}` : `${x.p}`;
 let saleWas = false;
+/* 알 줍기 대작전 (10분 게임): family/event 의 gameUntil · gameId. 게임은 ../game/ 을 iframe 으로 열어요 */
+const gameOn = () => !!(EV && EV.gameUntil > Date.now() && EV.gameId && (EV.rooms||[]).includes(MY_ROOM));
 const eStars = name => store.get('estars',0,name);
 function evListen(){
   if(evSub || !FIREBASE_CONFIG) return;
   evSub = cloudInit().then(db=>{ if(!db) return;
-    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(), wasS=saleOn(); EV=s.exists?s.data():null; drawEvent();
+    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(), wasS=saleOn(), wasG=gameOn(); EV=s.exists?s.data():null; drawEvent();
       if(!wasS && saleOn() && who) toast('🛍️ 10분 동안 상점 반값 세일!');
+      if(!wasG && gameOn() && who) toast('🥚 알 줍기 대작전이 열렸어요! 아래 [입장] 단추를 눌러요');
       if(!was && evOn() && who){ burst(); toast(`🌈 별 ${EV.mult||2}배 이벤트가 시작됐어요!`); } }, e=>console.warn('이벤트를 읽을 수 없어요', e)); });
 }
 function drawEvent(){
   let bar=document.getElementById('evbar');
   if(!bar){ bar=document.createElement('div'); bar.id='evbar'; bar.className='evbar'; document.body.appendChild(bar); }
-  const st=evOn() && !!who, sl=saleOn() && !!who;
+  const st=evOn() && !!who, sl=saleOn() && !!who, gm=gameOn() && !!who;
   if(sl!==saleWas){ saleWas=sl; try{ if(App.view==='myroom'||App.view==='room') renderMyRoom(); }catch(e){} }   // 세일이 켜지고 꺼질 때 가격을 다시 그려요
-  bar.hidden=!(st||sl); try{ document.body.classList.toggle('ev', st||sl); }catch(e){} if(!(st||sl)) return;
+  bar.hidden=!(st||sl||gm); try{ document.body.classList.toggle('ev', st||sl||gm); }catch(e){} if(!(st||sl||gm)) return;
   const mmss=t=>{ const l=Math.max(0,t-Date.now()); return `${Math.floor(l/60000)}:${String(Math.floor(l/1000)%60).padStart(2,'0')}`; };
-  bar.innerHTML=[st?`🌈 별 ${EV.mult||2}배 <b>${mmss(EV.until)}</b> <span>· 이벤트 별 🌈 ${eStars()}</span>`:'', sl?`🛍️ 상점 반값 <b>${mmss(EV.saleUntil)}</b>`:''].filter(Boolean).join(' · ');
+  bar.innerHTML=[st?`🌈 별 ${EV.mult||2}배 <b>${mmss(EV.until)}</b> <span>· 이벤트 별 🌈 ${eStars()}</span>`:'', sl?`🛍️ 상점 반값 <b>${mmss(EV.saleUntil)}</b>`:'', gm?`🥚 알 줍기 <b>${mmss(EV.gameUntil)}</b><button class="evgo" data-act="gameOpen">입장 ▶</button>`:''].filter(Boolean).join(' · ');
 }
 async function evStart(min){
   if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
@@ -1976,6 +1983,34 @@ async function saleStop(){
   if(!await cloudInit()) return;
   try{ await cloud.db.collection('family').doc('event').set({saleUntil:0, saleAt:Date.now()},{merge:true}); toast('세일을 끝냈어요'); }catch(e){ console.warn(e); toast('세일을 끝내지 못했어요 (온라인 규칙을 확인해 주세요)'); }
 }
+async function gameStart(min){
+  if(!await cloudInit()){ toast('온라인 연결이 있어야 게임을 열 수 있어요'); return; }
+  try{ await cloud.db.collection('family').doc('event').set({gameUntil:Date.now()+min*60000, gameId:'g'+Date.now(), rooms:EVENT_ROOMS, gameAt:Date.now()},{merge:true}); toast(`🥚 알 줍기 대작전 ${min}분 시작!`); }
+  catch(e){ console.warn(e); toast('게임을 열지 못했어요 (온라인 규칙을 확인해 주세요)'); }
+}
+async function gameStop(){
+  if(!await cloudInit()) return;
+  try{ await cloud.db.collection('family').doc('event').set({gameUntil:0, gameAt:Date.now()},{merge:true}); toast('게임을 끝냈어요'); }catch(e){ console.warn(e); toast('게임을 끝내지 못했어요 (온라인 규칙을 확인해 주세요)'); }
+}
+function gameOpen(practice){
+  if(!practice && !gameOn()){ toast('지금은 게임 시간이 아니에요'); return; }
+  let me='🐣'; try{ const x=decoItem(decoGet().base); if(x) me=x.e; }catch(e){}
+  const q=new URLSearchParams({room:MY_ROOM, me}); if(practice) q.set('practice','1'); else { q.set('gid',EV.gameId); q.set('until',EV.gameUntil); }
+  gameClose(); document.body.insertAdjacentHTML('beforeend', `<div class="gamepop" id="gamePop"><iframe src="../game/?${q}" title="알 줍기 대작전"></iframe></div>`);
+}
+function gameClose(){ const g=document.getElementById('gamePop'); if(g) g.remove(); }
+/* 게임이 끝나면 둥지 알만큼 🌈 이벤트 별 (같은 게임은 한 번만) */
+window.addEventListener('message', e=>{
+  if(e.origin!==location.origin || !e.data) return;
+  if(e.data.type==='eggGameClose') gameClose();
+  if(e.data.type==='eggGameReward'){
+    const done=store.get('eggDone',[]); if(!/^g\d+$/.test(e.data.gid||'') || done.includes(e.data.gid)) return;
+    done.push(e.data.gid); store.set('eggDone',done.slice(-30));
+    const n=Math.max(0,Math.min(200,Math.round(+e.data.n||0))); if(!n) return;
+    store.set('estars',eStars()+n); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush();
+    toast(`🌈 이벤트 별 ${n}개를 받았어요!`);
+  }
+});
 function addStar(n){
   if(n>0 && evOn()){   // 이벤트 중: 🌈 이벤트 별로 2배, 하루 제한 없이
     const add=n*(EV.mult||2); store.set('estars',eStars()+add); store.set('estarsAt',Date.now());
@@ -4807,13 +4842,15 @@ function adminHTML(){
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
-    <div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
+    ${isMom()?'':`<div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
       <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
     </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
-              :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
+              :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
+      ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
+              :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'} <button class="pill" data-act="gameOpen" data-v="practice">🤖 연습해 보기</button></div>`}${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
@@ -4920,10 +4957,13 @@ const ACT = {
   decoCat: v=>{ App.decoCat=v; App.decoPick=null; renderMyRoom(); },
   decoTap: v=>decoTap(v),
   decoBuy: v=>decoBuy(v),
-  evStart: v=>{ evStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
-  evStop: ()=>{ evStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
-  saleStart: v=>{ saleStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
-  saleStop: ()=>{ saleStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  evStart: v=>{ if(isMom()) return; evStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  evStop: ()=>{ if(isMom()) return; evStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  saleStart: v=>{ if(isMom()) return; saleStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  gameStart: v=>{ if(isMom()) return; gameStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  gameStop: ()=>{ if(isMom()) return; gameStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  gameOpen: v=>gameOpen(v==='practice'),
+  saleStop: ()=>{ if(isMom()) return; saleStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
   roomv: v=>{ App.roomv=v; App.decoPick=null; App.lockPick=null; renderMyRoom(); },
   decoBase: v=>{ const d=decoGet(); d.base=v; decoSave(d); App.roomv='room'; renderMyRoom(); toast(`${decoItem(v).e} ${decoItem(v).n}${josa(decoItem(v).n,'이','가').slice(decoItem(v).n.length)} 방에 나왔어요`); },
   decoGoShop: v=>{ App.roomv='room'; App.decoCat='base'; App.decoPick=v; renderMyRoom(); },

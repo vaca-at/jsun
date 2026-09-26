@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>알 줍기 대작전</title>
+<style>
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
+:root{--ink:#1B1F2E;--sub:#6D7385;--bg:#CFEBC0}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'GMarketSans',system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+button{font:inherit;color:inherit;border:0;cursor:pointer}
+#hud{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 8px 6px;background:rgba(255,255,255,.88);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+#hud .chip{display:flex;align-items:center;gap:4px;height:36px;padding:0 10px;border-radius:999px;background:#fff;border:1.5px solid #E6E0D6;font-weight:700;font-size:1rem;white-space:nowrap}
+#hud .time{background:#1B1F2E;color:#fff;border-color:#1B1F2E;font-variant-numeric:tabular-nums}
+#hud .grow{flex:1}
+#hud .x{width:36px;padding:0;justify-content:center}
+#cv{position:fixed;left:0;top:0;width:100%;height:100%;display:block}
+#msg{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:6;padding:8px 16px;border-radius:999px;background:rgba(27,31,46,.85);color:#fff;font-size:1rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
+#msg.on{opacity:1}
+.ov{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(27,31,46,.45)}
+.ov[hidden]{display:none}
+.box{width:100%;max-width:420px;max-height:100%;overflow:auto;background:#fff;border-radius:24px;padding:22px 20px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.box h1{margin:4px 0 8px;font-size:1.6rem}
+.box .big{font-size:64px;line-height:1.1}
+.box ol{text-align:left;padding-left:1.3em;margin:10px 0;line-height:1.6;font-size:1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:56px;padding:0 28px;border-radius:999px;background:linear-gradient(135deg,#FF8A4C,#FF5A5F);color:#fff;font-size:1.25rem;font-weight:700;margin:6px 4px 0;box-shadow:0 8px 18px rgba(255,106,61,.3)}
+.btn.gray{background:#EEE8E1;color:var(--ink);box-shadow:none}
+.rank{list-style:none;padding:0;margin:12px 0;text-align:left}
+.rank li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;margin-bottom:6px;background:#F7F3EE;font-size:1.1rem}
+.rank li.me{background:#FFF1D6;box-shadow:inset 0 0 0 2px #FFB64D}
+.rank .e{font-size:1.8rem}
+.rank b{margin-left:auto}
+.sub{color:var(--sub);font-size:.92rem}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud">
+  <span class="chip time" id="hTime">10:00</span>
+  <span class="chip" id="hNest" title="내 둥지에 모은 알">🏠 0</span>
+  <span class="chip" id="hCarry" title="들고 있는 알">🥚 0/5</span>
+  <span class="grow"></span>
+  <button class="chip x" data-act="quit" aria-label="나가기">✕</button>
+</div>
+<div id="msg"></div>
+<div class="ov" id="ov"><div class="box" id="box"></div></div>
+
+<script>
+/* ───── 알 줍기 대작전: 네 방(도윤 · 도진 · 지아 · 윤아) 10분 게임 ─────
+   각 방에서 iframe 으로 열어요: ?room=doyun&me=🐶&gid=g123&until=1700000000000  (연습: &practice=1)
+   온라인 모임은 Firebase Realtime Database  games/{gid} = { players:{room:{x,y,e,n,t, c(든 알), s(둥지 알), p(보호 끝 시각)}}, eggs:{id:{x,y}} }
+   알 줍기 · 뺏기 · 둥지에 넣기는 모두 트랜잭션이라 두 명이 동시에 잡아도 한 명만 가져가요. */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c",
+  databaseURL: "https://moon-15f88-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+const Q = new URLSearchParams(location.search);
+const ROOMS = { doyun:{n:'도윤', c:'#3A7BE0'}, dojin:{n:'도진', c:'#12A38A'}, jia:{n:'지아', c:'#E8604C'}, yuna:{n:'윤아', c:'#A855F7'} };
+const ORDER = ['doyun','dojin','jia','yuna'];
+const ME = ROOMS[Q.get('room')] ? Q.get('room') : 'jia';
+const MY_E = Q.get('me') || '🐣';
+const PRACTICE = Q.get('practice')==='1';
+const LOCAL = Q.get('local')==='1';            // 시험용: 같은 브라우저의 창끼리만 주고받아요
+const GID = (Q.get('gid')||'').match(/^g\d+$/) ? Q.get('gid') : 'g0';
+const UNTIL = PRACTICE ? Date.now()+3*60000 : (+Q.get('until') || Date.now()+10*60000);
+
+/* 마당 크기와 규칙 */
+const W=100, H=150, R=5, SPEED=34, PICK=6.5, STEAL=8, MAXC=5, EGGS=10, PROTECT=3000;
+const NEST = { doyun:{x:14,y:16}, dojin:{x:86,y:16}, jia:{x:14,y:134}, yuna:{x:86,y:134} }, NEST_R=12;
+const $ = id => document.getElementById(id);
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+
+/* ───── 주고받기: 온라인(Realtime Database) · 창끼리(BroadcastChannel) · 혼자(연습) 가 같은 모양 ───── */
+function makeLocalNet(channel){
+  const S={}, subs=[], bc = channel && 'BroadcastChannel' in window ? new BroadcastChannel('egg-'+GID) : null;
+  const get = p => p.split('/').reduce((o,k)=>o==null?undefined:o[k], S);
+  const put = (p,v) => { const ks=p.split('/'), last=ks.pop(); let o=S; ks.forEach(k=>{ if(typeof o[k]!=='object'||o[k]===null) o[k]={}; o=o[k]; }); if(v==null) delete o[last]; else o[last]=JSON.parse(JSON.stringify(v)); };
+  const emit = () => subs.forEach(f=>f(JSON.parse(JSON.stringify(S))));
+  const apply = (p,v,share) => { put(p,v); if(share&&bc) bc.postMessage({p,v}); emit(); };
+  if(bc){ bc.onmessage = e => { if(e.data.hello){ bc.postMessage({full:S}); return; } if(e.data.full){ const fill=(o,src)=>Object.keys(src).forEach(k=>{ if(!(k in o)) o[k]=src[k]; else if(src[k]&&typeof src[k]==='object'&&typeof o[k]==='object') fill(o[k],src[k]); }); fill(S,e.data.full); emit(); return; } put(e.data.p,e.data.v); emit(); }; bc.postMessage({hello:1}); }
+  return {
+    on: f => { subs.push(f); f(JSON.parse(JSON.stringify(S))); },
+    update: (p,obj) => { Object.entries(obj).forEach(([k,v])=>put(p+'/'+k,v)); if(bc) Object.entries(obj).forEach(([k,v])=>bc.postMessage({p:p+'/'+k,v})); emit(); },
+    push: (p,v) => apply(p+'/e'+Date.now().toString(36)+Math.random().toString(36).slice(2,6), v, true),
+    tx: async (p,fn) => { const cur=get(p), nv=fn(cur===undefined?null:JSON.parse(JSON.stringify(cur))); if(nv===undefined) return false; apply(p,nv,true); return true; },
+    now: () => Date.now()
+  };
+}
+async function makeFireNet(){
+  const load = src => new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  await load(base+'firebase-app-compat.js'); await load(base+'firebase-database-compat.js');
+  firebase.initializeApp(FIREBASE_CONFIG);
+  const db=firebase.database(), root=db.ref('games/'+GID);
+  let off=0; db.ref('.info/serverTimeOffset').on('value', s=>{ off=s.val()||0; });
+  return {
+    on: f => root.on('value', s=>f(s.val()||{}), e=>{ console.warn(e); say('온라인에 연결하지 못했어요 😢', 4000); }),
+    update: (p,obj) => root.child(p).update(obj),
+    push: (p,v) => root.child(p).push(v),
+    tx: (p,fn) => root.child(p).transaction(cur=>{ const nv=fn(cur); return nv===undefined?undefined:nv; }, null, false).then(r=>r.committed).catch(()=>false),
+    now: () => Date.now()+off
+  };
+}
+
+/* ───── 게임 상태 ───── */
+let NET=null, S={players:{}, eggs:{}}, started=false, ended=false;
+const me = { x:NEST[ME].x, y:NEST[ME].y, vx:0, vy:0 };
+const shown = {};          // 다른 친구 그림 위치 (부드럽게 따라가요)
+const busy = {};           // 같은 알 · 친구에게 트랜잭션을 여러 번 보내지 않게
+let lastSend=0, lastHost=0, stealRest=0;
+const BOTS = PRACTICE ? ORDER.filter(r=>r!==ME) : [];
+const BOT_E = { doyun:'🐶', dojin:'🦊', jia:'🐰', yuna:'🐱' };
+const bot = {}; BOTS.forEach(b=>bot[b]={x:NEST[b].x, y:NEST[b].y, goal:null, wait:0});
+
+function say(t, ms=1600){ const m=$('msg'); m.textContent=t; m.classList.add('on'); clearTimeout(say.t); say.t=setTimeout(()=>m.classList.remove('on'), ms); }
+function buzz(ms){ try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} }
+const myP = () => (S.players||{})[ME] || {};
+const alive = p => p && NET && (NET.now()-(p.t||0) < 5000);
+
+/* 알 줍기 · 뺏기 · 둥지에 넣기 */
+async function takeEgg(id){
+  if(busy[id] || (myP().c||0)>=MAXC) return; busy[id]=1;
+  const ok = await NET.tx('eggs/'+id, cur => cur ? null : undefined);
+  if(ok){ await NET.tx('players/'+ME, p => p ? Object.assign(p,{c:Math.min(MAXC,(p.c||0)+1)}) : p); buzz(20); }
+  delete busy[id];
+}
+async function steal(who, by=ME){
+  const key='s'+who+by; if(busy[key]) return; busy[key]=1;
+  const now=NET.now();
+  const ok = await NET.tx('players/'+who, p => (p && (p.c||0)>0 && (p.p||0)<now) ? Object.assign(p,{c:p.c-1, p:now+PROTECT}) : undefined);
+  if(ok){ if(by===ME) stealRest=NET.now()+1500;
+    await NET.tx('players/'+by, p => p ? Object.assign(p,{c:Math.min(MAXC,(p.c||0)+1)}) : p);
+    if(by===ME){ say(`${ROOMS[who].n}에게서 알을 뺏었어요! 🥚`); buzz(40); } }
+  setTimeout(()=>delete busy[key], 600);
+}
+async function deposit(who=ME){
+  const key='d'+who; if(busy[key]) return; busy[key]=1;
+  let n=0; const ok = await NET.tx('players/'+who, p => (p && (p.c||0)>0) ? (n=p.c, Object.assign(p,{s:(p.s||0)+p.c, c:0})) : undefined);
+  if(ok && who===ME){ say(`🏠 둥지에 알 ${n}개를 넣었어요!`); buzz(30); }
+  setTimeout(()=>delete busy[key], 400);
+}
+/* 알 만들기는 '대장' 한 명만: 살아 있는 친구 중 순서가 제일 앞인 방 (연습은 나) */
+function hostTick(now){
+  if(now-lastHost<900) return; lastHost=now;
+  const live=ORDER.filter(r=>alive((S.players||{})[r]));
+  if(!PRACTICE && live[0]!==ME) return;
+  const eggs=Object.keys(S.eggs||{}).length;
+  for(let i=eggs;i<EGGS && i<eggs+2;i++){
+    let x,y,guard=0; do{ x=8+Math.random()*(W-16); y=10+Math.random()*(H-20); guard++; } while(guard<20 && Object.values(NEST).some(n=>Math.hypot(n.x-x,n.y-y)<NEST_R+6));
+    NET.push('eggs',{x:Math.round(x*10)/10, y:Math.round(y*10)/10});
+  }
+}
+/* 연습 로봇: 알을 줍다가 3개 넘으면 둥지로, 가끔 나를 쫓아와 뺏어요 */
+function botTick(dt, now){
+  BOTS.forEach(b=>{
+    const B=bot[b], P=(S.players||{})[b]||{}, eggs=Object.entries(S.eggs||{});
+    const mine=S.players&&S.players[ME];
+    if((P.c||0)>=3 || (P.c&&!eggs.length)) B.goal=NEST[b];
+    else if(mine && (mine.c||0)>=2 && (mine.p||0)<now && dist(B,me)<30 && Math.random()<.6) B.goal=me;
+    else { let best=null,bd=1e9; eggs.forEach(([id,e])=>{ const d=dist(B,e); if(d<bd){bd=d;best=e;} }); B.goal=best||NEST[b]; }
+    const dx=B.goal.x-B.x, dy=B.goal.y-B.y, d=Math.hypot(dx,dy)||1, sp=SPEED*.72*dt;
+    if(d>1){ B.x=clamp(B.x+dx/d*Math.min(sp,d),R,W-R); B.y=clamp(B.y+dy/d*Math.min(sp,d),R,H-R); }
+    NET.update('players/'+b,{x:B.x,y:B.y,t:NET.now()});
+    eggs.forEach(([id,e])=>{ if(dist(B,e)<PICK && (P.c||0)<MAXC && !busy['b'+id]){ busy['b'+id]=1; NET.tx('eggs/'+id,cur=>cur?null:undefined).then(ok=>{ if(ok) NET.tx('players/'+b,p=>Object.assign(p||{},{c:Math.min(MAXC,((p||{}).c||0)+1)})); delete busy['b'+id]; }); } });
+    if(dist(B,NEST[b])<NEST_R && (P.c||0)>0) deposit(b);
+    if(mine && dist(B,me)<STEAL && (mine.c||0)>0 && (mine.p||0)<now && (P.p||0)<now && now>(B.rest||0) && (B.rest=now+1500)) steal(ME, b).then(()=>{ if((myP().p||0)>NET.now()) { say(`${ROOMS[b].n} 로봇에게 알을 뺏겼어요!`); buzz(80); } });
+  });
+}
+
+/* ───── 움직이기: 화면 아무 곳이나 누르고 끌면 조이스틱 ───── */
+const joy = { on:false, x0:0, y0:0, x:0, y:0 };
+const keys = {};
+addEventListener('pointerdown', e=>{ if(e.target.closest('button,.ov')) return; joy.on=true; joy.id=e.pointerId; joy.x0=joy.x=e.clientX; joy.y0=joy.y=e.clientY; });
+addEventListener('pointermove', e=>{ if(joy.on && e.pointerId===joy.id){ joy.x=e.clientX; joy.y=e.clientY; } });
+addEventListener('pointerup', e=>{ if(e.pointerId===joy.id) joy.on=false; });
+addEventListener('pointercancel', ()=>{ joy.on=false; });
+addEventListener('keydown', e=>{ keys[e.key]=1; }); addEventListener('keyup', e=>{ keys[e.key]=0; });
+function inputDir(){
+  let dx=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0), dy=(keys.ArrowDown?1:0)-(keys.ArrowUp?1:0);
+  if(joy.on){ const jx=joy.x-joy.x0, jy=joy.y-joy.y0, d=Math.hypot(jx,jy); if(d>6){ const k=Math.min(1,d/50); dx=jx/d*k; dy=jy/d*k; } }
+  return [dx,dy];
+}
+
+/* ───── 그리기 ───── */
+const cv=$('cv'), g=cv.getContext('2d');
+let view={s:1,ox:0,oy:0};
+function resize(){
+  const dpr=Math.min(2,devicePixelRatio||1), top=$('hud').offsetHeight+6;
+  cv.width=innerWidth*dpr; cv.height=innerHeight*dpr; g.setTransform(dpr,0,0,dpr,0,0);
+  const s=Math.min((innerWidth-12)/W, (innerHeight-top-8)/H);
+  view={s, ox:(innerWidth-W*s)/2, oy:top+(innerHeight-top-8-H*s)/2};
+}
+addEventListener('resize', resize);
+const X=x=>view.ox+x*view.s, Y=y=>view.oy+y*view.s;
+function emoji(t, x, y, size){ g.font=`${size}px system-ui, "Apple Color Emoji","Segoe UI Emoji",sans-serif`; g.textAlign='center'; g.textBaseline='middle'; g.fillText(t, x, y); }
+function draw(now){
+  g.clearRect(0,0,innerWidth,innerHeight);
+  const s=view.s;
+  // 마당
+  g.fillStyle='#9ED68A'; g.beginPath(); g.roundRect(X(0),Y(0),W*s,H*s,18); g.fill();
+  g.fillStyle='rgba(255,255,255,.18)'; for(let i=0;i<14;i++){ g.beginPath(); g.arc(X((i*37)%W),Y((i*53)%H),2.2*s,0,7); g.fill(); }
+  // 둥지
+  ORDER.forEach(r=>{ const n=NEST[r], P=(S.players||{})[r];
+    g.fillStyle=ROOMS[r].c+'33'; g.strokeStyle=ROOMS[r].c; g.lineWidth=3; g.beginPath(); g.arc(X(n.x),Y(n.y),NEST_R*s,0,7); g.fill(); g.stroke();
+    emoji('🪺', X(n.x), Y(n.y)-2*s, 7*s);
+    g.fillStyle='#1B1F2E'; g.font=`700 ${Math.max(11,3.4*s)}px GMarketSans, system-ui`; g.fillText(`${ROOMS[r].n} ${P?(P.s||0):0}`, X(n.x), Y(n.y)+6.5*s); });
+  // 알
+  Object.values(S.eggs||{}).forEach(e=>emoji('🥚', X(e.x), Y(e.y)+Math.sin(now/300+e.x)*.6*s, 6*s));
+  // 친구들
+  ORDER.forEach(r=>{ const P=(S.players||{})[r]; if(!P || (!alive(P) && r!==ME)) return;
+    let pos; if(r===ME) pos=me; else { const t=shown[r]||(shown[r]={x:P.x,y:P.y}); t.x+=(P.x-t.x)*.25; t.y+=(P.y-t.y)*.25; pos=t; }
+    const prot=(P.p||0)>NET.now();
+    g.fillStyle=ROOMS[r].c+(r===ME?'':'AA'); g.beginPath(); g.arc(X(pos.x),Y(pos.y)+R*.8*s,R*.9*s,0,7); g.fill();
+    if(prot){ g.strokeStyle='rgba(255,255,255,.9)'; g.lineWidth=3; g.setLineDash([4,4]); g.beginPath(); g.arc(X(pos.x),Y(pos.y),(R+2.5)*s,0,7); g.stroke(); g.setLineDash([]); }
+    emoji(P.e||'🐣', X(pos.x), Y(pos.y), 9*s);
+    g.fillStyle='#fff'; g.strokeStyle='rgba(0,0,0,.35)'; g.lineWidth=3; g.font=`700 ${Math.max(11,3*s)}px GMarketSans, system-ui`;
+    const label=(r===ME?'나':ROOMS[r].n)+(P.c?` 🥚${P.c}`:''); g.strokeText(label, X(pos.x), Y(pos.y)-7*s); g.fillText(label, X(pos.x), Y(pos.y)-7*s); });
+  // 조이스틱
+  if(joy.on){ g.fillStyle='rgba(255,255,255,.35)'; g.beginPath(); g.arc(joy.x0,joy.y0,50,0,7); g.fill();
+    const jx=joy.x-joy.x0, jy=joy.y-joy.y0, d=Math.hypot(jx,jy)||1, k=Math.min(1,50/d); g.fillStyle='rgba(27,31,46,.55)'; g.beginPath(); g.arc(joy.x0+jx*k,joy.y0+jy*k,22,0,7); g.fill(); }
+}
+
+/* ───── 한 번 돌기: 게임 계산은 50ms 마다, 그리기는 화면 새로 고칠 때마다 ───── */
+let lastT=performance.now();
+function step(){
+  const t=performance.now(), dt=Math.min(.1,(t-lastT)/1000); lastT=t;
+  if(NET && started && !ended){
+    const now=NET.now();
+    if(now>=UNTIL) finish();
+    const [dx,dy]=inputDir();
+    me.x=clamp(me.x+dx*SPEED*dt,R,W-R); me.y=clamp(me.y+dy*SPEED*dt,R,H-R);
+    if(now-lastSend>120){ lastSend=now; NET.update('players/'+ME,{x:Math.round(me.x*10)/10, y:Math.round(me.y*10)/10, t:now}); }
+    Object.entries(S.eggs||{}).forEach(([id,e])=>{ if(dist(me,e)<PICK) takeEgg(id); });
+    const P=myP();
+    // 보호막 중이거나 방금 뺏었으면 쉬어요 (둘이 붙어서 알을 계속 주고받지 않게)
+    if((P.c||0)<MAXC && (P.p||0)<now && now>stealRest) ORDER.forEach(r=>{ if(r===ME) return; const O=(S.players||{})[r]; if(!O || !(alive(O)||BOTS.includes(r))) return;
+      if(dist(me,O)<STEAL && (O.c||0)>0 && (O.p||0)<now) steal(r); });
+    if(dist(me,NEST[ME])<NEST_R && (P.c||0)>0) deposit();
+    hostTick(now); if(PRACTICE) botTick(dt, now);
+    const left=Math.max(0,UNTIL-now); $('hTime').textContent=`${Math.floor(left/60000)}:${String(Math.floor(left/1000)%60).padStart(2,'0')}`;
+    $('hNest').textContent=`🏠 ${P.s||0}`; $('hCarry').textContent=`🥚 ${P.c||0}/${MAXC}`;
+  }
+}
+function loop(){ draw(performance.now()); requestAnimationFrame(loop); }
+setInterval(step, 50);
+
+/* ───── 시작 · 끝 ───── */
+function showIntro(){
+  $('box').innerHTML=`<div class="big">🥚</div><h1>알 줍기 대작전</h1>
+    <p class="sub">${PRACTICE?'🤖 로봇 친구 셋과 3분 연습해요':'도윤 · 도진 · 지아 · 윤아가 한 마당에 모여요 (10분)'}</p>
+    <ol><li>화면을 누르고 끌면 <b>${MY_E}</b> 내가 움직여요</li><li>🥚 알을 밟으면 주워요 (한 번에 ${MAXC}개까지)</li><li>내 🪺 둥지로 가져가야 점수가 돼요</li><li>알을 든 친구와 부딪히면 <b>1개를 뺏어요</b> (뺏긴 친구는 3초 동안 보호막 ✨)</li></ol>
+    <button class="btn" data-act="go">시작! ▶</button> <button class="btn gray" data-act="quit">나가기</button>`;
+  $('ov').hidden=false;
+}
+async function begin(){
+  $('ov').hidden=true;
+  try{ NET = (PRACTICE||LOCAL) ? makeLocalNet(LOCAL) : await makeFireNet(); }
+  catch(e){ console.warn(e); $('box').innerHTML=`<div class="big">😢</div><h1>게임에 들어가지 못했어요</h1><p class="sub">인터넷 연결을 확인하고 다시 해 봐요</p><button class="btn gray" data-act="quit">나가기</button>`; $('ov').hidden=false; return; }
+  NET.on(v=>{ S=v||{}; S.players=S.players||{}; S.eggs=S.eggs||{}; });
+  // 내 자리 (다시 들어와도 모은 알은 그대로)
+  await NET.tx('players/'+ME, p => Object.assign(p||{c:0,s:0,p:0}, {x:me.x, y:me.y, e:MY_E, n:ROOMS[ME].n, t:NET.now()}));
+  if(PRACTICE) for(const b of BOTS) await NET.tx('players/'+b, p => ({c:0,s:0,p:0,x:NEST[b].x,y:NEST[b].y,e:BOT_E[b]===MY_E?'🐼':BOT_E[b],n:ROOMS[b].n+' 로봇',t:NET.now()}));
+  started=true; say('알을 주워 내 둥지로! 🥚', 2200);
+}
+function finish(){
+  if(ended) return; ended=true;
+  const list=ORDER.map(r=>[r,(S.players||{})[r]]).filter(([,p])=>p).sort((a,b)=>(b[1].s||0)-(a[1].s||0));
+  const mine=myP().s||0, reward=PRACTICE?0:mine*2+3;
+  $('box').innerHTML=`<div class="big">🏆</div><h1>끝났어요!</h1>
+    <ul class="rank">${list.map(([r,p],i)=>`<li class="${r===ME?'me':''}"><span>${['🥇','🥈','🥉','🎖️'][i]||''}</span><span class="e">${p.e||''}</span>${r===ME?'나':p.n||ROOMS[r].n}<b>🥚 ${p.s||0}</b></li>`).join('')}</ul>
+    ${PRACTICE?'<p class="sub">연습 게임이라 별은 없어요. 진짜 게임은 이벤트 때 열려요!</p>':`<p>둥지 알 ${mine}개 → <b>🌈 이벤트 별 ${reward}개</b>를 받았어요!</p>`}
+    <button class="btn" data-act="quit">방으로 돌아가기</button>`;
+  $('ov').hidden=false;
+  if(!PRACTICE) try{ parent.postMessage({type:'eggGameReward', gid:GID, n:reward}, location.origin); }catch(e){}
+}
+document.addEventListener('click', e=>{ const a=e.target.closest('[data-act]'); if(!a) return;
+  if(a.dataset.act==='go') begin();
+  if(a.dataset.act==='quit'){ try{ parent.postMessage({type:'eggGameClose'}, location.origin); }catch(e){} if(parent===window) history.back(); } });
+
+resize(); showIntro(); requestAnimationFrame(loop);
+if(!PRACTICE && Date.now()>UNTIL){ ended=true; $('box').innerHTML=`<div class="big">⏰</div><h1>게임 시간이 끝났어요</h1><button class="btn gray" data-act="quit">나가기</button>`; }
+</script>
+</body>
+</html>
