@@ -14,6 +14,12 @@
      font-family 이름: 'OwnglyphYuntaeng', 'NexonBazzi', 'NexonMaplestory'
      (안 붙여도 비슷한 구글 폰트로 대신 보여요)
    ============================================================ */
+@font-face {
+    font-family: 'OwnglyphYuntaeng';
+    src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
 
 
 /* ---------- 디자인 3종 ---------- */
@@ -121,9 +127,27 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .bigcal .h{ text-align:center; font-size:.8em; color:var(--ink-soft); }
 .bigcal .h.sun{ color:var(--red); }
 .bigcal button{
-  min-height:86px; border:1px solid var(--line); background:var(--card); border-radius:8px;
-  padding:3px 5px; display:flex; flex-direction:column; align-items:stretch; text-align:left; gap:1px; overflow:hidden;
+  min-height:122px; border:1px solid var(--line); background:var(--card); border-radius:10px;
+  padding:6px 8px; display:flex; flex-direction:column; align-items:stretch; text-align:left; gap:3px; overflow:hidden;
 }
+.bigcal .num{ font-size:.95em; font-weight:700; }
+.bigcal .sun .num{ color:var(--red); }
+.bigcal .sat .num{ color:#3B6FD8; }
+.bigcal .plans{ flex:1; display:flex; flex-direction:column; gap:2px; overflow:hidden; min-width:0; }
+.bigcal .plans i{ font-style:normal; font-size:.7em; line-height:1.35; background:color-mix(in srgb, var(--yellow) 38%, var(--card)); border-radius:4px; padding:1px 5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bigcal .plans i.more{ background:none; color:var(--ink-soft); padding:0 2px; }
+.bigcal .dots i{ box-sizing:border-box; border:1.5px solid var(--c); background:transparent; }
+.bigcal .dots i.on{ background:var(--c); }
+.bigcal button.future{ background:color-mix(in srgb, var(--card) 70%, var(--desk)); }
+.bigcal button.future .dots{ visibility:hidden; }
+.below{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,2fr); gap:20px; align-items:start; margin-top:16px; }
+.plan-box{ background:var(--card); border-radius:14px; padding:14px 16px; box-shadow:0 2px 0 var(--edge); }
+.plan-box h3{ margin:0 0 8px; font-size:1.1em; }
+.plan-list{ list-style:none; margin:0 0 8px; padding:0; }
+.plan-list li{ display:flex; align-items:center; gap:4px; padding:4px 8px; margin-bottom:4px; border-radius:8px; background:color-mix(in srgb, var(--yellow) 30%, var(--card)); }
+.plan-list li span{ flex:1; }
+.plan-in{ display:flex; gap:6px; }
+.plan-in input{ flex:1; min-width:0; border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; }
 .bigcal .top{ display:flex; justify-content:space-between; align-items:center; font-size:.8em; }
 .bigcal .wm{ font-size:.9em; letter-spacing:-2px; }
 .bigcal .tt{ font-size:.7em; line-height:1.25; flex:1; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
@@ -242,6 +266,9 @@ mark{
 .cmt-in input{ flex:1; min-width:0; border:none; border-bottom:1.5px solid var(--line); background:transparent; padding:2px; }
 .cmt-in button{ border:none; background:none; color:var(--ink-soft); }
 .cmt-in b{ align-self:center; color:var(--cc); }
+.fx{ background:rgba(110,210,140,.45); border-radius:4px; padding:0 2px; }
+.fixes{ margin:4px 0 0; padding-left:1.2em; font-size:.8em; }
+.fixes s{ color:var(--red); }
 .cmt-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; }
 .cmt-tool:hover{ opacity:1; }
 .emo{ display:flex; flex-wrap:wrap; gap:2px; margin-top:6px; padding:6px; border:1.5px dashed var(--line); border-radius:10px; background:var(--paper); }
@@ -266,7 +293,7 @@ mark{
 .welcome p{ font-size:1.2em; }
 
 @media (max-width:900px){
-  .mgrid, .kgrid, .todaykids{ grid-template-columns:1fr; }
+  .mgrid, .kgrid, .todaykids, .below{ grid-template-columns:1fr; }
   .grid3{ grid-template-columns:1fr; }
 }
 @media (max-width:600px){
@@ -274,8 +301,11 @@ mark{
   .tabs{ padding-left:6px; overflow-x:auto; }
   .tabs button{ padding:8px 10px 6px; white-space:nowrap; }
   h1{ font-size:1.7em; }
-  .bigcal button{ min-height:54px; }
-  .bigcal .tt{ display:none; }
+  .bigcal{ gap:3px; }
+  .bigcal button{ min-height:70px; padding:3px 4px; }
+  .bigcal .plans i{ font-size:.58em; padding:0 3px; }
+  .bigcal .dots{ gap:2px; }
+  .bigcal .dots i{ width:7px; height:7px; }
   .lined{ padding-left:40px; background-image:linear-gradient(to right, transparent 30px, var(--red) 30px, var(--red) 32px, transparent 32px), repeating-linear-gradient(to bottom, transparent 0 35px, var(--line) 35px 36px); }
 }
 @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
@@ -376,6 +406,8 @@ const pad = n => String(n).padStart(2, "0");
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const today = () => ymd(new Date());
 const thisMonth = () => today().slice(0, 7);
+// 일정을 미리 적을 수 있게 12달 뒤까지 넘겨 볼 수 있어요
+const maxMonth = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() + 12); return ymd(d).slice(0, 7); };
 const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
 const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); };
 const WEEK = ["일","월","화","수","목","금","토"];
@@ -456,6 +488,7 @@ function startData(){
       snap.forEach(d => { S.months[d.id] = d.data(); });
       const g = $("#mgoal");
       if (g && document.activeElement !== g) g.value = S.months[S.month]?.goal || "";
+      if (S.tab === "month"){ renderCal(); renderPlans(); }
     }, () => {});
   }
   // 아이가 저장 전에 쓰고 있는 글 (자동 저장) → "✍️ 쓰는 중"
@@ -587,7 +620,7 @@ function monthNav(title){
   return `<div class="daynav">
     <button data-act="month-move" data-v="-1" aria-label="지난달">◀</button>
     <h2>${y}년 ${m}월${title ? " " + title : ""}</h2>
-    <button data-act="month-move" data-v="1" aria-label="다음달" ${S.month >= thisMonth() ? "disabled style='opacity:.3'" : ""}>▶</button>
+    <button data-act="month-move" data-v="1" aria-label="다음달" ${S.month >= maxMonth() ? "disabled style='opacity:.3'" : ""}>▶</button>
   </div>`;
 }
 
@@ -600,11 +633,32 @@ function renderMonth(){
     <div class="mgoal"><span>🎯 이달의 다짐</span>
       <input id="mgoal" maxlength="60" placeholder="이번 달에 꼭 하고 싶은 것을 적어 두세요" value="${esc(S.months[S.month]?.goal || "")}"></div>
     <div class="todaykids" id="todayBox"></div>
-    <div class="mgrid">
-      <div id="calBox"></div>
+    <div id="calBox"></div>
+    <div class="below">
+      <section class="plan-box" id="planBox"></section>
       <section class="editor" id="editor"></section>
     </div>`;
-  renderToday(); renderCal(); renderEditor();
+  renderToday(); renderCal(); renderPlans(); renderEditor();
+}
+/* ---------- 달력 일정: diaryMonth/{YYYY-MM}.plans["YYYY-MM-DD"] = [{ t, at }] ---------- */
+let planDraft = "";
+const plansOf = ds => S.months[ds.slice(0, 7)]?.plans?.[ds] || [];
+function renderPlans(){
+  const box = $("#planBox"); if (!box) return;
+  const ds = S.writeDate, list = plansOf(ds), focused = document.activeElement?.id === "planIn";
+  box.innerHTML = `<h3>📌 ${fmtDate(ds)} 일정</h3>
+    ${list.length ? `<ul class="plan-list">${list.map(p => `<li><span>${esc(p.t)}</span>
+      <button class="cmt-tool" data-act="plan-edit" data-v="${p.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="plan-del" data-v="${p.at}" aria-label="지우기">🗑</button></li>`).join("")}</ul>`
+      : `<p class="soft">아직 일정이 없어요.</p>`}
+    <div class="plan-in"><input id="planIn" maxlength="40" placeholder="예: 3시 치과 · 도윤 태권도 발표" value="${esc(planDraft)}"><button class="btn" data-act="plan-add">추가</button></div>`;
+  if (focused){ const i = $("#planIn"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+}
+async function savePlans(ds, fn){
+  const list = fn(plansOf(ds).slice());
+  try {
+    await setDoc(doc(db, "diaryMonth", ds.slice(0, 7)), { plans: { [ds]: list }, updatedAt: serverTimestamp() }, { merge: true });
+    return true;
+  } catch (err){ toast("일정을 저장하지 못했어요 (" + err.code + ")"); return false; }
 }
 // 첫 화면 위쪽: 오늘 아이들 공부 · 일기 한눈에
 function renderToday(){
@@ -632,23 +686,30 @@ function renderCal(){
   let cells = WEEK.map((d, i) => `<div class="h${i === 0 ? " sun" : ""}">${d}</div>`).join("");
   for (let i = 0; i < first; i++) cells += "<div></div>";
   for (let d = 1; d <= last; d++){
-    const ds = `${S.month}-${pad(d)}`, e = S.entries[keyOf(ds, ME)];
-    const cls = [e ? "has" : "", ds === t ? "today" : "", ds === S.writeDate ? "sel" : ""].join(" ");
-    const dots = KIDS.filter(w => wroteOn(ds, w)).map(w => `<i style="--c:${PEOPLE[w].color}" title="${PEOPLE[w].name}"></i>`).join("");
-    cells += `<button class="${cls}" data-act="pick-date" data-v="${ds}" ${ds > t ? "disabled" : ""} aria-label="${fmtDate(ds)}">
-      <span class="top"><span>${d}</span><span class="wm">${e ? (e.weather || "") + (e.mood || "") : ""}</span></span>
-      <span class="tt">${e ? esc(e.title || e.content.slice(0, 20)) : ""}</span>
+    const ds = `${S.month}-${pad(d)}`, wd = (first + d - 1) % 7, plans = plansOf(ds);
+    const cls = [wd === 0 ? "sun" : wd === 6 ? "sat" : "", ds === t ? "today" : "", ds === S.writeDate ? "sel" : "", ds > t ? "future" : ""].join(" ");
+    // 점 세 개: 엄마 · 도윤 · 도진 (색칠 = 그날 일기 씀)
+    const dots = ORDER.map(w => `<i class="${wroteOn(ds, w) ? "on" : ""}" style="--c:${PEOPLE[w].color}" title="${PEOPLE[w].name}${wroteOn(ds, w) ? " 씀" : " 안 씀"}"></i>`).join("");
+    cells += `<button class="${cls}" data-act="pick-date" data-v="${ds}" aria-label="${fmtDate(ds)}${plans.length ? ` · 일정 ${plans.length}개` : ""}">
+      <span class="num">${d}</span>
+      <span class="plans">${plans.slice(0, 3).map(p => `<i>${esc(p.t)}</i>`).join("")}${plans.length > 3 ? `<i class="more">+${plans.length - 3}</i>` : ""}</span>
       <span class="dots">${dots}</span></button>`;
   }
   box.innerHTML = `
     <div class="mstats">${ORDER.map(w => `<span style="--c:${PEOPLE[w].color}"><i></i>${PEOPLE[w].name} ${count(w)}일</span>`).join("")}</div>
     <div class="bigcal">${cells}</div>
-    <p class="soft" style="margin:6px 0 0">날짜를 누르면 그날 엄마 일기를 쓰거나 고칠 수 있어요. 칸 아래 점은 아이들이 쓴 날이에요.</p>`;
+    <p class="soft" style="margin:6px 0 0">날짜를 누르면 아래에서 그날 일정을 적고 엄마 일기를 쓸 수 있어요. 칸 아래 점 세 개는 엄마 · 도윤 · 도진이 일기를 쓴 날이에요 (색칠된 점 = 씀).</p>`;
 }
 
 function currentQuestion(){ return QUESTIONS[(hash(S.writeDate) + S.qShift) % QUESTIONS.length]; }
 function renderEditor(){
   const box = $("#editor"); if (!box) return;
+  if (S.writeDate > today()){
+    S.formDirty = false;
+    box.innerHTML = `<h3>${fmtDate(S.writeDate)}</h3>
+      <p class="soft" style="margin-top:10px">📌 앞으로 올 날이에요. 일정 칸에 일정만 적을 수 있어요. 일기는 그날이 되면 써요 🌷</p>`;
+    return;
+  }
   const e = S.entries[keyOf(S.writeDate, ME)] || {};
   S.weather = e.weather || ""; S.mood = e.mood || ""; S.spell = null;
   const q = e.question || currentQuestion();
@@ -799,7 +860,8 @@ function kidStats(w){
     avg: chars.length ? Math.round(chars.reduce((a, b) => a + b, 0) / chars.length) : 0,
     checked: list.filter(e => e.spellChecked).length,
     self: list.reduce((a, e) => a + (e.spellSelf || 0), 0),
-    fixed: list.reduce((a, e) => a + Math.max(0, (e.spellFound || 0) - (e.spellLeft || 0)), 0),
+    fixed: list.reduce((a, e) => a + (e.spellFixes ? e.spellFixes.length : Math.max(0, (e.spellFound || 0) - (e.spellLeft || 0))), 0),
+    ai: list.reduce((a, e) => a + (e.spellFixes || []).filter(f => f.how === "ai").length, 0),
     waiting: list.filter(e => !e.stamp).sort((a, b) => b.date.localeCompare(a.date)),
     studyDays: studyDays.length, probs, rate: probs ? Math.round(oks / probs * 100) : 0,
     // 공부는 했는데 일기는 안 쓴 날 (오늘은 8시 전이면 빼요)
@@ -837,7 +899,7 @@ function kidCard(w){
       <div><small>📚 이달 공부한 날</small><b>${s.studyDays}일</b><small>${s.probs}문제 · 정답 ${s.rate}%</small></div>
       <div><small>📔 이달 일기 쓴 날</small><b>${s.days}일</b><small>${s.elapsed ? `${s.elapsed}일 중 ${pct}% · 평균 ${s.avg}자` : "—"}</small></div>
       <div><small>🚨 공부만 하고 일기 안 쓴 날</small><b style="color:${s.missed.length ? "var(--red)" : "inherit"}">${s.missed.length}일</b><small>${s.missed.length ? s.missed.slice(0, 5).map(d => parseYmd(d).getDate() + "일").join(" · ") : "잘하고 있어요!"}</small></div>
-      <div><small>🖍 빨간펜 · 도장 기다림</small><b>${s.checked}편 · <span style="color:${s.waiting.length ? "var(--red)" : "inherit"}">${s.waiting.length}편</span></b><small>고친 곳 ${s.fixed}개 · 스스로 ${s.self}개</small></div>
+      <div><small>🖍 빨간펜 · 도장 기다림</small><b>${s.checked}편 · <span style="color:${s.waiting.length ? "var(--red)" : "inherit"}">${s.waiting.length}편</span></b><small>고친 곳 ${s.fixed}개 · ${s.ai ? `AI가 고쳐 줌 ${s.ai}개` : `스스로 ${s.self}개`}</small></div>
     </div>
     <div class="mini">${mini}</div>
     <div class="soft" style="font-size:.78em">칸 색: 일기 쓴 날 · 점선 테두리: 공부만 한 날 · ⭐ 도장</div>
@@ -881,6 +943,20 @@ async function saveComments(id, fn){
   const list = fn((S.entries[id]?.comments || []).slice());
   await updateDoc(doc(db, "diary", id), { comments: list });
 }
+// 아이가 빨간펜으로 고친 곳을 본문에 초록 형광펜으로
+function markFixes(text, fixes){
+  const spans = [];
+  (fixes || []).forEach(f => {
+    if (!f.right) return;
+    let i = text.indexOf(f.right);
+    while (i >= 0 && spans.some(s => i < s.e && i + f.right.length > s.i)) i = text.indexOf(f.right, i + 1);
+    if (i >= 0) spans.push({ i, e: i + f.right.length });
+  });
+  spans.sort((a, b) => a.i - b.i);
+  let html = "", pos = 0;
+  spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<span class="fx">${esc(text.slice(s.i, s.e))}</span>`; pos = s.e; });
+  return html + esc(text.slice(pos));
+}
 function renderDay(){ keepFocus(renderDayInner); }
 function renderDayInner(){
   const d = S.dayDate, t = today();
@@ -905,14 +981,17 @@ function dayCard(w, e){
   const hearts = e.hearts || {};
   const heartBy = ORDER.filter(k => hearts[k]);
   const n = e.chars ?? countChars(e.content || "");
-  const spellNote = p.kid ? `<div class="soft" style="font-size:.8em">✏️ ${n}자 · ${e.spellChecked
-      ? `🖍 찾은 곳 ${e.spellFound || 0} · 남은 곳 ${e.spellLeft || 0}${e.spellSelf ? ` · 스스로 고침 ${e.spellSelf}` : ""}`
-      : "🖍 빨간펜 검사 안 함"}</div>` : "";
+  const fx = e.spellFixes || [];
+  const howCount = h => fx.filter(f => f.how === h).length;
+  const spellNote = p.kid ? `<div class="soft" style="font-size:.8em">✏️ ${n}자 · ${!e.spellChecked ? "🖍 빨간펜 검사 안 함"
+      : fx.length ? `🖍 고친 곳 ${fx.length}군데 (${[["ai", "AI가 고쳐 줌"], ["hint", "정답 보고"], ["self", "스스로"]].filter(([h]) => howCount(h)).map(([h, l]) => `${l} ${howCount(h)}`).join(" · ")})`
+      : `🖍 찾은 곳 ${e.spellFound || 0} · 남은 곳 ${e.spellLeft || 0}`}</div>
+    ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}` : "";
   return `<div class="dcard" style="--c:${p.color}">${head}
     ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
     ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}
     ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
-    <div class="body">${esc(e.content)}</div>
+    <div class="body">${markFixes(e.content, fx)}</div>
     ${spellNote}
     ${p.kid ? `<div class="stamps">${STAMPS.map(s =>
       `<button class="${e.stamp === s ? "on" : ""}" data-act="stamp" data-id="${e.id}" data-v="${s}">${s}</button>`).join("")}</div>` : ""}
@@ -978,8 +1057,22 @@ document.addEventListener("click", e => {
     case "tab": goTab(v); break;
     case "pick-date":
       if (v === S.writeDate || !leaveForm("저장하지 않은 일기가 있어요. 다른 날로 옮길까요?")) break;
-      S.writeDate = v; S.qShift = 0; renderCal(); renderEditor();
-      if (innerWidth <= 900) $("#editor").scrollIntoView({ behavior: "smooth", block: "start" });
+      S.writeDate = v; S.qShift = 0; planDraft = ""; renderCal(); renderPlans(); renderEditor();
+      if (innerWidth <= 900) $("#planBox").scrollIntoView({ behavior: "smooth", block: "start" });
+      break;
+    case "plan-add": {
+      const inp = $("#planIn"), t = inp.value.trim(); if (!t) { inp.focus(); break; }
+      savePlans(S.writeDate, l => [...l, { t, at: Date.now() }]).then(ok => { if (ok){ planDraft = ""; inp.value = ""; toast("📌 일정을 적었어요"); } });
+      break;
+    }
+    case "plan-edit": {
+      const p = plansOf(S.writeDate).find(p => String(p.at) === v); if (!p) break;
+      const t = prompt("일정 고치기", p.t); if (t === null || !t.trim()) break;
+      savePlans(S.writeDate, l => l.map(x => x.at === p.at ? { ...x, t: t.trim().slice(0, 40) } : x));
+      break;
+    }
+    case "plan-del":
+      if (confirm("이 일정을 지울까요?")) savePlans(S.writeDate, l => l.filter(x => String(x.at) !== v));
       break;
     case "weather": case "mood":
       S[a.dataset.act] = S[a.dataset.act] === v ? "" : v; S.formDirty = true;
@@ -1002,7 +1095,7 @@ document.addEventListener("click", e => {
       if (S.tab === "month" && !leaveForm("저장하지 않은 일기가 있어요. 다른 달로 넘길까요?")) break;
       const { y, m } = monthInfo(S.month); const d = new Date(y, m - 1 + (+v), 1);
       S.month = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`;
-      if (S.month > thisMonth()) S.month = thisMonth();
+      if (S.month > maxMonth()) S.month = maxMonth();
       if (!S.writeDate.startsWith(S.month)) S.writeDate = S.month === thisMonth() ? today() : S.month + "-01";
       renderTab(); break;
     }

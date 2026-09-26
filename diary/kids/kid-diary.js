@@ -80,6 +80,7 @@ export async function markStudied(kid, firebaseConfig){
 
 /* ---------- 스타일 (공부방 스타일과 섞이지 않게 .kd 안에서만) ---------- */
 const CSS = `
+@font-face{ font-family:'OwnglyphYuntaeng'; src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2'); font-weight:400; font-display:swap; }
 .kd{ --paper:#FFFDF6; --card:#fff; --ink:#2B3557; --soft:#6B7394; --line:#CFE0EE; --red:#E0555E; --yellow:#F6C945; --ok:#3F8F60;
   font-family:'OwnglyphYuntaeng','Gaegu','Jua',sans-serif; font-size:var(--kfs); line-height:1.6; color:var(--ink);
   background:var(--paper); border-radius:18px; padding:18px; box-shadow:0 3px 0 #E3E8EF, 0 10px 30px rgba(20,30,60,.08);
@@ -158,6 +159,9 @@ const CSS = `
 .kd-stamp{ float:right; transform:rotate(-12deg); color:var(--red); border:3px double var(--red); border-radius:50%; width:70px; height:70px;
   display:grid; place-items:center; text-align:center; font-size:.75em; line-height:1.1; font-weight:700; margin:0 0 6px 8px; }
 .kd-cmts{ margin-top:6px; font-size:.9em; }
+.kd-fixes{ margin-top:6px; font-size:.85em; background:#F2FAF4; border-radius:10px; padding:6px 10px; }
+.kd-fixes ul{ margin:2px 0 0; padding-left:1.2em; }
+.kd-fixes .wrong{ color:var(--red); text-decoration:line-through; }
 .kd-cmts p{ margin:2px 0; }
 .kd-cmt{ display:flex; gap:4px; margin-top:4px; }
 .kd-cmt input{ flex:1; min-width:0; border:none; border-bottom:1.5px solid var(--line); background:transparent; padding:2px; }
@@ -532,10 +536,16 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   function spellResult(){
     if (!S.spell) return {};
     const text = $("[data-kd=content]").value, errs = S.spell.errors;
+    // 어느 부분을 어떻게 고쳤는지 남겨요 → 내 일기장 · 엄마 화면에서 초록 형광펜으로 보여 줘요
+    // how: ai(빨간펜이 고쳐 줌) · hint(정답 보고 고침) · self(스스로 고침)
+    const fixes = errs.filter(er => !isLeft(er, text)).map(er => ({
+      wrong: er.wrong, right: er.right, kind: er.kind || "",
+      how: er.applied ? (P.autoFix ? "ai" : "hint") : er.shown ? "hint" : "self"
+    }));
     return {
-      spellChecked: true, spellFound: S.found, spellAuto: !!P.autoFix,
+      spellChecked: true, spellFound: S.found, spellAuto: !!P.autoFix, spellFixes: fixes,
       spellLeft: errs.filter(er => isLeft(er, text)).length,
-      spellSelf: errs.filter(er => !isLeft(er, text) && !er.applied && !er.shown).length
+      spellSelf: fixes.filter(f => f.how === "self").length
     };
   }
 
@@ -588,6 +598,25 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   }
 
   /* ---------- 내 일기장 · 가족 일기 ---------- */
+  // 빨간펜으로 고친 곳: 본문에 초록 형광펜 + 목록
+  function markFixes(text, fixes){
+    const spans = [];
+    (fixes || []).forEach(f => {
+      let i = text.indexOf(f.right);
+      while (i >= 0 && spans.some(s => i < s.e && i + f.right.length > s.i)) i = text.indexOf(f.right, i + 1);
+      if (i >= 0 && f.right) spans.push({ i, e: i + f.right.length });
+    });
+    spans.sort((a, b) => a.i - b.i);
+    let html = "", pos = 0;
+    spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<span class="hl-done">${esc(text.slice(s.i, s.e))}</span>`; pos = s.e; });
+    return html + esc(text.slice(pos));
+  }
+  const HOW = { ai: "🖍 빨간펜이 고쳐 줌", hint: "💡 정답 보고 고침", self: "👍 스스로 고침" };
+  function fixList(fixes){
+    if (!fixes?.length) return "";
+    return `<div class="kd-fixes"><b>🖍 빨간펜이랑 고친 곳 ${fixes.length}군데</b>
+      <ul>${fixes.map(f => `<li><span class="wrong">${esc(f.wrong)}</span> → <span class="hl-done">${esc(f.right)}</span> <span class="kd-soft">${HOW[f.how] || ""}</span></li>`).join("")}</ul></div>`;
+  }
   const cmtDraft = {};   // 한마디 쓰던 글: 화면이 새로 그려져도 지켜요
   function renderList(authors, family){
     const a = document.activeElement, focusId = root.contains(a) ? a?.dataset?.cmt : null;
@@ -606,7 +635,8 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
         <div class="meta"><b>${who.emoji} ${mine ? "나" : nameFor(kid, e.author)}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span></div>
         ${e.question ? `<div class="kd-soft">💡 ${esc(e.question)}</div>` : ""}
         ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
-        <div class="body">${esc(e.content)}</div>
+        <div class="body">${mine ? markFixes(e.content, e.spellFixes) : esc(e.content)}</div>
+        ${mine ? fixList(e.spellFixes) : ""}
         <div class="kd-cmts">
           <button class="kd-heart" data-a="heart" data-id="${e.id}" aria-label="하트">${hearts[kid] ? "❤️" : "🤍"}</button>
           <span class="kd-soft">${heartBy.join(", ")}</span>
