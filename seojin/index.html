@@ -795,6 +795,18 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 }
 /* 휴대폰: 큰 선택 단추(공부하기 · 문제풀기 등) 글씨는 한 줄로 */
 @media (max-width:520px){ .lvtab b{font-size:1.2rem;white-space:nowrap} .lvtab small{font-size:.78rem} }
+/* 한국사 이야기책: 한 페이지에 이어 읽기 */
+.st-all .st-read{margin:2px 0 6px}
+.st-all .st-sec{padding:6px 0}
+.st-all .st-sec+.st-sec{border-top:1px dashed var(--line)}
+.st-all .st-pic{font-size:3.4rem;margin:8px 0 2px}
+.st-all .st-text{min-height:0;margin:4px 4px 8px}
+.st-all .big-btn{margin-top:10px}
+/* 책 읽기 모드 */
+.rd-start{display:flex;justify-content:center;margin:6px 0 4px}
+.reading{background:color-mix(in srgb,var(--hi) 26%,transparent);border-radius:10px;box-shadow:0 0 0 6px color-mix(in srgb,var(--hi) 26%,transparent)}
+.rd-float{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.18);white-space:nowrap}
+.rd-float span{font-size:.9rem;color:var(--sub);font-variant-numeric:tabular-nums}
 /* ═════════ 새 디자인 끝 ═════════ */
 </style>
 </head>
@@ -2116,7 +2128,7 @@ function addWho(){
 }
 
 /* ───── 화면 전환 ───── */
-function go(v){ App.view=v; render(); window.scrollTo(0,0); }
+function go(v){ try{ if(RD) readStop(); }catch(e){} App.view=v; render(); window.scrollTo(0,0); }
 function render(){
   if(SUBJ[App.view] && !admin.subj[App.view]) App.view='home';
   document.querySelectorAll('.tab').forEach(t=>{
@@ -4180,7 +4192,7 @@ function renderLibrary(){
   const bk=LIB_BOOKS.find(b=>b.id===App.lib), r=libDone();
   if(!bk){
     view.innerHTML=`<div class="card"><p class="big" style="margin:0">📚 명작 도서관</p>
-      <p class="sub" style="margin:6px 0 0">오래도록 사랑받은 세계 명작과 우리 옛이야기예요. 한 장씩 넘기며 읽고, 다 읽으면 퀴즈 3문제! (${LIB_BOOKS.filter(b=>r[b.id]!==undefined).length} / ${LIB_BOOKS.length}권 읽음)</p></div>
+      <p class="sub" style="margin:6px 0 0">오래도록 사랑받은 세계 명작과 우리 옛이야기예요. 한 페이지에서 이어 읽거나 📖 책 읽기 모드로 들으며 읽고, 다 읽으면 퀴즈 3문제! (${LIB_BOOKS.filter(b=>r[b.id]!==undefined).length} / ${LIB_BOOKS.length}권 읽음)</p></div>
       ${LIB_LV.map(([lv,nm,sb])=>`<p class="lib-sec">${nm} <small>${sb}</small></p><div class="lib-shelf">${LIB_BOOKS.filter(b=>(b.lv||1)===lv).map(b=>`<button class="lib-book ${r[b.id]!==undefined?'read':''}" data-act="libOpen" data-v="${b.id}">${r[b.id]!==undefined?`<span class="done">${r[b.id]===3?'🏅':'✔'} ${r[b.id]}/3</span>`:''}<span class="bk-e">${b.e}</span><b>${b.t}</b><small>${b.by}</small></button>`).join('')}</div>`).join('')}`;
     return;
   }
@@ -4188,6 +4200,7 @@ function renderLibrary(){
   view.innerHTML=`${backBtn('libClose',true)}<div class="card lib-page">
       <div class="lib-by">📖 ${bk.by}</div>
       <div class="lib-title">${bk.e} ${bk.t}</div>
+      ${readBtn('lib')}
       <div class="lib-body">${bk.pages.map(([pic,text],i)=>`<p><span class="lib-em">${pic}</span>${esc(text)} <button class="lib-spk" data-act="libSay" data-v="${i}" aria-label="이 부분 읽어 주기">🔊</button></p>`).join('')}</div>
       <button class="big-btn" data-act="libQuiz">✅ 다 읽었어요! 퀴즈 3문제 풀기</button>
     </div>${backBtn('libClose')}`;
@@ -4308,6 +4321,35 @@ function decoBuy(id){
   d.spent=(d.spent||0)+x.p; d.own.push(id); d[x.k]=id; App.decoPick=null; decoSave(d);
   beep(true); burst(); toast(`${x.e} ${x.n}을(를) 샀어요!`); renderMyRoom();
 }
+
+/* ───── 책 읽기 모드: 문단을 차례로 읽어 주고, 읽는 문단을 색칠하고 화면이 따라가요 (명작 도서관 · 한국사 이야기책) ───── */
+let RD=null; // {sel, texts, i, tok, paused}
+function readStart(sel, texts, from=0){
+  readStop();
+  if(!('speechSynthesis' in window)){ toast('이 기기는 읽어 주기를 할 수 없어요'); return; }
+  RD={sel, texts, i:from, tok:Math.random(), paused:false}; readStep();
+}
+function readStep(){
+  const R=RD; if(!R) return;
+  const els=document.querySelectorAll(R.sel);
+  if(!els.length){ readStop(); return; }                         // 다른 화면으로 갔어요
+  els.forEach((e,k)=>e.classList.toggle('reading',k===R.i));
+  if(R.i>=R.texts.length){ readStop(); toast('📖 끝까지 다 읽었어요!'); return; }
+  const el=els[R.i]; if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u=new SpeechSynthesisUtterance(R.texts[R.i].replace(/<[^>]+>/g,'')); u.lang='ko-KR'; u.rate=0.9; if(koVoice) u.voice=koVoice;
+  const tok=R.tok; u.onend=()=>{ if(RD && RD.tok===tok && !RD.paused){ RD.i++; readStep(); } };
+  speechSynthesis.speak(u); readBar();
+}
+function readPause(){ if(!RD) return; if(RD.paused){ RD.paused=false; RD.tok=Math.random(); readStep(); } else { RD.paused=true; RD.tok=0; try{ speechSynthesis.cancel(); }catch(e){} readBar(); } }
+function readStop(){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.reading').forEach(e=>e.classList.remove('reading')); readBar(); }
+function readBar(){
+  let f=document.getElementById('rdfloat');
+  if(!RD){ if(f) f.remove(); return; }
+  if(!f){ f=document.createElement('div'); f.id='rdfloat'; f.className='rd-float'; document.body.appendChild(f); }
+  f.innerHTML=`<span>📖 ${Math.min(RD.i+1,RD.texts.length)} / ${RD.texts.length}</span><button class="pill on" data-act="rdPause">${RD.paused?'▶ 이어 읽기':'⏸ 멈춤'}</button><button class="pill" data-act="rdStop">■ 그만</button>`;
+}
+const readBtn = k => `<div class="rd-start"><button class="pill on" data-act="rdStart" data-k="${k}">📖 책 읽기 모드 · 처음부터 읽어 주기</button></div>`;
 
 /* ───── 사회 · 과학: 단원마다 📖 설명 카드 + ✏️ 퀴즈 10문제 ───── */
 /* 사회 · 과학 (초6 ~ 중1) */
@@ -4484,28 +4526,23 @@ function drawStory(){
   const st=STORIES.find(s=>s.id===App.story);
   if(!st){
     const r=store.get('hstory',{}), pool=storyPool();
-    b.innerHTML=`<p class="desc">옛날이야기처럼 한 장씩 넘기며 읽어요. 다 읽으면 이야기 퀴즈 3문제! (${pool.filter(s=>r[s.id]!==undefined).length} / ${pool.length}권 읽음)</p>
+    b.innerHTML=`<p class="desc">옛날이야기를 한 페이지에서 이어 읽어요. 다 읽으면 이야기 퀴즈 3문제! (${pool.filter(s=>r[s.id]!==undefined).length} / ${pool.length}권 읽음)</p>
       <div class="shelf">${pool.map(s=>`<button class="book ${r[s.id]!==undefined?'read':''}" data-act="openStory" data-v="${s.id}">${r[s.id]!==undefined?`<span class="done">${r[s.id]===3?'🏅':'✔'} ${r[s.id]}/3</span>`:''}
         <span class="bk-e">${s.e}</span><b>${s.t}</b><small>${s.sub}</small><span class="gtag">${eraName(s.era)}${s.lv===8?' · 8급':''}</span></button>`).join('')}</div>`;
     return;
   }
   if(SQ && SQ.id===st.id){ drawStoryQuiz(st); return; }
-  const n=st.pages.length, pg=Math.min(App.spage,n-1), [pic,text]=st.pages[pg];
-  b.innerHTML=`<div class="card story">
+  // 장 넘기기 없이 한 페이지에 이어 읽어요 (장면마다 🔊)
+  b.innerHTML=`<div class="card story st-all">
       <div class="st-cover">📚 ${eraName(st.era)} · ${st.sub}</div>
       <div class="st-title">${st.t}</div>
-      <div class="st-pic">${pic}</div>
-      <div class="st-text">${text}</div>
-      <div class="st-nav">
-        <button class="pill" data-act="spage" data-v="-1" ${pg===0?'disabled style="opacity:.35"':''}>◀ 앞장</button>
-        <div><div class="st-dots">${st.pages.map((_,i)=>`<span class="${i===pg?'on':''}"></span>`).join('')}</div><div class="sub" style="font-size:.85rem;margin-top:4px">${pg+1} / ${n}쪽</div></div>
-        ${pg<n-1?'<button class="pill on" data-act="spage" data-v="1">다음 장 ▶</button>':'<button class="pill on" data-act="storyQuiz">📝 퀴즈!</button>'}
-      </div>
-      <div class="bn-btns"><button class="pill" data-act="storySay">🔊 읽어 주기</button><button class="pill ${App.autoRead?'on':''}" data-act="autoRead">${App.autoRead?'🔁 자동으로 읽는 중':'🔁 넘길 때 자동으로 읽기'}</button></div>
+      ${readBtn('story')}
+      ${st.pages.map(([pic,text],i)=>`<div class="st-sec"><div class="st-pic">${pic}</div><div class="st-text">${text} <button class="lib-spk" data-act="storySay" data-v="${i}" aria-label="${i+1}번째 장면 읽어 주기">🔊</button></div></div>`).join('')}
+      <button class="big-btn" data-act="storyQuiz">📝 다 읽었어요! 퀴즈 3문제</button>
     </div>
     <div class="center"><button class="linkbtn" data-act="closeStory">◀ 책장으로</button></div>`;
 }
-function sayStoryPage(){ const st=STORIES.find(s=>s.id===App.story); if(st) speak(st.pages[Math.min(App.spage,st.pages.length-1)][1].replace(/<[^>]+>/g,''),'ko'); }
+function sayStoryPage(i){ const st=STORIES.find(s=>s.id===App.story); if(!st) return; const clean=t=>t.replace(/<[^>]+>/g,''); speak(i==='all'?st.pages.map(p=>clean(p[1])).join(' '):clean(st.pages[Math.min(+i||0,st.pages.length-1)][1]),'ko'); }
 function drawStoryQuiz(st){
   const b=document.getElementById('hsbody'); if(!b) return;
   if(SQ.done){
@@ -4928,7 +4965,7 @@ const ACT = {
   libOpen: v=>{ App.lib=v||null; App.lpg=0; LQ=null; go('library'); },
   libClose: ()=>{ App.lib=null; LQ=null; render(); window.scrollTo(0,0); },
   libPage: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; App.lpg=Math.max(0,Math.min(bk.pages.length-1,(App.lpg||0)+ +v)); renderLibrary(); window.scrollTo(0,0); },
-  libSay: v=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) speak(bk.pages[Math.min(+v||0,bk.pages.length-1)][1],'ko'); },
+  libSay: v=>{ try{ if(RD) readStop(); }catch(e){} const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) speak(bk.pages[Math.min(+v||0,bk.pages.length-1)][1],'ko'); },
   libQuiz: ()=>{ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(!bk) return; LQ={id:bk.id, i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false, list:bk.qs.map(([q,a,o,ex])=>({q, ans:a, choices:shuffle([a,...o]), explain:ex}))}; renderLibrary(); window.scrollTo(0,0); },
   libPick: v=>libAnswer(+v),
   libSkip: ()=>libAnswer(-1),
@@ -4972,6 +5009,10 @@ const ACT = {
   decoCat: v=>{ App.decoCat=v; App.decoPick=null; renderMyRoom(); },
   decoTap: v=>decoTap(v),
   decoBuy: v=>decoBuy(v),
+  rdStart: (v,el)=>{ if(el.dataset.k==='lib'){ const bk=LIB_BOOKS.find(b=>b.id===App.lib); if(bk) readStart('.lib-body p', bk.pages.map(p=>p[1])); }
+    else { const st=(typeof STORIES!=='undefined')&&STORIES.find(s=>s.id===App.story); if(st) readStart('.st-all .st-text', st.pages.map(p=>p[1])); } },
+  rdPause: ()=>readPause(),
+  rdStop: ()=>readStop(),
   startS: ()=>startS(),
   skey: v=>sKey(v),
   spick: v=>sPick(+v),
@@ -5047,9 +5088,9 @@ const ACT = {
   hqQuit: ()=>{ HQ=null; render(); },
   exv: v=>{ App.exv=v; HQ=null; drawExam(); },
   openStory: v=>{ App.hsmode='story'; App.story=v; App.spage=0; SQ=null; if(App.view!=='history') go('history'); else { render(); window.scrollTo(0,0); } if(App.autoRead) setTimeout(sayStoryPage,300); },
-  closeStory: ()=>{ App.story=null; SQ=null; speechSynthesis && speechSynthesis.cancel(); drawStory(); window.scrollTo(0,0); },
+  closeStory: ()=>{ try{ if(RD) readStop(); }catch(e){} App.story=null; SQ=null; speechSynthesis && speechSynthesis.cancel(); drawStory(); window.scrollTo(0,0); },
   spage: v=>{ const st=STORIES.find(s=>s.id===App.story); if(!st) return; App.spage=Math.max(0,Math.min(st.pages.length-1,App.spage+ +v)); drawStory(); if(App.autoRead) sayStoryPage(); else speechSynthesis && speechSynthesis.cancel(); },
-  storySay: ()=>sayStoryPage(),
+  storySay: v=>{ try{ if(RD) readStop(); }catch(e){} sayStoryPage(v==='all'?'all':+v||0); },
   autoRead: ()=>{ App.autoRead=!App.autoRead; drawStory(); if(App.autoRead) sayStoryPage(); },
   storyQuiz: ()=>{ const st=STORIES.find(s=>s.id===App.story); if(!st) return; speechSynthesis && speechSynthesis.cancel();
     SQ={id:st.id, list:st.quiz.map(([q,a,o])=>({q, ans:a, choices:shuffle([a,...o])})), i:0, score:0, tried:false, solved:false, picked:[], note:'', done:false}; drawStory(); },
