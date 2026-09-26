@@ -3,24 +3,543 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>지아의 공부방</title>
 <style>
-@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
-:root{--bg:#FFF8F2;--ink:#1B1F2E;--sub:#6D7385;--accent:#FF6A3D}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--ink);font-family:'GMarketSans',system-ui,sans-serif;text-align:center}
-.box{max-width:420px}
-.ico{font-size:5rem;line-height:1}
-h1{font-size:1.8rem;margin:16px 0 8px;font-weight:700}
-p{color:var(--sub);font-weight:500;line-height:1.6;margin:0}
+@font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
+@font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap}
+:root{--bg:#FFF8F2;--paper:#FFFFFF;--card:#FFFFFF;--ink:#1B1F2E;--sub:#6D7385;--line:#EDE6DD;--accent:#FF6A3D;--soft:#FFEFE8;--hi:#FFC53D;--ok:#12A37A;--no:#E5484D;--shadow:0 6px 18px rgba(27,31,46,.08);--rad:24px;
+  --kor:#E8604C;--math:#0FA3B1;--eng:#7A5AF0;--story:#E39A1B;--room:#12A38A;--font:'GMarketSans';--hand:'OwnglyphYuntaeng';
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{font-size:18px}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font),system-ui,sans-serif;font-weight:500;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;line-height:1.4}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.hand{font-family:var(--hand),var(--font),sans-serif;font-weight:normal}
+b,.t{font-weight:700}
+
+/* 상단 */
+.bar{position:sticky;top:0;z-index:20;background:rgba(255,248,242,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:980px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem;flex:1}
+.logo i{font-style:normal;width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#FF8A4C,#FF5A5F);color:#fff;font-size:22px}
+.star{display:flex;align-items:center;gap:6px;height:44px;padding:0 16px;border-radius:999px;background:var(--soft);color:var(--accent);font-weight:700;font-size:1.1rem}
+.home-btn{width:48px;height:48px;border-radius:16px;background:var(--paper);border:1px solid var(--line);font-size:24px}
+main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
+
+/* 홈: 오늘의 놀이 길 */
+.hello{display:flex;align-items:center;gap:16px;padding:18px 22px;border-radius:var(--rad);background:linear-gradient(120deg,#FFE7DB,#FFF4D6);margin-bottom:18px}
+.hello .me{font-size:64px;line-height:1}
+.hello .hand{font-size:2rem;line-height:1.3}
+.hello .sub{color:var(--sub);font-size:.95rem;margin-top:2px}
+.say{margin-left:auto;flex:none;width:56px;height:56px;border-radius:50%;background:#fff;font-size:26px;box-shadow:var(--shadow)}
+.road{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:10px 0 4px}
+.road::before{content:"";position:absolute;left:10%;right:10%;top:78px;height:10px;border-radius:10px;background:repeating-linear-gradient(90deg,#F2D7C4 0 22px,transparent 22px 36px)}
+.stop{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0}
+.stop .ball{width:150px;max-width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-weight:700;font-size:2.6rem;box-shadow:0 12px 24px color-mix(in srgb,var(--c) 32%,transparent);border:6px solid #fff}
+.stop b{font-size:1.25rem}
+.stop small{color:var(--sub);font-size:.85rem}
+.stop .done{position:absolute;top:4px;right:calc(50% - 76px);width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:22px;box-shadow:var(--shadow)}
+.stop:active .ball{transform:scale(.96)}
+@media (max-width:760px){ .road{grid-template-columns:repeat(2,1fr)} .road::before{display:none} .stop .ball{width:130px} .stop .done{right:calc(50% - 66px)} }
+
+/* 공통 판 */
+.head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.head .ico{width:56px;height:56px;border-radius:18px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:1.6rem;font-weight:700}
+.head b{font-size:1.5rem}
+.levels{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.lv{min-height:48px;padding:0 18px;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:1rem;font-weight:700;color:var(--sub)}
+.lv.on{background:var(--c);border-color:var(--c);color:#fff}
+.lv .m{margin-left:4px}
+.board{background:var(--card);border-radius:var(--rad);box-shadow:var(--shadow);padding:22px;text-align:center;position:relative}
+.q-top{display:flex;justify-content:space-between;align-items:center;color:var(--sub);font-size:.95rem;margin-bottom:6px}
+.dots{display:flex;gap:6px}
+.dots i{width:14px;height:14px;border-radius:50%;background:var(--line)}
+.dots i.ok{background:var(--ok)}
+.dots i.cur{background:var(--c)}
+.pic{font-size:88px;line-height:1.1;margin:6px 0}
+.prompt{font-size:1.6rem;margin:6px 0 14px}
+.listen{display:inline-flex;align-items:center;gap:10px;height:64px;padding:0 26px;border-radius:999px;background:var(--c);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 8px 18px color-mix(in srgb,var(--c) 30%,transparent);margin:4px 0 14px}
+.eq{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;font-size:3rem;font-weight:700;margin:6px 0 18px}
+.eq .op{color:var(--sub)}
+.big-letter{font-size:6rem;font-weight:700;line-height:1;margin:4px 0}
+
+/* 끌어다 놓기 */
+.slot{display:inline-grid;place-items:center;min-width:110px;height:110px;padding:0 10px;border-radius:26px;border:5px dashed color-mix(in srgb,var(--c) 55%,#fff);background:color-mix(in srgb,var(--c) 7%,#fff);font-size:3.4rem;font-weight:700;vertical-align:middle;transition:transform .12s,background .12s}
+.slot.hover{transform:scale(1.07);background:color-mix(in srgb,var(--c) 18%,#fff)}
+.slot.filled{border-style:solid;border-color:var(--ok);background:#E9F8F1;color:#0B6B4F}
+.slot.small{min-width:78px;height:78px;border-radius:20px;border-width:4px;font-size:2.2rem}
+.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:22px;padding:18px;border-radius:22px;background:color-mix(in srgb,var(--c) 6%,var(--bg))}
+.tile{touch-action:none;min-width:110px;height:110px;padding:0 14px;border-radius:26px;background:#fff;border:3px solid color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,var(--line));font-size:3.4rem;font-weight:700;display:grid;place-items:center;cursor:grab}
+.tile.small{min-width:78px;height:78px;border-radius:20px;font-size:2.2rem}
+.tile.pic-tile{font-size:3.6rem}
+.tile.lift{opacity:.25}
+.tile.used{visibility:hidden}
+.tile.shake{animation:shake .45s}
+.ghost{position:fixed;z-index:100;pointer-events:none;transform:translate(-50%,-50%) scale(1.08);box-shadow:0 18px 30px rgba(0,0,0,.2)}
+@keyframes shake{20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
+.hint{min-height:1.6em;margin-top:14px;font-size:1.2rem;color:var(--sub)}
+.praise{font-family:var(--hand),var(--font),sans-serif;font-size:2.2rem;color:var(--ok)}
+.next{display:inline-flex;align-items:center;gap:10px;height:66px;padding:0 34px;border-radius:999px;background:var(--ink);color:#fff;font-size:1.3rem;font-weight:700;margin-top:16px}
+
+/* 연산 학습지 */
+.sheet{background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);padding:18px 22px;border-top:10px solid var(--c)}
+.sheet-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.sheet-h b{font-size:1.35rem}
+.row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:12px 0;border-bottom:2px dashed var(--line)}
+.row:last-child{border-bottom:0}
+.row .no{width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--c) 12%,#fff);color:var(--c);display:grid;place-items:center;font-weight:700}
+.row .ex{display:flex;align-items:center;gap:12px;font-size:2.4rem;font-weight:700}
+.row .cnt{display:flex;flex-wrap:wrap;gap:4px;max-width:180px}
+.row .cnt i{width:15px;height:15px;border-radius:50%;background:#F59E0B}
+.row .cnt i.b{background:var(--c)}
+.sheet .tray{margin-top:14px;position:sticky;bottom:10px;z-index:5;box-shadow:0 -6px 18px rgba(27,31,46,.06)}
+.sheet-body{display:block}
+@media (min-width:900px){ .sheet-body{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start} .sheet-body .tray{position:sticky;top:90px;bottom:auto;margin-top:6px;box-shadow:none} }
+@media (orientation:landscape) and (max-height:900px){ .pic{font-size:64px;margin:0} .listen{height:54px;margin:2px 0 8px} .prompt{margin:2px 0 8px} .eq{margin:2px 0 8px} .tray{margin-top:10px;padding:12px} .board{padding:16px 22px} .big-letter{font-size:4.6rem} }
+
+/* 동화 */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.book{padding:20px 14px;border-radius:var(--rad);background:#fff;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:6px;position:relative}
+.book .e{font-size:60px;line-height:1.1}
+.book b{font-size:1.1rem}
+.book .ok{position:absolute;top:10px;right:12px;font-size:1.4rem}
+.story{background:#FFFBF2;border-radius:var(--rad);box-shadow:var(--shadow);padding:22px}
+.story h2{margin:0 0 6px;font-size:1.7rem;text-align:center}
+.sec{padding:10px 8px;border-radius:16px;text-align:center}
+.sec .e{font-size:64px;line-height:1.1}
+.sec p{font-family:var(--hand),var(--font),sans-serif;font-size:2rem;line-height:1.5;margin:6px 0}
+.reading{background:color-mix(in srgb,var(--hi) 30%,transparent)}
+.rd-row{display:flex;justify-content:center;gap:10px;margin:6px 0 10px}
+.pill{min-height:52px;padding:0 22px;border-radius:999px;background:#fff;border:2px solid var(--line);font-weight:700;font-size:1.05rem}
+.pill.on{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:#fff}
+
+/* 내 방 */
+.me-stage{position:relative;height:300px;border-radius:calc(var(--rad) - 4px);overflow:hidden}
+.me-deco{position:absolute;font-size:2.2rem;opacity:.85}
+.me-floor{position:absolute;left:50%;bottom:28px;width:220px;height:36px;margin-left:-110px;border-radius:50%;background:rgba(0,0,0,.12)}
+.me-char{position:absolute;left:50%;bottom:38px;width:170px;height:170px;margin-left:-85px}
+.me-base{position:absolute;inset:0;font-size:136px;line-height:170px;text-align:center}
+.me-hat{position:absolute;left:50%;top:-38px;margin-left:-36px;font-size:72px;line-height:1}
+.me-acc{position:absolute;right:-44px;bottom:6px;font-size:58px;line-height:1}
+.me-acc.face{right:auto;left:50%;bottom:auto;top:44px;margin-left:-34px;font-size:68px}
+.me-pet{position:absolute;left:calc(50% - 190px);bottom:32px;font-size:62px;line-height:1}
+.me-bank{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin:0 0 10px}
+.me-bank b{font-size:1.6rem;color:var(--accent)}
+.me-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-top:12px}
+.me-item{display:flex;flex-direction:column;align-items:center;gap:2px;padding:14px 6px;border-radius:20px;background:#fff;border:2px solid var(--line)}
+.me-item .e{font-size:2.8rem;line-height:1.1}
+.me-item small{color:var(--sub)}
+.me-item.own small{color:var(--ok)}
+.me-item.on{border-color:var(--room);background:#E9F8F1}
+.me-item.pick{border-color:var(--hi);box-shadow:0 0 0 4px color-mix(in srgb,var(--hi) 45%,transparent)}
+.me-buy{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:14px 18px;border-radius:20px;background:#fff;border:2px solid var(--room)}
+.me-buy .e{font-size:2.6rem}
+.me-buy>div{flex:1;min-width:10rem}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:#fff;padding:14px 24px;border-radius:999px;z-index:90;font-size:1.1rem;white-space:nowrap}
+.burst{position:fixed;pointer-events:none;font-size:2.2rem;z-index:80;animation:fly 1s ease-out forwards}
+@keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(200deg);opacity:0}}
+.login{position:fixed;inset:0;z-index:70;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+.login[hidden]{display:none}
+.gate-top{font-size:84px;line-height:1}
+.gate{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;max-width:460px;margin:22px auto 0}
+.gate button{aspect-ratio:1;border-radius:28px;background:#fff;border:3px solid var(--line);font-size:60px;box-shadow:0 6px 0 var(--line)}
+.gate button.dol{grid-column:span 2;grid-row:span 2;font-size:130px;border-color:#7DC8F0;box-shadow:0 8px 0 #BFE3F7;background:linear-gradient(180deg,#F2FAFF,#DDF1FC)}
+.gate button:active{transform:translateY(4px);box-shadow:none}
+.login h1{font-size:2.2rem;margin:14px 0 6px}
+.start{height:84px;padding:0 48px;border-radius:999px;background:linear-gradient(135deg,#FF8A4C,#FF5A5F);color:#fff;font-size:1.7rem;font-weight:700;box-shadow:0 12px 26px rgba(255,106,61,.35);margin-top:22px}
+@media (max-width:520px){
+  html{font-size:16px}
+  .slot,.tile{min-width:88px;height:88px;font-size:2.7rem}
+  .pic{font-size:72px}
+  .eq{font-size:2.3rem}
+  .row{grid-template-columns:34px 1fr auto}
+  .row .ex{font-size:1.8rem;gap:8px}
+  .row .cnt{display:none}
+  /* 휴대폰: 문제 · 빈칸 · 카드가 한 화면에 들어오게 */
+  main{padding:12px 12px 40px}
+  .head{margin-bottom:8px} .head .ico{width:44px;height:44px;font-size:1.2rem} .head b{font-size:1.25rem}
+  .levels{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px}
+  .levels::-webkit-scrollbar{display:none}
+  .lv{flex:none;min-height:42px;padding:0 14px;font-size:.95rem}
+  .board{padding:14px}
+  .pic{font-size:58px;margin:0}
+  .big-letter{font-size:4rem}
+  .listen{height:50px;font-size:1.1rem;padding:0 20px;margin:2px 0 8px}
+  .prompt{font-size:1.25rem;margin:2px 0 8px}
+  .eq{margin:2px 0 6px}
+  .slot,.tile{min-width:74px;height:74px;font-size:2.3rem;border-radius:20px}
+  .slot.small,.tile.small{min-width:64px;height:64px;font-size:1.8rem}
+  .tray{gap:10px;padding:12px;margin-top:10px}
+}
 </style>
 </head>
 <body>
-<div class="box">
-  <div class="ico">🌱</div>
-  <h1>지아의 공부방</h1>
-  <p>지금 열심히 만들고 있어요.<br>조금만 기다려 주세요!</p>
+<div class="login" id="login">
+  <div>
+    <div class="gate-top">🌊</div>
+    <h1>지아야, 안녕!</h1>
+    <div class="hand" style="font-size:1.6rem;color:var(--sub)">오늘은 어떤 친구랑 들어갈까?</div>
+    <div class="gate" id="gate"></div>
+  </div>
 </div>
+<div class="bar"><div class="bar-in">
+  <div class="logo"><i>🌱</i>지아의 공부방</div>
+  <span class="star">⭐ <span id="starCount">0</span></span>
+  <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
+</div></div>
+<main id="view"></main>
+
+<script>
+/* ───── 저장 (이 기기에 저장해요. 온라인 저장은 나중에 연결) ───── */
+const store = {
+  get(k, d){ try{ const v=localStorage.getItem('k7_'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('k7_'+k, JSON.stringify(v)); }catch(e){} }
+};
+const who = '지아';
+let stars = store.get('stars', 0);
+const App = { view:'home', hlv:store.get('hlv',0), mlv:store.get('mlv',0), elv:store.get('elv',0), story:null, decoCat:'base', decoPick:null };
+const view = document.getElementById('view');
+const $ = id => document.getElementById(id);
+const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick = (a,n) => shuffle(a).slice(0,n);
+const pad = n => String(n).padStart(2,'0');
+const dayKey = (t=new Date()) => `${t.getFullYear()}-${pad(t.getMonth()+1)}-${pad(t.getDate())}`;
+const josa = (w,a,b) => { const c=w.charCodeAt(w.length-1); return w + (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? a : b); };
+function toast(m){ const t=document.createElement('div'); t.className='toast'; t.textContent=m; document.body.appendChild(t); setTimeout(()=>t.remove(),1800); }
+function burst(){ for(let i=0;i<14;i++){ const s=document.createElement('div'); s.className='burst'; s.textContent=['⭐','✨','🌟','💖'][i%4];
+  s.style.left=(innerWidth/2)+'px'; s.style.top=(innerHeight/2)+'px'; s.style.setProperty('--dx',(Math.random()*360-180)+'px'); s.style.setProperty('--dy',(Math.random()*-320-40)+'px');
+  document.body.appendChild(s); setTimeout(()=>s.remove(),1000); } }
+function updateStars(){ $('starCount').textContent=stars; }
+function addStar(n=1){ stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
+/* 날짜별 기록: log[날짜][영역] = {n, ok} (다른 방 · 관리자 대시보드와 같은 모양) */
+function logToday(area, ok=true){ const L=store.get('log',{}), k=dayKey(); L[k]=L[k]||{}; const e=L[k][area]=(typeof L[k][area]==='object'?L[k][area]:{n:0,ok:0}); e.n++; if(ok) e.ok++;
+  const ks=Object.keys(L).sort(); while(ks.length>90) delete L[ks.shift()]; store.set('log',L); cloudPush(); }
+const todayN = area => { const e=((store.get('log',{})[dayKey()])||{})[area]; return e?(e.n||0):0; };
+
+/* ───── 온라인 저장 (Firebase: k7/jia · k7/jia/daily/날짜) ───── */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c",
+  measurementId: "G-NV17H8CTJE"
+};
+const GRADE_ID = 'k7', KID_ID = 'jia';
+const cloud = { ready:null, db:null };
+function cloudInit(){
+  if(cloud.ready) return cloud.ready;
+  const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{
+    firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); return cloud.db;
+  }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
+  return cloud.ready;
+}
+const kidRef = () => cloud.db ? cloud.db.collection(GRADE_ID).doc(KID_ID) : null;
+async function cloudPull(){
+  if(!await cloudInit()) return false;
+  try{
+    const snap=await kidRef().get();
+    if(snap.exists){
+      const d=snap.data();
+      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
+      if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0)){ store.set('stars',d.stars); store.set('starsAt',d.starsAt); }
+      if(d.deco && (d.deco.at||0) > (store.get('deco',{}).at||0)) store.set('deco',d.deco);
+      if(d.mathDone){ const m=store.get('mathDone',{}); for(const k in d.mathDone) m[k]=Math.max(m[k]||0,d.mathDone[k]); store.set('mathDone',m); }
+      if(d.storyOk){ store.set('storyOk',Object.assign({},store.get('storyOk',{}),d.storyOk)); }
+    }
+    const L=store.get('log',{}), qs=await kidRef().collection('daily').get();
+    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); ['kor','math','eng','story'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
+    store.set('log',L);
+    stars=store.get('stars',0); updateStars();
+    return true;
+  }catch(e){ console.warn('불러오기 실패', e); return false; }
+}
+let pushTimer=null;
+function cloudPush(){ clearTimeout(pushTimer); pushTimer=setTimeout(cloudPushNow,1500); }
+async function cloudPushNow(){
+  if(!await cloudInit()) return;
+  try{
+    const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
+    await ref.set({name:who, stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()},{merge:true});
+    const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
+    await ref.collection('daily').doc(k).set(Object.assign({visited:true, total}, day),{merge:true});
+  }catch(e){ console.warn('저장 실패', e); }
+}
+
+/* ───── 소리: 유튜브 음악을 멈추지 않게 (다른 방과 같은 설정) ───── */
+try{ if(navigator.audioSession) navigator.audioSession.type='ambient'; }catch(e){}
+let actx, actxRest;
+function beep(ok){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)(); clearTimeout(actxRest); if(actx.state==='suspended') actx.resume();
+    const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime; o.type='triangle'; o.connect(g); g.connect(actx.destination);
+    if(ok){ o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(990,t+0.1); } else { o.frequency.setValueAtTime(240,t); o.frequency.setValueAtTime(180,t+0.12); }
+    g.gain.setValueAtTime(0.15,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.35); o.start(t); o.stop(t+0.36);
+    actxRest=setTimeout(()=>{ try{ actx.suspend(); }catch(e){} },700);
+  }catch(e){}
+}
+let koVoice=null, enVoice=null;
+function loadVoices(){ if(!('speechSynthesis' in window)) return; const vs=speechSynthesis.getVoices();
+  koVoice=vs.find(v=>v.lang&&v.lang.replace('_','-').startsWith('ko'))||null; enVoice=vs.find(v=>v.lang==='en-US')||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null; }
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
+function speak(text, lang='ko', onend){
+  if(!('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u=new SpeechSynthesisUtterance(text);
+  if(lang==='en'){ u.lang='en-US'; u.rate=0.8; if(enVoice) u.voice=enVoice; } else { u.lang='ko-KR'; u.rate=0.85; if(koVoice) u.voice=koVoice; }
+  if(onend) u.onend=onend;
+  speechSynthesis.speak(u);
+}
+const PRAISE = ['잘했어요!','최고예요!','와, 맞았어요!','멋져요!','정답이에요!','훌륭해요!'];
+const praise = () => PRAISE[rnd(0,PRAISE.length-1)];
+
+/* ───── 끌어다 놓기 엔진 ─────
+   .tile[data-val] 을 끌어서 .slot[data-ans] 에 놓아요. 살짝 누르기만 하면 가장 앞의 빈칸으로 들어가요.
+   놓은 뒤 onDrop(slot, tile, ok) 를 불러요. */
+let DND=null, onDrop=null;
+document.addEventListener('pointerdown', e=>{
+  const t=e.target.closest('.tile'); if(!t || t.classList.contains('used')) return;
+  e.preventDefault();
+  const r=t.getBoundingClientRect();
+  DND={t, x0:e.clientX, y0:e.clientY, moved:false, g:null, hover:null, w:r.width, h:r.height};
+});
+document.addEventListener('pointermove', e=>{
+  if(!DND) return;
+  if(!DND.moved && Math.hypot(e.clientX-DND.x0, e.clientY-DND.y0)<8) return;
+  if(!DND.moved){ DND.moved=true; const g=DND.t.cloneNode(true); g.classList.add('ghost'); g.style.width=DND.w+'px'; g.style.height=DND.h+'px'; document.body.appendChild(g); DND.g=g; DND.t.classList.add('lift'); }
+  DND.g.style.left=e.clientX+'px'; DND.g.style.top=e.clientY+'px';
+  const s=slotAt(e.clientX,e.clientY); if(DND.hover!==s){ DND.hover&&DND.hover.classList.remove('hover'); s&&s.classList.add('hover'); DND.hover=s; }
+});
+document.addEventListener('pointerup', e=>{
+  if(!DND) return; const D=DND; DND=null;
+  if(D.g) D.g.remove(); D.t.classList.remove('lift'); D.hover&&D.hover.classList.remove('hover');
+  const s = D.moved ? slotAt(e.clientX,e.clientY) : [...document.querySelectorAll('.slot:not(.filled)')][0];
+  if(s) dropInto(s, D.t);
+});
+document.addEventListener('pointercancel', ()=>{ if(DND){ DND.g&&DND.g.remove(); DND.t.classList.remove('lift'); DND=null; } });
+function slotAt(x,y){ const el=document.elementFromPoint(x,y); const s=el&&el.closest('.slot'); return s&&!s.classList.contains('filled')?s:null; }
+function dropInto(s, t){
+  const ok = String(s.dataset.ans)===String(t.dataset.val);
+  if(ok){ s.innerHTML=t.innerHTML; s.classList.add('filled'); t.classList.add('used'); beep(true); }
+  else { beep(false); t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
+  if(onDrop) onDrop(s, t, ok);
+}
+const tileHTML = (v, label, cls='') => `<button class="tile ${cls}" data-val="${v}">${label??v}</button>`;
+
+/* ───── 문제 한 벌 (5문제) 공통 흐름 ───── */
+let Q=null; // {area, lv, list, i, miss, done}
+function startSet(area, lv, gen){ Q={area, lv, list:Array.from({length:5},(_,i)=>gen(i)), i:0, miss:false, done:false, ok:[]}; }
+function afterDrop(s, t, ok){
+  const P=Q.list[Q.i];
+  if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
+  if(document.querySelectorAll('#qbox .slot:not(.filled)').length) { if(P.partSay) speak(t.textContent); return; }   // 칸이 더 남았어요
+  addStar(1); logToday(Q.area, !Q.miss); Q.ok[Q.i]=!Q.miss;
+  const msg=praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
+  speak(P.after ? `${msg} ${P.after}` : msg);
+  burst();
+  setTimeout(()=>{ Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); }, 1500);
+}
+function dotsHTML(){ return `<div class="dots">${Q.list.map((_,k)=>`<i class="${k<Q.i?'ok':k===Q.i?'cur':''}"></i>`).join('')}</div>`; }
+function setDone(title){
+  const n=Q.list.length;
+  return `<div class="board"><div class="pic">🎉</div><div class="praise" style="font-size:2.6rem">다 했어요!</div>
+    <p style="font-size:1.3rem">${title} ${n}문제 · 별 ${n}개를 받았어요</p>
+    <button class="next" data-act="again">한 번 더 ▶</button> <button class="next" style="background:var(--room)" data-act="go" data-v="home">🏠 놀이 길로</button></div>`;
+}
+
+/* ───── 한글 (누리과정 + 초1) ───── */
+const CHO = [['ㄱ','기역',0],['ㄴ','니은',2],['ㄷ','디귿',3],['ㄹ','리을',5],['ㅁ','미음',6],['ㅂ','비읍',7],['ㅅ','시옷',9],['ㅇ','이응',11],['ㅈ','지읒',12],['ㅊ','치읓',14],['ㅋ','키읔',15],['ㅌ','티읕',16],['ㅍ','피읖',17],['ㅎ','히읗',18]];
+const JUNG = [['ㅏ','아',0],['ㅑ','야',2],['ㅓ','어',4],['ㅕ','여',6],['ㅗ','오',8],['ㅛ','요',12],['ㅜ','우',13],['ㅠ','유',17],['ㅡ','으',18],['ㅣ','이',20]];
+const syl = (c,j) => String.fromCharCode(0xAC00+(c*21+j)*28);
+const WORDS0 = [['오리','🦆'],['나비','🦋'],['사자','🦁'],['기차','🚂'],['포도','🍇'],['우유','🥛'],['바지','👖'],['치마','👗'],['하마','🦛'],['가지','🍆'],['오이','🥒'],['버스','🚌'],['피자','🍕'],['토마토','🍅'],['바나나','🍌'],['고구마','🍠'],['코끼리','🐘'],['개구리','🐸'],['너구리','🦝'],['야구','⚾']];
+const WORDS1 = [['곰','🐻'],['달','🌙'],['별','⭐'],['꽃','🌸'],['공','⚽'],['밥','🍚'],['책','📚'],['집','🏠'],['사탕','🍬'],['수박','🍉'],['딸기','🍓'],['연필','✏️'],['가방','🎒'],['우산','☂️'],['강아지','🐶'],['사과','🍎'],['물고기','🐟'],['고양이','🐱']];
+const HLV = [
+  {n:'자음 이름', g:()=>{ const [c,nm]=CHO[rnd(0,13)]; const o=shuffle([c,...pick(CHO.filter(x=>x[0]!==c).map(x=>x[0]),2)]);
+    return {say:nm, prompt:`<b>${nm}</b>${josa(nm,'은','는').slice(nm.length)} 어느 글자일까요?`, slots:[c], tiles:o}; }},
+  {n:'모음 소리', g:()=>{ const [j,nm]=JUNG[rnd(0,9)]; const o=shuffle([j,...pick(JUNG.filter(x=>x[0]!==j).map(x=>x[0]),2)]);
+    return {say:nm, prompt:`"${nm}" 소리가 나는 글자는?`, slots:[j], tiles:o}; }},
+  {n:'글자 만들기', g:()=>{ const c=CHO[rnd(0,13)], j=JUNG[rnd(0,9)], s=syl(c[2],j[2]);
+    const o=shuffle([s, syl(CHO[(CHO.indexOf(c)+rnd(1,13))%14][2], j[2]), syl(c[2], JUNG[(JUNG.indexOf(j)+rnd(1,9))%10][2])]);
+    return {say:`${c[1]}에 ${j[1]}를 더하면?`, eq:`${c[0]} <span class="op">+</span> ${j[0]} <span class="op">=</span>`, slots:[s], tiles:[...new Set(o)].length<3?shuffle([s,'나','마']):o, after:`${s}`}; }},
+  {n:'글자 듣고 찾기', g:()=>{ const s=syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]); const o=new Set([s]); while(o.size<3) o.add(syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]));
+    return {say:s, prompt:'들리는 글자를 찾아요', slots:[s], tiles:shuffle([...o])}; }},
+  {n:'그림 낱말', g:()=>{ const [w,e]=WORDS0[rnd(0,WORDS0.length-1)], ch=[...w]; const extra=syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]);
+    return {say:w, pic:e, prompt:'글자를 차례로 놓아요', slots:ch, small:ch.length>2, tiles:shuffle([...ch, extra]), after:w}; }},
+  {n:'받침 있는 낱말', g:()=>{ const [w,e]=WORDS1[rnd(0,WORDS1.length-1)]; const o=new Set([w]); while(o.size<3) o.add(WORDS1[rnd(0,WORDS1.length-1)][0]);
+    return {say:w, pic:e, prompt:'그림에 맞는 낱말은?', slots:[w], tiles:shuffle([...o]), wide:true}; }},
+  {n:'낱말 완성', g:()=>{ const list=[...WORDS0,...WORDS1].filter(x=>x[0].length>=2); const [w,e]=list[rnd(0,list.length-1)], ch=[...w], k=rnd(0,ch.length-1);
+    const o=new Set([ch[k]]); while(o.size<3) o.add(syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]));
+    return {say:w, pic:e, prompt:'빈칸에 들어갈 글자는?', parts:ch.map((c,i)=>i===k?null:c), slots:[ch[k]], tiles:shuffle([...o]), after:w}; }}
+];
+/* ───── 영어: 알파벳 소리 ───── */
+const ABC = [['A','apple','🍎'],['B','bear','🐻'],['C','cat','🐱'],['D','dog','🐶'],['E','egg','🥚'],['F','fish','🐟'],['G','grapes','🍇'],['H','hat','🎩'],['I','ice cream','🍦'],['J','juice','🧃'],['K','kite','🪁'],['L','lion','🦁'],['M','monkey','🐵'],
+  ['N','nose','👃'],['O','orange','🍊'],['P','pig','🐷'],['Q','queen','👸'],['R','rabbit','🐰'],['S','sun','☀️'],['T','tiger','🐯'],['U','umbrella','☂️'],['V','violin','🎻'],['W','watch','⌚'],['X','X-ray','🩻'],['Y','yo-yo','🪀'],['Z','zebra','🦓']];
+const ELV = [
+  {n:'알파벳 이름', g:()=>{ const [L]=ABC[rnd(0,25)]; return {say:L, lang:'en', prompt:'들리는 알파벳을 찾아요', slots:[L], tiles:shuffle([L,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0]),2)])}; }},
+  {n:'첫 소리 찾기', g:()=>{ const [L,w,e]=ABC[rnd(0,25)]; return {say:`${w}`, lang:'en', pic:e, prompt:`<span style="font-family:system-ui">${w}</span> — 무슨 글자로 시작할까요?`, slots:[L], tiles:shuffle([L,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0]),2)]), after:`${L}. ${w}`, afterLang:'en'}; }},
+  {n:'대문자 · 소문자', g:()=>{ const [L,w]=ABC[rnd(0,25)], l=L.toLowerCase(); return {say:`${L}. ${w}`, lang:'en', big:L, prompt:'같은 글자의 소문자는?', slots:[l], tiles:shuffle([l,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0].toLowerCase()),2)])}; }}
+];
+/* ───── 연산: +1 ~ +9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
+function mathPage(n){ const as=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5); return as.map(a=>({a, b:n, s:a+n})); }
+
+/* ───── 쉬운 동화 ───── */
+const STORIES = [
+  {id:'turtle', e:'🐢', t:'토끼와 거북이', pages:[['🐇🐢','토끼와 거북이가 달리기 시합을 했어요.'],['🐇💨','토끼는 깡충깡충 빨리 달려갔어요.'],['🐇😴','"거북이는 느리니까 한숨 자야지." 토끼는 나무 밑에서 잠이 들었어요.'],['🐢👣','거북이는 쉬지 않고 엉금엉금 기어갔어요.'],['🐢🏁','결국 거북이가 먼저 도착했어요!'],['🐢✨','천천히 가도 끝까지 하면 해낼 수 있어요.']],
+    q:{text:'누가 이겼나요?', ans:'🐢', opt:['🐢','🐇']}},
+  {id:'ant', e:'🐜', t:'개미와 베짱이', pages:[['☀️🐜','여름 내내 개미는 열심히 먹이를 모았어요.'],['🎻🦗','베짱이는 노래만 부르며 놀았어요.'],['❄️🦗','추운 겨울이 되자 베짱이는 먹을 것이 없었어요.'],['🏠🐜','개미는 베짱이를 집으로 불러 음식을 나누어 주었어요.'],['🦗🙏','"고마워, 개미야. 나도 이제 미리 준비할게."']],
+    q:{text:'여름에 열심히 일한 친구는?', ans:'🐜', opt:['🐜','🦗']}},
+  {id:'lion', e:'🦁', t:'사자와 생쥐', pages:[['🦁😴','사자가 낮잠을 자고 있었어요.'],['🐭🦁','작은 생쥐가 사자 위로 올라갔다가 붙잡혔어요.'],['🐭🙏','"살려 주시면 꼭 은혜를 갚을게요." 사자는 웃으며 놓아주었어요.'],['🦁🕸️','며칠 뒤 사자가 사냥꾼의 그물에 걸렸어요.'],['🐭✂️','생쥐가 달려와 그물을 갉아 사자를 구해 주었어요.'],['🦁🐭','작은 친구도 큰 도움을 줄 수 있어요.']],
+    q:{text:'그물을 갉아 사자를 구한 친구는?', ans:'🐭', opt:['🐭','🐘']}},
+  {id:'axe', e:'🪓', t:'금도끼 은도끼', pages:[['🧑‍🌾🌲','착한 나무꾼이 나무를 하고 있었어요.'],['🪓💧','앗! 도끼가 연못에 빠졌어요.'],['🧚🥇','산신령이 금도끼를 들고 나타났어요. "이 금도끼가 네 도끼냐?"'],['🧑‍🌾🙅','"아니요, 제 도끼는 쇠도끼예요." 나무꾼은 정직하게 말했어요.'],['🧚🎁','산신령은 금도끼, 은도끼, 쇠도끼를 모두 주었어요.']],
+    q:{text:'나무꾼의 진짜 도끼는?', ans:'쇠', opt:['쇠','금']}},
+  {id:'pig', e:'🐷', t:'아기 돼지 삼 형제', pages:[['🐷🐷🐷','아기 돼지 삼 형제가 집을 지었어요.'],['🌾🏠','첫째는 지푸라기로, 둘째는 나무로 집을 지었어요.'],['🧱🏠','셋째는 튼튼한 벽돌로 열심히 집을 지었어요.'],['🐺💨','늑대가 후 불자 지푸라기 집과 나무 집이 날아갔어요.'],['🧱🐷','벽돌 집은 끄떡없었어요. 삼 형제는 벽돌 집에서 안전하게 지냈어요.']],
+    q:{text:'늑대가 불어도 끄떡없던 집은?', ans:'🧱', opt:['🧱','🌾']}}
+];
+
+/* ───── 화면 ───── */
+const AREAS = {kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'연산', ico:'1+1', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}, room:{n:'내 방', ico:'🏠', c:'var(--room)'}};
+function go(v){ App.view=v; Q=null; App.story=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
+function render(){ ({home:renderHome, kor:()=>renderQuiz('kor'), eng:()=>renderQuiz('eng'), math:renderMath, story:renderStory, room:renderRoom})[App.view](); }
+/* 대문: 들어갈 때 같이 갈 바다 친구를 골라요 (돌고래가 제일 크게) */
+const GATE = [['🐬','돌고래'],['🐳','고래'],['🐠','물고기'],['🐙','문어'],['🦭','물범'],['🐢','거북'],['🦀','꽃게'],['🐧','펭귄'],['🪼','해파리']];
+function drawGate(){ $('gate').innerHTML=GATE.map(([e,n],i)=>`<button class="${i?'':'dol'}" data-act="gate" data-v="${e}" aria-label="${n}랑 들어가기">${e}</button>`).join(''); }
+function renderHome(){
+  const me=store.get('gate','🐬');
+  view.innerHTML=`<div class="hello"><span class="me">${me}</span><div><div class="hand">지아야, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
+    <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:todayN(k);
+      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?'별로 꾸미기':n?`오늘 ${n}개`:'아직 안 했어요'}</small></button>`; }).join('')}</div>`;
+}
+function areaHead(k){ const a=AREAS[k]; return `<div class="head" style="--c:${a.c}"><span class="ico">${a.ico}</span><b>${a.n}</b></div>`; }
+function renderQuiz(area){
+  const LV = area==='kor' ? HLV : ELV, key = area==='kor' ? 'hlv' : 'elv', c=AREAS[area].c;
+  if(!LV[App[key]]) App[key]=0;
+  if(!Q || Q.area!==area || Q.lv!==App[key]) startSet(area, App[key], LV[App[key]].g);
+  onDrop=afterDrop;
+  let body;
+  if(Q.done) body=setDone(LV[Q.lv].n);
+  else { const P=Q.list[Q.i], sm=P.small||P.wide?'small':'';
+    const slots = P.parts ? P.parts.map(x=>x===null?`<span class="slot" data-ans="${P.slots[0]}"></span>`:`<span style="font-size:3.4rem;font-weight:700">${x}</span>`).join('')
+      : P.slots.map(a=>`<span class="slot ${sm}" data-ans="${a}"></span>`).join(' ');
+    body=`<div class="board" id="qbox">
+      <div class="q-top"><span>${LV[Q.lv].n}</span>${dotsHTML()}</div>
+      ${P.pic?`<div class="pic">${P.pic}</div>`:''}${P.big?`<div class="big-letter">${P.big}</div>`:''}
+      <button class="listen" data-act="sayQ">🔊 들어 보기</button>
+      ${P.prompt?`<div class="prompt">${P.prompt}</div>`:''}
+      <div class="eq">${P.eq||''} ${slots}</div>
+      <div class="tray">${P.tiles.map(v=>tileHTML(v,v,sm)).join('')}</div>
+      <div class="hint" id="hint"></div></div>`; }
+  view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}">${i+1}. ${l.n}</button>`).join('')}</div>${body}</div>`;
+  if(!Q.done) sayQ();
+}
+function sayQ(){ if(!Q||Q.done||!Q.list) return; const P=Q.list[Q.i]; if(P) speak(P.say, P.lang||'ko'); }
+/* 연산 학습지 */
+let MS=null; // {n, page, rows}
+function renderMath(){
+  const c=AREAS.math.c, done=store.get('mathDone',{});
+  if(!MS || MS.n!==App.mlv+1) MS={n:App.mlv+1, page:0, rows:mathPage(App.mlv+1)};
+  onDrop=(s,t,ok)=>{
+    if(!ok){ $('hint').textContent='다시 세어 볼까?'; speak('다시 세어 볼까?'); return; }
+    const r=MS.rows[+s.dataset.i]; addStar(1); logToday('math'); speak(`${r.a} 더하기 ${r.b}는 ${r.s}`);
+    if(!document.querySelectorAll('.sheet .slot:not(.filled)').length){
+      MS.page++; const d=store.get('mathDone',{}); d[MS.n]=Math.max(d[MS.n]||0, MS.page); store.set('mathDone',d); burst();
+      setTimeout(()=>{ $('hint').innerHTML=`<span class="praise">한 장 끝! ${MS.page>=2?'이 단계를 다 했어요 🏅':''}</span>`;
+        $('mathNext').hidden=false; speak(MS.page>=2?`와, 더하기 ${MS.n} 단계를 다 했어요!`:'한 장 끝! 다음 장도 해 볼까?'); },700);
+    }
+  };
+  const tiles=shuffle([...MS.rows.map(r=>r.s), ...pick([...Array(19).keys()].filter(x=>!MS.rows.some(r=>r.s===x)),2)]);
+  view.innerHTML=`<div style="--c:${c}">${areaHead('math')}
+    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="mlv" data-v="${n-1}">+${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
+    <div class="sheet"><div class="sheet-h"><b>더하기 ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
+      <div class="sheet-body"><div>${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} + ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
+        <div class="cnt">${'<i></i>'.repeat(r.a)}${'<i class="b"></i>'.repeat(r.b)}</div></div>`).join('')}</div>
+      <div class="tray">${tiles.map(v=>tileHTML(v,v,'small')).join('')}</div></div>
+      <div class="hint" id="hint"></div>
+      <div style="text-align:center"><button class="next" id="mathNext" hidden data-act="mathNext">${'다음 장 ▶'}</button></div></div></div>`;
+}
+/* 동화 */
+function renderStory(){
+  const c=AREAS.story.c, read=store.get('storyOk',{});
+  const st=STORIES.find(s=>s.id===App.story);
+  if(!st){ view.innerHTML=`<div style="--c:${c}">${areaHead('story')}<div class="shelf">${STORIES.map(s=>`<button class="book" data-act="openStory" data-v="${s.id}">${read[s.id]?'<span class="ok">🏅</span>':''}<span class="e">${s.e}</span><b>${s.t}</b></button>`).join('')}</div></div>`; return; }
+  onDrop=(s,t,ok)=>{ if(!ok){ speak('다시 생각해 볼까?'); return; } addStar(2); logToday('story'); const r=store.get('storyOk',{}); r[st.id]=1; store.set('storyOk',r); burst(); speak('정답이에요! 별 두 개!'); $('hint').innerHTML='<span class="praise">정답! 별 2개 ⭐⭐</span>'; };
+  view.innerHTML=`<div style="--c:${c}">${areaHead('story')}<div class="story">
+    <h2>${st.e} ${st.t}</h2>
+    <div class="rd-row"><button class="pill on" data-act="readAll">📖 읽어 주세요</button><button class="pill" data-act="readStop">■ 그만</button></div>
+    ${st.pages.map(([e,t],i)=>`<div class="sec" data-i="${i}"><div class="e">${e}</div><p>${t}</p></div>`).join('')}
+    <div class="board" style="margin-top:14px"><div class="prompt">${st.q.text}</div><button class="listen" data-act="sayStoryQ">🔊 들어 보기</button>
+      <div class="eq"><span class="slot" data-ans="${st.q.ans}"></span></div><div class="tray">${shuffle(st.q.opt).map(v=>tileHTML(v,v,'pic-tile')).join('')}</div><div class="hint" id="hint"></div></div>
+    <div style="text-align:center"><button class="next" data-act="go" data-v="story">◀ 책장으로</button></div></div></div>`;
+}
+let RD=null;
+function readFrom(i){
+  const st=STORIES.find(s=>s.id===App.story); if(!st) return;
+  const secs=document.querySelectorAll('.sec'); secs.forEach(e=>e.classList.remove('reading'));
+  if(i>=st.pages.length){ RD=null; return; }
+  const tok=RD=Math.random(); secs[i].classList.add('reading'); secs[i].scrollIntoView({behavior:'smooth',block:'center'});
+  speak(st.pages[i][1], 'ko', ()=>{ if(RD===tok) readFrom(i+1); });
+}
+/* 내 방 꾸미기 (다른 방과 같은 방식: 쓸 수 있는 별 = 모은 별 − 쓴 별) */
+const DECO_CATS = {base:'캐릭터', hat:'모자', acc:'소품', pet:'친구', bg:'배경'};
+const DECO_ITEMS = [
+  {id:'dolphin',k:'base',e:'🐬',n:'돌고래',p:0},{id:'rabbit',k:'base',e:'🐰',n:'토끼',p:0},{id:'cat',k:'base',e:'🐱',n:'고양이',p:0},{id:'dog',k:'base',e:'🐶',n:'강아지',p:0},{id:'bear',k:'base',e:'🐻',n:'곰',p:0},{id:'panda',k:'base',e:'🐼',n:'판다',p:0},{id:'chick2',k:'base',e:'🐥',n:'병아리',p:0},
+  {id:'fox',k:'base',e:'🦊',n:'여우',p:15},{id:'koala',k:'base',e:'🐨',n:'코알라',p:15},{id:'penguin',k:'base',e:'🐧',n:'펭귄',p:20},{id:'unicorn',k:'base',e:'🦄',n:'유니콘',p:40},{id:'dino',k:'base',e:'🦖',n:'공룡',p:40},
+  {id:'ribbon',k:'hat',e:'🎀',n:'리본',p:8},{id:'cap',k:'hat',e:'🧢',n:'모자',p:8},{id:'straw',k:'hat',e:'👒',n:'밀짚모자',p:12},{id:'crown',k:'hat',e:'👑',n:'왕관',p:30},
+  {id:'balloon',k:'acc',e:'🎈',n:'풍선',p:6},{id:'icecream',k:'acc',e:'🍦',n:'아이스크림',p:6},{id:'glasses',k:'acc',e:'🕶️',n:'선글라스',p:10},{id:'wand',k:'acc',e:'🪄',n:'요술봉',p:20},
+  {id:'butterfly',k:'pet',e:'🦋',n:'나비',p:10},{id:'hamster',k:'pet',e:'🐹',n:'햄스터',p:12},{id:'turtle',k:'pet',e:'🐢',n:'거북',p:12},{id:'fish',k:'pet',e:'🐠',n:'물고기',p:15},
+  {id:'plain',k:'bg',e:'🏠',n:'기본 방',p:0,g:'linear-gradient(180deg,#FFF6EE 0%,#F8E6D8 100%)',d:[]},
+  {id:'garden',k:'bg',e:'🌷',n:'꽃밭',p:12,g:'linear-gradient(180deg,#E8F7FF 0%,#CDEFC4 100%)',d:['🌷','🌼','🌸','🦋']},
+  {id:'sea',k:'bg',e:'🌊',n:'바닷속',p:15,g:'linear-gradient(180deg,#8FD3F4 0%,#3B8FD9 100%)',d:['🫧','🐠','🫧','🪸']},
+  {id:'candy',k:'bg',e:'🍭',n:'사탕 나라',p:20,g:'linear-gradient(180deg,#FFE0F0 0%,#FFD1E3 100%)',d:['🍭','🍬','🧁','🍩']},
+  {id:'space',k:'bg',e:'🪐',n:'우주',p:25,g:'linear-gradient(180deg,#1B1B4B 0%,#3B2C7A 100%)',d:['⭐','🪐','✨','🌟']},
+  {id:'rainbow',k:'bg',e:'🌈',n:'무지개',p:30,g:'linear-gradient(180deg,#FFF7D6 0%,#D8F3E3 100%)',d:['🌈','☁️','🌸']}
+];
+const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
+function decoGet(){ const d=Object.assign({base:'dolphin',hat:null,acc:null,pet:null,bg:'plain',own:[],spent:0}, store.get('deco',{})); DECO_ITEMS.forEach(x=>{ if(!x.p&&!d.own.includes(x.id)) d.own.push(x.id); }); return d; }
+function decoSave(d){ d.at=Date.now(); store.set('deco',d); cloudPush(); }
+const decoLeft = () => Math.max(0, stars-(decoGet().spent||0));
+function decoStage(d){ const bg=decoItem(d.bg)||decoItem('plain'), it=k=>d[k]?decoItem(d[k]):null, base=decoItem(d.base)||decoItem('rabbit'), spots=[[8,14],[82,10],[14,58],[86,52]];
+  return `<div class="me-stage" style="background:${bg.g}">${bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}<div class="me-floor"></div>
+    <div class="me-char"><span class="me-base">${base.e}</span>${it('hat')?`<span class="me-hat">${it('hat').e}</span>`:''}${it('acc')?`<span class="me-acc ${d.acc==='glasses'?'face':''}">${it('acc').e}</span>`:''}</div>${it('pet')?`<span class="me-pet">${it('pet').e}</span>`:''}</div>`; }
+function renderRoom(){
+  const d=decoGet(), cat=App.decoCat, P=App.decoPick?decoItem(App.decoPick):null, left=decoLeft(), c=AREAS.room.c;
+  view.innerHTML=`<div style="--c:${c}">${areaHead('room')}
+    <div class="me-bank"><span>쓸 수 있는 별</span><b>⭐ ${left}</b></div>
+    <div class="board" style="padding:10px">${decoStage(d)}</div>
+    ${P?`<div class="me-buy"><span class="e">${P.e}</span><div><b>${P.n}</b><div style="color:var(--sub)">${left>=P.p?`별 ${P.p}개로 살까요?`:`별이 ${P.p-left}개 더 필요해요. 놀이를 하면 별이 모여요!`}</div></div>
+      ${left>=P.p?`<button class="pill on" data-act="decoBuy" data-v="${P.id}">⭐ ${P.p} 사기</button>`:''}<button class="pill" data-act="decoTap" data-v="">닫기</button></div>`:''}
+    <div class="levels" style="margin-top:14px">${Object.entries(DECO_CATS).map(([k,n])=>`<button class="lv ${cat===k?'on':''}" data-act="decoCat" data-v="${k}">${n}</button>`).join('')}</div>
+    <div class="me-grid">${DECO_ITEMS.filter(x=>x.k===cat).map(x=>{ const own=d.own.includes(x.id), on=d[x.k]===x.id;
+      return `<button class="me-item ${on?'on':''} ${own?'own':''} ${App.decoPick===x.id?'pick':''}" data-act="decoTap" data-v="${x.id}"><span class="e">${x.e}</span><b>${x.n}</b><small>${on?'사용 중':own?(x.p?'가지고 있어요':'무료'):'⭐ '+x.p}</small></button>`; }).join('')}</div></div>`;
+}
+
+/* ───── 눌렀을 때 ───── */
+const ACT = {
+  gate: v=>{ const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); },
+  go: v=>go(v),
+  sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글, 연산, 영어, 동화를 차례로 건너 봐요.'),
+  lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
+  sayQ: ()=>sayQ(),
+  again: ()=>{ Q=null; render(); },
+  mathNext: ()=>{ const n=MS.n, pg=MS.page; if(pg>=2){ App.mlv=Math.min(8,App.mlv+1); store.set('mlv',App.mlv); MS=null; } else MS={n, page:pg, rows:mathPage(n)}; render(); window.scrollTo(0,0); },
+  openStory: v=>{ App.story=v; render(); window.scrollTo(0,0); },
+  readAll: ()=>readFrom(0),
+  readStop: ()=>{ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); },
+  sayStoryQ: ()=>{ const st=STORIES.find(s=>s.id===App.story); if(st) speak(st.q.text); },
+  decoCat: v=>{ App.decoCat=v; App.decoPick=null; renderRoom(); },
+  decoTap: v=>{ const d=decoGet(), x=decoItem(v); if(!x){ App.decoPick=null; renderRoom(); return; }
+    if(d.own.includes(v)){ if(x.k==='base'||x.k==='bg') d[x.k]=v; else d[x.k]=d[x.k]===v?null:v; App.decoPick=null; decoSave(d); }
+    else App.decoPick=App.decoPick===v?null:v; renderRoom(); },
+  decoBuy: v=>{ const d=decoGet(), x=decoItem(v); if(!x||d.own.includes(v)||decoLeft()<x.p) return; d.spent=(d.spent||0)+x.p; d.own.push(v); d[x.k]=v; App.decoPick=null; decoSave(d); beep(true); burst(); speak(`${x.n}을 샀어요!`); renderRoom(); }
+};
+document.addEventListener('click', e=>{ const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
+drawGate(); updateStars(); render();
+</script>
 </body>
 </html>
