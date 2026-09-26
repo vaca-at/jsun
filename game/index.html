@@ -9,14 +9,14 @@
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
 :root{--ink:#1B1F2E;--sub:#6D7385;--bg:#CFEBC0}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:'GMarketSans',system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
+html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;position:fixed;inset:0;width:100%;background:var(--bg);color:var(--ink);font-family:'GMarketSans',system-ui,sans-serif;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:none}
 button{font:inherit;color:inherit;border:0;cursor:pointer}
 #hud{position:fixed;left:0;right:0;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:calc(6px + env(safe-area-inset-top,0px)) 8px 6px;background:rgba(255,255,255,.88);box-shadow:0 2px 10px rgba(0,0,0,.08)}
 #hud .chip{display:flex;align-items:center;gap:4px;height:36px;padding:0 10px;border-radius:999px;background:#fff;border:1.5px solid #E6E0D6;font-weight:700;font-size:1rem;white-space:nowrap}
 #hud .time{background:#1B1F2E;color:#fff;border-color:#1B1F2E;font-variant-numeric:tabular-nums}
 #hud .grow{flex:1}
 #hud .x{width:36px;padding:0;justify-content:center}
-#cv{position:fixed;left:0;top:0;width:100%;height:100%;display:block}
+#cv{position:fixed;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
 #msg{position:fixed;left:50%;top:calc(60px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:6;padding:8px 16px;border-radius:999px;background:rgba(27,31,46,.85);color:#fff;font-size:1rem;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s}
 #msg.on{opacity:1}
 .ov{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(27,31,46,.45)}
@@ -173,17 +173,32 @@ function botTick(dt, now){
   });
 }
 
-/* ───── 움직이기: 화면 아무 곳이나 누르고 끌면 조이스틱 ───── */
-const joy = { on:false, x0:0, y0:0, x:0, y:0 };
+/* ───── 움직이기: 누르고 끌면 조이스틱, 톡 누르면 그곳으로 걸어가요 ─────
+   아이폰 사파리는 iframe 안에서 끌기를 '화면 밀기'로 가로채요(pointercancel) → 터치는 touch 이벤트로 받고 밀기를 막아요 */
+const joy = { on:false, x0:0, y0:0, x:0, y:0, t:0 };
 const keys = {};
-addEventListener('pointerdown', e=>{ if(e.target.closest('button,.ov')) return; joy.on=true; joy.id=e.pointerId; joy.x0=joy.x=e.clientX; joy.y0=joy.y=e.clientY; });
-addEventListener('pointermove', e=>{ if(joy.on && e.pointerId===joy.id){ joy.x=e.clientX; joy.y=e.clientY; } });
-addEventListener('pointerup', e=>{ if(e.pointerId===joy.id) joy.on=false; });
-addEventListener('pointercancel', ()=>{ joy.on=false; });
-addEventListener('keydown', e=>{ keys[e.key]=1; }); addEventListener('keyup', e=>{ keys[e.key]=0; });
+let tapGoal = null;
+function jStart(x,y){ joy.on=true; joy.x0=joy.x=x; joy.y0=joy.y=y; joy.t=performance.now(); }
+function jMove(x,y){ if(!joy.on) return; joy.x=x; joy.y=y; if(Math.hypot(x-joy.x0,y-joy.y0)>10) tapGoal=null; }
+function jEnd(){
+  if(joy.on && performance.now()-joy.t<300 && Math.hypot(joy.x-joy.x0,joy.y-joy.y0)<12)
+    tapGoal={x:clamp((joy.x-view.ox)/view.s,R,W-R), y:clamp((joy.y-view.oy)/view.s,R,H-R)};
+  joy.on=false;
+}
+const onUI = t => t && t.closest && t.closest('button,.ov');
+document.addEventListener('touchstart', e=>{ if(onUI(e.target)) return; e.preventDefault(); const t=e.changedTouches[0]; joy.tid=t.identifier; jStart(t.clientX,t.clientY); }, {passive:false});
+document.addEventListener('touchmove', e=>{ if(onUI(e.target)) return; e.preventDefault(); const t=[...e.touches].find(x=>x.identifier===joy.tid); if(t) jMove(t.clientX,t.clientY); }, {passive:false});
+document.addEventListener('touchend', e=>{ if([...e.changedTouches].some(x=>x.identifier===joy.tid)) jEnd(); }, {passive:false});
+document.addEventListener('touchcancel', ()=>{ joy.on=false; });
+// 마우스 · 펜 (컴퓨터에서 해 볼 때)
+addEventListener('pointerdown', e=>{ if(e.pointerType==='touch' || onUI(e.target)) return; joy.id=e.pointerId; jStart(e.clientX,e.clientY); });
+addEventListener('pointermove', e=>{ if(e.pointerType!=='touch' && e.pointerId===joy.id) jMove(e.clientX,e.clientY); });
+addEventListener('pointerup', e=>{ if(e.pointerType!=='touch' && e.pointerId===joy.id) jEnd(); });
+addEventListener('keydown', e=>{ keys[e.key]=1; tapGoal=null; }); addEventListener('keyup', e=>{ keys[e.key]=0; });
 function inputDir(){
   let dx=(keys.ArrowRight?1:0)-(keys.ArrowLeft?1:0), dy=(keys.ArrowDown?1:0)-(keys.ArrowUp?1:0);
   if(joy.on){ const jx=joy.x-joy.x0, jy=joy.y-joy.y0, d=Math.hypot(jx,jy); if(d>6){ const k=Math.min(1,d/50); dx=jx/d*k; dy=jy/d*k; } }
+  else if(tapGoal){ const gx=tapGoal.x-me.x, gy=tapGoal.y-me.y, d=Math.hypot(gx,gy); if(d<1.2) tapGoal=null; else { dx=gx/d; dy=gy/d; } }
   return [dx,dy];
 }
 
@@ -221,8 +236,10 @@ function draw(now){
     emoji(P.e||'🐣', X(pos.x), Y(pos.y), 9*s);
     g.fillStyle='#fff'; g.strokeStyle='rgba(0,0,0,.35)'; g.lineWidth=3; g.font=`700 ${Math.max(11,3*s)}px GMarketSans, system-ui`;
     const label=(r===ME?'나':ROOMS[r].n)+(P.c?` 🥚${P.c}`:''); g.strokeText(label, X(pos.x), Y(pos.y)-7*s); g.fillText(label, X(pos.x), Y(pos.y)-7*s); });
+  // 톡 누른 곳 표시
+  if(tapGoal && !joy.on){ g.strokeStyle='rgba(27,31,46,.5)'; g.lineWidth=3; g.beginPath(); g.arc(X(tapGoal.x),Y(tapGoal.y),2.5*s+Math.sin(now/150)*1.5,0,7); g.stroke(); }
   // 조이스틱
-  if(joy.on){ g.fillStyle='rgba(255,255,255,.35)'; g.beginPath(); g.arc(joy.x0,joy.y0,50,0,7); g.fill();
+  if(joy.on && Math.hypot(joy.x-joy.x0,joy.y-joy.y0)>10){ g.fillStyle='rgba(255,255,255,.35)'; g.beginPath(); g.arc(joy.x0,joy.y0,50,0,7); g.fill();
     const jx=joy.x-joy.x0, jy=joy.y-joy.y0, d=Math.hypot(jx,jy)||1, k=Math.min(1,50/d); g.fillStyle='rgba(27,31,46,.55)'; g.beginPath(); g.arc(joy.x0+jx*k,joy.y0+jy*k,22,0,7); g.fill(); }
 }
 
@@ -254,7 +271,7 @@ setInterval(step, 50);
 function showIntro(){
   $('box').innerHTML=`<div class="big">🥚</div><h1>알 줍기 대작전</h1>
     <p class="sub">${PRACTICE?'🤖 로봇 친구 셋과 3분 연습해요':'도윤 · 도진 · 지아 · 윤아가 한 마당에 모여요 (10분)'}</p>
-    <ol><li>화면을 누르고 끌면 <b>${MY_E}</b> 내가 움직여요</li><li>🥚 알을 밟으면 주워요 (한 번에 ${MAXC}개까지)</li><li>내 🪺 둥지로 가져가야 점수가 돼요</li><li>알을 든 친구와 부딪히면 <b>1개를 뺏어요</b> (뺏긴 친구는 3초 동안 보호막 ✨)</li></ol>
+    <ol><li>가고 싶은 곳을 <b>톡</b> 누르거나, 누른 채로 끌면 <b>${MY_E}</b> 내가 움직여요</li><li>🥚 알을 밟으면 주워요 (한 번에 ${MAXC}개까지)</li><li>내 🪺 둥지로 가져가야 점수가 돼요</li><li>알을 든 친구와 부딪히면 <b>1개를 뺏어요</b> (뺏긴 친구는 3초 동안 보호막 ✨)</li></ol>
     <button class="btn" data-act="go">시작! ▶</button> <button class="btn gray" data-act="quit">나가기</button>`;
   $('ov').hidden=false;
 }
