@@ -103,6 +103,16 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .mgoal span{ font-weight:700; }
 .mgoal input{ flex:1; min-width:200px; border:none; border-bottom:2px dashed var(--line); background:transparent; padding:4px 2px; }
 
+/* ---------- 오늘 아이들 ---------- */
+.todaykids{ display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+.tk{ background:var(--card); border-radius:12px; border-left:7px solid var(--c); padding:8px 14px; box-shadow:0 2px 0 var(--edge); }
+.tk-head{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:2px; }
+.tk-head .state{ font-size:.85em; }
+.tk-row{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; font-size:.9em; padding:2px 0; }
+.tk-lb{ color:var(--ink-soft); min-width:5.5em; }
+.chips{ display:flex; gap:4px; flex-wrap:wrap; }
+.chips i{ font-style:normal; font-size:.8em; border-radius:999px; padding:0 8px; background:color-mix(in srgb, var(--c) 30%, var(--paper)); }
+
 /* ---------- 월별 다이어리 ---------- */
 .mgrid{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:20px; align-items:start; }
 .mstats{ display:flex; gap:14px; flex-wrap:wrap; font-size:.88em; margin-bottom:8px; }
@@ -191,6 +201,8 @@ mark{
 .mini .h{ font-size:.7em; text-align:center; color:var(--ink-soft); }
 .mini button{ aspect-ratio:1; border:1px solid var(--line); background:var(--paper); border-radius:6px; font-size:.72em; padding:0; position:relative; }
 .mini button.w{ background:var(--c); border-color:var(--c); color:#1B2340; font-weight:700; }
+.mini button.s{ border:2px dashed var(--c); }
+.mini button.w.s{ border-style:solid; }
 .mini button.today{ outline:2px solid var(--ink); }
 .mini button:disabled{ opacity:.35; cursor:default; }
 .mini .st{ position:absolute; right:-4px; top:-7px; font-size:.95em; }
@@ -246,7 +258,7 @@ mark{
 .welcome p{ font-size:1.2em; }
 
 @media (max-width:900px){
-  .mgrid, .kgrid{ grid-template-columns:1fr; }
+  .mgrid, .kgrid, .todaykids{ grid-template-columns:1fr; }
   .grid3{ grid-template-columns:1fr; }
 }
 @media (max-width:600px){
@@ -323,14 +335,16 @@ const ADMIN_EMAIL = "bellachord@gmail.com";
 // goal 은 kids/kid-diary.js 의 목표 글자 수와 맞춰 두세요.
 const PEOPLE = {
   me:    { name:"엄마", emoji:"🌷", color:"#E6A3B8", goal:150 },
-  doyun: { name:"도윤", emoji:"🐯", color:"#8EB6EC", kid:true, grade:"초4", goal:150 },
-  dojin: { name:"도진", emoji:"🐣", color:"#9FD3A8", kid:true, grade:"초2", goal:60 }
+  doyun: { name:"도윤", emoji:"🐯", color:"#8EB6EC", kid:true, grade:"초4", goal:150, room:["e4","doyun"] },
+  dojin: { name:"도진", emoji:"🐣", color:"#9FD3A8", kid:true, grade:"초2", goal:60, room:["e2","dojin"] }
 };
 const ORDER = Object.keys(PEOPLE);
 const KIDS = ORDER.filter(k => PEOPLE[k].kid);
 const ME = "me";
 
-const NUDGE_HOUR = 19;
+// 공부방 과목 이름 (공부방 daily 기록의 키)
+const SUBJ_NAMES = { math:"연산", school:"학교수학", korean:"국어", eng:"영어", hanja:"한자", history:"한국사", social:"사회", science:"과학", review:"복습" };
+const DUE_HOUR = 20;   // 아이들 일기 마감: 저녁 8시
 const SPELL_API = "https://family-spell.bellachord.workers.dev";
 const STAMPS = ["참 잘했어요", "최고예요", "멋진 생각", "글씨왕"];
 
@@ -382,9 +396,9 @@ function toast(msg){
 const S = {
   ok: false, tab: "month",
   writeDate: today(), dayDate: today(), month: thisMonth(), filter: "all",
-  entries: {}, status: {}, months: {}, loaded: false,
+  entries: {}, status: {}, months: {}, study: {}, loaded: false,
   weather: "", mood: "", qShift: 0, spell: null, formDirty: false,
-  unsub: null, unsubStatus: null, unsubMonths: null, range: null
+  unsub: null, unsubStatus: null, unsubMonths: null, unsubStudy: [], range: null
 };
 const keyOf = (date, w) => `${date}_${w}`;
 const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
@@ -436,9 +450,18 @@ function startData(){
       if (g && document.activeElement !== g) g.value = S.months[S.month]?.goal || "";
     }, () => {});
   }
+  // 공부방 날짜별 공부 기록: e2/dojin/daily/{날짜}, e4/doyun/daily/{날짜}
+  if (!S.unsubStudy.length){
+    S.unsubStudy = KIDS.map(w => onSnapshot(collection(db, ...PEOPLE[w].room, "daily"), snap => {
+      S.study[w] = {};
+      snap.forEach(d => { S.study[w][d.id] = d.data(); });
+      refresh();
+    }, () => {}));
+  }
 }
 function stopData(){
   S.unsub && S.unsub(); S.unsubStatus && S.unsubStatus(); S.unsubMonths && S.unsubMonths();
+  S.unsubStudy.forEach(u => u()); S.unsubStudy = []; S.study = {};
   S.unsub = S.unsubStatus = S.unsubMonths = null; S.range = null; S.entries = {}; S.loaded = false;
 }
 function ensureRange(){
@@ -461,14 +484,35 @@ function ensureRange(){
 function refresh(){
   if (!S.ok) return;
   renderBanner();
-  if (S.tab === "month"){ renderCal(); if (!S.formDirty) renderEditor(); }
+  if (S.tab === "month"){ renderToday(); renderCal(); if (!S.formDirty) renderEditor(); }
   else renderTab();
 }
 
 /* ============================================================
    ⑥ 알림 띠 · 탭
    ============================================================ */
-function studiedToday(w){ const ms = toMs(S.status[w]?.lastStudyAt); return ms && ymd(new Date(ms)) === today(); }
+// 공부 기록 한 날: { total, 과목:{n,ok} ... } → 과목별 [이름, 문제 수, 맞힌 수]
+function studyOn(w, date){
+  const d = S.study[w]?.[date]; if (!d) return null;
+  const subj = Object.entries(d)
+    .filter(([k, v]) => v && typeof v === "object" && typeof v.n === "number" && v.n > 0)
+    .map(([k, v]) => [SUBJ_NAMES[k] || k, v.n, v.ok || 0]);
+  const total = d.total || subj.reduce((a, s) => a + s[1], 0);
+  return total > 0 ? { total, ok: subj.reduce((a, s) => a + s[2], 0), subj, stars: d.starsGot || 0, min: Math.round((d.sec || 0) / 60) } : null;
+}
+const studyMin = s => s.min ? ` · ${s.min >= 60 ? Math.floor(s.min / 60) + "시간 " : ""}${s.min % 60}분` : "";
+function studiedToday(w){
+  if (studyOn(w, today())) return true;
+  const ms = toMs(S.status[w]?.lastStudyAt); return ms && ymd(new Date(ms)) === today();
+}
+function minsToDue(){ const n = new Date(); return DUE_HOUR * 60 - (n.getHours() * 60 + n.getMinutes()); }
+function kidState(w){
+  const s = studyOn(w, today()), left = minsToDue();
+  if (wroteOn(today(), w)) return ["✅ 오늘 일기 완료", "done"];
+  if (left <= 0) return [s ? `🚨 공부 ${s.total}문제 했는데 8시가 지나도록 일기 없음` : "🚨 8시가 지났는데 일기가 없어요", "warn"];
+  if (s) return [`📝 공부 ${s.total}문제 · 일기는 아직 (8시 마감)`, "warn"];
+  return ["아직 오늘 공부·일기 전", ""];
+}
 function streak(w){
   let d = today(); if (!wroteOn(d, w)) d = addDays(d, -1);
   let n = 0; while (wroteOn(d, w)){ n++; d = addDays(d, -1); }
@@ -476,12 +520,13 @@ function streak(w){
 }
 function renderBanner(){
   if (!S.loaded || S.tab === "kids"){ $("#banner").innerHTML = ""; return; }
-  const hour = new Date().getHours(), t = today();
-  const late = KIDS.filter(k => !wroteOn(t, k) && (studiedToday(k) || hour >= NUDGE_HOUR));
+  const t = today(), left = minsToDue();
+  const late = KIDS.filter(k => !wroteOn(t, k) && (studiedToday(k) || left <= 0));
   if (!late.length){ $("#banner").innerHTML = ""; return; }
   const names = late.map(k => PEOPLE[k].name).join(", ");
   const josa = late.length > 1 || !hasBatchim(PEOPLE[late[0]].name) ? "가" : "이가";
-  $("#banner").innerHTML = `<div class="banner"><b>📝 ${names}${josa} 아직 오늘 일기를 안 썼어요.</b>
+  const when = left <= 0 ? "8시가 지났는데" : `8시 마감까지 ${left >= 60 ? Math.floor(left / 60) + "시간 " : ""}${left % 60}분,`;
+  $("#banner").innerHTML = `<div class="banner"><b>📝 ${when} ${names}${josa} 아직 오늘 일기를 안 썼어요.</b>
     <div class="btns"><button class="btn" data-act="tab" data-v="kids">아이들 현황 보기</button></div></div>`;
 }
 const TABS = [["month","📅 엄마 다이어리","#F6C945"],["kids","👧 아이들 현황","#E6A3B8"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"]];
@@ -524,11 +569,31 @@ function renderMonth(){
     ${monthNav()}
     <div class="mgoal"><span>🎯 이달의 다짐</span>
       <input id="mgoal" maxlength="60" placeholder="이번 달에 꼭 하고 싶은 것을 적어 두세요" value="${esc(S.months[S.month]?.goal || "")}"></div>
+    <div class="todaykids" id="todayBox"></div>
     <div class="mgrid">
       <div id="calBox"></div>
       <section class="editor" id="editor"></section>
     </div>`;
-  renderCal(); renderEditor();
+  renderToday(); renderCal(); renderEditor();
+}
+// 첫 화면 위쪽: 오늘 아이들 공부 · 일기 한눈에
+function renderToday(){
+  const box = $("#todayBox"); if (!box) return;
+  const t = today();
+  box.innerHTML = KIDS.map(w => {
+    const p = PEOPLE[w], s = studyOn(w, t), e = S.entries[keyOf(t, w)], [state, cls] = kidState(w);
+    return `<div class="tk" style="--c:${p.color}">
+      <div class="tk-head"><b>${p.emoji} ${p.name}</b><span class="state ${cls}">${state}</span></div>
+      <div class="tk-row"><span class="tk-lb">📚 오늘 공부</span>${s
+        ? `<b>${s.total}문제</b> <span class="soft">정답 ${s.total ? Math.round(s.ok / s.total * 100) : 0}%${studyMin(s)}</span>
+           <span class="chips">${s.subj.map(([n, c]) => `<i>${esc(n)} ${c}</i>`).join("")}</span>`
+        : `<span class="soft">아직 안 했어요</span>`}</div>
+      <div class="tk-row"><span class="tk-lb">📔 오늘 일기</span>${e
+        ? `<b>${esc(e.title || "제목 없음")}</b> <span class="soft">${e.chars ?? countChars(e.content || "")}자 ${e.stamp ? "· 🔴 " + esc(e.stamp) : "· 도장 전"}</span>`
+        : `<span class="soft">아직 안 썼어요</span>`}
+        <button class="btn" style="margin-left:auto; padding:0 10px; font-size:.85em" data-act="${e ? "open-day" : "tab"}" data-v="${e ? t : "kids"}">${e ? "읽기" : "👉 콕"}</button></div>
+    </div>`;
+  }).join("");
 }
 function renderCal(){
   const box = $("#calBox"); if (!box) return;
@@ -695,53 +760,58 @@ function kidStats(w){
   const elapsed = S.month < tm ? last : S.month === tm ? new Date().getDate() : 0;
   const list = Object.values(S.entries).filter(e => e.author === w && e.date.startsWith(S.month));
   const chars = list.map(e => e.chars ?? countChars(e.content || ""));
+  const studyDays = Object.keys(S.study[w] || {}).filter(d => d.startsWith(S.month) && studyOn(w, d));
+  const probs = studyDays.reduce((a, d) => a + studyOn(w, d).total, 0);
+  const oks = studyDays.reduce((a, d) => a + studyOn(w, d).ok, 0);
   return {
     days: list.length, elapsed,
     avg: chars.length ? Math.round(chars.reduce((a, b) => a + b, 0) / chars.length) : 0,
     checked: list.filter(e => e.spellChecked).length,
     self: list.reduce((a, e) => a + (e.spellSelf || 0), 0),
     fixed: list.reduce((a, e) => a + Math.max(0, (e.spellFound || 0) - (e.spellLeft || 0)), 0),
-    waiting: list.filter(e => !e.stamp).sort((a, b) => b.date.localeCompare(a.date))
+    waiting: list.filter(e => !e.stamp).sort((a, b) => b.date.localeCompare(a.date)),
+    studyDays: studyDays.length, probs, rate: probs ? Math.round(oks / probs * 100) : 0,
+    // 공부는 했는데 일기는 안 쓴 날 (오늘은 8시 전이면 빼요)
+    missed: studyDays.filter(d => !wroteOn(d, w) && (d < today() || minsToDue() <= 0)).sort().reverse()
   };
 }
 function renderKids(){
-  $("#main").innerHTML = monthNav("아이들 일기") + `<div class="kgrid">${KIDS.map(kidCard).join("")}</div>
-    <p class="soft" style="margin-top:14px">공부한 시각은 공부방에서 <code>markStudied()</code>를 불러 줄 때부터 보여요. ${NUDGE_HOUR}시가 넘으면 아이 공부방에도 알림이 떠요.</p>`;
+  $("#main").innerHTML = monthNav("아이들 공부 · 일기") + `<div class="kgrid">${KIDS.map(kidCard).join("")}</div>
+    <p class="soft" style="margin-top:14px">공부 기록은 공부방(도윤 e4 · 도진 e2)에서 바로 가져와요. 아이 공부방에는 오후 1시부터 "저녁 8시 전에 일기 쓰기" 띠가 뜨고, 6시부터는 10분마다 알림이 떠요.</p>`;
 }
 function kidCard(w){
-  const p = PEOPLE[w], st = S.status[w] || {}, t = today(), hour = new Date().getHours();
-  const wrote = wroteOn(t, w), studied = studiedToday(w), lastStudy = toMs(st.lastStudyAt);
-  let state, cls;
-  if (wrote){ state = "✅ 오늘 일기 완료"; cls = "done"; }
-  else if (studied){ state = "📝 공부는 했는데 일기는 아직"; cls = "warn"; }
-  else if (hour >= NUDGE_HOUR){ state = "🌙 오늘 일기가 아직 없어요"; cls = "warn"; }
-  else { state = "오늘 일기 아직"; cls = ""; }
+  const p = PEOPLE[w], st = S.status[w] || {}, t = today();
+  const wrote = wroteOn(t, w), ts = studyOn(w, t);
+  const [state, cls] = kidState(w);
   const s = kidStats(w);
   const { first, last } = monthInfo(S.month);
   let mini = WEEK.map(d => `<div class="h">${d}</div>`).join("");
   for (let i = 0; i < first; i++) mini += "<div></div>";
   for (let d = 1; d <= last; d++){
-    const ds = `${S.month}-${pad(d)}`, e = S.entries[keyOf(ds, w)];
-    mini += `<button class="${e ? "w" : ""} ${ds === t ? "today" : ""}" data-act="open-day" data-v="${ds}" ${ds > t ? "disabled" : ""}
-      title="${fmtDate(ds)}${e ? " · " + esc(e.title || "일기") : ""}">${d}${e?.stamp ? `<span class="st">⭐</span>` : ""}</button>`;
+    const ds = `${S.month}-${pad(d)}`, e = S.entries[keyOf(ds, w)], sd = studyOn(w, ds);
+    mini += `<button class="${e ? "w" : ""} ${sd ? "s" : ""} ${ds === t ? "today" : ""}" data-act="open-day" data-v="${ds}" ${ds > t ? "disabled" : ""}
+      title="${fmtDate(ds)}${sd ? ` · 공부 ${sd.total}문제` : ""}${e ? " · 일기 " + esc(e.title || "") : sd ? " · 일기 없음" : ""}">${d}${e?.stamp ? `<span class="st">⭐</span>` : ""}</button>`;
   }
   const nudgeMs = toMs(st.nudgeAt);
-  const defMsg = `${p.name}${hasBatchim(p.name) ? "아" : "야"}, 오늘 공부 열심히 했네! 이제 일기 한 편 써 볼까? 📔`;
+  const defMsg = `${p.name}${hasBatchim(p.name) ? "아" : "야"}, 오늘 공부 열심히 했네! 8시 전에 일기 한 편 써 볼까? 📔`;
   const pct = s.elapsed ? Math.round(s.days / s.elapsed * 100) : 0;
   return `<div class="kcard" style="--c:${p.color}">
     <div class="line1"><b>${p.emoji} ${p.name}</b><span class="soft">${p.grade}</span>
       <span class="state ${cls}">${state}</span>
-      <span class="soft" style="margin-left:auto">🔥 ${streak(w)}일 연속</span></div>
+      <span class="soft" style="margin-left:auto">🔥 일기 ${streak(w)}일 연속</span></div>
+    <div class="tk-row" style="margin-top:6px"><span class="tk-lb">📚 오늘 공부</span>${ts
+      ? `<b>${ts.total}문제</b> <span class="soft">정답 ${Math.round(ts.ok / ts.total * 100)}%${studyMin(ts)} · ⭐ ${ts.stars}</span><span class="chips">${ts.subj.map(([n, c]) => `<i>${esc(n)} ${c}</i>`).join("")}</span>`
+      : `<span class="soft">아직 안 했어요</span>`}</div>
     <div class="kstats">
-      <div><small>이달 쓴 날</small><b>${s.days}일</b><small>${s.elapsed ? `${s.elapsed}일 중 ${pct}%` : "—"}</small></div>
-      <div><small>평균 길이</small><b>${s.avg}자</b><small>목표 ${p.goal}자</small></div>
-      <div><small>빨간펜 검사</small><b>${s.checked}편</b><small>고친 곳 ${s.fixed}개 · 스스로 ${s.self}개</small></div>
-      <div><small>도장 기다림</small><b style="color:${s.waiting.length ? "var(--red)" : "inherit"}">${s.waiting.length}편</b><small>눌러서 읽고 도장 찍기</small></div>
+      <div><small>📚 이달 공부한 날</small><b>${s.studyDays}일</b><small>${s.probs}문제 · 정답 ${s.rate}%</small></div>
+      <div><small>📔 이달 일기 쓴 날</small><b>${s.days}일</b><small>${s.elapsed ? `${s.elapsed}일 중 ${pct}% · 평균 ${s.avg}자` : "—"}</small></div>
+      <div><small>🚨 공부만 하고 일기 안 쓴 날</small><b style="color:${s.missed.length ? "var(--red)" : "inherit"}">${s.missed.length}일</b><small>${s.missed.length ? s.missed.slice(0, 5).map(d => parseYmd(d).getDate() + "일").join(" · ") : "잘하고 있어요!"}</small></div>
+      <div><small>🖍 빨간펜 · 도장 기다림</small><b>${s.checked}편 · <span style="color:${s.waiting.length ? "var(--red)" : "inherit"}">${s.waiting.length}편</span></b><small>고친 곳 ${s.fixed}개 · 스스로 ${s.self}개</small></div>
     </div>
     <div class="mini">${mini}</div>
-    ${s.waiting.length ? `<div class="waiting">${s.waiting.slice(0, 8).map(e => `<button data-act="open-day" data-v="${e.date}">${parseYmd(e.date).getDate()}일</button>`).join("")}</div>` : ""}
-    <div class="soft">마지막 공부: ${lastStudy ? (ymd(new Date(lastStudy)) === t ? "오늘 " : ymd(new Date(lastStudy)) + " ") + hhmm(lastStudy) : "기록 없음"}
-      ${nudgeMs ? ` · 마지막 콕: ${hhmm(nudgeMs)} ${st.nudgeSeen ? "(확인함)" : "(아직 안 봄)"}` : ""}</div>
+    <div class="soft" style="font-size:.78em">칸 색: 일기 쓴 날 · 점선 테두리: 공부만 한 날 · ⭐ 도장</div>
+    ${s.waiting.length ? `<div class="waiting"><span class="soft" style="font-size:.8em">도장 찍기 →</span>${s.waiting.slice(0, 8).map(e => `<button data-act="open-day" data-v="${e.date}">${parseYmd(e.date).getDate()}일</button>`).join("")}</div>` : ""}
+    ${nudgeMs ? `<div class="soft">마지막 콕: ${ymd(new Date(nudgeMs)) === t ? "오늘 " : ""}${hhmm(nudgeMs)} ${st.nudgeSeen ? "(확인함)" : "(아직 안 봄)"}</div>` : ""}
     ${wrote ? "" : `<textarea rows="2" id="nudge-${w}">${esc(defMsg)}</textarea>
       <div style="text-align:right; margin-top:6px"><button class="btn main" data-act="poke" data-w="${w}">👉 콕 찌르기</button></div>`}
   </div>`;
@@ -770,7 +840,9 @@ function renderDay(){
 }
 function dayCard(w, e){
   const p = PEOPLE[w];
-  const head = `<div class="top"><span>${p.emoji}</span><b>${p.name}</b>${e ? `<span class="wm">${e.weather || ""}${e.mood || ""}</span>` : ""}</div>`;
+  const sd = p.kid ? studyOn(w, S.dayDate) : null;
+  const head = `<div class="top"><span>${p.emoji}</span><b>${p.name}</b>${e ? `<span class="wm">${e.weather || ""}${e.mood || ""}</span>` : ""}</div>
+    ${p.kid ? `<div class="soft" style="font-size:.8em; margin:-4px 0 4px">📚 ${sd ? `이날 공부 ${sd.total}문제 (${sd.subj.map(([n, c]) => `${esc(n)} ${c}`).join(", ")})` : "이날 공부 기록 없음"}</div>` : ""}`;
   if (!e){
     const canPoke = p.kid && S.dayDate === today();
     return `<div class="dcard" style="--c:${p.color}">${head}

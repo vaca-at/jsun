@@ -1014,6 +1014,7 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
   </div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">홈</button>
+    <button class="tab" data-act="tab" data-v="diary">📔 일기</button>
     <button class="tab" data-act="tab" data-v="math">연산</button>
     <button class="tab" data-act="tab" data-v="korean">국어</button>
     <button class="tab" data-act="tab" data-v="school">학교수학</button>
@@ -2370,18 +2371,80 @@ function addWho(){
   loginPin(n);
 }
 
+/* ───── 📔 일기 (가족일기장 · 엄마 화면 jsun.site/diary 에서 봐요) ───── */
+let diaryBox=null;
+function renderDiary(){
+  if(!diaryBox){
+    diaryBox=document.createElement('div');
+    diaryBox.innerHTML='<p class="center" style="padding:30px">📔 일기장을 여는 중…</p>';
+    import('/diary/kids/kid-diary.js')
+      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'doyun', firebaseConfig:FIREBASE_CONFIG }))
+      .catch(e=>{ console.warn('일기장을 열지 못했어요', e); diaryBox.innerHTML='<p class="center" style="padding:30px">일기장을 열지 못했어요. 새로고침해 볼까요?</p>'; diaryBox=null; });
+  }
+  view.innerHTML=''; view.appendChild(diaryBox);
+}/* ───── 📔 저녁 8시 전에 일기 쓰기 알림 ─────
+   오늘 일기를 안 썼으면 모든 화면 위에 띠가 떠요. 8시가 가까울수록 진해지고, 6시부터는 10분마다 한 번 더 알려 줘요. */
+const DIARY_DUE=20;
+const diary={ done:false, day:null, unsub:null, nudge:'', lastToast:0 };
+function diaryWatch(){
+  cloudInit().then(db=>{
+    if(!db) return;
+    const sub=()=>{
+      const k=dayKey(); if(k===diary.day) return;
+      diary.day=k; diary.done=false; if(diary.unsub) diary.unsub();
+      diary.unsub=db.collection('diary').doc(k+'_doyun').onSnapshot(s=>{ diary.done=s.exists; drawDiaryStrip(); },()=>{});
+    };
+    sub();
+    db.collection('diaryStatus').doc('doyun').onSnapshot(s=>{
+      const d=s.data()||{}, at=d.nudgeAt&&d.nudgeAt.toMillis?d.nudgeAt.toMillis():0;
+      diary.nudge = at && !d.nudgeSeen && new Date(at).toDateString()===new Date().toDateString() ? (d.nudgeMsg||'오늘 일기 써 볼까?') : '';
+      drawDiaryStrip();
+    },()=>{});
+    setInterval(()=>{ sub(); drawDiaryStrip(); diaryToast(); },60000);
+  });
+}
+function drawDiaryStrip(){
+  let el=document.getElementById('diaryStrip');
+  if(!el){
+    const st=document.createElement('style');
+    st.textContent='.diary-strip{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;margin:10px auto;max-width:1100px;padding:10px 16px;border-radius:16px;background:#FFF6D6;border:2.5px solid #F6C945;font-size:1.05rem}'
+      +'.diary-strip b{flex:1;min-width:200px}.diary-strip small{flex-basis:100%;order:3}'
+      +'.diary-strip button{border:none;border-radius:999px;padding:6px 16px;background:#2B3557;color:#fff;font:inherit;font-weight:700;cursor:pointer}'
+      +'.diary-strip.soon{background:#FFE7C2;border-color:#F59E0B}.diary-strip.late{background:#FFE1E1;border-color:#E0555E;animation:dsw 1.2s ease 3}'
+      +'@keyframes dsw{0%,100%{transform:rotate(0)}25%{transform:rotate(-.6deg)}75%{transform:rotate(.6deg)}}'
+      +'@media (prefers-reduced-motion:reduce){.diary-strip{animation:none!important}}';
+    document.head.appendChild(st);
+    el=document.createElement('div'); el.id='diaryStrip'; view.parentNode.insertBefore(el,view);
+  }
+  const now=new Date(), h=now.getHours();
+  if(!who || diary.done || App.view==='diary' || h<13 || !diary.day){ el.hidden=true; return; }
+  const left=DIARY_DUE*60-(h*60+now.getMinutes());
+  const late=left<=0, soon=left<=90;
+  const msg = late ? '🚨 8시가 지났어요! 오늘 일기를 아직 안 썼어요. 퀴즈는 멈추고 지금 바로 써요!'
+    : soon ? `⏰ 일기 마감까지 ${left>=60?Math.floor(left/60)+'시간 ':''}${left%60}분! 퀴즈보다 일기 먼저 써요`
+    : '📔 오늘 일기는 저녁 8시 전에 꼭 써요!';
+  el.hidden=false; el.className='diary-strip'+(late?' late':soon?' soon':'');
+  el.innerHTML=`<b>${msg}</b><button data-act="tab" data-v="diary">✏️ 일기 쓰러 가기</button>${diary.nudge?`<small>💌 엄마가 콕! ${esc(diary.nudge)}</small>`:''}`;
+}
+function diaryToast(){
+  const h=new Date().getHours();
+  if(!who || diary.done || App.view==='diary' || h<18 || Date.now()-diary.lastToast<10*60000) return;
+  diary.lastToast=Date.now();
+  toast(h>=DIARY_DUE ? '🚨 8시가 넘었어요! 일기 먼저 써요 📔' : '📔 8시 전에 일기 써요! 위에 있는 버튼을 눌러요');
+}
+setTimeout(diaryWatch,0);
 /* ───── 화면 전환 ───── */
 function go(v){ try{ if(RD) readStop(); }catch(e){} App.view=v; render(); window.scrollTo(0,0); }
 function render(){
   if(SUBJ[App.view] && !admin.subj[App.view]) App.view='home';
-  document.body.dataset.view=App.view;   // 휴대폰에서 홈에만 보이는 것들 (시계 · 도서관 칸, 디자인 고르기)
+  document.body.dataset.view=App.view; try{ drawDiaryStrip(); }catch(e){}   // 휴대폰에서 홈에만 보이는 것들 (시계 · 도서관 칸, 디자인 고르기)
   document.querySelectorAll('.tab').forEach(t=>{
     t.classList.toggle('on',t.dataset.v===App.view);
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];
   });
   if(App.view!=='review') RV=null;
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, myroom:renderMyRoom, math:renderCalc, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
+  ({home:renderHome, diary:renderDiary, myroom:renderMyRoom, math:renderCalc, social:()=>renderCS('social'), library:renderLibrary, school:renderSchool, korean:renderKorean, eng:renderEng, hanja:renderHanja, history:renderHistory, sticker:renderSticker, review:renderReview})[App.view]();
 }
 
 /* ───── 홈 ───── */

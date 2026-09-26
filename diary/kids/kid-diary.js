@@ -18,7 +18,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const SPELL_API = "https://family-spell.bellachord.workers.dev";
-const NUDGE_HOUR = 19;
+const DUE_HOUR = 20;   // 저녁 8시 전에 쓰기
 
 export const KIDS = {
   dojin: {
@@ -239,8 +239,12 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     if (!wrote && nudgeMs && !st.nudgeSeen && ymd(new Date(nudgeMs)) === today()){
       box.innerHTML = `<div class="kd-nudge"><span style="font-size:1.6em">💌</span><b>엄마가 콕! ${esc(st.nudgeMsg || `${call(P.name)}, 오늘 일기 써 볼까?`)}</b>
         <button class="kd-btn main" data-a="nudge-ok">알겠어요!</button></div>`;
-    } else if (!wrote && S.loaded && new Date().getHours() >= NUDGE_HOUR){
-      box.innerHTML = `<div class="kd-nudge" style="animation:none"><span style="font-size:1.4em">🌙</span><b>오늘 일기를 아직 안 썼어요. 자기 전에 한 줄만 써 볼까요?</b></div>`;
+    } else if (!wrote && S.loaded && S.date === today()){
+      const now = new Date(), left = DUE_HOUR * 60 - (now.getHours() * 60 + now.getMinutes());
+      const msg = left <= 0 ? "🚨 8시가 지났어요! 한 줄이라도 지금 바로 써요."
+        : left <= 90 ? `⏰ 일기 마감(저녁 8시)까지 ${left >= 60 ? Math.floor(left / 60) + "시간 " : ""}${left % 60}분 남았어요!`
+        : "📔 오늘 일기는 저녁 8시 전에 써요!";
+      box.innerHTML = `<div class="kd-nudge" style="${left <= 0 ? "" : "animation:none;"}${left <= 0 ? "border-color:var(--red);background:#FFE1E1" : ""}"><b>${msg}</b></div>`;
     } else box.innerHTML = "";
   }
 
@@ -370,7 +374,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
     box.innerHTML = `<div class="kd-pen"><h3>${head}</h3>${praiseHtml}${sub}
       ${left.length ? `<div class="preview">${html}</div>` : ""}
       <ol>${errors.map((er, i) => `<li class="${er.left ? "" : "done"}">
-        <span class="chip">${esc(er.kind)}</span>
+        ${er.kind ? `<span class="chip">${esc(er.kind)}</span>` : ""}
         ${er.left ? esc(er.hint)
           : er.applied ? `<span class="good">✅ 고쳤어요</span> <span class="kd-soft">${esc(er.wrong)} → ${esc(er.right)}</span>`
           : `<span class="good">👍 스스로 고쳤어요!</span> <span class="kd-soft">${esc(er.right)}</span>`}
@@ -494,5 +498,6 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API })
   });
 
   render();
+  setInterval(renderNudge, 60 * 1000);
   return { markStudied: () => markStudied(kid, firebaseConfig) };
 }
