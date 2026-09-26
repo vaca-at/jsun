@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>도윤이 일기장</title>
+<style>body{ margin:0; padding:16px; background:#E8F0FB; min-height:100vh; }</style>
+</head>
+<body>
+<!-- 공부방(jsun.site/doyun) 페이지에 붙일 땐 아래 div 와 script 두 덩어리만 옮기면 돼요. -->
+<div id="diary"></div>
+<script type="module">
+import { mountKidDiary } from "./kid-diary.js";
+mountKidDiary({
+  el: "#diary",
+  kid: "doyun",
+  // 공부방이 이미 파이어베이스를 켜 두었다면 이 줄은 지워도 돼요.
+  firebaseConfig: {
+    apiKey: "여기에_붙여넣기",
+    authDomain: "moon-15f88.firebaseapp.com",
+    projectId: "moon-15f88",
+    storageBucket: "여기에_붙여넣기",
+    messagingSenderId: "여기에_붙여넣기",
+    appId: "여기에_붙여넣기"
+  }
+});
+</script>
+</body>
+</html>
