@@ -3737,6 +3737,7 @@ const DECO_ITEMS = [
   {id:'lion',k:'base',e:'🦁',n:'사자',p:20},{id:'tiger',k:'base',e:'🐯',n:'호랑이',p:20},{id:'shark',k:'base',e:'🦈',n:'상어',p:30},{id:'dolphin',k:'base',e:'🐬',n:'돌고래',p:30},
   {id:'dino',k:'base',e:'🦖',n:'공룡',p:50},{id:'unicorn',k:'base',e:'🦄',n:'유니콘',p:60},{id:'dragon',k:'base',e:'🐉',n:'용',p:80},
   {id:'octo',k:'base',e:'🐙',n:'빨간 문어',p:30,fx:'red'},{id:'bluefish',k:'base',e:'🐟',n:'파란 물고기',p:25},
+  {id:'chickb',k:'base',e:'🐥',n:'병아리',p:20},{id:'hamsterb',k:'base',e:'🐹',n:'햄스터',p:20},{id:'sheep',k:'base',e:'🐑',n:'양',p:25},{id:'hedgehog',k:'base',e:'🦔',n:'고슴도치',p:30},{id:'whale',k:'base',e:'🐳',n:'고래',p:35},
   {id:'phoenix',k:'base',e:'🐦‍🔥',n:'피닉스',p:100,fx:'fire'},
   {id:'cap',k:'hat',e:'🧢',n:'야구 모자',p:10},{id:'ribbon',k:'hat',e:'🎀',n:'리본',p:10},{id:'straw',k:'hat',e:'👒',n:'밀짚모자',p:15},{id:'tophat',k:'hat',e:'🎩',n:'신사 모자',p:20},
   {id:'grad',k:'hat',e:'🎓',n:'학사모',p:30},{id:'crown',k:'hat',e:'👑',n:'왕관',p:50},
@@ -3758,7 +3759,7 @@ const DECO_ITEMS = [
 const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
 /* 캐릭터마다 자기 모자 · 소품을 따로 입어요: wear = {캐릭터id: {hat, acc}}. 물건은 하나뿐이라 다른 캐릭터에게 주면 옮겨 가요 */
 /* 몸 전체 그림인 캐릭터는 머리 자리가 달라서 모자를 옮겨 씌워요: [가로 px, 세로 px, 기울기] (큰 방 기준) */
-const HAT_FIT = { octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
+const HAT_FIT = { chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
 function decoGet(){
   const d=Object.assign({base:'dog', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0, wear:null}, store.get('deco',{}));
   DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
