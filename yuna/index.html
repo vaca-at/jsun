@@ -4644,7 +4644,7 @@ function adminHTML(){
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
               :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
       ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
-              :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'} <button class="pill" data-act="gameOpen" data-v="practice">🤖 연습해 보기</button></div>`}
+              :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'}</div>`}
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
