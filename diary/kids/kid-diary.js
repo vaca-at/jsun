@@ -13,7 +13,7 @@
    ============================================================ */
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
-  getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where,
+  getFirestore, doc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, increment,
   arrayUnion, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -22,7 +22,7 @@ const DUE_HOUR = 20;   // 저녁 8시 전에 쓰기
 
 export const KIDS = {
   dojin: {
-    name: "도진", emoji: "🐣", color: "#7CC68A", level: "grade2", grade: "2학년", goal: 60, fs: "1.3rem", autoFix: true,
+    name: "도진", emoji: "🐣", color: "#7CC68A", level: "grade2", grade: "2학년", goal: 60, fs: "1.3rem", autoFix: true, room: ["e2", "dojin"],
     questions: [
       "오늘 제일 재미있었던 일은 뭐였나요?", "오늘 먹은 것 중에 제일 맛있었던 건?",
       "오늘 친구랑 무엇을 하고 놀았나요?", "오늘 새로 알게 된 것은?",
@@ -260,7 +260,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   function refresh(){
     const n = streak();
     $("[data-kd=streak]").textContent = n ? `🔥 ${n}일 연속!` : "🔥 오늘부터 시작!";
-+
+    renderNudge(); famBadge();
     if (S.view === "write"){ if (!S.dirty) renderWrite(); }
     else render();
   }
@@ -683,7 +683,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       case "reveal": S.spell.errors[+a.dataset.i].shown = true; renderPen(); break;
       case "apply": {
         applyOne(S.spell.errors[+a.dataset.i]); toast(one(PRAISE_FIX));
-  + renderPen(); break;
+        S.dirty = true; gauge(); saveDraft(); renderPen(); break;
       }
       case "find": {
         const er = S.spell.errors[+a.dataset.i], ta = $("[data-kd=content]"), i = wrongAt(er, ta.value);
@@ -713,7 +713,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   root.addEventListener("input", ev => {
     const k = ev.target.dataset?.kd;
     if (k === "content"){
-+
+      S.dirty = true; gauge(); saveDraft(); drawHL();
       clearTimeout(penTimer); penTimer = setTimeout(renderPen, 350);
     } else if (k === "title" || k === "useq"){ S.dirty = true; saveDraft(); }
     else if (ev.target.dataset?.cmt) cmtDraft[ev.target.dataset.cmt] = ev.target.value;
