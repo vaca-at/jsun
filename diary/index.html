@@ -262,26 +262,16 @@ mark{
     </div>
   </header>
 
-  <div class="who-row" id="whoRow"></div>
+  <div class="who-row" id="authBar"></div>
   <div id="banner"></div>
   <nav class="tabs" id="tabs"></nav>
   <main class="notebook" id="main"></main>
 </div>
 
-<div class="modal hidden" id="pinModal">
-  <div class="box">
-    <div id="pinTitle" style="font-size:1.2em"></div>
-    <input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="비밀번호">
-    <div class="soft" id="pinMsg">비밀번호를 입력하세요</div>
-    <div style="display:flex; gap:8px; justify-content:center; margin-top:12px">
-      <button class="btn" data-act="pin-cancel">닫기</button>
-      <button class="btn main" data-act="pin-ok">열기</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where,
   arrayUnion, serverTimestamp, deleteField
@@ -300,51 +290,37 @@ const firebaseConfig = {
   appId: "여기에_붙여넣기"
 };
 
-// 일기 쓰는 사람 (순서대로 화면에 나와요). 윤아를 넣을 때는 한 줄만 추가하면 돼요.
+// 이 계정으로 로그인해야만 열려요.
+const ADMIN_EMAIL = "bellachord@gmail.com";
+
+// 일기 쓰는 사람. 아이들은 각자 공부방에서 쓰고, 여기는 엄마만 들어와요.
 const PEOPLE = {
-  me:    { name:"선영", emoji:"🌷", color:"#E6A3B8", pin:"0000", goal:150, level:"adult", admin:true },
-  doyun: { name:"도윤", emoji:"🐯", color:"#8EB6EC", pin:"1111", goal:100, level:"kid4" },
-  dojin: { name:"도진", emoji:"🐣", color:"#9FD3A8", pin:"2222", goal:50,  level:"kid2" }
+  me:    { name:"엄마", emoji:"🌷", color:"#E6A3B8", goal:150 },
+  doyun: { name:"도윤", emoji:"🐯", color:"#8EB6EC", kid:true },
+  dojin: { name:"도진", emoji:"🐣", color:"#9FD3A8", kid:true }
 };
 const ORDER = Object.keys(PEOPLE);
+const ME = "me";
 
-const NUDGE_HOUR = 19;           // 이 시각 이후에도 일기가 없으면 알림을 띄워요
-// AI 맞춤법 검사 주소: 클라우드플레어 워커를 배포한 뒤 받은 주소로 바꾸세요.
+const NUDGE_HOUR = 19;
 const SPELL_API = "https://family-spell.bellachord.workers.dev";
 const STAMPS = ["참 잘했어요", "최고예요", "멋진 생각", "글씨왕"];
 
-/* ============================================================
-   ② 글감 질문
-   ============================================================ */
-const QUESTIONS = {
-  kid2: [
-    "오늘 가장 웃겼던 일은 무엇이었나요?", "오늘 먹은 것 중에 제일 맛있었던 건?",
-    "오늘 누구랑 가장 많이 놀았나요?", "오늘 새로 알게 된 것이 있나요?",
-    "오늘 나를 칭찬해 준다면 뭐라고 할까요?", "오늘 속상한 일이 있었나요?",
-    "내일 꼭 하고 싶은 일은 무엇인가요?", "오늘 하늘은 어떤 모습이었나요?",
-    "오늘 고마웠던 사람은 누구인가요?", "오늘 가장 열심히 한 일은 무엇인가요?"
-  ],
-  kid4: [
-    "오늘 있었던 일 중 가장 기억에 남는 장면을 자세히 써 보세요.", "오늘 나를 가장 뿌듯하게 한 일은?",
-    "오늘 누군가에게 해 주고 싶었던 말이 있나요?", "오늘 배운 것 중 다른 사람에게 알려 주고 싶은 것은?",
-    "요즘 내가 가장 관심 있는 것은 무엇이고, 왜 좋은가요?", "오늘 실수한 일이 있다면, 다음엔 어떻게 할까요?",
-    "만약 오늘을 다시 산다면 무엇을 바꾸고 싶나요?", "오늘 친구나 가족에게서 본 좋은 모습은?",
-    "오늘 느낀 기분을 날씨에 비유하면?", "일주일 뒤의 나에게 한마디 해 볼까요?"
-  ],
-  adult: [
-    "오늘 아이들에게서 발견한 좋은 모습은?", "오늘 나를 웃게 한 순간은?",
-    "오늘 고마웠던 사람과 그 이유는?", "요즘 가장 마음에 남는 생각은?",
-    "오늘 잘 해낸 일 하나를 적어 볼까요?", "이번 주에 가족과 꼭 하고 싶은 일은?"
-  ]
-};
+const QUESTIONS = [
+  "오늘 아이들에게서 발견한 좋은 모습은?", "오늘 나를 웃게 한 순간은?",
+  "오늘 고마웠던 사람과 그 이유는?", "요즘 가장 마음에 남는 생각은?",
+  "오늘 잘 해낸 일 하나를 적어 볼까요?", "이번 주에 가족과 꼭 하고 싶은 일은?",
+  "아이들에게 오늘 꼭 해 주고 싶은 말은?", "오늘 나에게 주는 작은 칭찬은?"
+];
 const WEATHERS = ["☀️","⛅","☁️","🌧️","⛈️","❄️","🌈"];
 const MOODS = ["😊","😆","🥰","😐","😢","😠","😴"];
 
 /* ============================================================
-   ③ 도우미
+   ② 도우미
    ============================================================ */
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2, "0");
 const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -358,9 +334,10 @@ const toMs = v => !v ? 0 : typeof v === "number" ? v : v.toMillis ? v.toMillis()
 const hhmm = ms => { const d = new Date(ms); return `${d.getHours()}시 ${pad(d.getMinutes())}분`; };
 const countChars = s => s.replace(/\s/g, "").length;
 const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const hasBatchim = w => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c % 28 !== 0; };
 const store = {
   get(k){ try { return localStorage.getItem(k); } catch { return null; } },
-  set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} }
+  set(k, v){ try { localStorage.setItem(k, v); } catch {} }
 };
 let toastTimer;
 function toast(msg){
@@ -370,27 +347,68 @@ function toast(msg){
 }
 
 /* ============================================================
-   ④ 상태
+   ③ 상태
    ============================================================ */
 const S = {
-  who: null, tab: "write",
+  ok: false, tab: "write",
   writeDate: today(), dayDate: today(), month: today().slice(0, 7), filter: "all",
   entries: {}, status: {}, loaded: false,
-  weather: "", mood: "", useQ: false, qShift: 0,
-  checkedText: null, spell: null, spellFailed: false, formDirty: false,
-  unsub: null, range: null, pinFor: null
+  weather: "", mood: "", qShift: 0, spell: null, formDirty: false,
+  unsub: null, unsubStatus: null, range: null
 };
 const keyOf = (date, w) => `${date}_${w}`;
 const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
 
 /* ============================================================
+   ④ 관리자 로그인
+   ============================================================ */
+onAuthStateChanged(auth, user => {
+  if (user && user.email === ADMIN_EMAIL){
+    S.ok = true;
+    $("#authBar").innerHTML = `<span class="soft">🌷 ${esc(user.email)}</span><button class="logout" data-act="logout">로그아웃</button>`;
+    startData();
+    renderTabs(); goTab(S.tab);
+  } else {
+    S.ok = false; stopData();
+    if (user) signOut(auth);
+    $("#authBar").innerHTML = ""; $("#tabs").innerHTML = ""; $("#banner").innerHTML = "";
+    $("#main").style.borderTop = "";
+    $("#main").innerHTML = `<div class="welcome">
+      <p>엄마만 들어올 수 있는 가족일기장이에요.</p>
+      <button class="btn main" data-act="login">구글 계정으로 로그인</button>
+      ${user ? `<p class="soft" style="margin-top:14px">${esc(user.email)} 계정은 들어올 수 없어요. ${ADMIN_EMAIL} 계정으로 로그인해 주세요.</p>` : ""}
+    </div>`;
+  }
+});
+async function login(){
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (err){
+    if (err.code === "auth/unauthorized-domain") toast("파이어베이스 인증 설정에 이 주소(도메인)를 추가해 주세요.");
+    else if (err.code !== "auth/popup-closed-by-user") toast("로그인하지 못했어요 (" + err.code + ")");
+  }
+}
+
+/* ============================================================
    ⑤ 파이어스토어 불러오기
    ============================================================ */
+function startData(){
+  ensureRange();
+  if (!S.unsubStatus){
+    S.unsubStatus = onSnapshot(collection(db, "diaryStatus"), snap => {
+      snap.forEach(d => { S.status[d.id] = d.data(); });
+      refresh();
+    }, () => {});
+  }
+}
+function stopData(){
+  S.unsub && S.unsub(); S.unsubStatus && S.unsubStatus();
+  S.unsub = S.unsubStatus = null; S.range = null; S.entries = {}; S.loaded = false;
+}
 function ensureRange(){
   const t = today();
-  const want = [addDays(t, -70), S.month + "-01", S.dayDate, S.writeDate].sort();
-  const wantTo = [t, S.month + "-31", S.dayDate].sort();
-  let from = want[0], to = wantTo[wantTo.length - 1];
+  const f0 = [addDays(t, -70), S.month + "-01", S.dayDate, S.writeDate].sort();
+  const t0 = [t, S.month + "-31", S.dayDate].sort();
+  let from = f0[0], to = t0[t0.length - 1];
   if (S.range && S.range.from <= from && S.range.to >= to) return;
   if (S.range){ from = [from, S.range.from].sort()[0]; to = [to, S.range.to].sort()[1]; }
   S.unsub && S.unsub();
@@ -403,62 +421,15 @@ function ensureRange(){
     refresh();
   }, err => toast("일기를 불러오지 못했어요. Firestore 규칙을 확인해 주세요. (" + err.code + ")"));
 }
-onSnapshot(collection(db, "diaryStatus"), snap => {
-  snap.forEach(d => { S.status[d.id] = d.data(); });
-  refresh();
-}, () => {});
-
 function refresh(){
-  renderWho(); renderBanner();
-  if (!S.who) return;
+  if (!S.ok) return;
+  renderBanner();
   if (S.tab === "write"){ if (!S.formDirty) renderWrite(); }
   else renderTab();
 }
 
 /* ============================================================
-   ⑥ 이름표 · 로그인
-   ============================================================ */
-function renderWho(){
-  const t = today();
-  $("#whoRow").innerHTML = ORDER.map(w => {
-    const p = PEOPLE[w];
-    return `<button class="who ${S.who === w ? "on" : ""}" style="--c:${p.color}" data-act="who" data-w="${w}">
-      <span class="face">${p.emoji}</span><span>${p.name}</span>
-      ${wroteOn(t, w) ? '<span class="tick">✔ 오늘</span>' : ""}
-    </button>`;
-  }).join("") + (S.who ? `<button class="logout" data-act="logout">다른 사람으로 바꾸기</button>` : "");
-}
-function openPin(w){
-  S.pinFor = w;
-  $("#pinTitle").textContent = `${PEOPLE[w].emoji} ${PEOPLE[w].name}의 일기장`;
-  $("#pinMsg").textContent = "비밀번호를 입력하세요";
-  $("#pinIn").value = "";
-  $("#pinModal").classList.remove("hidden");
-  setTimeout(() => $("#pinIn").focus(), 50);
-}
-function tryPin(){
-  const w = S.pinFor;
-  if ($("#pinIn").value === PEOPLE[w].pin){
-    $("#pinModal").classList.add("hidden");
-    login(w);
-  } else {
-    $("#pinMsg").textContent = "비밀번호가 달라요. 다시 입력해 보세요.";
-    $("#pinIn").value = "";
-  }
-}
-function login(w){
-  S.who = w; store.set("fd_who", w);
-  S.tab = "write"; S.writeDate = today(); S.formDirty = false;
-  renderTabs(); renderWho(); renderBanner(); renderWrite();
-}
-function logout(){
-  S.who = null; store.set("fd_who", null);
-  $("#tabs").innerHTML = ""; renderWho(); renderBanner();
-  $("#main").innerHTML = `<div class="welcome"><p>누구의 일기장을 펼칠까요?</p><p class="soft">위에서 이름을 눌러 주세요.</p></div>`;
-}
-
-/* ============================================================
-   ⑦ 알림 띠 (일기 독려)
+   ⑥ 알림 띠 · 탭
    ============================================================ */
 function studiedToday(w){ const ms = toMs(S.status[w]?.lastStudyAt); return ms && ymd(new Date(ms)) === today(); }
 function streak(w){
@@ -467,53 +438,25 @@ function streak(w){
   return n;
 }
 function renderBanner(){
-  const box = $("#banner");
-  if (!S.who || !S.loaded){ box.innerHTML = ""; return; }
-  const w = S.who, p = PEOPLE[w], t = today(), hour = new Date().getHours();
-
-  if (p.admin){
-    const late = ORDER.filter(k => !PEOPLE[k].admin && !wroteOn(t, k) && (studiedToday(k) || hour >= NUDGE_HOUR));
-    box.innerHTML = late.length ? `<div class="banner">
-      <b>📝 ${late.map(k => PEOPLE[k].name).join(", ")}${late.length > 1 ? "가" : (hasBatchim(PEOPLE[late[0]].name) ? "이가" : "가")} 아직 오늘 일기를 안 썼어요.</b>
-      <div class="btns"><button class="btn" data-act="tab" data-v="status">오늘 현황 보기</button></div></div>` : "";
-    return;
-  }
-  if (wroteOn(t, w)){
-    const n = streak(w);
-    box.innerHTML = `<div class="banner"><b>🎉 오늘 일기 완료!</b><span>${n >= 2 ? `🔥 ${n}일 연속으로 쓰고 있어요.` : "내일도 만나요."}</span></div>`;
-    return;
-  }
-  const st = S.status[w] || {};
-  if (st.nudgeAt && st.nudgeSeen === false){
-    const from = PEOPLE[st.nudgeFrom]?.name || "가족";
-    box.innerHTML = `<div class="banner poke"><b>💌 ${esc(from)}의 콕!</b><span>${esc(st.nudgeMsg || "오늘 일기 써 볼까?")}</span>
-      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰러 가기</button><button class="btn" data-act="nudge-seen">알았어요</button></div></div>`;
-    return;
-  }
-  if (studiedToday(w) && hour >= NUDGE_HOUR - 2){
-    box.innerHTML = `<div class="banner"><b>💪 오늘 퀴즈 열심히 풀었네요!</b><span>마지막으로 일기 한 편만 쓰면 오늘 공부 끝이에요.</span>
-      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰기</button></div></div>`;
-  } else if (hour >= NUDGE_HOUR){
-    box.innerHTML = `<div class="banner"><b>🌙 오늘 일기를 아직 안 썼어요.</b><span>세 줄이라도 괜찮아요.</span>
-      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰기</button></div></div>`;
-  } else box.innerHTML = "";
+  if (!S.loaded){ $("#banner").innerHTML = ""; return; }
+  const hour = new Date().getHours(), t = today();
+  const late = ORDER.filter(k => PEOPLE[k].kid && !wroteOn(t, k) && (studiedToday(k) || hour >= NUDGE_HOUR));
+  if (!late.length){ $("#banner").innerHTML = ""; return; }
+  const names = late.map(k => PEOPLE[k].name).join(", ");
+  const josa = late.length > 1 || !hasBatchim(PEOPLE[late[0]].name) ? "가" : "이가";
+  $("#banner").innerHTML = `<div class="banner"><b>📝 ${names}${josa} 아직 오늘 일기를 안 썼어요.</b>
+    <div class="btns"><button class="btn" data-act="tab" data-v="status">오늘 현황 보기</button></div></div>`;
 }
-function hasBatchim(word){ const c = word.charCodeAt(word.length - 1) - 0xAC00; return c >= 0 && c % 28 !== 0; }
-
-/* ============================================================
-   ⑧ 탭
-   ============================================================ */
+const TABS = [["write","✏️ 엄마 일기","#F6C945"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"],["status","🔔 오늘 현황","#E6A3B8"]];
 function renderTabs(){
-  const tabs = [["write","✏️ 쓰기","#F6C945"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"]];
-  if (PEOPLE[S.who].admin) tabs.push(["status","🔔 오늘 현황","#E6A3B8"]);
-  $("#tabs").innerHTML = tabs.map(([k, label, c]) =>
+  $("#tabs").innerHTML = TABS.map(([k, label, c]) =>
     `<button style="--tc:${c}" class="${S.tab === k ? "on" : ""}" data-act="tab" data-v="${k}">${label}</button>`).join("");
-  $("#main").style.borderTop = `6px solid ${tabs.find(t => t[0] === S.tab)[2]}`;
+  $("#main").style.borderTop = `6px solid ${TABS.find(t => t[0] === S.tab)[2]}`;
 }
 function goTab(k){
   if (S.tab === "write" && S.formDirty && k !== "write" && !confirm("저장하지 않은 일기가 있어요. 그래도 다른 곳으로 갈까요?")) return;
   S.tab = k; S.formDirty = false;
-  renderTabs();
+  renderTabs(); renderBanner();
   if (k === "write") renderWrite(); else renderTab();
 }
 function renderTab(){
@@ -524,24 +467,14 @@ function renderTab(){
 }
 
 /* ============================================================
-   ⑨ 쓰기
+   ⑦ 엄마 일기 쓰기
    ============================================================ */
-function currentQuestion(){
-  const list = QUESTIONS[PEOPLE[S.who].level];
-  return list[(hash(S.writeDate + S.who) + S.qShift) % list.length];
-}
+function currentQuestion(){ return QUESTIONS[(hash(S.writeDate) + S.qShift) % QUESTIONS.length]; }
 function renderWrite(){
   ensureRange();
-  const p = PEOPLE[S.who];
-  const e = S.entries[keyOf(S.writeDate, S.who)] || {};
-  S.weather = e.weather || ""; S.mood = e.mood || "";
-  S.useQ = !!e.question; S.spell = null; S.spellFailed = false;
-  S.checkedText = e.spellChecked ? (e.content || "") : null;
+  const e = S.entries[keyOf(S.writeDate, ME)] || {};
+  S.weather = e.weather || ""; S.mood = e.mood || ""; S.spell = null;
   const q = e.question || currentQuestion();
-  const ph = p.level === "kid2" ? "오늘 있었던 일을 써 보세요. 누구랑, 무엇을 했는지 써 봐요."
-           : p.level === "kid4" ? "오늘 있었던 일과 그때 든 생각이나 기분을 함께 써 보세요."
-           : "오늘 하루를 적어 보세요.";
-
   $("#main").innerHTML = `
     <div class="row">
       <input type="date" id="wdate" value="${S.writeDate}" max="${today()}" aria-label="날짜">
@@ -553,11 +486,11 @@ function renderWrite(){
     </div>
     <div class="qcard">
       <span>💡</span><span class="q" id="qText">${esc(q)}</span>
-      <label><input type="checkbox" id="useQ" ${S.useQ ? "checked" : ""}> 이 질문으로 쓸래요</label>
+      <label><input type="checkbox" id="useQ" ${e.question ? "checked" : ""}> 이 질문으로 쓸래요</label>
       <button data-act="q-next">다른 질문</button>
     </div>
     <input class="title-in" id="title" placeholder="제목" value="${esc(e.title || "")}" maxlength="40">
-    <textarea class="lined" id="content" placeholder="${ph}">${esc(e.content || "")}</textarea>
+    <textarea class="lined" id="content" placeholder="오늘 하루를 적어 보세요. 아이들도 공부방에서 엄마 일기를 읽을 수 있어요.">${esc(e.content || "")}</textarea>
     <div class="gauge-row">
       <span>✏️</span><div class="gauge" id="gauge"><i></i></div><span class="soft" id="gaugeTxt"></span>
     </div>
@@ -571,20 +504,12 @@ function renderWrite(){
 }
 function updateGauge(){
   const ta = $("#content"); if (!ta) return;
-  const n = countChars(ta.value), goal = PEOPLE[S.who].goal;
+  const n = countChars(ta.value), goal = PEOPLE[ME].goal;
   $("#gauge i").style.width = Math.min(100, n / goal * 100) + "%";
   $("#gauge").classList.toggle("full", n >= goal);
-  $("#gaugeTxt").textContent = n >= goal ? `${n}자, 목표 달성!` : `${n} / ${goal}자`;
-}
-function onContentInput(){
-  S.formDirty = true; updateGauge();
-  const stale = $("#redpen .stale");
-  if (S.spell && S.checkedText !== $("#content").value.trim()){
-    if (!stale) $("#redpen .redpen")?.insertAdjacentHTML("beforeend", `<div class="stale">✏️ 고쳤다면 한 번 더 검사해 보세요.</div>`);
-  }
+  $("#gaugeTxt").textContent = n >= goal ? `${n}자` : `${n} / ${goal}자`;
 }
 
-/* 🎤 말로 쓰기 */
 let rec = null;
 function toggleVoice(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -597,47 +522,40 @@ function toggleVoice(){
     if (!t) return;
     const ta = $("#content"); const v = ta.value;
     ta.value = v + (v && !/\s$/.test(v) ? " " : "") + t.trim();
-    onContentInput();
+    S.formDirty = true; updateGauge();
   };
   rec.onend = () => { rec = null; const b = $("#voiceBtn"); if (b) b.textContent = "🎤 말로 쓰기"; };
   rec.onerror = e => toast("말로 쓰기가 멈췄어요 (" + e.error + ")");
   rec.start(); $("#voiceBtn").textContent = "⏹ 그만 말하기";
 }
 
-/* 🖍 AI 맞춤법 검사 */
 async function runSpell(){
   const text = $("#content").value.trim();
   if (!text) return toast("먼저 일기를 써 주세요.");
-  const btn = $("#spellBtn"); btn.disabled = true; btn.textContent = "🖍 빨간펜 선생님이 읽는 중…";
+  const btn = $("#spellBtn"); btn.disabled = true; btn.textContent = "🖍 검사하는 중…";
   try {
     const r = await fetch(SPELL_API, {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, level: PEOPLE[S.who].level, name: PEOPLE[S.who].name })
+      body: JSON.stringify({ text, level: "adult", name: PEOPLE[ME].name })
     });
     if (!r.ok) throw new Error(r.status);
     const data = await r.json();
     S.spell = { text, errors: Array.isArray(data.errors) ? data.errors : [], cheer: data.cheer || "" };
-    S.checkedText = text; S.spellFailed = false;
     renderSpell();
-  } catch (err){
-    S.spellFailed = true;
+  } catch {
     $("#redpen").innerHTML = `<div class="redpen"><h3>맞춤법 검사 서버에 연결하지 못했어요</h3>
-      <p class="soft">인터넷이나 검사 주소(${esc(SPELL_API)})를 확인해 주세요. 일기 저장은 그대로 할 수 있어요.</p></div>`;
-  } finally {
-    btn.disabled = false; btn.textContent = "🖍 맞춤법 검사";
-  }
+      <p class="soft">워커 주소와 API 키 설정을 확인해 주세요. 일기 저장은 그대로 할 수 있어요.</p></div>`;
+  } finally { btn.disabled = false; btn.textContent = "🖍 맞춤법 검사"; }
 }
 function renderSpell(){
   const { text, errors, cheer } = S.spell;
   if (!errors.length){
-    $("#redpen").innerHTML = `<div class="redpen"><h3>💯 틀린 곳이 없어요!</h3><p>${esc(cheer || "정말 잘 썼어요. 이제 저장해 볼까요?")}</p></div>`;
+    $("#redpen").innerHTML = `<div class="redpen"><h3>💯 틀린 곳이 없어요!</h3><p>${esc(cheer)}</p></div>`;
     return;
   }
-  // 틀린 곳 위치 찾아 동그라미 치기
   const found = []; let from = 0;
   errors.forEach((er, i) => {
-    let idx = text.indexOf(er.wrong, from);
-    if (idx < 0) idx = text.indexOf(er.wrong);
+    let idx = text.indexOf(er.wrong, from); if (idx < 0) idx = text.indexOf(er.wrong);
     if (idx >= 0 && !found.some(f => idx < f.end && idx + er.wrong.length > f.idx)){
       found.push({ idx, end: idx + er.wrong.length, i }); from = idx + er.wrong.length;
     }
@@ -646,46 +564,26 @@ function renderSpell(){
   let html = "", pos = 0;
   found.forEach(f => { html += esc(text.slice(pos, f.idx)) + `<mark>${esc(text.slice(f.idx, f.end))}<sup>${f.i + 1}</sup></mark>`; pos = f.end; });
   html += esc(text.slice(pos));
-
   $("#redpen").innerHTML = `<div class="redpen">
-    <h3>🖍 빨간펜 선생님이 ${errors.length}군데를 찾았어요. 스스로 고쳐 볼까요?</h3>
+    <h3>🖍 ${errors.length}군데를 찾았어요</h3>
     <div class="preview">${html}</div>
-    <ol>${errors.map((er, i) => `<li>
-      <span class="wrong">${esc(er.wrong)}</span> — ${esc(er.hint || "다시 한번 살펴보세요.")}
-      <button class="reveal" data-act="reveal" data-i="${i}">정답 보기</button>
-      <span class="ans hidden" id="ans${i}">→ ${esc(er.right)}</span>
-    </li>`).join("")}</ol>
-    <p class="soft">위 일기장에서 직접 고친 다음, 🖍 맞춤법 검사를 한 번 더 눌러 보세요.</p>
+    <ol>${errors.map(er => `<li><span class="wrong">${esc(er.wrong)}</span> → <span class="ans">${esc(er.right)}</span> <span class="soft">${esc(er.hint)}</span></li>`).join("")}</ol>
   </div>`;
 }
 
-/* 💾 저장 */
 async function save(){
-  const who = S.who, p = PEOPLE[who];
   const text = $("#content").value.trim();
-  const title = $("#title").value.trim();
   if (!text) return toast("일기 내용을 써 주세요.");
-  if (!p.admin && !S.spellFailed){
-    if (S.checkedText !== text){ toast("저장하기 전에 맞춤법 검사를 먼저 해요!"); return runSpell(); }
-    if (S.spell && S.spell.errors.length &&
-        !confirm(`아직 고칠 곳이 ${S.spell.errors.length}군데 남아 있어요.\n고친 뒤 다시 검사하면 좋아요.\n그래도 지금 저장할까요?`)) return;
-  }
-  const id = keyOf(S.writeDate, who);
-  const exists = !!S.entries[id];
+  const id = keyOf(S.writeDate, ME), exists = !!S.entries[id];
   const btn = $("#saveBtn"); btn.disabled = true;
   try {
     await setDoc(doc(db, "diary", id), {
-      author: who, date: S.writeDate,
-      weather: S.weather, mood: S.mood, title, content: text,
+      author: ME, date: S.writeDate,
+      weather: S.weather, mood: S.mood, title: $("#title").value.trim(), content: text,
       question: $("#useQ").checked ? $("#qText").textContent : "",
-      spellChecked: S.checkedText === text,
-      spellLeft: S.checkedText === text && S.spell ? S.spell.errors.length : null,
       updatedAt: serverTimestamp(),
       ...(exists ? {} : { createdAt: serverTimestamp(), comments: [], hearts: {} })
     }, { merge: true });
-    if (S.writeDate === today()){
-      await setDoc(doc(db, "diaryStatus", who), { lastDiaryDate: S.writeDate, nudgeSeen: true }, { merge: true });
-    }
     S.formDirty = false;
     toast(exists ? "고친 일기를 저장했어요 📔" : "일기를 저장했어요 📔");
     S.dayDate = S.writeDate; goTab("day");
@@ -695,7 +593,7 @@ async function save(){
 }
 
 /* ============================================================
-   ⑩ 하루 펼쳐보기
+   ⑧ 하루 펼쳐보기
    ============================================================ */
 function renderDay(){
   const d = S.dayDate, t = today();
@@ -708,25 +606,28 @@ function renderDay(){
     <div class="grid3">${ORDER.map(w => dayCard(w, S.entries[keyOf(d, w)])).join("")}</div>`;
 }
 function dayCard(w, e){
-  const p = PEOPLE[w], me = PEOPLE[S.who];
+  const p = PEOPLE[w];
   const head = `<div class="top"><span>${p.emoji}</span><b>${p.name}</b>${e ? `<span class="wm">${e.weather || ""}${e.mood || ""}</span>` : ""}</div>`;
   if (!e){
-    const canPoke = me.admin && !p.admin && S.dayDate === today();
+    const canPoke = p.kid && S.dayDate === today();
     return `<div class="dcard" style="--c:${p.color}">${head}
       <div class="empty"><div>아직 안 썼어요${canPoke ? `<br><button class="btn" style="margin-top:8px" data-act="poke" data-w="${w}">👉 콕 찌르기</button>` : ""}</div></div></div>`;
   }
   const hearts = e.hearts || {};
   const heartBy = ORDER.filter(k => hearts[k]);
+  const spellNote = p.kid && e.spellChecked
+    ? `<div class="soft" style="font-size:.8em">🖍 맞춤법 검사 완료${e.spellLeft ? ` (남은 곳 ${e.spellLeft}개)` : ""}</div>` : "";
   return `<div class="dcard" style="--c:${p.color}">${head}
     ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
     ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}
     ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
     <div class="body">${esc(e.content)}</div>
-    ${me.admin && !p.admin ? `<div class="stamps">${STAMPS.map(s =>
+    ${spellNote}
+    ${p.kid ? `<div class="stamps">${STAMPS.map(s =>
       `<button class="${e.stamp === s ? "on" : ""}" data-act="stamp" data-id="${e.id}" data-v="${s}">${s}</button>`).join("")}</div>` : ""}
     <div class="hearts">
-      <button data-act="heart" data-id="${e.id}" aria-label="하트">${hearts[S.who] ? "❤️" : "🤍"}</button>
-      <span class="soft">${heartBy.map(k => PEOPLE[k].name).join(", ")}</span>
+      <button data-act="heart" data-id="${e.id}" aria-label="하트">${hearts[ME] ? "❤️" : "🤍"}</button>
+      <span class="soft">${heartBy.map(k => PEOPLE[k]?.name || k).join(", ")}</span>
     </div>
     <div class="cmts">
       ${(e.comments || []).map(c => `<p><b style="--cc:${PEOPLE[c.by]?.color || "inherit"}">${esc(PEOPLE[c.by]?.name || c.by)}</b> ${esc(c.text)}</p>`).join("")}
@@ -736,7 +637,7 @@ function dayCard(w, e){
 }
 
 /* ============================================================
-   ⑪ 책장 (월별 모아보기)
+   ⑨ 책장
    ============================================================ */
 function renderShelf(){
   const [y, m] = S.month.split("-").map(Number);
@@ -753,7 +654,6 @@ function renderShelf(){
   const list = Object.values(S.entries)
     .filter(e => e.date.startsWith(S.month) && who.includes(e.author))
     .sort((a, b) => b.date.localeCompare(a.date) || ORDER.indexOf(a.author) - ORDER.indexOf(b.author));
-
   $("#main").innerHTML = `
     <div class="daynav">
       <button data-act="month-move" data-v="-1" aria-label="지난달">◀</button>
@@ -773,19 +673,18 @@ function renderShelf(){
         <div class="meta"><b>${p.emoji} ${p.name}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span>${e.stamp ? `<span style="color:var(--red)">🔴 ${esc(e.stamp)}</span>` : ""}</div>
         ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
         <div class="body">${esc(e.content)}</div></article>`;
-    }).join("") : `<p class="soft" style="text-align:center">이 달에는 아직 일기가 없어요. ✏️ 쓰기에서 첫 일기를 남겨 보세요.</p>`}</div>`;
+    }).join("") : `<p class="soft" style="text-align:center">이 달에는 아직 일기가 없어요.</p>`}</div>`;
 }
 
 /* ============================================================
-   ⑫ 오늘 현황 (관리자)
+   ⑩ 오늘 현황 · 콕 찌르기
    ============================================================ */
 function renderStatus(){
   const t = today(), hour = new Date().getHours();
-  $("#main").innerHTML = `<p class="soft">공부방에서 퀴즈를 푼 시각은 공부방 앱에 연결 코드를 넣은 뒤부터 보여요. ${NUDGE_HOUR}시가 넘으면 아이 화면에 자동 알림도 떠요.</p>` +
-    ORDER.filter(w => !PEOPLE[w].admin).map(w => {
+  $("#main").innerHTML = `<p class="soft">퀴즈 푼 시각은 공부방에 연결 코드를 넣은 뒤부터 보여요. ${NUDGE_HOUR}시가 넘으면 아이 공부방에 자동 알림도 떠요.</p>` +
+    ORDER.filter(w => PEOPLE[w].kid).map(w => {
       const p = PEOPLE[w], st = S.status[w] || {};
-      const wrote = wroteOn(t, w), studied = studiedToday(w);
-      const lastStudy = toMs(st.lastStudyAt);
+      const wrote = wroteOn(t, w), studied = studiedToday(w), lastStudy = toMs(st.lastStudyAt);
       let state, cls;
       if (wrote){ state = "✅ 오늘 일기 완료"; cls = "done"; }
       else if (studied){ state = "📝 퀴즈는 풀었는데 일기는 아직이에요"; cls = "warn"; }
@@ -807,27 +706,23 @@ async function poke(w){
   const p = PEOPLE[w];
   const msg = $(`#nudge-${w}`)?.value.trim() || `${p.name}${hasBatchim(p.name) ? "아" : "야"}, 오늘 일기 써 볼까? 📔`;
   try {
-    await setDoc(doc(db, "diaryStatus", w), { nudgeAt: serverTimestamp(), nudgeMsg: msg, nudgeFrom: S.who, nudgeSeen: false }, { merge: true });
-    toast(`${p.name}에게 콕! 보냈어요. 공부방과 일기장 화면에 떠요.`);
+    await setDoc(doc(db, "diaryStatus", w), { nudgeAt: serverTimestamp(), nudgeMsg: msg, nudgeFrom: ME, nudgeSeen: false }, { merge: true });
+    toast(`${p.name}에게 콕! 보냈어요. 공부방 화면에 떠요.`);
   } catch (err){ toast("보내지 못했어요 (" + err.code + ")"); }
 }
 
 /* ============================================================
-   ⑬ 클릭 한곳에서 처리
+   ⑪ 클릭 처리
    ============================================================ */
-document.addEventListener("click", async e => {
+document.addEventListener("click", e => {
   const a = e.target.closest("[data-act]"); if (!a) return;
   const v = a.dataset.v, id = a.dataset.id;
   switch (a.dataset.act){
     case "theme": setTheme(v); break;
     case "font": setFont(v); break;
-    case "who": if (S.who !== a.dataset.w) openPin(a.dataset.w); break;
-    case "logout": logout(); break;
-    case "pin-ok": tryPin(); break;
-    case "pin-cancel": $("#pinModal").classList.add("hidden"); break;
+    case "login": login(); break;
+    case "logout": if (!S.formDirty || confirm("저장하지 않은 일기가 있어요. 로그아웃할까요?")){ S.formDirty = false; signOut(auth); } break;
     case "tab": goTab(v); break;
-    case "go-write": S.writeDate = today(); goTab("write"); break;
-    case "nudge-seen": setDoc(doc(db, "diaryStatus", S.who), { nudgeSeen: true }, { merge: true }); break;
     case "weather": case "mood":
       S[a.dataset.act] = S[a.dataset.act] === v ? "" : v; S.formDirty = true;
       a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.act]));
@@ -835,7 +730,6 @@ document.addEventListener("click", async e => {
     case "q-next": S.qShift++; $("#qText").textContent = currentQuestion(); break;
     case "voice": toggleVoice(); break;
     case "spell": runSpell(); break;
-    case "reveal": $("#ans" + a.dataset.i).classList.remove("hidden"); a.remove(); break;
     case "save": save(); break;
     case "day-move": S.dayDate = addDays(S.dayDate, +v); if (S.dayDate > today()) S.dayDate = today(); renderTab(); break;
     case "open-day": S.dayDate = v; goTab("day"); break;
@@ -852,20 +746,20 @@ document.addEventListener("click", async e => {
       break;
     }
     case "heart": {
-      const cur = !!S.entries[id]?.hearts?.[S.who];
-      updateDoc(doc(db, "diary", id), { [`hearts.${S.who}`]: !cur }).catch(err => toast("하트를 남기지 못했어요 (" + err.code + ")"));
+      const cur = !!S.entries[id]?.hearts?.[ME];
+      updateDoc(doc(db, "diary", id), { [`hearts.${ME}`]: !cur }).catch(err => toast("하트를 남기지 못했어요 (" + err.code + ")"));
       break;
     }
     case "comment": {
       const inp = document.querySelector(`[data-cmt="${id}"]`); const text = inp.value.trim(); if (!text) return;
-      updateDoc(doc(db, "diary", id), { comments: arrayUnion({ by: S.who, text, at: Date.now() }) })
+      updateDoc(doc(db, "diary", id), { comments: arrayUnion({ by: ME, text, at: Date.now() }) })
         .then(() => { inp.value = ""; }).catch(err => toast("한마디를 남기지 못했어요 (" + err.code + ")"));
       break;
     }
   }
 });
 document.addEventListener("input", e => {
-  if (e.target.id === "content") onContentInput();
+  if (e.target.id === "content"){ S.formDirty = true; updateGauge(); }
   else if (e.target.id === "title" || e.target.id === "useQ") S.formDirty = true;
 });
 document.addEventListener("change", e => {
@@ -875,14 +769,12 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("keydown", e => {
-  if (e.target.id === "pinIn" && e.key === "Enter") tryPin();
   if (e.target.dataset?.cmt && e.key === "Enter") document.querySelector(`[data-act="comment"][data-id="${e.target.dataset.cmt}"]`)?.click();
-  if (e.key === "Escape") $("#pinModal").classList.add("hidden");
 });
 window.addEventListener("beforeunload", e => { if (S.formDirty){ e.preventDefault(); e.returnValue = ""; } });
 
 /* ============================================================
-   ⑭ 디자인·폰트 전환, 시작
+   ⑫ 디자인·폰트 전환, 시작
    ============================================================ */
 function setTheme(v){
   document.documentElement.dataset.theme = v; store.set("fd_theme", v);
@@ -895,17 +787,7 @@ function setFont(v){
 setTheme(store.get("fd_theme") || "note");
 setFont(store.get("fd_font") || "yuntaeng");
 $("#todayLabel").textContent = fmtDate(today());
-
-// 공부방에서 ?who=doyun 처럼 열면 그 아이 비밀번호 창이 바로 떠요
-const fromLink = new URLSearchParams(location.search).get("who");
-const saved = store.get("fd_who");
-ensureRange();
-if (saved && PEOPLE[saved] && (!fromLink || fromLink === saved)) login(saved);
-else { logout(); if (fromLink && PEOPLE[fromLink]) openPin(fromLink); }
-
-// 밤이 되면 알림 띠를 다시 확인
-setInterval(renderBanner, 5 * 60 * 1000);
+setInterval(() => S.ok && renderBanner(), 5 * 60 * 1000);
 </script>
 </body>
 </html>
-
