@@ -1011,7 +1011,37 @@ function reportData(w){
 function renderReport(){
   $("#main").innerHTML = monthNav("성장 리포트") + `
     <div class="noprint" style="text-align:right; margin-bottom:10px"><button class="btn" data-act="print">🖨 리포트 인쇄 · PDF로 저장</button></div>
+    ${usageCard()}
     ${KIDS.map(w => reportCard(w)).join("")}`;
+}
+/* ---------- 🤖 AI 사용량 (빨간펜 서버가 달마다 쌓은 토큰으로 금액을 어림해요) ---------- */
+const PRICE = { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 };   // claude-opus-5, 100만 토큰당 $
+const KRW = 1400;                                                          // 환율 가정
+const usage = { data: null, at: 0, loading: false };
+async function loadUsage(){
+  if (usage.loading || (usage.data && Date.now() - usage.at < 60 * 1000)) return;
+  usage.loading = true;
+  try {
+    const r = await fetch(SPELL_API + "/usage");
+    usage.data = await r.json(); usage.at = Date.now();
+    if (S.tab === "report") renderReport();
+  } catch {} finally { usage.loading = false; }
+}
+const costOf = m => ((m.input || 0) * PRICE.input + (m.output || 0) * PRICE.output + (m.cacheRead || 0) * PRICE.cacheRead + (m.cacheWrite || 0) * PRICE.cacheWrite) / 1e6;
+const won = usd => `약 ${Math.round(usd * KRW).toLocaleString("ko-KR")}원`;
+function usageCard(){
+  loadUsage();
+  const box = body => `<section class="rcard noprint" style="--c:#C9B6F0"><h3>🤖 AI 사용량</h3>${body}</section>`;
+  if (!usage.data) return box(`<p class="soft">불러오는 중…</p>`);
+  const [cur = {}, prev = {}] = usage.data.months || [];
+  const c = costOf(cur), calls = (cur.spell || 0) + (cur.report || 0);
+  return box(`<div class="kstats rstats">
+      <div><small>🖍 빨간펜 검사 (${cur.month || ""})</small><b>${cur.spell || 0}번</b><small>${Object.entries(cur.who || {}).map(([k, n]) => `${esc(k)} ${n}`).join(" · ") || "—"}</small></div>
+      <div><small>🤖 AI 총평</small><b>${cur.report || 0}번</b><small>총평 1번은 빨간펜보다 조금 더 들어요</small></div>
+      <div><small>💰 이번 달 예상 금액</small><b>$${c.toFixed(2)}</b><small>${won(c)}</small></div>
+      <div><small>한 번에 평균 · 지난달</small><b>${calls ? won(c / calls) : "—"}</b><small>지난달 ${prev.input ? `$${costOf(prev).toFixed(2)} (${won(costOf(prev))})` : "기록 없음"}</small></div>
+    </div>
+    <small class="soft">쓴 토큰으로 어림한 금액이에요 (환율 ${KRW.toLocaleString("ko-KR")}원 가정, 9월 26일부터 기록). 실제 청구 금액과 남은 잔액은 <a href="https://console.anthropic.com/settings/billing" target="_blank" rel="noopener">Anthropic 콘솔 → Billing</a> 에서 봐요.</small>`);
 }
 function reportCard(w){
   const r = reportData(w), p = r.p, ai = S.months[S.month]?.reports?.[w];
