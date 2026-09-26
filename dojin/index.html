@@ -2247,7 +2247,7 @@ function renderDiary(){
     diaryBox=document.createElement('div');
     diaryBox.innerHTML='<p class="center" style="padding:30px">📔 일기장을 여는 중…</p>';
     import('/diary/kids/kid-diary.js')
-      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'dojin', firebaseConfig:FIREBASE_CONFIG, onSaved:diarySticker }))
+      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'dojin', firebaseConfig:FIREBASE_CONFIG, onSaved:diarySticker, onQuiz:r=>{ if(r && r.ok>0 && who) addStar(r.ok); } }))
       .catch(e=>{ console.warn('일기장을 열지 못했어요', e); diaryBox.innerHTML='<p class="center" style="padding:30px">일기장을 열지 못했어요. 새로고침해 볼까요?</p>'; diaryBox=null; });
   }
   view.innerHTML=''; view.appendChild(diaryBox);

@@ -31,7 +31,7 @@ export const KIDS = {
     ]
   },
   doyun: {
-    name: "도윤", emoji: "🐯", color: "#6FA3E6", level: "grade4", grade: "4학년", goal: 150, fs: "1.18rem",
+    name: "도윤", emoji: "🐯", color: "#6FA3E6", level: "grade4", grade: "4학년", goal: 150, fs: "1.18rem", room: ["e4", "doyun"],
     questions: [
       "오늘 가장 기억에 남는 장면을 자세히 써 볼까요?", "오늘 배운 것 중 더 알고 싶은 것은?",
       "속상했던 일이 있었다면, 다음엔 어떻게 해 보고 싶나요?", "요즘 내가 열심히 하고 있는 것은?",
@@ -159,6 +159,23 @@ const CSS = `
 .kd-stamp{ float:right; transform:rotate(-12deg); color:var(--red); border:3px double var(--red); border-radius:50%; width:70px; height:70px;
   display:grid; place-items:center; text-align:center; font-size:.75em; line-height:1.1; font-weight:700; margin:0 0 6px 8px; }
 .kd-cmts{ margin-top:6px; font-size:.9em; }
+.kd-quiz h3{ margin:0 0 6px; }
+.kd .qchips{ display:flex; flex-wrap:wrap; gap:4px; }
+.kd .qchips i{ font-style:normal; font-size:.85em; background:#FFF3C7; border-radius:999px; padding:1px 10px; }
+.kd .qchips i.master{ background:#DDF3E3; }
+.kd .qbar{ height:8px; background:var(--line); border-radius:999px; overflow:hidden; margin:6px 0 12px; }
+.kd .qbar i{ display:block; height:100%; background:var(--kc); }
+.kd .qctx{ font-size:1.15em; line-height:2; background:#fff; border-radius:12px; padding:10px 14px; }
+.kd .qblank{ display:inline-block; min-width:4em; text-align:center; border-bottom:3px solid var(--kc); font-weight:700; }
+.kd .qpick{ display:flex; gap:12px; flex-wrap:wrap; justify-content:center; margin:10px 0; }
+.kd .qpick .kd-btn{ font-size:1.25em; min-width:8em; padding:10px 18px; }
+.kd .qpick .right{ background:#DDF3E3; border-color:var(--ok); }
+.kd .qpick .bad{ background:#FDECEC; border-color:var(--red); }
+.kd .qlisten{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+.kd .qlisten input{ flex:1; min-width:10em; margin:0; font-size:1.2em; }
+.kd .qres{ font-size:1.15em; padding:8px 12px; border-radius:12px; margin:8px 0; }
+.kd .qres.ok{ background:#DDF3E3; }
+.kd .qres.no{ background:#FDECEC; }
 .kd-fixes{ margin-top:6px; font-size:.85em; background:#F2FAF4; border-radius:10px; padding:6px 10px; }
 .kd-fixes ul{ margin:2px 0 0; padding-left:1.2em; }
 .kd-fixes .wrong{ color:var(--red); text-decoration:line-through; }
@@ -189,7 +206,8 @@ function injectStyle(){
    일기장 붙이기
    ============================================================ */
 // onSaved({ date, first }): 공부방이 넘겨주는 함수. 그날 첫 저장이면 스티커를 주고 true 를 돌려줘요.
-export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, onSaved }){
+// onQuiz({ ok, n }): 받아쓰기를 끝냈을 때 공부방이 별을 주는 함수
+export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, onSaved, onQuiz }){
   const P = KIDS[kid];
   if (!P) throw new Error("kid 는 dojin 또는 doyun 이어야 해요");
   injectStyle();
@@ -214,6 +232,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       <button data-a="view" data-v="write">✏️ 일기 쓰기</button>
       <button data-a="view" data-v="mine">📔 내 일기장</button>
       <button data-a="view" data-v="family">👨‍👩‍👦 가족 일기<span data-kd="famnew"></span></button>
+      <button data-a="view" data-v="quiz">🎯 받아쓰기</button>
     </nav>
     <div data-kd="main"></div></div>`;
 
@@ -262,12 +281,14 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     $("[data-kd=streak]").textContent = n ? `🔥 ${n}일 연속!` : "🔥 오늘부터 시작!";
     renderNudge(); famBadge();
     if (S.view === "write"){ if (!S.dirty) renderWrite(); }
+    else if (S.view === "quiz"){ if (!Q.on) renderQuiz(); }   // 문제 푸는 중에는 화면을 그대로 둬요
     else render();
   }
   function render(){
     root.querySelectorAll(".kd-tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === S.view));
     if (S.view === "write") renderWrite();
     else if (S.view === "mine") renderList([kid]);
+    else if (S.view === "quiz") renderQuiz();
     else {
       store.set(`kd_famseen_${kid}`, Date.now()); famBadge();
       renderList(FAMILY.filter(w => w !== kid && (S.fam === "all" || S.fam === w)), true);
@@ -661,6 +682,120 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       }
     }
   }
+  /* ---------- 🎯 내 일기 받아쓰기 ----------
+     빨간펜으로 고친 말(spellFixes)로 문제를 내요. 고친 말이 적으면 자주 틀리는 말로 채워요.
+     👆 고르기: 내 일기 문장의 빈칸에 들어갈 바른 말 고르기
+     📢 받아쓰기: 소리로 듣고 바르게 쓰기 (문장부호 문제는 고르기로)
+     세 번 연속 맞히면 🏅 완전 정복 → 다음부터는 뒤로 밀려요 */
+  const BANK = {
+    grade2: [["깨끗이", "깨끗히"], ["할 수 있어", "할수 있어"], ["재미있었다", "재미있엇다"], ["몇 번", "몇번"],
+      ["설거지", "설겆이"], ["괜찮아", "괜찬아"], ["읽었다", "일것다"], ["놀았다", "노랐다"]],
+    grade4: [["돼요", "되요"], ["안 했다", "않 했다"], ["왠지", "웬지"], ["며칠", "몇일"],
+      ["금세", "금새"], ["어이없다", "어의없다"], ["할게요", "할께요"], ["예부터", "옛부터"]]
+  };
+  const QUIZ_OK = ["딩동댕! 정확해요!", "우와, 맞았어요!", "최고예요! 척척박사!", "정답! 실력이 쑥쑥!", "완벽해요! 👏"];
+  const Q = { on: false, mode: "pick", list: [], i: 0, ok: 0, answered: null, done: false };
+  const mastery = () => store.get(`kd_quiz_${kid}`) || {};
+  function sentenceOf(text, frag){
+    const s = (text || "").split(/(?<=[.!?\n])/).find(p => p.includes(frag));
+    return s ? s.trim() : "";
+  }
+  function quizItems(){
+    const seen = new Set(), out = [];
+    Object.values(S.entries).filter(e => e.author === kid).sort((a, b) => b.date.localeCompare(a.date)).forEach(e =>
+      (e.spellFixes || []).forEach(f => {
+        if (!f.right || f.right === f.wrong || seen.has(f.right)) return;
+        seen.add(f.right);
+        out.push({ right: f.right, wrong: f.wrong, kind: f.kind || "", ctx: sentenceOf(e.content, f.right), date: e.date, mine: true });
+      }));
+    for (const [r, w] of BANK[P.level] || []){
+      if (out.length >= 8) break;
+      if (!seen.has(r)){ seen.add(r); out.push({ right: r, wrong: w, kind: "", ctx: "", mine: false }); }
+    }
+    return out;
+  }
+  const isPunc = it => it.kind === "문장부호" || (/[.?!]$/.test(it.right) && it.right.slice(0, -1) === it.wrong);
+  const qmode = it => Q.mode === "listen" && !isPunc(it) ? "listen" : "pick";
+  const norm = s => (s || "").trim().replace(/\s+/g, " ");
+  function speak(t){
+    if (!window.speechSynthesis) return toast("이 기기에서는 소리 내어 읽기가 안 돼요");
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(t); u.lang = "ko-KR"; u.rate = .8;
+    speechSynthesis.speak(u);
+  }
+  function blankCtx(it){
+    const i = it.ctx.indexOf(it.right);
+    return esc(it.ctx.slice(0, i)) + `<span class="qblank">${Q.answered ? esc(it.right) : "＿＿＿"}</span>` + esc(it.ctx.slice(i + it.right.length));
+  }
+  function startQuiz(mode){
+    const m = mastery();
+    const list = quizItems().sort(() => Math.random() - .5)
+      .sort((a, b) => ((m[a.right] || 0) >= 3) - ((m[b.right] || 0) >= 3)).slice(0, 10)
+      .map(it => ({ ...it, opts: [it.right, it.wrong].sort(() => Math.random() - .5) }));
+    Object.assign(Q, { on: true, mode, list, i: 0, ok: 0, answered: null, done: false });
+    renderQuiz();
+    if (qmode(list[0]) === "listen") setTimeout(() => speak(list[0].right), 400);
+  }
+  function answerQuiz(ok, extra){
+    const it = Q.list[Q.i], m = mastery();
+    Q.answered = { ok, ...extra };
+    if (ok) Q.ok++;
+    m[it.right] = ok ? (m[it.right] || 0) + 1 : 0;
+    store.set(`kd_quiz_${kid}`, m);
+    if (ok && m[it.right] === 3) setTimeout(() => toast(`🏅 '${it.right}' 완전 정복!`), 700);
+    renderQuiz();
+  }
+  function finishQuiz(){
+    Q.done = true;
+    const n = Q.list.length;
+    // 공부방 별 + 엄마 화면 공부 기록(오늘 날짜 문서)에 남겨요
+    try { onQuiz?.({ ok: Q.ok, n }); } catch {}
+    if (P.room) setDoc(doc(db, ...P.room, "daily", today()), { diaryQuiz: { n: increment(n), ok: increment(Q.ok) } }, { merge: true }).catch(() => {});
+    if (Q.ok / n >= .7) confetti();
+  }
+  function renderQuiz(){
+    root.querySelectorAll(".kd-tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === "quiz"));
+    const main = $("[data-kd=main]"), m = mastery();
+    if (!Q.on){
+      const items = quizItems(), mine = items.filter(x => x.mine).length, master = items.filter(x => (m[x.right] || 0) >= 3).length;
+      main.innerHTML = `<div class="kd-quiz">
+        <h3>🎯 내 일기 받아쓰기</h3>
+        <p>${mine ? `빨간펜이랑 고친 말 <b>${mine}개</b>로 퀴즈를 만들었어요!` : "아직 빨간펜으로 고친 말이 없어서, 자주 틀리는 말로 연습해요."}
+          ${master ? ` 🏅 완전 정복 <b>${master}개</b>!` : ""}</p>
+        <div class="qchips">${items.map(x => `<i class="${(m[x.right] || 0) >= 3 ? "master" : ""}">${esc(x.right)}${(m[x.right] || 0) >= 3 ? " 🏅" : ""}</i>`).join("")}</div>
+        <div class="kd-acts" style="margin-top:14px">
+          <button class="kd-btn main" data-a="quiz-start" data-v="pick">👆 바른 말 고르기</button>
+          <button class="kd-btn main" data-a="quiz-start" data-v="listen">📢 듣고 받아쓰기</button>
+        </div>
+        <p class="kd-soft">세 번 연속 맞히면 🏅 완전 정복! 맞힌 만큼 공부방 별도 받아요 ⭐</p></div>`;
+      return;
+    }
+    if (Q.done){
+      const n = Q.list.length, pct = Q.ok / n;
+      main.innerHTML = `<div class="kd-party"><div class="big">${pct === 1 ? "🏆" : pct >= .7 ? "🌟" : "💪"}</div>
+        <h3>${n}문제 중 ${Q.ok}개 맞혔어요!</h3>
+        <p>${pct === 1 ? "만점! 맞춤법 박사예요!" : pct >= .7 ? "정말 잘했어요! 조금만 더 하면 만점!" : "괜찮아요! 연습할수록 쑥쑥 늘어요 🌱"}</p>
+        ${Q.ok && onQuiz ? `<p>⭐ 맞힌 만큼 공부방 별을 받았어요!</p>` : ""}
+        <button class="kd-btn" data-a="quiz-home">처음으로</button>
+        <button class="kd-btn main" data-a="quiz-start" data-v="${Q.mode}">🔁 한 번 더</button></div>`;
+      return;
+    }
+    const it = Q.list[Q.i], mode = qmode(it), ans = Q.answered, last = Q.i + 1 >= Q.list.length;
+    main.innerHTML = `<div class="kd-quiz">
+      <div class="kd-soft">${Q.i + 1} / ${Q.list.length} · 맞힌 개수 ${Q.ok} ${it.mine ? `· 📔 ${fmtDate(it.date)} 내 일기에서` : "· 💡 자주 틀리는 말"}</div>
+      <div class="qbar"><i style="width:${Q.i / Q.list.length * 100}%"></i></div>
+      <p class="qctx">${it.ctx ? blankCtx(it) : mode === "pick" ? "바르게 쓴 것은 어느 쪽일까요?" : "들리는 말을 바르게 써 보세요 ✏️"}</p>
+      ${mode === "pick"
+        ? `<div class="qpick">${it.opts.map(o => `<button class="kd-btn ${ans ? (o === it.right ? "right" : o === ans.pick ? "bad" : "") : ""}" data-a="quiz-pick" data-v="${esc(o)}" ${ans ? "disabled" : ""}>${esc(o)}</button>`).join("")}</div>`
+        : `<div class="qlisten"><button class="kd-btn" data-a="quiz-say">🔊 ${ans ? "다시 듣기" : "듣기"}</button>
+            <input class="kd-title" data-kd="qin" placeholder="여기에 써요" autocomplete="off" ${ans ? "disabled" : ""} value="${esc(ans?.typed || "")}">
+            ${ans ? "" : `<button class="kd-btn main" data-a="quiz-check">확인</button>`}</div>`}
+      ${ans ? `<div class="qres ${ans.ok ? "ok" : "no"}">${ans.ok ? `⭕ ${one(QUIZ_OK)}` : `❌ 아쉬워요! 정답은 <b class="hl-done">${esc(it.right)}</b> 예요. 다음엔 꼭 맞힐 거예요!`}</div>
+        <div style="text-align:right"><button class="kd-btn main" data-a="quiz-next">${last ? "결과 보기 🎉" : "다음 문제 ▶"}</button></div>` : ""}
+    </div>`;
+    if (mode === "listen" && !ans) $("[data-kd=qin]")?.focus();
+  }
+
   /* ---------- 이벤트 ---------- */
   root.addEventListener("click", ev => {
     const a = ev.target.closest("[data-a]"); if (!a) return;
@@ -678,6 +813,23 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.a]));
         saveDraft(); break;
       case "fam": S.fam = v; render(); break;
+      case "quiz-start": startQuiz(v); break;
+      case "quiz-home": Q.on = false; renderQuiz(); break;
+      case "quiz-say": speak(Q.list[Q.i].right); break;
+      case "quiz-pick": if (!Q.answered) answerQuiz(v === Q.list[Q.i].right, { pick: v }); break;
+      case "quiz-check": {
+        const typed = $("[data-kd=qin]")?.value || "";
+        if (!typed.trim()) { toast("들은 말을 먼저 써 볼까요? ✏️"); break; }
+        answerQuiz(norm(typed) === norm(Q.list[Q.i].right), { typed });
+        break;
+      }
+      case "quiz-next": {
+        Q.i++; Q.answered = null;
+        if (Q.i >= Q.list.length) finishQuiz();
+        renderQuiz();
+        if (!Q.done && qmode(Q.list[Q.i]) === "listen") setTimeout(() => speak(Q.list[Q.i].right), 300);
+        break;
+      }
       case "q-next": S.qShift++; $("[data-kd=q]").textContent = question(); break;
       case "spell": spell(root.querySelector(".kd-acts [data-a=spell]")); break;
       case "reveal": S.spell.errors[+a.dataset.i].shown = true; renderPen(); break;
@@ -720,6 +872,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   });
   root.addEventListener("keydown", ev => {
     if (ev.target.dataset?.cmt && ev.key === "Enter") root.querySelector(`[data-a="comment"][data-id="${ev.target.dataset.cmt}"]`)?.click();
+    if (ev.target.dataset?.kd === "qin" && ev.key === "Enter") root.querySelector('[data-a="quiz-check"]')?.click();
   });
 
   render();

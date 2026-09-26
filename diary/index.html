@@ -277,6 +277,7 @@ mark{
 .lk.editing .lk-name{ padding:0 4px; user-select:none; }
 .lk.editing .cmt-tool:disabled{ opacity:.2; cursor:default; }
 .lk.dragging{ opacity:.4; }
+.lk.fixing{ border-style:solid; border-color:var(--red); background:color-mix(in srgb, var(--red) 8%, var(--paper)); }
 .lk-edit{ border:1.5px dashed var(--ink-soft); background:none; border-radius:999px; padding:2px 10px; color:var(--ink-soft); }
 .lk-in{ flex-basis:100%; display:flex; gap:6px; flex-wrap:wrap; }
 .lk-in input{ flex:1; min-width:160px; border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; }
@@ -624,7 +625,7 @@ function renderBanner(){
     <div class="btns"><button class="btn" data-act="tab" data-v="kids">아이들 현황 보기</button></div></div>`;
 }
 /* ---------- ⭐ 즐겨찾기: diaryMonth/links.items = [{ name, url }] ---------- */
-const links = { edit: false };
+const links = { edit: false, idx: null };   // idx: 더블클릭해서 고치는 중인 즐겨찾기 번호
 const DEFAULT_LINKS = [
   { name: "📔 가족일기장", url: "https://jsun.site/diary/" },
   { name: "🐯 도윤 공부방", url: "https://jsun.site/doyun/" },
@@ -649,14 +650,19 @@ function renderLinks(){
   if (!S.ok){ box.innerHTML = ""; return; }
   box.innerHTML = `<div class="links"><b>⭐ 즐겨찾기</b>
     ${linkItems().map((l, i, all) => links.edit
-      ? `<span class="lk editing" draggable="true" data-li="${i}">
+      ? `<span class="lk editing${links.idx === i ? " fixing" : ""}" draggable="true" data-li="${i}" title="더블클릭하면 고칠 수 있어요">
           <button class="cmt-tool" data-act="link-move" data-v="${i}" data-d="-1" aria-label="${esc(l.name)} 앞으로" ${i === 0 ? "disabled" : ""}>◀</button>
           <span class="lk-name" title="끌어서 옮길 수 있어요">${esc(l.name)}</span>
           <button class="cmt-tool" data-act="link-move" data-v="${i}" data-d="1" aria-label="${esc(l.name)} 뒤로" ${i === all.length - 1 ? "disabled" : ""}>▶</button>
           <button class="cmt-tool" data-act="link-del" data-v="${i}" aria-label="${esc(l.name)} 지우기">✕</button></span>`
       : `<span class="lk"><a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.name)}</a><button class="cmt-tool" data-act="link-copy" data-v="${esc(l.url)}" aria-label="주소 복사" title="주소 복사">📋</button></span>`).join("")}
     <button class="lk-edit" data-act="link-edit">${links.edit ? "완료" : "＋ 추가 · 편집"}</button>
-    ${links.edit ? `<div class="lk-in"><input id="lkIn" placeholder="주소를 붙여넣으세요 (예: jsun.site/diary)"><input id="lkName" placeholder="이름 (비워 두면 자동)" maxlength="20"><button class="btn" data-act="link-add">추가</button></div>` : ""}
+    ${links.edit ? (() => { const fx = links.idx !== null ? linkItems()[links.idx] : null; return `<div class="lk-in">
+      <input id="lkIn" placeholder="주소를 붙여넣으세요 (예: jsun.site/diary)" value="${esc(fx?.url || "")}">
+      <input id="lkName" placeholder="이름 (비워 두면 자동)" maxlength="20" value="${esc(fx?.name || "")}">
+      <button class="btn${fx ? " main" : ""}" data-act="link-add">${fx ? "✏️ 수정 저장" : "추가"}</button>
+      ${fx ? `<button class="btn" data-act="link-fixcancel">취소</button>` : ""}</div>
+      <div class="soft" style="flex-basis:100%; font-size:.8em">${fx ? `'${esc(fx.name)}'을 고치는 중이에요.` : "즐겨찾기를 더블클릭하면 주소와 이름을 고칠 수 있어요 · ◀ ▶ 나 끌어서 순서 바꾸기"}</div>`; })() : ""}
   </div>`;
 }
 function saveLinks(items){
@@ -667,7 +673,7 @@ function saveLinks(items){
 function moveLink(from, to){
   const items = linkItems().slice();
   if (to < 0 || to >= items.length || from === to) return;
-  const [it] = items.splice(from, 1); items.splice(to, 0, it);
+  const [it] = items.splice(from, 1); items.splice(to, 0, it); links.idx = null;
   S.months.links = { ...(S.months.links || {}), items };
   renderLinks(); saveLinks(items);
 }
@@ -675,6 +681,13 @@ function addLink(){
   const url = normUrl($("#lkIn")?.value);
   if (!url) return toast("주소를 붙여넣어 주세요");
   const name = ($("#lkName")?.value || "").trim() || guessName(url);
+  if (links.idx !== null){
+    const idx = links.idx, items = linkItems().map((l, i) => i === idx ? { ...l, name, url } : l);
+    links.idx = null;
+    S.months.links = { ...(S.months.links || {}), items }; renderLinks();
+    saveLinks(items).then(ok => ok && toast(`✏️ '${name}'으로 고쳤어요`));
+    return;
+  }
   saveLinks([...linkItems(), { name, url }]).then(ok => ok && toast(`⭐ '${name}'을 즐겨찾기에 넣었어요`));
 }
 const TABS = [["month","📅 엄마 다이어리","#F6C945"],["kids","👧 아이들 현황","#E6A3B8"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"],["report","📈 월말 리포트","#C9B6F0"]];
@@ -1298,9 +1311,10 @@ document.addEventListener("click", e => {
     case "filter": S.filter = v; renderShelf(); break;
     case "print": window.print(); break;
     case "report-ai": makeReport(a.dataset.w); break;
-    case "link-edit": links.edit = !links.edit; renderLinks(); if (links.edit) $("#lkIn")?.focus(); break;
+    case "link-edit": links.edit = !links.edit; links.idx = null; renderLinks(); if (links.edit) $("#lkIn")?.focus(); break;
+    case "link-fixcancel": links.idx = null; renderLinks(); break;
     case "link-add": addLink(); break;
-    case "link-del": saveLinks(linkItems().filter((_, i) => i !== +v)); break;
+    case "link-del": links.idx = null; saveLinks(linkItems().filter((_, i) => i !== +v)); break;
     case "link-move": moveLink(+v, +v + (+a.dataset.d)); break;
     case "link-copy":
       navigator.clipboard?.writeText(v).then(() => toast("📋 주소를 복사했어요")).catch(() => prompt("주소를 복사하세요", v));
@@ -1375,9 +1389,15 @@ document.addEventListener("drop", e => {
   e.preventDefault(); const to = +el.dataset.li, from = dragLi; dragLi = null; moveLink(from, to);
 });
 document.addEventListener("dragend", () => { dragLi = null; document.querySelectorAll(".lk.dragging").forEach(x => x.classList.remove("dragging")); });
+// 즐겨찾기 편집: 더블클릭하면 아래 칸에 주소 · 이름이 들어가서 고칠 수 있어요
+document.addEventListener("dblclick", e => {
+  const el = e.target.closest?.(".lk.editing"); if (!el || e.target.closest("button")) return;
+  links.idx = +el.dataset.li; renderLinks();
+  const n = $("#lkName"); n?.focus(); n?.select();
+});
 // 즐겨찾기: 주소를 붙여넣기만 하면 바로 추가돼요 (이름 칸을 먼저 적었으면 추가 버튼을 눌러요)
 document.addEventListener("paste", e => {
-  if (e.target.id !== "lkIn") return;
+  if (e.target.id !== "lkIn" || links.idx !== null) return;
   setTimeout(() => { if (normUrl(e.target.value) && !$("#lkName")?.value.trim()) addLink(); }, 0);
 });
 document.addEventListener("input", e => { if (e.target.id === "planIn") planDraft = e.target.value; });
