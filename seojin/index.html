@@ -781,6 +781,19 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 @keyframes petFly{from{transform:translateY(-10px) rotate(-6deg)}to{transform:translateY(12px) rotate(6deg)}}
 /* 빨간 문어: 조금 더 빨갛고 동글동글하게 */
 .fx-red{filter:saturate(1.7) hue-rotate(-18deg) brightness(1.02)}
+/* 전설 캐릭터 빛 효과 */
+.fx-moon{animation:fxMoon 2.4s ease-in-out infinite alternate}
+@keyframes fxMoon{from{filter:drop-shadow(0 0 6px rgba(140,200,255,.8)) drop-shadow(0 0 14px rgba(80,120,255,.5))}to{filter:drop-shadow(0 0 12px rgba(170,220,255,1)) drop-shadow(0 0 28px rgba(90,130,255,.8))}}
+.fx-rainbow{animation:fxRainbow 4s linear infinite}
+@keyframes fxRainbow{from{filter:hue-rotate(0deg) saturate(1.5) drop-shadow(0 0 10px rgba(255,120,255,.8))}to{filter:hue-rotate(360deg) saturate(1.5) drop-shadow(0 0 10px rgba(255,120,255,.8))}}
+.fx-gold{filter:sepia(.6) saturate(2) hue-rotate(-10deg) brightness(1.1) drop-shadow(0 0 10px rgba(255,210,60,1)) drop-shadow(0 0 22px rgba(255,170,0,.7));animation:fxGold 1.8s ease-in-out infinite alternate}
+@keyframes fxGold{to{filter:sepia(.6) saturate(2.2) hue-rotate(-10deg) brightness(1.25) drop-shadow(0 0 14px rgba(255,230,120,1)) drop-shadow(0 0 30px rgba(255,180,0,.85))}}
+.fx-deep{filter:hue-rotate(-50deg) saturate(1.4) drop-shadow(0 0 10px rgba(170,90,255,.95)) drop-shadow(0 0 24px rgba(90,40,200,.8));animation:fxDeep 3s ease-in-out infinite}
+@keyframes fxDeep{50%{transform:translateY(-4%) rotate(-3deg);filter:hue-rotate(-40deg) saturate(1.6) drop-shadow(0 0 14px rgba(190,110,255,1)) drop-shadow(0 0 30px rgba(110,50,220,.9))}}
+.fx-star{filter:drop-shadow(0 0 8px rgba(255,255,255,.95)) drop-shadow(0 0 20px rgba(200,230,255,.8))}
+.me-base.fx-star::after{content:'✨';position:absolute;right:4%;top:6%;font-size:.26em;animation:fxSpark 1.6s ease-in-out infinite}
+.me-base.fx-star::before{content:'✨';position:absolute;left:6%;top:40%;font-size:.2em;animation:fxSpark 1.6s ease-in-out .8s infinite}
+@keyframes fxSpark{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
 /* 피닉스: 불꽃 빛이 일렁여요 */
 .fx-fire{filter:drop-shadow(0 0 8px rgba(255,150,0,.95)) drop-shadow(0 0 20px rgba(255,70,0,.7));animation:fxFire 1.6s ease-in-out infinite alternate}
 @keyframes fxFire{from{filter:drop-shadow(0 0 6px rgba(255,170,0,.9)) drop-shadow(0 0 14px rgba(255,80,0,.55))}to{filter:drop-shadow(0 0 12px rgba(255,200,40,1)) drop-shadow(0 0 28px rgba(255,60,0,.8))}}
@@ -4336,6 +4349,8 @@ const DECO_ITEMS = [
   {id:'sloth',k:'base',e:'🦥',n:'나무늘보',p:30},{id:'seal',k:'base',e:'🦭',n:'물범',p:30},{id:'llama',k:'base',e:'🦙',n:'알파카',p:30},{id:'flamingo',k:'base',e:'🦩',n:'플라밍고',p:35},
   {id:'owl',k:'base',e:'🦉',n:'부엉이',p:35},{id:'hippo',k:'base',e:'🦛',n:'하마',p:35},{id:'giraffe',k:'base',e:'🦒',n:'기린',p:40},{id:'elephant',k:'base',e:'🐘',n:'코끼리',p:40},
   {id:'phoenix',k:'base',e:'🐦‍🔥',n:'피닉스',p:100,fx:'fire'},
+  {id:'moonwolf',k:'base',e:'🐺',n:'달빛 늑대',p:100,fx:'moon'},{id:'peacock',k:'base',e:'🦚',n:'무지개 공작',p:100,fx:'rainbow'},{id:'goldeagle',k:'base',e:'🦅',n:'황금 독수리',p:100,fx:'gold'},
+  {id:'kraken',k:'base',e:'🦑',n:'심해의 크라켄',p:100,fx:'deep'},{id:'stardeer',k:'base',e:'🦌',n:'별빛 사슴',p:100,fx:'star'},
   {id:'cap',k:'hat',e:'🧢',n:'야구 모자',p:10},{id:'ribbon',k:'hat',e:'🎀',n:'리본',p:10},{id:'straw',k:'hat',e:'👒',n:'밀짚모자',p:15},{id:'tophat',k:'hat',e:'🎩',n:'신사 모자',p:20},
   {id:'grad',k:'hat',e:'🎓',n:'학사모',p:30},{id:'crown',k:'hat',e:'👑',n:'왕관',p:50},
   {id:'glasses',k:'acc',e:'🕶️',n:'선글라스',p:15},{id:'balloon',k:'acc',e:'🎈',n:'풍선',p:10},{id:'icecream',k:'acc',e:'🍦',n:'아이스크림',p:10},{id:'ball',k:'acc',e:'⚽',n:'축구공',p:10},
@@ -4371,7 +4386,7 @@ const DECO_ITEMS = [
 const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
 /* 캐릭터마다 자기 모자 · 소품을 따로 입어요: wear = {캐릭터id: {hat, acc}}. 물건은 하나뿐이라 다른 캐릭터에게 주면 옮겨 가요 */
 /* 몸 전체 그림인 캐릭터는 머리 자리가 달라서 모자를 옮겨 씌워요: [가로 px, 세로 px, 기울기] (큰 방 기준) */
-const HAT_FIT = { squirrel:[-16,10,-10], koala:[0,4,0], otter:[-34,22,-14], monkey:[0,4,0], sloth:[-18,26,-10], seal:[-36,20,-16], llama:[-24,-8,-8], flamingo:[-6,-10,-10], owl:[0,8,0], hippo:[-34,18,-10], giraffe:[-30,-12,-10], elephant:[-28,6,-10], chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
+const HAT_FIT = { moonwolf:[0,-12,0], peacock:[-8,-2,-6], goldeagle:[-22,4,-12], kraken:[0,0,0], stardeer:[-42,-18,-12], squirrel:[-16,10,-10], koala:[0,4,0], otter:[-34,22,-14], monkey:[0,4,0], sloth:[-18,26,-10], seal:[-36,20,-16], llama:[-24,-8,-8], flamingo:[-6,-10,-10], owl:[0,8,0], hippo:[-34,18,-10], giraffe:[-30,-12,-10], elephant:[-28,6,-10], chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
 function decoGet(){
   const d=Object.assign({base:'dog', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0, wear:null}, store.get('deco',{}));
   DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
