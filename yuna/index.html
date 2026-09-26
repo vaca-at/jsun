@@ -745,6 +745,16 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 .fg text{font-family:var(--font),sans-serif;font-size:14px;fill:#1E293B;text-anchor:middle;dominant-baseline:central}
 .fg text.t{font-family:var(--font-t),var(--font),sans-serif;font-weight:700}
 .fg text.s{fill:#5B6477;font-size:12.5px}
+/* 가족 이벤트 */
+.evbar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;padding:.45rem 1rem;border-radius:999px;background:linear-gradient(90deg,#FF7A7A,#FFB64D,#FFE45C,#7BDA8F,#5AB4FF,#A983FF);color:#2B2140;font-size:.95rem;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap;animation:evPulse 1.6s ease-in-out infinite alternate}
+.evbar b{font-variant-numeric:tabular-nums}
+.evbar span{font-size:.85rem}
+.evbar[hidden]{display:none}
+body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+@keyframes evPulse{from{box-shadow:0 4px 12px rgba(160,100,255,.35)}to{box-shadow:0 6px 22px rgba(255,120,120,.55)}}
+.evadm{margin:6px 0 12px;background:linear-gradient(135deg,#FFF4D6,#F1E6FF);border-color:#E0C8FF}
+.evadm p{margin:.35rem 0}
+@media (max-width:520px){ .evbar{font-size:.82rem;padding:.35rem .8rem} .evbar span{display:none} }
 /* 내 캐릭터 방 */
 .me-ground{position:absolute;left:0;right:0;bottom:0;height:30%;border-radius:50% 50% 0 0 / 22px 22px 0 0}
 .me-deco.sc{opacity:1;line-height:1}
@@ -898,7 +908,7 @@ const KID_IDS = { '윤아':'yuna' };
 /* 이름(프로필)별로 따로 저장해요. admin · profiles 는 모두 같이 써요. */
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','charPick'];
-const PROFILE_KEYS = ['stk','stkDay','deco','csbest','lib','op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
+const PROFILE_KEYS = ['estars','estarsAt','stk','stkDay','deco','csbest','lib','op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
 /* 도진이 공부방과 같은 주소를 써도 관리자 설정이 섞이지 않게 공통 값은 e2y_ 로 따로 저장해요 (아이 기록은 예전처럼 e2_p_윤아_) */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2y_'+k : `e2_p_${name}_${k}`;
 const store = {
@@ -1664,7 +1674,41 @@ const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(who?stkCount():0,STICKERS.length)}장`; }
+/* ───── 가족 이벤트: 관리자가 켜면 네 방(도윤 · 도진 · 지아 · 윤아)에서 동시에 별이 2배로 모여요 ─────
+   이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요 (스티커는 평소 별로만 모아요).
+   온라인 문서: family/event = {until(끝나는 시각), mult(배수), rooms:[방 id…], at} */
+const EVENT_ROOMS = ['doyun','dojin','jia','yuna'];
+const MY_ROOM = Object.values(KID_IDS)[0];
+let EV = null, evSub = null;
+const evOn = () => !!(EV && EV.until > Date.now() && (EV.rooms||[]).includes(MY_ROOM));
+const eStars = name => store.get('estars',0,name);
+function evListen(){
+  if(evSub || !FIREBASE_CONFIG) return;
+  evSub = cloudInit().then(db=>{ if(!db) return;
+    db.collection('family').doc('event').onSnapshot(s=>{ const was=evOn(); EV=s.exists?s.data():null; drawEvent();
+      if(!was && evOn() && who){ burst(); toast(`🌈 별 ${EV.mult||2}배 이벤트가 시작됐어요!`); } }, e=>console.warn('이벤트를 읽을 수 없어요', e)); });
+}
+function drawEvent(){
+  let bar=document.getElementById('evbar');
+  if(!bar){ bar=document.createElement('div'); bar.id='evbar'; bar.className='evbar'; document.body.appendChild(bar); }
+  const on=evOn() && !!who; bar.hidden=!on; try{ document.body.classList.toggle('ev', on); }catch(e){} if(!on) return;
+  const left=Math.max(0, EV.until-Date.now()), m=Math.floor(left/60000), s=Math.floor(left/1000)%60;
+  bar.innerHTML=`🌈 별 ${EV.mult||2}배 이벤트! <b>${m}:${pad(s)}</b> 남았어요 <span>· 이벤트 별 🌈 ${eStars()}</span>`;
+}
+async function evStart(min){
+  if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
+  try{ await cloud.db.collection('family').doc('event').set({until:Date.now()+min*60000, mult:2, rooms:EVENT_ROOMS, at:Date.now()}); toast(`🎉 별 2배 이벤트 ${min}분 시작!`); }
+  catch(e){ console.warn(e); toast('이벤트를 켜지 못했어요 (온라인 규칙을 확인해 주세요)'); }
+}
+async function evStop(){
+  if(!await cloudInit()) return;
+  try{ await cloud.db.collection('family').doc('event').set({until:0, at:Date.now()},{merge:true}); toast('이벤트를 끝냈어요'); }catch(e){ console.warn(e); }
+}
 function addStar(n){
+  if(n>0 && evOn()){   // 이벤트 중: 🌈 이벤트 별로 2배, 하루 제한 없이
+    const add=n*(EV.mult||2); store.set('estars',eStars()+add); store.set('estarsAt',Date.now());
+    updateStars(); drawEvent(); cloudPush(); return;
+  }
   if(n<=0) return;
   const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
   n=Math.min(n, STAR_DAY_MAX-got);
@@ -1749,6 +1793,7 @@ function clockSVG(h,m,s){
 }
 let lastDay = dayKey();
 function tick(){
+  try{ drawEvent(); }catch(e){}
   const t=new Date(), h=t.getHours(), m=t.getMinutes(), s=t.getSeconds();
   const ap=h<12?'오전':'오후', h12=h%12||12;
   const date=`${t.getFullYear()}년 ${t.getMonth()+1}월 ${t.getDate()}일 ${WD[t.getDay()]}요일`;
@@ -1794,6 +1839,7 @@ async function cloudPull(name, docOnly){
         store.set('resetAt',d.resetAt,name);
         if(name===who){ stars=0; updateStars(); }
       }
+      if(typeof d.estars==='number' && (d.estarsAt||0) > store.get('estarsAt',0,name)){ store.set('estars',d.estars,name); store.set('estarsAt',d.estarsAt,name); }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0,name)){ store.set('stars',d.stars,name); store.set('starsAt',d.starsAt,name); if(typeof d.stk==='number') store.set('stk',d.stk,name); }
       if(d.deco && (d.deco.at||0) > (store.get('deco',{},name).at||0)) store.set('deco',d.deco,name);
       ['best_1','best_2','best_3'].forEach(k=>{ const b=betterBest(store.get(k,null,name), d[k]||null); if(b) store.set(k,b,name); });
@@ -1835,7 +1881,7 @@ async function cloudPushNow(name){
   const k=dayKey(), L=getLog(name);
   try{
     const pin=kidPinsRaw()[name]||{};
-    const doc={name, stk:stkCount(name), deco:store.get('deco',{},name), stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
+    const doc={name, estars:eStars(name), estarsAt:store.get('estarsAt',0,name), stk:stkCount(name), deco:store.get('deco',{},name), stars:store.get('stars',0,name), starsAt:store.get('starsAt',0,name), updatedAt:Date.now(),
       hmock:store.get('hmock',0,name), hwrong:store.get('hwrong',{},name), hwrongAt:store.get('hwrongAt',0,name), pinH:pin.h||null, pinAt:pin.at||0,
       lib:store.get('lib',{},name), csbest:store.get('csbest',{},name), kread2:store.get('kread2',{},name), estory:store.get('estory',{},name), books:store.get('books',[],name), booksAt:store.get('booksAt',0,name)};
     ['best_1','best_2','best_3'].forEach(k=>{ doc[k]=store.get(k,null,name); });
@@ -3688,7 +3734,7 @@ function decoGet(){
   return d;
 }
 function decoSave(d){ const w=d.wear[d.base]||{}; d.hat=w.hat||null; d.acc=w.acc||null; d.at=Date.now(); store.set('deco',d); cloudPush(); drawMeTile(); }
-const decoLeft = () => Math.max(0, stars - (decoGet().spent||0));   // 쓸 수 있는 별
+const decoLeft = () => Math.max(0, stars + eStars() - (decoGet().spent||0));   // 쓸 수 있는 별
 const decoWearer = (d,id) => Object.keys(d.wear).find(b=>d.wear[b] && (d.wear[b].hat===id || d.wear[b].acc===id)) || null;
 function decoWear(d, base, k, id){
   let moved=null;
@@ -3720,7 +3766,7 @@ function renderMyRoom(){
   const bases=DECO_ITEMS.filter(x=>x.k==='base'), nb=bases.filter(x=>d.own.includes(x.id)).length;
   const nl=d.own.filter(id=>['hat','acc','pet'].includes((decoItem(id)||{}).k)).length;
   view.innerHTML=`<div class="me-head"><div><b>${josa(who,'이의','의')} 캐릭터 방</b><span class="sub">모은 별로 꾸며요 · 별을 써도 스티커는 그대로예요</span></div>
-      <div class="me-bank"><span>쓸 수 있는 별</span><b>⭐ ${left}</b><small>모은 별 ${stars} · 쓴 별 ${d.spent||0}</small></div></div>
+      <div class="me-bank"><span>쓸 수 있는 별</span><b>⭐ ${left}</b><small>모은 별 ${stars}${eStars()?` · 🌈 ${eStars()}`:''} · 쓴 별 ${d.spent||0}</small></div></div>
     <div class="seg oneline">${[['room','🏠 방 · 가게'],['chars',`🧸 모음 ${nb}/${bases.length}`],['locker',`🗄️ 사물함 ${nl}`]].map(([k,n])=>pill('roomv',k,n,App.roomv)).join('')}</div>
     <div id="roombody"></div>`;
   ({room:drawRoomShop, chars:drawCharBook, locker:drawDecoLocker})[App.roomv||'room'](d, left);
@@ -4391,6 +4437,11 @@ function adminHTML(){
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (5명) ↗</button>'}</div>
+    <div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
+      <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
+      ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
+              :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
+    </div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
@@ -4495,6 +4546,8 @@ const ACT = {
   decoCat: v=>{ App.decoCat=v; App.decoPick=null; renderMyRoom(); },
   decoTap: v=>decoTap(v),
   decoBuy: v=>decoBuy(v),
+  evStart: v=>{ evStart(+v||10).then(()=>{ if(setMode==='admin') drawSettings(); }); },
+  evStop: ()=>{ evStop().then(()=>{ if(setMode==='admin') drawSettings(); }); },
   roomv: v=>{ App.roomv=v; App.decoPick=null; App.lockPick=null; renderMyRoom(); },
   decoBase: v=>{ const d=decoGet(); d.base=v; decoSave(d); App.roomv='room'; renderMyRoom(); toast(`${decoItem(v).e} ${decoItem(v).n}${josa(decoItem(v).n,'이','가').slice(decoItem(v).n.length)} 방에 나왔어요`); },
   decoGoShop: v=>{ App.roomv='room'; App.decoCat='base'; App.decoPick=v; renderMyRoom(); },
@@ -4636,6 +4689,7 @@ showLogin();
 cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);
+evListen();
 </script>
 </body>
 </html>
