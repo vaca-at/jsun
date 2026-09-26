@@ -764,6 +764,13 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .me-deco.sc{opacity:1;line-height:1}
 .me-box{position:absolute;display:block}
 .me-stage.mini .me-deco.sc{transform:scale(.5);transform-origin:top left}
+/* 캐릭터 그림 틀: 글자 한 칸(1em) 크기, 모자 · 소품은 그 안에서 em으로 */
+.me-char .me-fig{position:absolute;left:50%;bottom:0;width:1em;height:1em;margin-left:-.5em;font-size:130px;line-height:1}
+.me-char .me-fig .me-base{position:absolute;inset:0;font-size:1em;line-height:1;text-align:center}
+.me-char .me-fig .me-hat{position:absolute;left:50%;top:-.34em;margin:0;font-size:.5em;line-height:1}
+.me-char .me-fig .me-acc{position:absolute;right:-.58em;bottom:-.02em;top:auto;left:auto;margin:0;font-size:.42em;line-height:1}
+.me-char .me-fig .me-acc.face{right:auto;left:50%;top:.3em;bottom:auto;transform:translateX(-50%);font-size:.48em}
+@media (max-width:520px){ .me-char .me-fig{font-size:110px} }
 /* 친구(펫)는 방 안을 왼쪽 오른쪽으로 걸어 다녀요: 바깥은 가로로 움직이고 방향을 바꾸고, 안쪽은 콩콩 뛰어요 */
 .me-stage .me-char{z-index:2}
 .me-stage .me-pet{left:6%;z-index:1;animation:petWalk 11s ease-in-out infinite}
@@ -3806,9 +3813,10 @@ function decoWear(d, base, k, id){
 }
 function decoChar(d, baseId){
   const base=decoItem(baseId)||decoItem('dog'), w=d.wear[baseId]||{}, hat=w.hat&&decoItem(w.hat), acc=w.acc&&decoItem(w.acc), f=HAT_FIT[baseId]||[0,0,0];
-  return `<div class="me-char"><span class="me-base ${base.fx?'fx-'+base.fx:''}">${base.e}</span>
-    ${hat?`<span class="me-hat" style="transform:translate(${f[0]}px,${f[1]}px) rotate(${f[2]}deg)">${hat.e}</span>`:''}
-    ${acc?`<span class="me-acc ${w.acc==='glasses'?'face':''}">${acc.e}</span>`:''}</div>`;
+  /* 모자 · 소품은 캐릭터 그림(me-fig) 크기에 맞춰 em으로 놓아요 → 아이폰 · 안드로이드 · 윈도우에서 이모지 크기가 달라도 그림에 붙어 있어요 */
+  return `<div class="me-char"><span class="me-fig"><span class="me-base ${base.fx?'fx-'+base.fx:''}">${base.e}</span>
+    ${hat?`<span class="me-hat" style="transform:translate(calc(-50% + ${(f[0]/120).toFixed(3)}em),${(f[1]/120).toFixed(3)}em) rotate(${f[2]}deg)">${hat.e}</span>`:''}
+    ${acc?`<span class="me-acc ${w.acc==='glasses'?'face':''}">${acc.e}</span>`:''}</span></div>`;
 }
 const decoMini = (d, baseId) => `<span class="cm-wrap"><span class="cm-in">${decoChar(d,baseId)}</span></span>`;
 function decoStage(d, big=true){
