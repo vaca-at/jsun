@@ -807,7 +807,17 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 /* 내 캐릭터 방 */
 .me-ground{position:absolute;left:0;right:0;bottom:0;height:30%;border-radius:50% 50% 0 0 / 22px 22px 0 0}
 .me-deco.sc{opacity:1;line-height:1}
+.me-box{position:absolute;display:block}
 .me-stage.mini .me-deco.sc{transform:scale(.5);transform-origin:top left}
+/* 친구(펫)는 방 안을 왼쪽 오른쪽으로 걸어 다녀요: 바깥은 가로로 움직이고 방향을 바꾸고, 안쪽은 콩콩 뛰어요 */
+.me-stage .me-char{z-index:2}
+.me-stage .me-pet{left:6%;z-index:1;animation:petWalk 11s ease-in-out infinite}
+.me-pet-in{display:inline-block;animation:petHop .55s ease-in-out infinite alternate}
+.me-stage .me-pet.fly{bottom:auto;top:18%}
+.me-pet.fly .me-pet-in{animation:petFly 1.8s ease-in-out infinite alternate}
+@keyframes petWalk{0%{left:4%;transform:scaleX(-1)}46%{left:76%;transform:scaleX(-1)}50%{left:76%;transform:scaleX(1)}96%{left:4%;transform:scaleX(1)}100%{left:4%;transform:scaleX(-1)}}
+@keyframes petHop{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+@keyframes petFly{from{transform:translateY(-10px) rotate(-6deg)}to{transform:translateY(12px) rotate(6deg)}}
 /* 빨간 문어: 조금 더 빨갛고 동글동글하게 */
 .fx-red{filter:saturate(1.7) hue-rotate(-18deg) brightness(1.02)}
 /* 피닉스: 불꽃 빛이 일렁여요 */
@@ -3909,6 +3919,9 @@ const DECO_ITEMS = [
   {id:'dino',k:'base',e:'🦖',n:'공룡',p:50},{id:'unicorn',k:'base',e:'🦄',n:'유니콘',p:60},{id:'dragon',k:'base',e:'🐉',n:'용',p:80},
   {id:'octo',k:'base',e:'🐙',n:'빨간 문어',p:30,fx:'red'},{id:'bluefish',k:'base',e:'🐟',n:'파란 물고기',p:25},
   {id:'chickb',k:'base',e:'🐥',n:'병아리',p:20},{id:'hamsterb',k:'base',e:'🐹',n:'햄스터',p:20},{id:'sheep',k:'base',e:'🐑',n:'양',p:25},{id:'hedgehog',k:'base',e:'🦔',n:'고슴도치',p:30},{id:'whale',k:'base',e:'🐳',n:'고래',p:35},
+  {id:'squirrel',k:'base',e:'🐿️',n:'다람쥐',p:20},{id:'koala',k:'base',e:'🐨',n:'코알라',p:25},{id:'otter',k:'base',e:'🦦',n:'수달',p:25},{id:'monkey',k:'base',e:'🐵',n:'원숭이',p:25},
+  {id:'sloth',k:'base',e:'🦥',n:'나무늘보',p:30},{id:'seal',k:'base',e:'🦭',n:'물범',p:30},{id:'llama',k:'base',e:'🦙',n:'알파카',p:30},{id:'flamingo',k:'base',e:'🦩',n:'플라밍고',p:35},
+  {id:'owl',k:'base',e:'🦉',n:'부엉이',p:35},{id:'hippo',k:'base',e:'🦛',n:'하마',p:35},{id:'giraffe',k:'base',e:'🦒',n:'기린',p:40},{id:'elephant',k:'base',e:'🐘',n:'코끼리',p:40},
   {id:'phoenix',k:'base',e:'🐦‍🔥',n:'피닉스',p:100,fx:'fire'},
   {id:'cap',k:'hat',e:'🧢',n:'야구 모자',p:10},{id:'ribbon',k:'hat',e:'🎀',n:'리본',p:10},{id:'straw',k:'hat',e:'👒',n:'밀짚모자',p:15},{id:'tophat',k:'hat',e:'🎩',n:'신사 모자',p:20},
   {id:'grad',k:'hat',e:'🎓',n:'학사모',p:30},{id:'crown',k:'hat',e:'👑',n:'왕관',p:50},
@@ -3917,6 +3930,8 @@ const DECO_ITEMS = [
   {id:'book',k:'acc',e:'📚',n:'책',p:10},{id:'switch',k:'acc',e:'🎮',n:'닌텐도',p:40},{id:'ipad',k:'acc',e:'📱',n:'아이패드',p:50},
   {id:'chick',k:'pet',e:'🐣',n:'병아리',p:15},{id:'turtle',k:'pet',e:'🐢',n:'거북',p:20},{id:'hamster',k:'pet',e:'🐹',n:'햄스터',p:20},{id:'butterfly',k:'pet',e:'🦋',n:'나비',p:20},
   {id:'octopus',k:'pet',e:'🐙',n:'문어',p:25},{id:'parrot',k:'pet',e:'🦜',n:'앵무새',p:30},
+  {id:'snail',k:'pet',e:'🐌',n:'달팽이',p:10},{id:'duck',k:'pet',e:'🦆',n:'꽥꽥오리',p:15},{id:'bee',k:'pet',e:'🐝',n:'꿀벌',p:15},
+  {id:'petdog',k:'pet',e:'🐕',n:'멍멍이',p:20},{id:'petcat',k:'pet',e:'🐈',n:'야옹이',p:20},{id:'petrabbit',k:'pet',e:'🐇',n:'깡충토끼',p:20},
   {id:'plain',k:'bg',e:'🏠',n:'기본 방',p:0,g:'linear-gradient(180deg,#F3F6FB 0%,#E7ECF5 100%)',d:[]},
   {id:'sea',k:'bg',e:'🌊',n:'바닷속',p:20,g:'linear-gradient(180deg,#9BE2FA 0%,#46A9E6 45%,#1D62AE 100%)',d:[],floor:'linear-gradient(180deg,#F4DCA6 0%,#E2B96E 100%)',
     scene:[['🫧',8,10,22],['🫧',14,26,14],['🫧',90,14,18],['🪼',46,6,30],['🐠',72,18,34],['🐟',22,36,28],['🐡',86,40,28],['🐠',58,34,20],['🪸',4,66,44],['🪸',90,64,40],['🌿',18,72,30],['🐚',32,84,22],['🦀',76,82,26],['🌿',62,76,26]]},
@@ -3925,12 +3940,25 @@ const DECO_ITEMS = [
   {id:'sunset',k:'bg',e:'🌇',n:'노을',p:25,g:'linear-gradient(180deg,#FFB38A 0%,#FF7E79 55%,#8E6CC8 100%)',d:['☁️','🌙']},
   {id:'snow',k:'bg',e:'⛄',n:'눈 나라',p:30,g:'linear-gradient(180deg,#E8F3FF 0%,#C9DDF5 100%)',d:['❄️','⛄','❄️','🌨️']},
   {id:'space',k:'bg',e:'🪐',n:'우주',p:40,g:'linear-gradient(180deg,#1B1B4B 0%,#3B2C7A 100%)',d:['⭐','🪐','✨','🌟']},
-  {id:'rainbow',k:'bg',e:'🌈',n:'무지개 언덕',p:50,g:'linear-gradient(180deg,#FFF7D6 0%,#D8F3E3 100%)',d:['🌈','☁️','🌸']}
+  {id:'rainbow',k:'bg',e:'🌈',n:'무지개 언덕',p:50,g:'linear-gradient(180deg,#FFF7D6 0%,#D8F3E3 100%)',d:['🌈','☁️','🌸']},
+  {id:'studyroom',k:'bg',e:'📚',n:'공부방',p:25,g:'linear-gradient(180deg,#FFF6E6 0%,#F5E2C2 100%)',d:[],floor:'linear-gradient(180deg,#C99A6B 0%,#A57548 100%)',
+    scene:[['#',3,40,22,3,'#8B5A2B',3],['#',62,54,35,4,'#8B5A2B',3],['#',64,58,3,16,'#6E4524',2],['#',93,58,3,16,'#6E4524',2],
+      ['🪟',6,4,40],['📚',4,28,26],['🧸',15,27,26],['🖥️',66,34,36],['📚',84,40,26],['💡',60,38,24],['✏️',80,48,18],['🪑',70,60,40]]},
+  {id:'pianoroom',k:'bg',e:'🎹',n:'피아노학원',p:30,g:'linear-gradient(180deg,#F4EEFF 0%,#E4D7FA 100%)',d:[],floor:'linear-gradient(180deg,#D8C0A0 0%,#BD9F7A 100%)',
+    scene:[['#',62,52,34,22,'#1F1F24',6],['#',64,74,3,10,'#1F1F24',2],['#',91,74,3,10,'#1F1F24',2],
+      ['🎹',64,40,44],['🎼',8,8,32],['🎵',30,6,22],['🎶',72,10,26],['🖼️',86,6,26],['🎻',6,56,40],['🪑',48,62,36]]},
+  {id:'cafe',k:'bg',e:'☕',n:'카페',p:30,g:'linear-gradient(180deg,#FFF3E8 0%,#F6D8C2 100%)',d:[],floor:'linear-gradient(180deg,#B98A6A 0%,#9A6E50 100%)',
+    scene:[['#',60,58,34,4,'#7A4E2A',3],['#',75,62,4,18,'#5C3A1E',2],
+      ['💡',36,2,22],['💡',78,2,22],['📋',8,10,30],['🥐',22,18,20],['☕',62,46,28],['🧋',74,43,30],['🍰',85,48,24],['🪴',2,50,44],['🪑',86,60,38]]},
+  {id:'hangang',k:'bg',e:'🌉',n:'한강공원',p:35,g:'linear-gradient(180deg,#B9E4FF 0%,#E2F5FF 55%,#9AD3F2 100%)',d:[],floor:'linear-gradient(180deg,#93D26E 0%,#6CB24C 100%)',
+    scene:[['#',0,54,100,16,'#5AA6E0',0],['☁️',8,6,26],['🪁',62,4,30],['🏙️',66,24,54],['#',0,47,100,3,'#E0564F',0],['#',14,47,2,8,'#B8403A',0],['#',40,47,2,8,'#B8403A',0],['#',66,47,2,8,'#B8403A',0],['#',92,47,2,8,'#B8403A',0],['🦆',48,58,20],['🌳',2,52,42],['🚲',80,70,30],['🧺',14,78,26],['🍗',28,82,22],['🍜',38,84,22]]},
+  {id:'beach',k:'bg',e:'🏖️',n:'해수욕장',p:35,g:'linear-gradient(180deg,#9BE2FF 0%,#D4F4FF 60%)',d:[],floor:'linear-gradient(180deg,#F6DFA8 0%,#E9C57E 100%)',
+    scene:[['#',0,44,100,26,'#3BA6E0',0],['#',0,44,100,3,'#E9F8FF',0],['☀️',84,4,34],['⛵',52,34,28],['🐬',30,42,22],['🌊',12,48,24],['🌴',0,28,64],['⛱️',72,54,52],['🐚',22,84,20],['🦀',38,86,22],['🪣',60,82,22],['🏐',86,84,20]]}
 ];
 const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
 /* 캐릭터마다 자기 모자 · 소품을 따로 입어요: wear = {캐릭터id: {hat, acc}}. 물건은 하나뿐이라 다른 캐릭터에게 주면 옮겨 가요 */
 /* 몸 전체 그림인 캐릭터는 머리 자리가 달라서 모자를 옮겨 씌워요: [가로 px, 세로 px, 기울기] (큰 방 기준) */
-const HAT_FIT = { chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
+const HAT_FIT = { squirrel:[-16,10,-10], koala:[0,4,0], otter:[-34,22,-14], monkey:[0,4,0], sloth:[-18,26,-10], seal:[-36,20,-16], llama:[-24,-8,-8], flamingo:[-6,-10,-10], owl:[0,8,0], hippo:[-34,18,-10], giraffe:[-30,-12,-10], elephant:[-28,6,-10], chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
 function decoGet(){
   const d=Object.assign({base:'dog', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0, wear:null}, store.get('deco',{}));
   DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
@@ -3959,10 +3987,10 @@ function decoStage(d, big=true){
   const spots=[[8,14],[82,10],[14,58],[86,52]];
   return `<div class="me-stage ${big?'':'mini'}" style="background:${bg.g}">
     ${bg.floor?`<div class="me-ground" style="background:${bg.floor}"></div>`:''}
-    ${bg.scene?bg.scene.map(([e,x,y,s])=>`<span class="me-deco sc" style="left:${x}%;top:${y}%;font-size:${s}px">${e}</span>`).join(''):bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}
+    ${bg.scene?bg.scene.map(([e,x,y,s,h,col,rad])=>e==='#'?`<span class="me-box" style="left:${x}%;top:${y}%;width:${s}%;height:${h}%;background:${col};border-radius:${rad||0}px"></span>`:`<span class="me-deco sc" style="left:${x}%;top:${y}%;font-size:${s}px">${e}</span>`).join(''):bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}
     <div class="me-floor"></div>
     ${decoChar(d, d.base)}
-    ${pet?`<span class="me-pet">${pet.e}</span>`:''}
+    ${pet?`<span class="me-pet ${['butterfly','parrot','bee'].includes(pet.id)?'fly':''}"><span class="me-pet-in">${pet.e}</span></span>`:''}
   </div>`;
 }
 function drawMeTile(){ const t=document.getElementById('dkMe'); if(t) t.textContent=(decoItem(decoGet().base)||decoItem('dog')).e; }
@@ -3994,11 +4022,11 @@ function drawRoomShop(d, left){
     ${P?`<div class="me-buy card"><span class="me-ie">${P.e}</span><div><b>${P.n}</b><div class="sub">${left>=P.p?`별 ${P.p}개로 살까요? 사고 나면 쓸 수 있는 별은 ${left-P.p}개예요.`:`별이 ${P.p-left}개 더 필요해요. 문제를 풀어서 별을 모아요!`}</div></div>
       ${left>=P.p?`<button class="big-btn me-yes" data-act="decoBuy" data-v="${P.id}">⭐ ${P.p} 사기</button>`:''}<button class="pill" data-act="decoTap" data-v="">닫기</button></div>`:''}
     <div class="seg small">${Object.entries(DECO_CATS).map(([k,n])=>`<button class="pill ${cat===k?'on':''}" data-act="decoCat" data-v="${k}">${n}</button>`).join('')}</div>
-    <div class="me-grid">${DECO_ITEMS.filter(x=>x.k===cat).map(card).join('')}</div>`;
+    <div class="me-grid">${DECO_ITEMS.filter(x=>x.k===cat).sort((a,b)=>a.p-b.p).map(card).join('')}</div>`;
 }
 function drawCharBook(d){
   const b=document.getElementById('roombody'); if(!b) return;
-  const bases=DECO_ITEMS.filter(x=>x.k==='base');
+  const bases=DECO_ITEMS.filter(x=>x.k==='base').sort((a,b)=>a.p-b.p);
   b.innerHTML=`<p class="desc">누르면 그 캐릭터가 방에 나와요. 캐릭터마다 모자 · 소품을 따로 입어요.</p>
     <div class="cm-grid">${bases.map(x=>d.own.includes(x.id)
       ? `<button class="cm ${d.base===x.id?'on':''}" data-act="decoBase" data-v="${x.id}">${decoMini(d,x.id)}<b>${x.n}</b>${d.base===x.id?'<i>방에 있어요</i>':''}</button>`
