@@ -76,6 +76,8 @@ const UNTIL = PRACTICE ? Date.now()+3*60000 : (+Q.get('until') || Date.now()+10*
 /* 마당 크기와 규칙 */
 const W=100, H=150, R=5, SPEED=34, PICK=6.5, STEAL=8, MAXC=5, EGGS=10, PROTECT=3000;
 const NEST = { doyun:{x:14,y:16}, dojin:{x:86,y:16}, jia:{x:14,y:134}, yuna:{x:86,y:134} }, NEST_R=12;
+const SAFE_R = NEST_R+7;   // 둥지 둘레(점선)까지는 안전해요: 둥지에 들어가면 바로 넣어지니, 뺏기는 건 늘 둥지 바로 앞이라서
+const inNest = (p, r) => Math.hypot((p.x||0)-NEST[r].x, (p.y||0)-NEST[r].y) < SAFE_R;
 const $ = id => document.getElementById(id);
 const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
 const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
@@ -137,7 +139,7 @@ async function takeEgg(id){
 async function steal(who, by=ME){
   const key='s'+who+by; if(busy[key]) return; busy[key]=1;
   const now=NET.now();
-  const ok = await NET.tx('players/'+who, p => (p && (p.c||0)>0 && (p.p||0)<now) ? Object.assign(p,{c:p.c-1, p:now+PROTECT}) : undefined);
+  const ok = await NET.tx('players/'+who, p => (p && (p.c||0)>0 && (p.p||0)<now && !inNest(p,who)) ? Object.assign(p,{c:p.c-1, p:now+PROTECT}) : undefined);
   if(ok){ if(by===ME) stealRest=NET.now()+1500;
     await NET.tx('players/'+by, p => p ? Object.assign(p,{c:Math.min(MAXC,(p.c||0)+1)}) : p);
     if(by===ME){ say(`${ROOMS[who].n}에게서 알을 뺏었어요! 🥚`); buzz(40); } }
@@ -149,11 +151,21 @@ async function deposit(who=ME){
   if(ok && who===ME){ say(`🏠 둥지에 알 ${n}개를 넣었어요!`); buzz(30); }
   setTimeout(()=>delete busy[key], 400);
 }
+/* 8초 넘게 안 움직인 친구가 든 알은 그 자리에 떨어뜨려요 (다시 들어오면 새로 주워요) */
+const IDLE=8000;
+async function dropEggs(r){
+  const key='x'+r; if(busy[key]) return; busy[key]=1;
+  let n=0, px=50, py=75;
+  const ok = await NET.tx('players/'+r, p => (p && (p.c||0)>0 && NET.now()-(p.t||0)>IDLE) ? (n=p.c, px=p.x||50, py=p.y||75, Object.assign(p,{c:0})) : undefined);
+  if(ok) for(let i=0;i<n;i++) NET.push('eggs',{x:Math.round(clamp(px+(Math.random()-.5)*12,8,W-8)*10)/10, y:Math.round(clamp(py+(Math.random()-.5)*12,10,H-10)*10)/10});
+  setTimeout(()=>delete busy[key], 1500);
+}
 /* 알 만들기는 '대장' 한 명만: 살아 있는 친구 중 순서가 제일 앞인 방 (연습은 나) */
 function hostTick(now){
   if(now-lastHost<900) return; lastHost=now;
   const live=ORDER.filter(r=>alive((S.players||{})[r]));
   if(!PRACTICE && live[0]!==ME) return;
+  ORDER.forEach(r=>{ if(r===ME || BOTS.includes(r)) return; const P=(S.players||{})[r]; if(P && (P.c||0)>0 && NET.now()-(P.t||0)>IDLE) dropEggs(r); });
   const eggs=Object.keys(S.eggs||{}).length;
   for(let i=eggs;i<EGGS && i<eggs+2;i++){
     let x,y,guard=0; do{ x=8+Math.random()*(W-16); y=10+Math.random()*(H-20); guard++; } while(guard<20 && Object.values(NEST).some(n=>Math.hypot(n.x-x,n.y-y)<NEST_R+6));
@@ -173,7 +185,7 @@ function botTick(dt, now){
     NET.update('players/'+b,{x:B.x,y:B.y,t:NET.now()});
     eggs.forEach(([id,e])=>{ if(dist(B,e)<PICK && (P.c||0)<MAXC && !busy['b'+id]){ busy['b'+id]=1; NET.tx('eggs/'+id,cur=>cur?null:undefined).then(ok=>{ if(ok) NET.tx('players/'+b,p=>Object.assign(p||{},{c:Math.min(MAXC,((p||{}).c||0)+1)})); delete busy['b'+id]; }); } });
     if(dist(B,NEST[b])<NEST_R && (P.c||0)>0) deposit(b);
-    if(mine && dist(B,me)<STEAL && (mine.c||0)>0 && (mine.p||0)<now && (P.p||0)<now && now>(B.rest||0) && (B.rest=now+1500)) steal(ME, b).then(()=>{ if((myP().p||0)>NET.now()) { say(`${ROOMS[b].n} 로봇에게 알을 뺏겼어요!`); buzz(80); } });
+    if(mine && dist(B,me)<STEAL && (mine.c||0)>0 && (mine.p||0)<now && !inNest(me,ME) && (P.p||0)<now && now>(B.rest||0) && (B.rest=now+1500)) steal(ME, b).then(()=>{ if((myP().p||0)>NET.now()) { say(`${ROOMS[b].n} 로봇에게 알을 뺏겼어요!`); buzz(80); } });
   });
 }
 
@@ -240,9 +252,11 @@ function draw(now){
   g.fillStyle='rgba(255,255,255,.18)'; for(let i=0;i<14;i++){ g.beginPath(); g.arc(X((i*37)%W),Y((i*53)%H),2.2*s,0,7); g.fill(); }
   // 둥지
   ORDER.forEach(r=>{ const n=NEST[r], P=(S.players||{})[r];
+    g.strokeStyle=ROOMS[r].c+'99'; g.lineWidth=2; g.setLineDash([5,5]); g.beginPath(); g.arc(X(n.x),Y(n.y),SAFE_R*s,0,7); g.stroke(); g.setLineDash([]);
     g.fillStyle=ROOMS[r].c+'33'; g.strokeStyle=ROOMS[r].c; g.lineWidth=3; g.beginPath(); g.arc(X(n.x),Y(n.y),NEST_R*s,0,7); g.fill(); g.stroke();
     emoji('🪺', X(n.x), Y(n.y)-2*s, 7*s);
-    g.fillStyle='#1B1F2E'; g.font=`700 ${Math.max(11,3.4*s)}px GMarketSans, system-ui`; g.fillText(`${ROOMS[r].n} ${P?(P.s||0):0}`, X(n.x), Y(n.y)+6.5*s); });
+    g.fillStyle='#1B1F2E'; g.font=`700 ${Math.max(11,3.4*s)}px GMarketSans, system-ui`; g.fillText(`${ROOMS[r].n} ${P?(P.s||0):0}`, X(n.x), Y(n.y)+6.5*s);
+    g.font=`700 ${Math.max(9,2.4*s)}px GMarketSans, system-ui`; g.fillStyle=ROOMS[r].c; g.fillText('🛡️ 안전', X(n.x), Y(n.y)-8.2*s); });
   // 알
   Object.values(S.eggs||{}).forEach(e=>emoji('🥚', X(e.x), Y(e.y)+Math.sin(now/300+e.x)*.6*s, 6*s));
   // 친구들
@@ -280,7 +294,7 @@ function step(){
     const P=myP();
     // 보호막 중이거나 방금 뺏었으면 쉬어요 (둘이 붙어서 알을 계속 주고받지 않게)
     if((P.c||0)<MAXC && (P.p||0)<now && now>stealRest) ORDER.forEach(r=>{ if(r===ME) return; const O=(S.players||{})[r]; if(!O || !(alive(O)||BOTS.includes(r))) return;
-      if(dist(me,O)<STEAL && (O.c||0)>0 && (O.p||0)<now) steal(r); });
+      if(dist(me,O)<STEAL && (O.c||0)>0 && (O.p||0)<now && !inNest(O,r)) steal(r); });
     if(dist(me,NEST[ME])<NEST_R && (P.c||0)>0) deposit();
     hostTick(now); if(PRACTICE) botTick(dt, now);
     const left=Math.max(0,UNTIL-now); $('hTime').textContent=`${Math.floor(left/60000)}:${String(Math.floor(left/1000)%60).padStart(2,'0')}`;
@@ -295,7 +309,7 @@ function showIntro(){
   $('box').innerHTML=`<div class="big">🥚</div><h1>알 줍기 대작전</h1>
     <p class="sub">${PRACTICE?'🤖 로봇 친구 셋과 3분 연습해요':'도윤 · 도진 · 지아 · 윤아가 한 마당에 모여요 (10분)'}</p>
     <div class="drag"><i>👆</i> 드래그 게임이에요!<br><span style="font-weight:500;font-size:1rem">화면을 <b>누른 채로 밀면</b> ${MY_E} 내가 그쪽으로 가요</span></div>
-    <ol><li>아래 🕹️ 조이스틱이나 마당 아무 곳이나 <b>누른 채로 밀어요</b>. 가고 싶은 곳을 톡 눌러도 걸어가요</li><li>🥚 알을 밟으면 주워요 (한 번에 ${MAXC}개까지)</li><li>내 🪺 둥지로 가져가야 점수가 돼요</li><li>알을 든 친구와 부딪히면 <b>1개를 뺏어요</b> (뺏긴 친구는 3초 동안 보호막 ✨)</li></ol>
+    <ol><li>아래 🕹️ 조이스틱이나 마당 아무 곳이나 <b>누른 채로 밀어요</b>. 가고 싶은 곳을 톡 눌러도 걸어가요</li><li>🥚 알을 밟으면 주워요 (한 번에 ${MAXC}개까지)</li><li>내 🪺 둥지로 가져가야 점수가 돼요</li><li>알을 든 친구와 부딪히면 <b>1개를 뺏어요</b> (뺏긴 친구는 3초 동안 보호막 ✨)</li><li>🛡️ 내 둥지 둘레(점선 안)에서는 알을 뺏기지 않아요</li><li>중간에 나가도 둥지에 넣은 알만큼 별을 받아요. 들고 있던 알은 마당에 떨어져요</li></ol>
     <button class="btn" data-act="go">시작! ▶</button> <button class="btn gray" data-act="quit">나가기</button>`;
   $('ov').hidden=false;
 }

@@ -345,9 +345,11 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .evbar[hidden]{display:none}
 .evadm{margin:8px 0 12px;padding:12px;border-radius:16px;background:linear-gradient(135deg,#FFF4D6,#F1E6FF);border:1.5px solid #E0C8FF}
 .evadm p{margin:.35rem 0}
+body.ev{padding-bottom:calc(var(--evh,56px) + 12px + env(safe-area-inset-bottom,0px))}
+body.ev .rd-float{bottom:calc(var(--evh,56px) + 12px + env(safe-area-inset-bottom,0px))}
+body.ev .wsheet .tray{bottom:calc(var(--evh,56px) + 20px)}
+body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0px))}
 .evgo{margin-left:8px;padding:.25rem .8rem;border-radius:999px;background:#1B1F2E;color:#fff;font-size:.9rem;font-weight:700}
-.gamepop{position:fixed;inset:0;z-index:300;background:#CFEBC0}
-.gamepop iframe{width:100%;height:100%;border:0;display:block}
 @media (max-width:520px){ .evbar{white-space:normal;width:max-content;max-width:calc(100vw - 20px);text-align:center;line-height:1.7} }
 @media (max-width:520px){ .evbar{font-size:.82rem;padding:.35rem .8rem} .evbar span{display:none} }
 </style>
@@ -422,6 +424,7 @@ function drawEvent(){
   bar.hidden=!(st||sl||gm); try{ document.body.classList.toggle('ev', st||sl||gm); }catch(e){} if(!(st||sl||gm)) return;
   const mmss=t=>{ const l=Math.max(0,t-Date.now()); return `${Math.floor(l/60000)}:${String(Math.floor(l/1000)%60).padStart(2,'0')}`; };
   bar.innerHTML=[st?`🌈 별 ${EV.mult||2}배 <b>${mmss(EV.until)}</b> <span>· 이벤트 별 🌈 ${eStars()}</span>`:'', sl?`🛍️ 상점 반값 <b>${mmss(EV.saleUntil)}</b>`:'', gm?`🥚 알 줍기 <b>${mmss(EV.gameUntil)}</b><button class="evgo" data-act="gameOpen">입장 ▶</button>`:''].filter(Boolean).join(' · ');
+  document.body.style.setProperty('--evh', bar.offsetHeight+'px');
 }
 async function evStart(min){
   if(!await cloudInit()){ toast('온라인 연결이 있어야 이벤트를 켤 수 있어요'); return; }
@@ -440,7 +443,9 @@ async function saleStop(){
 }
 async function gameStart(min){
   if(!await cloudInit()){ toast('온라인 연결이 있어야 게임을 열 수 있어요'); return; }
-  try{ await cloud.db.collection('family').doc('event').set({gameUntil:Date.now()+min*60000, gameId:'g'+Date.now(), rooms:EVENT_ROOMS, gameAt:Date.now()},{merge:true}); toast(`🥚 알 줍기 대작전 ${min}분 시작!`); }
+  const old=EV && EV.gameId;   // 지난 게임 기록은 새 게임을 열 때 지워요 (그 전에 못 받은 보상은 방에 들어오면 받아요)
+  try{ await cloud.db.collection('family').doc('event').set({gameUntil:Date.now()+min*60000, gameId:'g'+Date.now(), rooms:EVENT_ROOMS, gameAt:Date.now()},{merge:true}); toast(`🥚 알 줍기 대작전 ${min}분 시작!`);
+    if(old) fetch(GAME_DB+'/games/'+old+'.json',{method:'DELETE'}).catch(()=>{}); }
   catch(e){ console.warn(e); toast('게임을 열지 못했어요 (온라인 규칙을 확인해 주세요)'); }
 }
 async function gameStop(){
@@ -463,16 +468,16 @@ function eggReward(gid, n){
   store.set('estars',eStars()+n); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush();
   toast(`🌈 알 줍기 보상! 이벤트 별 ${n}개를 받았어요`); return true;
 }
-function eggCollect(){ if(!who) return; let L=[]; try{ L=JSON.parse(localStorage.getItem('eggRewards')||'[]'); }catch(e){} L.filter(x=>x.room===MY_ROOM).forEach(x=>eggReward(x.gid, x.n)); }
+const GAME_DB='https://moon-15f88-default-rtdb.asia-southeast1.firebasedatabase.app';
+let eggAsked=null;
+function eggLate(){
+  if(!who || !EV || !EV.gameId || gameOn() || !(EV.rooms||[]).includes(MY_ROOM)) return;
+  const gid=EV.gameId; if(eggAsked===gid || store.get('eggDone',[]).includes(gid)) return; eggAsked=gid;
+  fetch(GAME_DB+'/games/'+gid+'/players/'+MY_ROOM+'.json').then(r=>r.json()).then(p=>{ if(p && typeof p==='object') eggReward(gid, (p.s||0)*2+3); }).catch(()=>{ eggAsked=null; });
+}
+function eggCollect(){ if(!who) return; eggLate(); let L=[]; try{ L=JSON.parse(localStorage.getItem('eggRewards')||'[]'); }catch(e){} L.filter(x=>x.room===MY_ROOM).forEach(x=>eggReward(x.gid, x.n)); }
 window.addEventListener('storage', e=>{ if(e.key==='eggRewards') eggCollect(); });
 setInterval(eggCollect, 3000);
-function gameClose(){ const g=document.getElementById('gamePop'); if(g) g.remove(); }
-/* 게임이 끝나면 둥지 알만큼 🌈 이벤트 별 (같은 게임은 한 번만) */
-window.addEventListener('message', e=>{
-  if(e.origin!==location.origin || !e.data) return;
-  if(e.data.type==='eggGameClose') gameClose();
-  if(e.data.type==='eggGameReward') eggReward(e.data.gid, e.data.n);
-});
 function addStar(n=1){
   if(n>0 && evOn()){ store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
   stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
