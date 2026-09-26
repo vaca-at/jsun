@@ -2168,7 +2168,7 @@ function showLogin(){
    맞히면 누르려던 곳으로 바로 가요. 구경하는 동안은 방문 · 공부 시간 · 온라인 저장을 남기지 않아요. */
 let GUEST=false, guestNext=null;
 const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','clockTile','wxTile','reloadApp','openSet','guestBack'];
-function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false; if(a==='tab') return el.dataset.v!=='home'; return !GUEST_OK.includes(a); }
+function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false; if(a==='tab') return el.dataset.v!=='home'; if(a==='set' && ['theme','font'].includes(el.dataset.k)) return false; /* 디자인 · 글씨는 구경하면서도 골라요 */ return !GUEST_OK.includes(a); }
 function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>{ const f=ACT[n.a]; if(f) f(n.v, el); }, 60); }
 function loadProfile(name, guest){
   GUEST=!!guest;
