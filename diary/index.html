@@ -1,1 +1,911 @@
 
+<!DOCTYPE html>
+<html lang="ko" data-theme="note" data-font="yuntaeng">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>우리 가족 일기장</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   ▼ 평소 쓰시는 눈누 @font-face 코드를 여기에 붙여 넣으세요.
+     font-family 이름: 'OwnglyphYuntaeng', 'NexonBazzi', 'NexonMaplestory'
+     (안 붙여도 비슷한 구글 폰트로 대신 보여요)
+   ============================================================ */
+
+
+/* ---------- 디자인 3종 ---------- */
+:root, [data-theme="note"]{
+  --desk:#E6EEF4; --paper:#FDFDF8; --card:#FFFFFF;
+  --ink:#24345C; --ink-soft:#5E6A8A; --line:#C9DCEB;
+  --red:#E0555E; --yellow:#F6C945; --ok:#3F8F60; --edge:#D3DEE8;
+}
+[data-theme="crayon"]{
+  --desk:#FBE3EC; --paper:#FFF9FB; --card:#FFFFFF;
+  --ink:#5A2E45; --ink-soft:#8C6078; --line:#F5CEDC;
+  --red:#E4507F; --yellow:#9FD8C4; --ok:#2F8E72; --edge:#F1C4D5;
+}
+[data-theme="night"]{
+  --desk:#131A30; --paper:#1D2746; --card:#243056;
+  --ink:#EEF1FA; --ink-soft:#A8B2D0; --line:#33426C;
+  --red:#FF8B8B; --yellow:#FFD66B; --ok:#82D6A3; --edge:#0D1326;
+}
+/* ---------- 폰트 3종 ---------- */
+[data-font="yuntaeng"]{ --font:'OwnglyphYuntaeng','Gaegu',sans-serif; --fs:1.22rem; }
+[data-font="bazzi"]{ --font:'NexonBazzi','Jua',sans-serif; --fs:1.05rem; }
+[data-font="maple"]{ --font:'NexonMaplestory','Gowun Dodum',sans-serif; --fs:1rem; }
+
+*{ box-sizing:border-box; }
+html,body{ margin:0; }
+body{
+  background:var(--desk); color:var(--ink);
+  font-family:var(--font); font-size:var(--fs); line-height:1.6;
+  min-height:100vh; padding:18px 14px 60px;
+}
+button,input,textarea,select{ font:inherit; color:inherit; }
+button{ cursor:pointer; }
+:focus-visible{ outline:3px solid var(--yellow); outline-offset:2px; }
+.hidden{ display:none !important; }
+.wrap{ max-width:980px; margin:0 auto; }
+
+/* ---------- 머리 ---------- */
+header{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:10px; margin-bottom:14px; }
+h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
+.today{ color:var(--ink-soft); font-size:.9em; }
+.switch{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.switch button{
+  border:1.5px solid var(--edge); background:var(--paper); border-radius:999px;
+  padding:2px 10px; font-size:.78em;
+}
+.switch button.on{ border-color:var(--ink); background:var(--ink); color:var(--paper); }
+
+/* ---------- 이름표 ---------- */
+.who-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.who{
+  display:flex; align-items:center; gap:8px; padding:6px 16px 6px 6px;
+  border:2px solid var(--edge); border-radius:999px; background:var(--paper);
+}
+.who .face{ width:38px; height:38px; border-radius:50%; display:grid; place-items:center; font-size:1.3em; background:var(--c); }
+.who.on{ border-color:var(--c); box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 25%, transparent); }
+.who .tick{ font-size:.75em; color:var(--ok); }
+.logout{ margin-left:auto; background:none; border:none; color:var(--ink-soft); text-decoration:underline; font-size:.85em; }
+
+/* ---------- 공책 + 인덱스 탭 ---------- */
+.tabs{ display:flex; gap:4px; padding-left:24px; }
+.tabs button{
+  border:none; border-radius:10px 10px 0 0; padding:8px 16px 6px;
+  background:color-mix(in srgb, var(--tc) 55%, var(--paper)); color:var(--ink);
+  transform:translateY(4px); transition:transform .15s;
+}
+.tabs button.on{ background:var(--tc); transform:translateY(0); font-weight:700; }
+.notebook{
+  background:var(--paper); border-radius:6px 14px 14px 14px;
+  box-shadow:0 3px 0 var(--edge), 0 10px 30px rgba(20,30,60,.08);
+  padding:22px 22px 26px; min-height:420px; position:relative;
+}
+
+/* ---------- 알림 띠 ---------- */
+.banner{
+  display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  background:color-mix(in srgb, var(--yellow) 30%, var(--paper));
+  border:2px dashed var(--yellow); border-radius:12px; padding:10px 14px; margin-bottom:12px;
+}
+.banner.poke{ border-style:solid; animation:wiggle .6s ease 2; }
+.banner b{ font-size:1.05em; }
+.banner .btns{ margin-left:auto; display:flex; gap:6px; }
+@keyframes wiggle{ 0%,100%{transform:rotate(0)} 25%{transform:rotate(-1deg)} 75%{transform:rotate(1deg)} }
+
+/* ---------- 공통 버튼 ---------- */
+.btn{ border:2px solid var(--ink); background:var(--paper); border-radius:10px; padding:6px 14px; }
+.btn.main{ background:var(--ink); color:var(--paper); }
+.btn.red{ border-color:var(--red); color:var(--red); }
+.btn:disabled{ opacity:.5; cursor:wait; }
+.soft{ color:var(--ink-soft); font-size:.88em; }
+
+/* ---------- 쓰기 ---------- */
+.row{ display:flex; flex-wrap:wrap; gap:14px; align-items:center; margin-bottom:12px; }
+.pick{ display:flex; gap:2px; align-items:center; }
+.pick span{ margin-right:6px; }
+.pick button{ border:2px solid transparent; background:none; border-radius:10px; font-size:1.35em; line-height:1; padding:4px 5px; }
+.pick button.on{ border-color:var(--red); background:color-mix(in srgb, var(--red) 10%, transparent); }
+input[type=date], .title-in{ border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; }
+.title-in{ width:100%; font-size:1.15em; margin-bottom:10px; }
+.qcard{
+  display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+  border-left:5px solid var(--yellow); background:color-mix(in srgb, var(--yellow) 14%, var(--paper));
+  padding:8px 12px; border-radius:0 10px 10px 0; margin-bottom:12px;
+}
+.qcard .q{ flex:1; min-width:200px; }
+.qcard label{ font-size:.85em; display:flex; gap:4px; align-items:center; }
+.qcard button{ background:none; border:none; font-size:.85em; color:var(--ink-soft); text-decoration:underline; }
+
+.lined{
+  width:100%; min-height:288px; resize:vertical; border:none; border-radius:4px;
+  padding:4px 14px 4px 64px; line-height:36px;
+  background-color:var(--paper);
+  background-image:
+    linear-gradient(to right, transparent 50px, var(--red) 50px, var(--red) 52px, transparent 52px),
+    repeating-linear-gradient(to bottom, transparent 0 35px, var(--line) 35px 36px);
+  background-attachment:local;
+  outline:1px solid var(--line);
+}
+.gauge-row{ display:flex; align-items:center; gap:10px; margin:10px 0 14px; }
+.gauge{ flex:1; height:12px; border-radius:999px; background:var(--line); overflow:hidden; }
+.gauge i{ display:block; height:100%; width:0; background:var(--yellow); border-radius:999px; transition:width .25s; }
+.gauge.full i{ background:var(--ok); }
+.actions{ display:flex; flex-wrap:wrap; gap:8px; }
+.actions .btn.main{ margin-left:auto; }
+
+/* 빨간펜 첨삭 */
+.redpen{ margin-top:16px; border:2px solid var(--red); border-radius:14px; padding:14px 16px; background:var(--card); }
+.redpen h3{ margin:0 0 8px; color:var(--red); font-size:1.1em; }
+.redpen .preview{ white-space:pre-wrap; line-height:2; margin-bottom:10px; }
+mark{
+  background:none; color:inherit; padding:0 4px;
+  border:2px solid var(--red); border-radius:48% 52% 45% 55% / 55% 45% 55% 45%;
+}
+.redpen ol{ margin:0; padding-left:1.4em; }
+.redpen li{ margin-bottom:8px; }
+.redpen .wrong{ color:var(--red); font-weight:700; }
+.redpen .ans{ color:var(--ok); font-weight:700; }
+.redpen .reveal{ border:1px dashed var(--ink-soft); background:none; border-radius:8px; font-size:.8em; padding:0 8px; margin-left:4px; }
+.redpen .stale{ color:var(--red); font-size:.9em; margin-top:8px; }
+
+/* ---------- 하루 펼쳐보기 ---------- */
+.daynav{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:16px; }
+.daynav h2{ margin:0; font-size:1.35em; min-width:200px; text-align:center; }
+.daynav button{ border:none; background:none; font-size:1.4em; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+.dcard{
+  background:var(--card); border-radius:12px; border-top:8px solid var(--c);
+  box-shadow:0 2px 0 var(--edge); padding:12px 14px 14px; position:relative; min-height:220px;
+  display:flex; flex-direction:column;
+}
+.dcard .top{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+.dcard .top b{ color:var(--c); }
+.dcard .wm{ margin-left:auto; font-size:1.2em; }
+.dcard h4{ margin:0 0 4px; font-size:1.08em; }
+.dcard .qtag{ font-size:.8em; color:var(--ink-soft); margin-bottom:4px; }
+.dcard .body{ white-space:pre-wrap; flex:1; }
+.dcard .empty{ color:var(--ink-soft); flex:1; display:grid; place-items:center; text-align:center; }
+.stamp{
+  position:absolute; right:10px; top:40px; transform:rotate(-12deg);
+  color:var(--red); border:3px double var(--red); border-radius:50%;
+  width:74px; height:74px; display:grid; place-items:center; text-align:center;
+  font-size:.78em; line-height:1.1; font-weight:700; background:color-mix(in srgb, var(--paper) 70%, transparent);
+}
+.stamps{ display:flex; gap:4px; flex-wrap:wrap; margin-top:8px; }
+.stamps button{ border:1.5px solid var(--red); color:var(--red); background:none; border-radius:999px; font-size:.75em; padding:0 8px; }
+.stamps button.on{ background:var(--red); color:var(--paper); }
+.hearts{ display:flex; gap:6px; align-items:center; margin-top:8px; font-size:.9em; }
+.hearts button{ border:none; background:none; font-size:1.1em; padding:0; }
+.cmts{ margin-top:8px; border-top:1px dashed var(--line); padding-top:6px; font-size:.9em; }
+.cmts p{ margin:2px 0; }
+.cmts b{ color:var(--cc); }
+.cmt-in{ display:flex; gap:4px; margin-top:4px; }
+.cmt-in input{ flex:1; min-width:0; border:none; border-bottom:1.5px solid var(--line); background:transparent; padding:2px; }
+.cmt-in button{ border:none; background:none; color:var(--ink-soft); }
+
+/* ---------- 책장 ---------- */
+.filters{ display:flex; gap:6px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
+.filters button{ border:2px solid var(--edge); background:var(--paper); border-radius:999px; padding:2px 12px; font-size:.9em; }
+.filters button.on{ border-color:var(--ink); }
+.cal{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:18px; }
+.cal .h{ text-align:center; font-size:.8em; color:var(--ink-soft); }
+.cal button{
+  aspect-ratio:1/0.8; border:1px solid var(--line); background:var(--card); border-radius:8px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:2px;
+}
+.cal button.today{ border:2px solid var(--ink); }
+.cal .dots{ display:flex; gap:3px; height:9px; }
+.cal .dots i{ width:9px; height:9px; border-radius:50%; background:var(--c); }
+.shelf-list article{ border-bottom:1px dashed var(--line); padding:12px 0; }
+.shelf-list .meta{ display:flex; gap:8px; align-items:center; font-size:.88em; color:var(--ink-soft); }
+.shelf-list .meta b{ color:var(--c); }
+.shelf-list h4{ margin:4px 0; }
+.shelf-list .body{ white-space:pre-wrap; }
+.streaks{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:14px; font-size:.95em; }
+
+/* ---------- 오늘 현황 ---------- */
+.status-card{ border:2px solid var(--line); border-left:8px solid var(--c); border-radius:12px; padding:12px 16px; margin-bottom:12px; background:var(--card); }
+.status-card .line1{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.status-card .state{ font-weight:700; }
+.status-card .state.warn{ color:var(--red); }
+.status-card .state.done{ color:var(--ok); }
+.status-card textarea{ width:100%; border:1px solid var(--line); border-radius:8px; background:var(--paper); padding:6px 8px; margin-top:8px; resize:vertical; }
+
+/* ---------- 모달·토스트 ---------- */
+.modal{ position:fixed; inset:0; background:rgba(15,20,40,.45); display:grid; place-items:center; z-index:50; padding:20px; }
+.modal .box{ background:var(--paper); border-radius:16px; padding:22px; width:min(340px,100%); text-align:center; }
+.modal input{ width:100%; text-align:center; font-size:1.6em; letter-spacing:.4em; border:none; border-bottom:2px solid var(--ink); background:transparent; margin:12px 0; }
+.toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:8px 18px; border-radius:999px; z-index:60; max-width:90vw; text-align:center; }
+
+.welcome{ text-align:center; padding:50px 10px; }
+.welcome p{ font-size:1.2em; }
+
+@media (max-width:760px){
+  .grid3{ grid-template-columns:1fr; }
+  .notebook{ padding:16px 12px 20px; }
+  .tabs{ padding-left:6px; overflow-x:auto; }
+  .tabs button{ padding:8px 10px 6px; white-space:nowrap; }
+  h1{ font-size:1.7em; }
+}
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+@media print{
+  body{ background:#fff; padding:0; }
+  header .switch, .who-row, .tabs, .banner, .filters, .cal, .noprint, .daynav button{ display:none !important; }
+  .notebook{ box-shadow:none; padding:0; }
+  .shelf-list article{ break-inside:avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>우리 가족 일기장</h1>
+      <div class="today" id="todayLabel"></div>
+    </div>
+    <div>
+      <div class="switch" id="themeSw" style="margin-bottom:4px">
+        <button data-act="theme" data-v="note">📒 공책</button>
+        <button data-act="theme" data-v="crayon">🖍 크레파스</button>
+        <button data-act="theme" data-v="night">🌙 밤하늘</button>
+      </div>
+      <div class="switch" id="fontSw">
+        <button data-act="font" data-v="yuntaeng">윤탱체</button>
+        <button data-act="font" data-v="bazzi">배찌체</button>
+        <button data-act="font" data-v="maple">메이플체</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="who-row" id="whoRow"></div>
+  <div id="banner"></div>
+  <nav class="tabs" id="tabs"></nav>
+  <main class="notebook" id="main"></main>
+</div>
+
+<div class="modal hidden" id="pinModal">
+  <div class="box">
+    <div id="pinTitle" style="font-size:1.2em"></div>
+    <input id="pinIn" type="password" inputmode="numeric" maxlength="6" autocomplete="off" aria-label="비밀번호">
+    <div class="soft" id="pinMsg">비밀번호를 입력하세요</div>
+    <div style="display:flex; gap:8px; justify-content:center; margin-top:12px">
+      <button class="btn" data-act="pin-cancel">닫기</button>
+      <button class="btn main" data-act="pin-ok">열기</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where,
+  arrayUnion, serverTimestamp, deleteField
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ============================================================
+   ① 설정 — 여기만 고치면 돼요
+   ============================================================ */
+// 공부방 앱(moon-15f88)의 firebaseConfig를 그대로 복사해 넣으세요.
+const firebaseConfig = {
+  apiKey: "여기에_붙여넣기",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "여기에_붙여넣기",
+  messagingSenderId: "여기에_붙여넣기",
+  appId: "여기에_붙여넣기"
+};
+
+// 일기 쓰는 사람 (순서대로 화면에 나와요). 윤아를 넣을 때는 한 줄만 추가하면 돼요.
+const PEOPLE = {
+  me:    { name:"선영", emoji:"🌷", color:"#E6A3B8", pin:"0000", goal:150, level:"adult", admin:true },
+  doyun: { name:"도윤", emoji:"🐯", color:"#8EB6EC", pin:"1111", goal:100, level:"kid4" },
+  dojin: { name:"도진", emoji:"🐣", color:"#9FD3A8", pin:"2222", goal:50,  level:"kid2" }
+};
+const ORDER = Object.keys(PEOPLE);
+
+const NUDGE_HOUR = 19;           // 이 시각 이후에도 일기가 없으면 알림을 띄워요
+// AI 맞춤법 검사 주소: 클라우드플레어 워커를 배포한 뒤 받은 주소로 바꾸세요.
+const SPELL_API = "https://family-spell.아이디.workers.dev";
+const STAMPS = ["참 잘했어요", "최고예요", "멋진 생각", "글씨왕"];
+
+/* ============================================================
+   ② 글감 질문
+   ============================================================ */
+const QUESTIONS = {
+  kid2: [
+    "오늘 가장 웃겼던 일은 무엇이었나요?", "오늘 먹은 것 중에 제일 맛있었던 건?",
+    "오늘 누구랑 가장 많이 놀았나요?", "오늘 새로 알게 된 것이 있나요?",
+    "오늘 나를 칭찬해 준다면 뭐라고 할까요?", "오늘 속상한 일이 있었나요?",
+    "내일 꼭 하고 싶은 일은 무엇인가요?", "오늘 하늘은 어떤 모습이었나요?",
+    "오늘 고마웠던 사람은 누구인가요?", "오늘 가장 열심히 한 일은 무엇인가요?"
+  ],
+  kid4: [
+    "오늘 있었던 일 중 가장 기억에 남는 장면을 자세히 써 보세요.", "오늘 나를 가장 뿌듯하게 한 일은?",
+    "오늘 누군가에게 해 주고 싶었던 말이 있나요?", "오늘 배운 것 중 다른 사람에게 알려 주고 싶은 것은?",
+    "요즘 내가 가장 관심 있는 것은 무엇이고, 왜 좋은가요?", "오늘 실수한 일이 있다면, 다음엔 어떻게 할까요?",
+    "만약 오늘을 다시 산다면 무엇을 바꾸고 싶나요?", "오늘 친구나 가족에게서 본 좋은 모습은?",
+    "오늘 느낀 기분을 날씨에 비유하면?", "일주일 뒤의 나에게 한마디 해 볼까요?"
+  ],
+  adult: [
+    "오늘 아이들에게서 발견한 좋은 모습은?", "오늘 나를 웃게 한 순간은?",
+    "오늘 고마웠던 사람과 그 이유는?", "요즘 가장 마음에 남는 생각은?",
+    "오늘 잘 해낸 일 하나를 적어 볼까요?", "이번 주에 가족과 꼭 하고 싶은 일은?"
+  ]
+};
+const WEATHERS = ["☀️","⛅","☁️","🌧️","⛈️","❄️","🌈"];
+const MOODS = ["😊","😆","🥰","😐","😢","😠","😴"];
+
+/* ============================================================
+   ③ 도우미
+   ============================================================ */
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2, "0");
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today = () => ymd(new Date());
+const parseYmd = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate()+n); return ymd(d); };
+const WEEK = ["일","월","화","수","목","금","토"];
+const fmtDate = s => { const d = parseYmd(s); return `${d.getMonth()+1}월 ${d.getDate()}일 ${WEEK[d.getDay()]}요일`; };
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const toMs = v => !v ? 0 : typeof v === "number" ? v : v.toMillis ? v.toMillis() : Date.parse(v) || 0;
+const hhmm = ms => { const d = new Date(ms); return `${d.getHours()}시 ${pad(d.getMinutes())}분`; };
+const countChars = s => s.replace(/\s/g, "").length;
+const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v){ try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} }
+};
+let toastTimer;
+function toast(msg){
+  let t = $(".toast"); if (!t){ t = document.createElement("div"); t.className = "toast"; document.body.append(t); }
+  t.textContent = msg; t.classList.remove("hidden");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.add("hidden"), 2600);
+}
+
+/* ============================================================
+   ④ 상태
+   ============================================================ */
+const S = {
+  who: null, tab: "write",
+  writeDate: today(), dayDate: today(), month: today().slice(0, 7), filter: "all",
+  entries: {}, status: {}, loaded: false,
+  weather: "", mood: "", useQ: false, qShift: 0,
+  checkedText: null, spell: null, spellFailed: false, formDirty: false,
+  unsub: null, range: null, pinFor: null
+};
+const keyOf = (date, w) => `${date}_${w}`;
+const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
+
+/* ============================================================
+   ⑤ 파이어스토어 불러오기
+   ============================================================ */
+function ensureRange(){
+  const t = today();
+  const want = [addDays(t, -70), S.month + "-01", S.dayDate, S.writeDate].sort();
+  const wantTo = [t, S.month + "-31", S.dayDate].sort();
+  let from = want[0], to = wantTo[wantTo.length - 1];
+  if (S.range && S.range.from <= from && S.range.to >= to) return;
+  if (S.range){ from = [from, S.range.from].sort()[0]; to = [to, S.range.to].sort()[1]; }
+  S.unsub && S.unsub();
+  S.range = { from, to };
+  const q = query(collection(db, "diary"), where("date", ">=", from), where("date", "<=", to));
+  S.unsub = onSnapshot(q, snap => {
+    S.entries = {};
+    snap.forEach(d => { S.entries[d.id] = { id: d.id, ...d.data() }; });
+    S.loaded = true;
+    refresh();
+  }, err => toast("일기를 불러오지 못했어요. Firestore 규칙을 확인해 주세요. (" + err.code + ")"));
+}
+onSnapshot(collection(db, "diaryStatus"), snap => {
+  snap.forEach(d => { S.status[d.id] = d.data(); });
+  refresh();
+}, () => {});
+
+function refresh(){
+  renderWho(); renderBanner();
+  if (!S.who) return;
+  if (S.tab === "write"){ if (!S.formDirty) renderWrite(); }
+  else renderTab();
+}
+
+/* ============================================================
+   ⑥ 이름표 · 로그인
+   ============================================================ */
+function renderWho(){
+  const t = today();
+  $("#whoRow").innerHTML = ORDER.map(w => {
+    const p = PEOPLE[w];
+    return `<button class="who ${S.who === w ? "on" : ""}" style="--c:${p.color}" data-act="who" data-w="${w}">
+      <span class="face">${p.emoji}</span><span>${p.name}</span>
+      ${wroteOn(t, w) ? '<span class="tick">✔ 오늘</span>' : ""}
+    </button>`;
+  }).join("") + (S.who ? `<button class="logout" data-act="logout">다른 사람으로 바꾸기</button>` : "");
+}
+function openPin(w){
+  S.pinFor = w;
+  $("#pinTitle").textContent = `${PEOPLE[w].emoji} ${PEOPLE[w].name}의 일기장`;
+  $("#pinMsg").textContent = "비밀번호를 입력하세요";
+  $("#pinIn").value = "";
+  $("#pinModal").classList.remove("hidden");
+  setTimeout(() => $("#pinIn").focus(), 50);
+}
+function tryPin(){
+  const w = S.pinFor;
+  if ($("#pinIn").value === PEOPLE[w].pin){
+    $("#pinModal").classList.add("hidden");
+    login(w);
+  } else {
+    $("#pinMsg").textContent = "비밀번호가 달라요. 다시 입력해 보세요.";
+    $("#pinIn").value = "";
+  }
+}
+function login(w){
+  S.who = w; store.set("fd_who", w);
+  S.tab = "write"; S.writeDate = today(); S.formDirty = false;
+  renderTabs(); renderWho(); renderBanner(); renderWrite();
+}
+function logout(){
+  S.who = null; store.set("fd_who", null);
+  $("#tabs").innerHTML = ""; renderWho(); renderBanner();
+  $("#main").innerHTML = `<div class="welcome"><p>누구의 일기장을 펼칠까요?</p><p class="soft">위에서 이름을 눌러 주세요.</p></div>`;
+}
+
+/* ============================================================
+   ⑦ 알림 띠 (일기 독려)
+   ============================================================ */
+function studiedToday(w){ const ms = toMs(S.status[w]?.lastStudyAt); return ms && ymd(new Date(ms)) === today(); }
+function streak(w){
+  let d = today(); if (!wroteOn(d, w)) d = addDays(d, -1);
+  let n = 0; while (wroteOn(d, w)){ n++; d = addDays(d, -1); }
+  return n;
+}
+function renderBanner(){
+  const box = $("#banner");
+  if (!S.who || !S.loaded){ box.innerHTML = ""; return; }
+  const w = S.who, p = PEOPLE[w], t = today(), hour = new Date().getHours();
+
+  if (p.admin){
+    const late = ORDER.filter(k => !PEOPLE[k].admin && !wroteOn(t, k) && (studiedToday(k) || hour >= NUDGE_HOUR));
+    box.innerHTML = late.length ? `<div class="banner">
+      <b>📝 ${late.map(k => PEOPLE[k].name).join(", ")}${late.length > 1 ? "가" : (hasBatchim(PEOPLE[late[0]].name) ? "이가" : "가")} 아직 오늘 일기를 안 썼어요.</b>
+      <div class="btns"><button class="btn" data-act="tab" data-v="status">오늘 현황 보기</button></div></div>` : "";
+    return;
+  }
+  if (wroteOn(t, w)){
+    const n = streak(w);
+    box.innerHTML = `<div class="banner"><b>🎉 오늘 일기 완료!</b><span>${n >= 2 ? `🔥 ${n}일 연속으로 쓰고 있어요.` : "내일도 만나요."}</span></div>`;
+    return;
+  }
+  const st = S.status[w] || {};
+  if (st.nudgeAt && st.nudgeSeen === false){
+    const from = PEOPLE[st.nudgeFrom]?.name || "가족";
+    box.innerHTML = `<div class="banner poke"><b>💌 ${esc(from)}의 콕!</b><span>${esc(st.nudgeMsg || "오늘 일기 써 볼까?")}</span>
+      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰러 가기</button><button class="btn" data-act="nudge-seen">알았어요</button></div></div>`;
+    return;
+  }
+  if (studiedToday(w) && hour >= NUDGE_HOUR - 2){
+    box.innerHTML = `<div class="banner"><b>💪 오늘 퀴즈 열심히 풀었네요!</b><span>마지막으로 일기 한 편만 쓰면 오늘 공부 끝이에요.</span>
+      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰기</button></div></div>`;
+  } else if (hour >= NUDGE_HOUR){
+    box.innerHTML = `<div class="banner"><b>🌙 오늘 일기를 아직 안 썼어요.</b><span>세 줄이라도 괜찮아요.</span>
+      <div class="btns"><button class="btn main" data-act="go-write">일기 쓰기</button></div></div>`;
+  } else box.innerHTML = "";
+}
+function hasBatchim(word){ const c = word.charCodeAt(word.length - 1) - 0xAC00; return c >= 0 && c % 28 !== 0; }
+
+/* ============================================================
+   ⑧ 탭
+   ============================================================ */
+function renderTabs(){
+  const tabs = [["write","✏️ 쓰기","#F6C945"],["day","📖 하루 펼쳐보기","#9FD3A8"],["shelf","📚 책장","#8EB6EC"]];
+  if (PEOPLE[S.who].admin) tabs.push(["status","🔔 오늘 현황","#E6A3B8"]);
+  $("#tabs").innerHTML = tabs.map(([k, label, c]) =>
+    `<button style="--tc:${c}" class="${S.tab === k ? "on" : ""}" data-act="tab" data-v="${k}">${label}</button>`).join("");
+  $("#main").style.borderTop = `6px solid ${tabs.find(t => t[0] === S.tab)[2]}`;
+}
+function goTab(k){
+  if (S.tab === "write" && S.formDirty && k !== "write" && !confirm("저장하지 않은 일기가 있어요. 그래도 다른 곳으로 갈까요?")) return;
+  S.tab = k; S.formDirty = false;
+  renderTabs();
+  if (k === "write") renderWrite(); else renderTab();
+}
+function renderTab(){
+  ensureRange();
+  if (S.tab === "day") renderDay();
+  else if (S.tab === "shelf") renderShelf();
+  else if (S.tab === "status") renderStatus();
+}
+
+/* ============================================================
+   ⑨ 쓰기
+   ============================================================ */
+function currentQuestion(){
+  const list = QUESTIONS[PEOPLE[S.who].level];
+  return list[(hash(S.writeDate + S.who) + S.qShift) % list.length];
+}
+function renderWrite(){
+  ensureRange();
+  const p = PEOPLE[S.who];
+  const e = S.entries[keyOf(S.writeDate, S.who)] || {};
+  S.weather = e.weather || ""; S.mood = e.mood || "";
+  S.useQ = !!e.question; S.spell = null; S.spellFailed = false;
+  S.checkedText = e.spellChecked ? (e.content || "") : null;
+  const q = e.question || currentQuestion();
+  const ph = p.level === "kid2" ? "오늘 있었던 일을 써 보세요. 누구랑, 무엇을 했는지 써 봐요."
+           : p.level === "kid4" ? "오늘 있었던 일과 그때 든 생각이나 기분을 함께 써 보세요."
+           : "오늘 하루를 적어 보세요.";
+
+  $("#main").innerHTML = `
+    <div class="row">
+      <input type="date" id="wdate" value="${S.writeDate}" max="${today()}" aria-label="날짜">
+      <span class="soft">${e.content ? "이미 쓴 일기예요. 고친 뒤 다시 저장할 수 있어요." : ""}</span>
+    </div>
+    <div class="row">
+      <div class="pick"><span>날씨</span>${WEATHERS.map(v => `<button data-act="weather" data-v="${v}" class="${S.weather === v ? "on" : ""}">${v}</button>`).join("")}</div>
+      <div class="pick"><span>기분</span>${MOODS.map(v => `<button data-act="mood" data-v="${v}" class="${S.mood === v ? "on" : ""}">${v}</button>`).join("")}</div>
+    </div>
+    <div class="qcard">
+      <span>💡</span><span class="q" id="qText">${esc(q)}</span>
+      <label><input type="checkbox" id="useQ" ${S.useQ ? "checked" : ""}> 이 질문으로 쓸래요</label>
+      <button data-act="q-next">다른 질문</button>
+    </div>
+    <input class="title-in" id="title" placeholder="제목" value="${esc(e.title || "")}" maxlength="40">
+    <textarea class="lined" id="content" placeholder="${ph}">${esc(e.content || "")}</textarea>
+    <div class="gauge-row">
+      <span>✏️</span><div class="gauge" id="gauge"><i></i></div><span class="soft" id="gaugeTxt"></span>
+    </div>
+    <div class="actions">
+      <button class="btn" data-act="voice" id="voiceBtn">🎤 말로 쓰기</button>
+      <button class="btn red" data-act="spell" id="spellBtn">🖍 맞춤법 검사</button>
+      <button class="btn main" data-act="save" id="saveBtn">💾 저장하기</button>
+    </div>
+    <div id="redpen"></div>`;
+  updateGauge();
+}
+function updateGauge(){
+  const ta = $("#content"); if (!ta) return;
+  const n = countChars(ta.value), goal = PEOPLE[S.who].goal;
+  $("#gauge i").style.width = Math.min(100, n / goal * 100) + "%";
+  $("#gauge").classList.toggle("full", n >= goal);
+  $("#gaugeTxt").textContent = n >= goal ? `${n}자, 목표 달성!` : `${n} / ${goal}자`;
+}
+function onContentInput(){
+  S.formDirty = true; updateGauge();
+  const stale = $("#redpen .stale");
+  if (S.spell && S.checkedText !== $("#content").value.trim()){
+    if (!stale) $("#redpen .redpen")?.insertAdjacentHTML("beforeend", `<div class="stale">✏️ 고쳤다면 한 번 더 검사해 보세요.</div>`);
+  }
+}
+
+/* 🎤 말로 쓰기 */
+let rec = null;
+function toggleVoice(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return toast("이 브라우저에서는 말로 쓰기를 쓸 수 없어요. 크롬에서 열어 주세요.");
+  if (rec){ rec.stop(); return; }
+  rec = new SR(); rec.lang = "ko-KR"; rec.interimResults = false; rec.continuous = true;
+  rec.onresult = ev => {
+    let t = "";
+    for (let i = ev.resultIndex; i < ev.results.length; i++) if (ev.results[i].isFinal) t += ev.results[i][0].transcript;
+    if (!t) return;
+    const ta = $("#content"); const v = ta.value;
+    ta.value = v + (v && !/\s$/.test(v) ? " " : "") + t.trim();
+    onContentInput();
+  };
+  rec.onend = () => { rec = null; const b = $("#voiceBtn"); if (b) b.textContent = "🎤 말로 쓰기"; };
+  rec.onerror = e => toast("말로 쓰기가 멈췄어요 (" + e.error + ")");
+  rec.start(); $("#voiceBtn").textContent = "⏹ 그만 말하기";
+}
+
+/* 🖍 AI 맞춤법 검사 */
+async function runSpell(){
+  const text = $("#content").value.trim();
+  if (!text) return toast("먼저 일기를 써 주세요.");
+  const btn = $("#spellBtn"); btn.disabled = true; btn.textContent = "🖍 빨간펜 선생님이 읽는 중…";
+  try {
+    const r = await fetch(SPELL_API, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, level: PEOPLE[S.who].level, name: PEOPLE[S.who].name })
+    });
+    if (!r.ok) throw new Error(r.status);
+    const data = await r.json();
+    S.spell = { text, errors: Array.isArray(data.errors) ? data.errors : [], cheer: data.cheer || "" };
+    S.checkedText = text; S.spellFailed = false;
+    renderSpell();
+  } catch (err){
+    S.spellFailed = true;
+    $("#redpen").innerHTML = `<div class="redpen"><h3>맞춤법 검사 서버에 연결하지 못했어요</h3>
+      <p class="soft">인터넷이나 검사 주소(${esc(SPELL_API)})를 확인해 주세요. 일기 저장은 그대로 할 수 있어요.</p></div>`;
+  } finally {
+    btn.disabled = false; btn.textContent = "🖍 맞춤법 검사";
+  }
+}
+function renderSpell(){
+  const { text, errors, cheer } = S.spell;
+  if (!errors.length){
+    $("#redpen").innerHTML = `<div class="redpen"><h3>💯 틀린 곳이 없어요!</h3><p>${esc(cheer || "정말 잘 썼어요. 이제 저장해 볼까요?")}</p></div>`;
+    return;
+  }
+  // 틀린 곳 위치 찾아 동그라미 치기
+  const found = []; let from = 0;
+  errors.forEach((er, i) => {
+    let idx = text.indexOf(er.wrong, from);
+    if (idx < 0) idx = text.indexOf(er.wrong);
+    if (idx >= 0 && !found.some(f => idx < f.end && idx + er.wrong.length > f.idx)){
+      found.push({ idx, end: idx + er.wrong.length, i }); from = idx + er.wrong.length;
+    }
+  });
+  found.sort((a, b) => a.idx - b.idx);
+  let html = "", pos = 0;
+  found.forEach(f => { html += esc(text.slice(pos, f.idx)) + `<mark>${esc(text.slice(f.idx, f.end))}<sup>${f.i + 1}</sup></mark>`; pos = f.end; });
+  html += esc(text.slice(pos));
+
+  $("#redpen").innerHTML = `<div class="redpen">
+    <h3>🖍 빨간펜 선생님이 ${errors.length}군데를 찾았어요. 스스로 고쳐 볼까요?</h3>
+    <div class="preview">${html}</div>
+    <ol>${errors.map((er, i) => `<li>
+      <span class="wrong">${esc(er.wrong)}</span> — ${esc(er.hint || "다시 한번 살펴보세요.")}
+      <button class="reveal" data-act="reveal" data-i="${i}">정답 보기</button>
+      <span class="ans hidden" id="ans${i}">→ ${esc(er.right)}</span>
+    </li>`).join("")}</ol>
+    <p class="soft">위 일기장에서 직접 고친 다음, 🖍 맞춤법 검사를 한 번 더 눌러 보세요.</p>
+  </div>`;
+}
+
+/* 💾 저장 */
+async function save(){
+  const who = S.who, p = PEOPLE[who];
+  const text = $("#content").value.trim();
+  const title = $("#title").value.trim();
+  if (!text) return toast("일기 내용을 써 주세요.");
+  if (!p.admin && !S.spellFailed){
+    if (S.checkedText !== text){ toast("저장하기 전에 맞춤법 검사를 먼저 해요!"); return runSpell(); }
+    if (S.spell && S.spell.errors.length &&
+        !confirm(`아직 고칠 곳이 ${S.spell.errors.length}군데 남아 있어요.\n고친 뒤 다시 검사하면 좋아요.\n그래도 지금 저장할까요?`)) return;
+  }
+  const id = keyOf(S.writeDate, who);
+  const exists = !!S.entries[id];
+  const btn = $("#saveBtn"); btn.disabled = true;
+  try {
+    await setDoc(doc(db, "diary", id), {
+      author: who, date: S.writeDate,
+      weather: S.weather, mood: S.mood, title, content: text,
+      question: $("#useQ").checked ? $("#qText").textContent : "",
+      spellChecked: S.checkedText === text,
+      spellLeft: S.checkedText === text && S.spell ? S.spell.errors.length : null,
+      updatedAt: serverTimestamp(),
+      ...(exists ? {} : { createdAt: serverTimestamp(), comments: [], hearts: {} })
+    }, { merge: true });
+    if (S.writeDate === today()){
+      await setDoc(doc(db, "diaryStatus", who), { lastDiaryDate: S.writeDate, nudgeSeen: true }, { merge: true });
+    }
+    S.formDirty = false;
+    toast(exists ? "고친 일기를 저장했어요 📔" : "일기를 저장했어요 📔");
+    S.dayDate = S.writeDate; goTab("day");
+  } catch (err){
+    toast("저장하지 못했어요 (" + err.code + "). Firestore 규칙을 확인해 주세요.");
+  } finally { btn.disabled = false; }
+}
+
+/* ============================================================
+   ⑩ 하루 펼쳐보기
+   ============================================================ */
+function renderDay(){
+  const d = S.dayDate, t = today();
+  $("#main").innerHTML = `
+    <div class="daynav">
+      <button data-act="day-move" data-v="-1" aria-label="전날">◀</button>
+      <h2>${fmtDate(d)}${d === t ? " (오늘)" : ""}</h2>
+      <button data-act="day-move" data-v="1" aria-label="다음날" ${d >= t ? "disabled style='opacity:.3'" : ""}>▶</button>
+    </div>
+    <div class="grid3">${ORDER.map(w => dayCard(w, S.entries[keyOf(d, w)])).join("")}</div>`;
+}
+function dayCard(w, e){
+  const p = PEOPLE[w], me = PEOPLE[S.who];
+  const head = `<div class="top"><span>${p.emoji}</span><b>${p.name}</b>${e ? `<span class="wm">${e.weather || ""}${e.mood || ""}</span>` : ""}</div>`;
+  if (!e){
+    const canPoke = me.admin && !p.admin && S.dayDate === today();
+    return `<div class="dcard" style="--c:${p.color}">${head}
+      <div class="empty"><div>아직 안 썼어요${canPoke ? `<br><button class="btn" style="margin-top:8px" data-act="poke" data-w="${w}">👉 콕 찌르기</button>` : ""}</div></div></div>`;
+  }
+  const hearts = e.hearts || {};
+  const heartBy = ORDER.filter(k => hearts[k]);
+  return `<div class="dcard" style="--c:${p.color}">${head}
+    ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
+    ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}
+    ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
+    <div class="body">${esc(e.content)}</div>
+    ${me.admin && !p.admin ? `<div class="stamps">${STAMPS.map(s =>
+      `<button class="${e.stamp === s ? "on" : ""}" data-act="stamp" data-id="${e.id}" data-v="${s}">${s}</button>`).join("")}</div>` : ""}
+    <div class="hearts">
+      <button data-act="heart" data-id="${e.id}" aria-label="하트">${hearts[S.who] ? "❤️" : "🤍"}</button>
+      <span class="soft">${heartBy.map(k => PEOPLE[k].name).join(", ")}</span>
+    </div>
+    <div class="cmts">
+      ${(e.comments || []).map(c => `<p><b style="--cc:${PEOPLE[c.by]?.color || "inherit"}">${esc(PEOPLE[c.by]?.name || c.by)}</b> ${esc(c.text)}</p>`).join("")}
+      <div class="cmt-in"><input placeholder="한마디 남기기" maxlength="80" data-cmt="${e.id}"><button data-act="comment" data-id="${e.id}">남기기</button></div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   ⑪ 책장 (월별 모아보기)
+   ============================================================ */
+function renderShelf(){
+  const [y, m] = S.month.split("-").map(Number);
+  const first = new Date(y, m - 1, 1), last = new Date(y, m, 0).getDate();
+  const who = S.filter === "all" ? ORDER : [S.filter];
+  let cal = WEEK.map(d => `<div class="h">${d}</div>`).join("");
+  for (let i = 0; i < first.getDay(); i++) cal += "<div></div>";
+  for (let d = 1; d <= last; d++){
+    const ds = `${S.month}-${pad(d)}`;
+    const dots = who.filter(w => wroteOn(ds, w)).map(w => `<i style="--c:${PEOPLE[w].color}"></i>`).join("");
+    cal += `<button class="${ds === today() ? "today" : ""}" data-act="open-day" data-v="${ds}" ${ds > today() ? "disabled" : ""}>
+      <span>${d}</span><span class="dots">${dots}</span></button>`;
+  }
+  const list = Object.values(S.entries)
+    .filter(e => e.date.startsWith(S.month) && who.includes(e.author))
+    .sort((a, b) => b.date.localeCompare(a.date) || ORDER.indexOf(a.author) - ORDER.indexOf(b.author));
+
+  $("#main").innerHTML = `
+    <div class="daynav">
+      <button data-act="month-move" data-v="-1" aria-label="지난달">◀</button>
+      <h2>${y}년 ${m}월 일기</h2>
+      <button data-act="month-move" data-v="1" aria-label="다음달" ${S.month >= today().slice(0, 7) ? "disabled style='opacity:.3'" : ""}>▶</button>
+    </div>
+    <div class="filters">
+      <button class="${S.filter === "all" ? "on" : ""}" data-act="filter" data-v="all">모두</button>
+      ${ORDER.map(w => `<button class="${S.filter === w ? "on" : ""}" data-act="filter" data-v="${w}">${PEOPLE[w].emoji} ${PEOPLE[w].name}</button>`).join("")}
+    </div>
+    <div class="streaks noprint">${ORDER.map(w => `<span>${PEOPLE[w].emoji} ${PEOPLE[w].name} 🔥${streak(w)}일 연속</span>`).join("")}</div>
+    <div class="cal">${cal}</div>
+    <div style="text-align:right" class="noprint"><button class="btn" data-act="print">🖨 이 달 일기 인쇄하기</button></div>
+    <div class="shelf-list">${list.length ? list.map(e => {
+      const p = PEOPLE[e.author] || { name: e.author, emoji: "", color: "#999" };
+      return `<article style="--c:${p.color}">
+        <div class="meta"><b>${p.emoji} ${p.name}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span>${e.stamp ? `<span style="color:var(--red)">🔴 ${esc(e.stamp)}</span>` : ""}</div>
+        ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
+        <div class="body">${esc(e.content)}</div></article>`;
+    }).join("") : `<p class="soft" style="text-align:center">이 달에는 아직 일기가 없어요. ✏️ 쓰기에서 첫 일기를 남겨 보세요.</p>`}</div>`;
+}
+
+/* ============================================================
+   ⑫ 오늘 현황 (관리자)
+   ============================================================ */
+function renderStatus(){
+  const t = today(), hour = new Date().getHours();
+  $("#main").innerHTML = `<p class="soft">공부방에서 퀴즈를 푼 시각은 공부방 앱에 연결 코드를 넣은 뒤부터 보여요. ${NUDGE_HOUR}시가 넘으면 아이 화면에 자동 알림도 떠요.</p>` +
+    ORDER.filter(w => !PEOPLE[w].admin).map(w => {
+      const p = PEOPLE[w], st = S.status[w] || {};
+      const wrote = wroteOn(t, w), studied = studiedToday(w);
+      const lastStudy = toMs(st.lastStudyAt);
+      let state, cls;
+      if (wrote){ state = "✅ 오늘 일기 완료"; cls = "done"; }
+      else if (studied){ state = "📝 퀴즈는 풀었는데 일기는 아직이에요"; cls = "warn"; }
+      else if (hour >= NUDGE_HOUR){ state = "🌙 오늘 일기가 아직 없어요"; cls = "warn"; }
+      else { state = "아직 오늘 일기가 없어요"; cls = ""; }
+      const nudgeMs = toMs(st.nudgeAt);
+      const defMsg = `${p.name}${hasBatchim(p.name) ? "아" : "야"}, 오늘 공부 열심히 했네! 이제 일기 한 편 써 볼까? 📔`;
+      return `<div class="status-card" style="--c:${p.color}">
+        <div class="line1"><b>${p.emoji} ${p.name}</b><span class="state ${cls}">${state}</span>
+          <span class="soft" style="margin-left:auto">🔥 ${streak(w)}일 연속</span></div>
+        <div class="soft">마지막 공부: ${lastStudy ? (ymd(new Date(lastStudy)) === t ? "오늘 " : ymd(new Date(lastStudy)) + " ") + hhmm(lastStudy) : "기록 없음 (공부방 연결 전)"}
+          ${nudgeMs ? ` · 마지막 콕: ${hhmm(nudgeMs)} ${st.nudgeSeen ? "(확인함)" : "(아직 안 봄)"}` : ""}</div>
+        ${wrote ? "" : `<textarea rows="2" id="nudge-${w}">${esc(defMsg)}</textarea>
+          <div style="text-align:right; margin-top:6px"><button class="btn main" data-act="poke" data-w="${w}">👉 콕 찌르기</button></div>`}
+      </div>`;
+    }).join("");
+}
+async function poke(w){
+  const p = PEOPLE[w];
+  const msg = $(`#nudge-${w}`)?.value.trim() || `${p.name}${hasBatchim(p.name) ? "아" : "야"}, 오늘 일기 써 볼까? 📔`;
+  try {
+    await setDoc(doc(db, "diaryStatus", w), { nudgeAt: serverTimestamp(), nudgeMsg: msg, nudgeFrom: S.who, nudgeSeen: false }, { merge: true });
+    toast(`${p.name}에게 콕! 보냈어요. 공부방과 일기장 화면에 떠요.`);
+  } catch (err){ toast("보내지 못했어요 (" + err.code + ")"); }
+}
+
+/* ============================================================
+   ⑬ 클릭 한곳에서 처리
+   ============================================================ */
+document.addEventListener("click", async e => {
+  const a = e.target.closest("[data-act]"); if (!a) return;
+  const v = a.dataset.v, id = a.dataset.id;
+  switch (a.dataset.act){
+    case "theme": setTheme(v); break;
+    case "font": setFont(v); break;
+    case "who": if (S.who !== a.dataset.w) openPin(a.dataset.w); break;
+    case "logout": logout(); break;
+    case "pin-ok": tryPin(); break;
+    case "pin-cancel": $("#pinModal").classList.add("hidden"); break;
+    case "tab": goTab(v); break;
+    case "go-write": S.writeDate = today(); goTab("write"); break;
+    case "nudge-seen": setDoc(doc(db, "diaryStatus", S.who), { nudgeSeen: true }, { merge: true }); break;
+    case "weather": case "mood":
+      S[a.dataset.act] = S[a.dataset.act] === v ? "" : v; S.formDirty = true;
+      a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.act]));
+      break;
+    case "q-next": S.qShift++; $("#qText").textContent = currentQuestion(); break;
+    case "voice": toggleVoice(); break;
+    case "spell": runSpell(); break;
+    case "reveal": $("#ans" + a.dataset.i).classList.remove("hidden"); a.remove(); break;
+    case "save": save(); break;
+    case "day-move": S.dayDate = addDays(S.dayDate, +v); if (S.dayDate > today()) S.dayDate = today(); renderTab(); break;
+    case "open-day": S.dayDate = v; goTab("day"); break;
+    case "month-move": {
+      const [y, m] = S.month.split("-").map(Number); const d = new Date(y, m - 1 + (+v), 1);
+      S.month = `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; renderTab(); break;
+    }
+    case "filter": S.filter = v; renderShelf(); break;
+    case "print": window.print(); break;
+    case "poke": poke(a.dataset.w); break;
+    case "stamp": {
+      const cur = S.entries[id]?.stamp;
+      updateDoc(doc(db, "diary", id), { stamp: cur === v ? deleteField() : v }).catch(err => toast("도장을 찍지 못했어요 (" + err.code + ")"));
+      break;
+    }
+    case "heart": {
+      const cur = !!S.entries[id]?.hearts?.[S.who];
+      updateDoc(doc(db, "diary", id), { [`hearts.${S.who}`]: !cur }).catch(err => toast("하트를 남기지 못했어요 (" + err.code + ")"));
+      break;
+    }
+    case "comment": {
+      const inp = document.querySelector(`[data-cmt="${id}"]`); const text = inp.value.trim(); if (!text) return;
+      updateDoc(doc(db, "diary", id), { comments: arrayUnion({ by: S.who, text, at: Date.now() }) })
+        .then(() => { inp.value = ""; }).catch(err => toast("한마디를 남기지 못했어요 (" + err.code + ")"));
+      break;
+    }
+  }
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "content") onContentInput();
+  else if (e.target.id === "title" || e.target.id === "useQ") S.formDirty = true;
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "wdate" && e.target.value){
+    if (S.formDirty && !confirm("저장하지 않은 일기가 있어요. 날짜를 바꿀까요?")){ e.target.value = S.writeDate; return; }
+    S.writeDate = e.target.value > today() ? today() : e.target.value; S.formDirty = false; renderWrite();
+  }
+});
+document.addEventListener("keydown", e => {
+  if (e.target.id === "pinIn" && e.key === "Enter") tryPin();
+  if (e.target.dataset?.cmt && e.key === "Enter") document.querySelector(`[data-act="comment"][data-id="${e.target.dataset.cmt}"]`)?.click();
+  if (e.key === "Escape") $("#pinModal").classList.add("hidden");
+});
+window.addEventListener("beforeunload", e => { if (S.formDirty){ e.preventDefault(); e.returnValue = ""; } });
+
+/* ============================================================
+   ⑭ 디자인·폰트 전환, 시작
+   ============================================================ */
+function setTheme(v){
+  document.documentElement.dataset.theme = v; store.set("fd_theme", v);
+  document.querySelectorAll("#themeSw button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+}
+function setFont(v){
+  document.documentElement.dataset.font = v; store.set("fd_font", v);
+  document.querySelectorAll("#fontSw button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+}
+setTheme(store.get("fd_theme") || "note");
+setFont(store.get("fd_font") || "yuntaeng");
+$("#todayLabel").textContent = fmtDate(today());
+
+// 공부방에서 ?who=doyun 처럼 열면 그 아이 비밀번호 창이 바로 떠요
+const fromLink = new URLSearchParams(location.search).get("who");
+const saved = store.get("fd_who");
+ensureRange();
+if (saved && PEOPLE[saved] && (!fromLink || fromLink === saved)) login(saved);
+else { logout(); if (fromLink && PEOPLE[fromLink]) openPin(fromLink); }
+
+// 밤이 되면 알림 띠를 다시 확인
+setInterval(renderBanner, 5 * 60 * 1000);
+</script>
+</body>
+</html>
+
