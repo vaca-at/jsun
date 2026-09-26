@@ -870,6 +870,77 @@ body.ev .toast{bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 .rd-float{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:55;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 16px;border-radius:999px;background:var(--card);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.18);white-space:nowrap}
 .rd-float span{font-size:.9rem;color:var(--sub);font-variant-numeric:tabular-nums}
 /* ═════════ 새 디자인 끝 ═════════ */
+/* 휴대폰: 문제와 답 칸이 한 화면에 들어오게
+   - 오른쪽 시계 · 도서관 · 스티커 칸은 홈에서만 위쪽에 가로로 (공부 화면에서는 숨겨서 폭을 다 써요)
+   - 디자인 · 글씨 고르기는 홈에서만
+   - 단계 · 단원 단추는 한 줄로 옆으로 밀어서 봐요 */
+@media (max-width:520px){
+  main{padding-right:12px}
+  .dock{position:static;flex-direction:row;gap:6px;padding:8px 12px 0 22px;max-width:780px;margin:0 auto}
+  .dock-t{flex:1;min-width:0;width:auto;padding:6px 2px;border-radius:14px}
+  .dock-t small,.dock-t i{font-size:.68rem;white-space:nowrap}
+  .dock-t b{font-size:.95rem;white-space:nowrap}
+  .dock-t.dk-wx small{display:none}
+  body:not([data-view="home"]) .dock{display:none}
+  body:not([data-view="home"]) .decobar{display:none}
+  .seg.small,.cx-lvs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .seg.small::-webkit-scrollbar,.cx-lvs::-webkit-scrollbar{display:none}
+  .seg.small>.pill,.cx-lvs>.pill{flex:none;white-space:nowrap}
+  /* 세로셈 · 숫자판을 조금 낮게 */
+  .desc{font-size:.88rem;margin:2px 0 8px}
+  .dg{font-size:2.1rem;height:2.7rem}
+  .dg.op{font-size:1.8rem}
+  .colname{font-size:.75rem}
+  .cell{height:2.75rem;font-size:1.9rem}
+  .cell.carry{height:2rem;font-size:1.3rem}
+  .vgrid .bar{margin:0 0 4px}
+  .keypad{gap:6px;margin-top:10px}
+  .key{padding:.4rem 0;font-size:1.6rem}
+  .key.fn{font-size:1rem}
+  .skipbtn{margin-top:8px}
+  /* 모드 단추 줄(듣고 고르기 · 퀴즈 …)도 한 줄로, 급수 · 단계 칸은 낮게 */
+  #view .seg{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  #view .seg::-webkit-scrollbar{display:none}
+  #view .seg>*{flex:none;white-space:nowrap}
+  #view .seg:not(.small) .pill{padding:.4rem .8rem;font-size:.98rem}
+  .deco-row{flex-wrap:nowrap;gap:6px}
+  .deco-row b{flex:none;min-width:0;font-size:.85rem}
+  .deco-row .seg{flex:1;min-width:0}
+  .lvtabs{gap:8px;margin-bottom:8px}
+  .lvtab{padding:6px 4px}
+  .lvtab small{display:none}
+  .lvtabs.mlvtabs{display:flex;overflow-x:auto;scrollbar-width:none}
+  .lvtabs.mlvtabs::-webkit-scrollbar{display:none}
+  .lvtabs.mlvtabs .lvtab{flex:none;padding:6px 12px}
+  /* 보기 단추는 조금 작게 */
+  .replay{width:4rem;height:4rem;font-size:1.9rem;margin:2px auto 8px}
+  .choices{gap:8px;margin-top:8px}
+  .choice{min-height:3.8rem;padding:8px 6px}
+  .choice .emo{font-size:2.3rem}
+  .choices.words .choice{padding:8px}
+  .readpic .emo{font-size:3.4rem}
+  .choices.words .en{font-size:1.35rem}
+  .board .hint{min-height:1.4em;margin-top:4px}
+}
+/* 아이패드 가로 화면(높이가 낮아요): 보기 4개를 한 줄로, 위쪽 칸은 낮게 */
+@media (orientation:landscape) and (min-width:700px) and (max-height:860px){
+  .lvtab{padding:6px}
+  .lvtab small{display:none}
+  .lvtabs{margin-bottom:8px}
+  .readpic .emo{font-size:4.2rem}
+  .replay{width:4.6rem;height:4.6rem;font-size:2.2rem;margin:2px auto 8px}
+  .choices,.choices.short{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));max-width:none}
+  .choices.words{grid-template-columns:1fr 1fr}
+  .choice{min-height:4.6rem;padding:10px 6px}
+  .choice .emo{font-size:2.8rem}
+  /* 학교수학 문제 + 숫자판은 나란히 (연산과 같아요) */
+  #sbody:has(> .keypad),#mbody:has(> .keypad){display:grid;grid-template-columns:minmax(0,1fr) 17rem;grid-template-rows:auto 1fr;column-gap:16px;align-items:start}
+  #sbody:has(> .keypad) > .card,#mbody:has(> .keypad) > .card{grid-column:1;grid-row:1 / span 2;margin:0}
+  #sbody:has(> .keypad) > .keypad,#mbody:has(> .keypad) > .keypad{grid-column:2;grid-row:1;margin:0;max-width:none}
+  #sbody:has(> .keypad) > .skipbtn,#mbody:has(> .keypad) > .skipbtn{grid-column:2;grid-row:2;margin-top:10px}
+  #sbody .key,#mbody .key{padding:.5rem 0;font-size:1.7rem}
+  #sbody .key.fn,#mbody .key.fn{font-size:1rem}
+}
 </style>
 </head>
 <body data-theme="clean">
@@ -2063,6 +2134,7 @@ function addWho(){
 function go(v){ try{ if(RD) readStop(); }catch(e){} App.view=v; render(); window.scrollTo(0,0); }
 function render(){
   if(SUBJ[App.view] && !admin.subj[App.view]) App.view='home';
+  document.body.dataset.view=App.view;   // 휴대폰에서 홈에만 보이는 것들 (시계 · 도서관 칸, 디자인 고르기)
   document.querySelectorAll('.tab').forEach(t=>{
     t.classList.toggle('on',t.dataset.v===App.view);
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];

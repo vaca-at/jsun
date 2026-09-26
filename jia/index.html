@@ -82,9 +82,10 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .hint{min-height:1.6em;margin-top:14px;font-size:1.2rem;color:var(--sub)}
 .praise{font-family:var(--hand),var(--font),sans-serif;font-size:2.2rem;color:var(--ok)}
 .next{display:inline-flex;align-items:center;gap:10px;height:66px;padding:0 34px;border-radius:999px;background:var(--ink);color:#fff;font-size:1.3rem;font-weight:700;margin-top:16px}
+.next[hidden]{display:none}
 
 /* 연산 학습지 */
-.sheet{background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);padding:18px 22px;border-top:10px solid var(--c)}
+.wsheet{background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);padding:18px 22px;border-top:10px solid var(--c)}
 .sheet-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
 .sheet-h b{font-size:1.35rem}
 .row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:12px 0;border-bottom:2px dashed var(--line)}
@@ -94,9 +95,12 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .row .cnt{display:flex;flex-wrap:wrap;gap:4px;max-width:180px}
 .row .cnt i{width:15px;height:15px;border-radius:50%;background:#F59E0B}
 .row .cnt i.b{background:var(--c)}
-.sheet .tray{margin-top:14px;position:sticky;bottom:10px;z-index:5;box-shadow:0 -6px 18px rgba(27,31,46,.06)}
+.wsheet .tray{margin-top:14px;position:sticky;bottom:10px;z-index:5;box-shadow:0 -6px 18px rgba(27,31,46,.06)}
 .sheet-body{display:block}
 @media (min-width:900px){ .sheet-body{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start} .sheet-body .tray{position:sticky;top:90px;bottom:auto;margin-top:6px;box-shadow:none} }
+/* 아이패드: 연산 학습지 5문제가 한 화면에 */
+@media (min-width:521px){ .wsheet .row{padding:8px 0} }
+@media (orientation:landscape) and (min-width:700px) and (max-height:900px){ .wsheet{padding:12px 20px} .wsheet .row{padding:5px 0} .wsheet .row .ex{font-size:2rem} .wsheet .slot.small{min-width:64px;height:64px;font-size:1.9rem} .wsheet .tile.small{min-width:64px;height:64px;font-size:1.9rem} .head{margin-bottom:8px} .head .ico{width:46px;height:46px} .back{height:48px} .levels{margin-bottom:10px} .lv{min-height:42px} }
 @media (orientation:landscape) and (max-height:900px){ .pic{font-size:64px;margin:0} .listen{height:54px;margin:2px 0 8px} .prompt{margin:2px 0 8px} .eq{margin:2px 0 8px} .tray{margin-top:10px;padding:12px} .board{padding:16px 22px} .big-letter{font-size:4.6rem} }
 
 /* 동화 */
@@ -317,6 +321,24 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
   .slot,.tile{min-width:74px;height:74px;font-size:2.3rem;border-radius:20px}
   .slot.small,.tile.small{min-width:64px;height:64px;font-size:1.8rem}
   .tray{gap:10px;padding:12px;margin-top:10px}
+  /* 휴대폰: 윗줄 · 뒤로 버튼을 조금 작게 */
+  .bar-in{padding:6px 12px;gap:8px}
+  .logo{font-size:1rem;gap:8px} .logo i{width:34px;height:34px;font-size:18px;border-radius:11px}
+  .star{height:40px;padding:0 12px;font-size:1rem}
+  .home-btn{width:42px;height:42px;font-size:20px;border-radius:14px}
+  .back{height:46px;padding:0 16px 0 12px;font-size:1.05rem}
+  /* 휴대폰 연산: 문제 5개와 숫자 카드가 한 화면에 (문제는 두 줄로 나란히) */
+  .wsheet{padding:8px 12px 10px;border-top-width:6px}
+  .sheet-h{margin-bottom:2px} .sheet-h b{font-size:1.05rem} .sheet-h .hand{font-size:1rem!important}
+  .wsheet .rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));column-gap:10px}
+  .wsheet .row{grid-template-columns:1fr;padding:5px 0;justify-items:center}
+  .wsheet .row .no{display:none}
+  .wsheet .row .ex{font-size:1.45rem;gap:6px}
+  .wsheet .slot.small{min-width:50px;height:50px;font-size:1.6rem;border-radius:14px;border-width:3px}
+  .wsheet .tray{gap:8px;padding:8px;margin-top:8px;bottom:6px}
+  .wsheet .tile.small{min-width:52px;height:52px;font-size:1.7rem;border-radius:14px;box-shadow:0 4px 0 color-mix(in srgb,var(--c) 30%,var(--line))}
+  .wsheet .hint{margin-top:6px;font-size:1.05rem;min-height:1.3em}
+  .wsheet .next{height:54px;margin-top:4px;font-size:1.15rem}
 }
 .evbar{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:70;padding:.45rem 1rem;border-radius:999px;background:linear-gradient(90deg,#FF7A7A,#FFB64D,#FFE45C,#7BDA8F,#5AB4FF,#A983FF);color:#2B2140;font-size:.95rem;box-shadow:0 6px 18px rgba(0,0,0,.18);white-space:nowrap}
 .evbar[hidden]{display:none}
@@ -339,6 +361,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 <div class="bar"><div class="bar-in">
   <div class="logo"><i>🌱</i>지아의 공부방</div>
   <span class="star">⭐ <span id="starCount">0</span></span>
+  <button class="home-btn" id="sndBtn" data-act="snd" aria-label="소리 끄기">🔊</button>
   <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
 </div></div>
 <main id="view"></main>
@@ -455,7 +478,10 @@ async function cloudPushNow(){
 /* ───── 소리: 유튜브 음악을 멈추지 않게 (다른 방과 같은 설정) ───── */
 try{ if(navigator.audioSession) navigator.audioSession.type='ambient'; }catch(e){}
 let actx, actxRest;
+let muted = store.get('mute', false);   // 오른쪽 위 🔊/🔇 버튼으로 켜고 꺼요
+function drawSnd(){ const b=$('sndBtn'); if(!b) return; b.textContent=muted?'🔇':'🔊'; b.setAttribute('aria-label', muted?'소리 켜기':'소리 끄기'); }
 function beep(ok){
+  if(muted) return;
   try{
     actx = actx || new (window.AudioContext||window.webkitAudioContext)(); clearTimeout(actxRest); if(actx.state==='suspended') actx.resume();
     const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime; o.type='triangle'; o.connect(g); g.connect(actx.destination);
@@ -471,6 +497,7 @@ if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged=l
 function speak(text, lang='ko', onend){
   if(!('speechSynthesis' in window)) return;
   try{ speechSynthesis.cancel(); }catch(e){}
+  if(muted) return;
   const u=new SpeechSynthesisUtterance(text);
   if(lang==='en'){ u.lang='en-US'; u.rate=0.8; if(enVoice) u.voice=enVoice; } else { u.lang='ko-KR'; u.rate=0.85; if(koVoice) u.voice=koVoice; }
   if(onend) u.onend=onend;
@@ -657,7 +684,7 @@ function renderMath(){
   onDrop=(s,t,ok)=>{
     if(!ok){ $('hint').textContent='다시 세어 볼까?'; speak('다시 세어 볼까?'); return; }
     const r=MS.rows[+s.dataset.i]; addStar(1); logToday('math'); speak(`${r.a} 더하기 ${r.b}는 ${r.s}`);
-    if(!document.querySelectorAll('.sheet .slot:not(.filled)').length){
+    if(!document.querySelectorAll('.wsheet .slot:not(.filled)').length){
       MS.page++; const d=store.get('mathDone',{}); d[MS.n]=Math.max(d[MS.n]||0, MS.page); store.set('mathDone',d); burst();
       setTimeout(()=>{ $('hint').innerHTML=`<span class="praise">한 장 끝! ${MS.page>=2?'이 단계를 다 했어요 🏅':''}</span>`;
         $('mathNext').hidden=false; speak(MS.page>=2?`와, 더하기 ${MS.n} 단계를 다 했어요!`:'한 장 끝! 다음 장도 해 볼까?'); },700);
@@ -666,8 +693,8 @@ function renderMath(){
   const tiles=shuffle([...MS.rows.map(r=>r.s), ...pick([...Array(19).keys()].filter(x=>!MS.rows.some(r=>r.s===x)),2)]);
   view.innerHTML=`<div style="--c:${c}">${areaHead('math')}
     <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="mlv" data-v="${n-1}">+${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
-    <div class="sheet"><div class="sheet-h"><b>더하기 ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
-      <div class="sheet-body"><div>${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} + ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
+    <div class="wsheet"><div class="sheet-h"><b>더하기 ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
+      <div class="sheet-body"><div class="rows">${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} + ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
         <div class="cnt">${'<i></i>'.repeat(r.a)}${'<i class="b"></i>'.repeat(r.b)}</div></div>`).join('')}</div>
       <div class="tray">${tiles.map(v=>tileHTML(v,v,'small')).join('')}</div></div>
       <div class="hint" id="hint"></div>
@@ -985,6 +1012,7 @@ function openAllAdmin(){
 const ACT = {
   gate: v=>{ const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); }); },
   go: v=>go(v),
+  snd: ()=>{ muted=!muted; store.set('mute',muted); drawSnd(); if(muted){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); toast('🔇 소리를 껐어요'); } else { toast('🔊 소리를 켰어요'); speak('소리를 켰어요'); } },
   openMom: ()=>openAdmModal('mom'),
   openAdmin: ()=>openAdmModal('admin'),
   admClose: ()=>closeAdm(),
@@ -1022,7 +1050,7 @@ const ACT = {
   decoGive: v=>decoGive(v),
 };
 document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); return; } const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
-drawGate(); updateStars(); render();
+drawGate(); updateStars(); drawSnd(); render();
 evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 </script>
 </body>
