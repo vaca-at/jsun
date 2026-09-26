@@ -10,7 +10,7 @@
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
 @font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap}
 :root{--font-t:'GMarketSans';--tw:700;--bg:#FFF8F2;--paper:#FFFFFF;--card:#FFFFFF;--ink:#1B1F2E;--sub:#6D7385;--line:#EDE6DD;--accent:#FF6A3D;--soft:#FFEFE8;--hi:#FFC53D;--ok:#12A37A;--no:#E5484D;--shadow:0 6px 18px rgba(27,31,46,.08);--rad:24px;
-  --kor:#E8604C;--math:#0FA3B1;--eng:#7A5AF0;--story:#E39A1B;--room:#12A38A;--font:'GMarketSans';--hand:'OwnglyphYuntaeng';
+  --kor:#E8604C;--kor2:#EC8A2F;--math:#0FA3B1;--math2:#3A7BE0;--eng:#7A5AF0;--eng2:#C04FC4;--story:#E39A1B;--room:#12A38A;--font:'GMarketSans';--hand:'OwnglyphYuntaeng';
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *,*::before,*::after{box-sizing:inherit}
 html{font-size:18px}
@@ -34,7 +34,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .hello .hand{font-size:2rem;line-height:1.3}
 .hello .sub{color:var(--sub);font-size:.95rem;margin-top:2px}
 .say{margin-left:auto;flex:none;width:56px;height:56px;border-radius:50%;background:#fff;font-size:26px;box-shadow:var(--shadow)}
-.road{position:relative;display:grid;grid-template-columns:repeat(5,1fr);gap:14px;padding:10px 0 4px}
+.road{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 14px;padding:10px 0 4px}
 .road::before{content:"";position:absolute;left:10%;right:10%;top:78px;height:10px;border-radius:10px;background:repeating-linear-gradient(90deg,#F2D7C4 0 22px,transparent 22px 36px)}
 .stop{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0}
 .stop .ball{width:150px;max-width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-weight:700;font-size:2.6rem;box-shadow:0 12px 24px color-mix(in srgb,var(--c) 32%,transparent);border:6px solid #fff}
@@ -95,6 +95,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .row .cnt{display:flex;flex-wrap:wrap;gap:4px;max-width:180px}
 .row .cnt i{width:15px;height:15px;border-radius:50%;background:#F59E0B}
 .row .cnt i.b{background:var(--c)}
+.row .cnt i.x{background:#E4DED6;box-shadow:inset 0 0 0 2px #CFC7BC}
 .wsheet .tray{margin-top:14px;position:sticky;bottom:10px;z-index:5;box-shadow:0 -6px 18px rgba(27,31,46,.06)}
 .sheet-body{display:block}
 @media (min-width:900px){ .sheet-body{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start} .sheet-body .tray{position:sticky;top:90px;bottom:auto;margin-top:6px;box-shadow:none} }
@@ -374,7 +375,7 @@ const store = {
 };
 const who = '지아';
 let stars = store.get('stars', 0);
-const App = { view:'home', hlv:store.get('hlv',0), mlv:store.get('mlv',0), elv:store.get('elv',0), story:null, decoCat:'base', decoPick:null };
+const App = { view:'home', hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
 const view = document.getElementById('view');
 const $ = id => document.getElementById(id);
 const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
@@ -417,9 +418,12 @@ function addStar(n=1){
   if(n>0 && evOn()){ store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
   stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); }
 /* 날짜별 기록: log[날짜][영역] = {n, ok} (다른 방 · 관리자 대시보드와 같은 모양) */
-function logToday(area, ok=true){ const L=store.get('log',{}), k=dayKey(); L[k]=L[k]||{}; const e=L[k][area]=(typeof L[k][area]==='object'?L[k][area]:{n:0,ok:0}); e.n++; if(ok) e.ok++;
+/* area는 과목(kor · math · eng · story)으로 쌓고, 나눈 놀이(글자 · 낱말 · 더하기 · 빼기 …)는 _sub에 따로 세요 */
+function logToday(area, ok=true, sub){ const L=store.get('log',{}), k=dayKey(); L[k]=L[k]||{}; const e=L[k][area]=(typeof L[k][area]==='object'?L[k][area]:{n:0,ok:0}); e.n++; if(ok) e.ok++;
+  if(sub){ const S=L[k]._sub=L[k]._sub||{}; S[sub]=(S[sub]||0)+1; }
   const ks=Object.keys(L).sort(); while(ks.length>90) delete L[ks.shift()]; store.set('log',L); cloudPush(); }
 const todayN = area => { const e=((store.get('log',{})[dayKey()])||{})[area]; return e?(e.n||0):0; };
+const todaySub = sub => ((((store.get('log',{})[dayKey()])||{})._sub)||{})[sub]||0;
 
 /* ───── 온라인 저장 (Firebase: k7/jia · k7/jia/daily/날짜) ───── */
 const FIREBASE_CONFIG = {
@@ -449,11 +453,11 @@ async function cloudPull(){
     const snap=await kidRef().get();
     if(snap.exists){
       const d=snap.data();
-      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
+      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
       if(typeof d.estars==='number' && (d.estarsAt||0) > store.get('estarsAt',0)){ store.set('estars',d.estars); store.set('estarsAt',d.estarsAt); }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0)){ store.set('stars',d.stars); store.set('starsAt',d.starsAt); }
       if(d.deco && (d.deco.at||0) > (store.get('deco',{}).at||0)) store.set('deco',d.deco);
-      if(d.mathDone){ const m=store.get('mathDone',{}); for(const k in d.mathDone) m[k]=Math.max(m[k]||0,d.mathDone[k]); store.set('mathDone',m); }
+      ['mathDone','subDone'].forEach(dk=>{ if(!d[dk]) return; const m=store.get(dk,{}); for(const k in d[dk]) m[k]=Math.max(m[k]||0,d[dk][k]); store.set(dk,m); });
       if(d.storyOk){ store.set('storyOk',Object.assign({},store.get('storyOk',{}),d.storyOk)); }
     }
     const L=store.get('log',{}), qs=await kidRef().collection('daily').get();
@@ -469,7 +473,7 @@ async function cloudPushNow(){
   if(!await cloudInit()) return;
   try{
     const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
-    await ref.set({name:who, estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()},{merge:true});
+    await ref.set({name:who, estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), subDone:store.get('subDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()},{merge:true});
     const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
     await ref.collection('daily').doc(k).set(Object.assign({visited:true, total}, day),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
@@ -546,9 +550,10 @@ function afterDrop(s, t, ok){
   const P=Q.list[Q.i];
   if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
   if(document.querySelectorAll('#qbox .slot:not(.filled)').length) { if(P.partSay) speak(t.textContent); return; }   // 칸이 더 남았어요
-  addStar(1); logToday(Q.area, !Q.miss); Q.ok[Q.i]=!Q.miss;
+  addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss;
   const msg=praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
-  speak(P.after ? `${msg} ${P.after}` : msg);
+  if(P.after && P.afterLang==='en') speak(msg, 'ko', ()=>speak(P.after, 'en'));   // 칭찬은 한국말, 영어 낱말은 영어 목소리로
+  else speak(P.after ? `${msg} ${P.after}` : msg);
   burst();
   setTimeout(()=>{ Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); }, 1500);
 }
@@ -566,6 +571,7 @@ const JUNG = [['ㅏ','아',0],['ㅑ','야',2],['ㅓ','어',4],['ㅕ','여',6],['
 const syl = (c,j) => String.fromCharCode(0xAC00+(c*21+j)*28);
 const WORDS0 = [['오리','🦆'],['나비','🦋'],['사자','🦁'],['기차','🚂'],['포도','🍇'],['우유','🥛'],['바지','👖'],['치마','👗'],['하마','🦛'],['가지','🍆'],['오이','🥒'],['버스','🚌'],['피자','🍕'],['토마토','🍅'],['바나나','🍌'],['고구마','🍠'],['코끼리','🐘'],['개구리','🐸'],['너구리','🦝'],['야구','⚾']];
 const WORDS1 = [['곰','🐻'],['달','🌙'],['별','⭐'],['꽃','🌸'],['공','⚽'],['밥','🍚'],['책','📚'],['집','🏠'],['사탕','🍬'],['수박','🍉'],['딸기','🍓'],['연필','✏️'],['가방','🎒'],['우산','☂️'],['강아지','🐶'],['사과','🍎'],['물고기','🐟'],['고양이','🐱']];
+/* 한글 ① 글자 놀이: 자음 · 모음 · 글자 만들고 나누기 */
 const HLV = [
   {n:'자음 이름', g:()=>{ const [c,nm]=CHO[rnd(0,13)]; const o=shuffle([c,...pick(CHO.filter(x=>x[0]!==c).map(x=>x[0]),2)]);
     return {say:nm, prompt:`<b>${nm}</b>${josa(nm,'은','는').slice(nm.length)} 어느 글자일까요?`, slots:[c], tiles:o}; }},
@@ -576,10 +582,22 @@ const HLV = [
     return {say:`${c[1]}에 ${j[1]}를 더하면?`, eq:`${c[0]} <span class="op">+</span> ${j[0]} <span class="op">=</span>`, slots:[s], tiles:[...new Set(o)].length<3?shuffle([s,'나','마']):o, after:`${s}`}; }},
   {n:'글자 듣고 찾기', g:()=>{ const s=syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]); const o=new Set([s]); while(o.size<3) o.add(syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]));
     return {say:s, prompt:'들리는 글자를 찾아요', slots:[s], tiles:shuffle([...o])}; }},
+  {n:'글자 나누기', g:()=>{ const ci=rnd(0,13), ji=rnd(0,9), c=CHO[ci], j=JUNG[ji], s=syl(c[2],j[2]);
+    return {say:s, big:s, prompt:'어떤 자음과 모음이 모였을까요?', slots:[c[0], j[0]], small:true, partSay:true,
+      tiles:shuffle([c[0], j[0], CHO[(ci+rnd(1,13))%14][0], JUNG[(ji+rnd(1,9))%10][0]]), after:`${c[1]}, ${j[1]}. ${s}`}; }}
+];
+/* 한글 ② 낱말 놀이: 그림 · 첫 글자 · 받침 · 듣기 · 빈칸 */
+const WORDS = [...WORDS0, ...WORDS1];
+const WLV = [
   {n:'그림 낱말', g:()=>{ const [w,e]=WORDS0[rnd(0,WORDS0.length-1)], ch=[...w]; const extra=syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]);
     return {say:w, pic:e, prompt:'글자를 차례로 놓아요', slots:ch, small:ch.length>2, tiles:shuffle([...ch, extra]), after:w}; }},
+  {n:'첫 글자 찾기', g:()=>{ const list=WORDS.filter(x=>x[0].length>=2), [w,e]=list[rnd(0,list.length-1)], f=w[0];
+    const o=new Set([f]); while(o.size<3) o.add(syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]));
+    return {say:w, pic:e, prompt:'이 낱말의 첫 글자는?', slots:[f], tiles:shuffle([...o]), after:w}; }},
   {n:'받침 있는 낱말', g:()=>{ const [w,e]=WORDS1[rnd(0,WORDS1.length-1)]; const o=new Set([w]); while(o.size<3) o.add(WORDS1[rnd(0,WORDS1.length-1)][0]);
     return {say:w, pic:e, prompt:'그림에 맞는 낱말은?', slots:[w], tiles:shuffle([...o]), wide:true}; }},
+  {n:'낱말 듣고 찾기', g:()=>{ const [w]=WORDS[rnd(0,WORDS.length-1)]; const o=new Set([w]); while(o.size<3) o.add(WORDS[rnd(0,WORDS.length-1)][0]);
+    return {say:w, prompt:'들리는 낱말을 찾아요', slots:[w], tiles:shuffle([...o]), wide:true}; }},
   {n:'낱말 완성', g:()=>{ const list=[...WORDS0,...WORDS1].filter(x=>x[0].length>=2); const [w,e]=list[rnd(0,list.length-1)], ch=[...w], k=rnd(0,ch.length-1);
     const o=new Set([ch[k]]); while(o.size<3) o.add(syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]));
     return {say:w, pic:e, prompt:'빈칸에 들어갈 글자는?', parts:ch.map((c,i)=>i===k?null:c), slots:[ch[k]], tiles:shuffle([...o]), after:w}; }}
@@ -587,13 +605,27 @@ const HLV = [
 /* ───── 영어: 알파벳 소리 ───── */
 const ABC = [['A','apple','🍎'],['B','bear','🐻'],['C','cat','🐱'],['D','dog','🐶'],['E','egg','🥚'],['F','fish','🐟'],['G','grapes','🍇'],['H','hat','🎩'],['I','ice cream','🍦'],['J','juice','🧃'],['K','kite','🪁'],['L','lion','🦁'],['M','monkey','🐵'],
   ['N','nose','👃'],['O','orange','🍊'],['P','pig','🐷'],['Q','queen','👸'],['R','rabbit','🐰'],['S','sun','☀️'],['T','tiger','🐯'],['U','umbrella','☂️'],['V','violin','🎻'],['W','watch','⌚'],['X','X-ray','🩻'],['Y','yo-yo','🪀'],['Z','zebra','🦓']];
+const otherABC = (L, n, low) => pick(ABC.filter(x=>x[0]!==L).map(x=>low?x[0].toLowerCase():x[0]), n);
+/* 영어 ① 알파벳 놀이: 이름 · 대소문자 · 순서 */
 const ELV = [
-  {n:'알파벳 이름', g:()=>{ const [L]=ABC[rnd(0,25)]; return {say:L, lang:'en', prompt:'들리는 알파벳을 찾아요', slots:[L], tiles:shuffle([L,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0]),2)])}; }},
-  {n:'첫 소리 찾기', g:()=>{ const [L,w,e]=ABC[rnd(0,25)]; return {say:`${w}`, lang:'en', pic:e, prompt:`<span style="font-family:system-ui">${w}</span> — 무슨 글자로 시작할까요?`, slots:[L], tiles:shuffle([L,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0]),2)]), after:`${L}. ${w}`, afterLang:'en'}; }},
-  {n:'대문자 · 소문자', g:()=>{ const [L,w]=ABC[rnd(0,25)], l=L.toLowerCase(); return {say:`${L}. ${w}`, lang:'en', big:L, prompt:'같은 글자의 소문자는?', slots:[l], tiles:shuffle([l,...pick(ABC.filter(x=>x[0]!==L).map(x=>x[0].toLowerCase()),2)])}; }}
+  {n:'알파벳 이름', g:()=>{ const [L]=ABC[rnd(0,25)]; return {say:L, lang:'en', prompt:'들리는 알파벳을 찾아요', slots:[L], tiles:shuffle([L,...otherABC(L,2)])}; }},
+  {n:'대문자 · 소문자', g:()=>{ const [L,w]=ABC[rnd(0,25)], l=L.toLowerCase(); return {say:`${L}. ${w}`, lang:'en', big:L, prompt:'같은 글자의 소문자는?', slots:[l], tiles:shuffle([l,...otherABC(L,2,true)])}; }},
+  {n:'소문자 듣고 찾기', g:()=>{ const [L]=ABC[rnd(0,25)], l=L.toLowerCase(); return {say:L, lang:'en', prompt:'들리는 알파벳의 소문자를 찾아요', slots:[l], tiles:shuffle([l,...otherABC(L,2,true)])}; }},
+  {n:'알파벳 순서', g:()=>{ const i=rnd(0,23), [A,B,C]=[ABC[i][0],ABC[i+1][0],ABC[i+2][0]];
+    return {say:`${A}, ${B}`, lang:'en', prompt:'다음에 올 알파벳은?', eq:`${A} <span class="op">·</span> ${B} <span class="op">·</span>`, slots:[C], tiles:shuffle([C,...otherABC(C,2)]), after:`${A}, ${B}, ${C}`, afterLang:'en'}; }}
 ];
-/* ───── 연산: +1 ~ +9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
-function mathPage(n){ const as=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5); return as.map(a=>({a, b:n, s:a+n})); }
+/* 영어 ② 낱말 놀이: 첫 소리 · 그림 보고 단어 · 듣고 그림 */
+const EWLV = [
+  {n:'첫 소리 찾기', g:()=>{ const [L,w,e]=ABC[rnd(0,25)]; return {say:`${w}`, lang:'en', pic:e, prompt:`<span style="font-family:system-ui">${w}</span> — 무슨 글자로 시작할까요?`, slots:[L], tiles:shuffle([L,...otherABC(L,2)]), after:`${L}. ${w}`, afterLang:'en'}; }},
+  {n:'그림 보고 단어', g:()=>{ const i=rnd(0,25), [,w,e]=ABC[i]; const o=[w,...pick(ABC.filter((_,k)=>k!==i).map(x=>x[1]),2)];
+    return {say:w, lang:'en', pic:e, prompt:'그림에 맞는 영어 단어는?', slots:[w], tiles:shuffle(o), wide:true}; }},
+  {n:'듣고 그림 찾기', g:()=>{ const i=rnd(0,25), [,w,e]=ABC[i]; const o=[e,...pick(ABC.filter((_,k)=>k!==i).map(x=>x[2]),2)];
+    return {say:w, lang:'en', prompt:'들리는 단어의 그림을 찾아요', slots:[e], tiles:shuffle(o), tcls:'pic-tile', after:w, afterLang:'en'}; }}
+];
+/* ───── 연산: 더하기 +1 ~ +9 · 빼기 −1 ~ −9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
+function mathPage(n, op='+'){ const ks=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5);
+  return op==='+' ? ks.map(a=>({a, b:n, s:a+n})) : ks.map(k=>({a:k+n, b:n, s:k})); }
+const MATH = { math:{op:'+', key:'mlv', done:'mathDone', w:'더하기'}, minus:{op:'−', key:'slv', done:'subDone', w:'빼기'} };
 
 /* ───── 쉬운 동화 ───── */
 const STORIES = [
@@ -620,17 +652,33 @@ const STORIES = [
 ];
 
 /* ───── 화면 ───── */
-const AREAS = {kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'연산', ico:'1+1', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}, room:{n:'내 방', ico:'🏠', c:'var(--room)'}};
-function go(v){ App.view=v; Q=null; App.story=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
-function render(){ ({home:renderHome, kor:()=>renderQuiz('kor'), eng:()=>renderQuiz('eng'), math:renderMath, story:renderStory, room:renderRoom})[App.view](); }
+/* 과목(기록 · 엄마 모드 · 관리자 대시보드는 이 네 과목으로 모아요) */
+const SUBJ = {kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'연산', ico:'1+1', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}};
+/* 놀이 길 칸: 한글 · 연산 · 영어는 두 칸씩 (p = 기록할 과목) */
+const AREAS = {
+  kor:{n:'한글 글자', ico:'ㄱㅏ', c:'var(--kor)', p:'kor', d:'자음 · 모음 · 글자'},
+  word:{n:'한글 낱말', ico:'나비', c:'var(--kor2)', p:'kor', d:'그림 · 받침 · 빈칸'},
+  math:{n:'더하기', ico:'1+1', c:'var(--math)', p:'math', d:'+1 ~ +9 학습지'},
+  minus:{n:'빼기', ico:'3−1', c:'var(--math2)', p:'math', d:'−1 ~ −9 학습지'},
+  eng:{n:'알파벳', ico:'ABC', c:'var(--eng)', p:'eng', d:'이름 · 대소문자 · 순서'},
+  engw:{n:'영어 낱말', ico:'🍎', c:'var(--eng2)', p:'eng', d:'첫 소리 · 단어 · 그림'},
+  story:{n:'동화', ico:'📖', c:'var(--story)', p:'story', d:'읽고 문제 풀기'},
+  room:{n:'내 방', ico:'🏠', c:'var(--room)', d:'별로 꾸미기'}};
+const QUIZ = {kor:{LV:HLV, key:'hlv'}, word:{LV:WLV, key:'wlv'}, eng:{LV:ELV, key:'elv'}, engw:{LV:EWLV, key:'ewlv'}};
+function go(v){ App.view=v; Q=null; MS=null; App.story=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
+function render(){ if(!AREAS[App.view] && App.view!=='home') App.view='home';
+  const v=App.view;
+  if(QUIZ[v]) renderQuiz(v); else if(MATH[v]) renderMath(v); else ({home:renderHome, story:renderStory, room:renderRoom})[v]();
+  // 휴대폰에서 단계 단추 줄이 옆으로 길 때, 고른 단계가 가운데 보이게
+  const on=document.querySelector('.levels .lv.on'); if(on){ const L=on.parentElement; L.scrollLeft+=on.getBoundingClientRect().left-L.getBoundingClientRect().left-(L.clientWidth-on.offsetWidth)/2; } }
 /* 대문: 들어갈 때 같이 갈 바다 친구를 골라요 (돌고래가 제일 크게) */
 const GATE = [['🐬','돌고래'],['🐳','고래'],['🐠','물고기'],['🐙','문어'],['🦭','물범'],['🐢','거북'],['🦀','꽃게'],['🐧','펭귄'],['🪼','해파리']];
 function drawGate(){ $('gate').innerHTML=GATE.map(([e,n])=>`<button data-act="gate" data-v="${e}" aria-label="${n}랑 들어가기">${e}</button>`).join(''); }
 function renderHome(){
   const me=store.get('gate','🐬');
   view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">지아야, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
-    <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:todayN(k);
-      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?'별로 꾸미기':n?`오늘 ${n}개`:'아직 안 했어요'}</small></button>`; }).join('')}</div>
+    <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:k==='story'?todayN('story'):todaySub(k);
+      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}</div>
     ${progressHTML()}
     <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
@@ -648,14 +696,14 @@ function progressHTML(){
   return `<div class="prog">
     <div class="prog-card"><div class="prog-h"><b>오늘 한 공부</b><span class="big-n">${tot}<small>/ ${admin.goal}개</small></span></div>
       <div class="goalbar"><i style="width:${Math.min(100,Math.round(tot/(admin.goal||20)*100))}%"></i></div>
-      <div class="prog-bars">${STUDY.map(k=>{ const n=(today[k]&&today[k].n)||0; return `<div class="pb" style="--c:${AREAS[k].c}"><span class="pb-ico">${AREAS[k].ico}</span><span class="pb-n">${n}</span><span class="pb-l">${AREAS[k].n}</span></div>`; }).join('')}</div></div>
+      <div class="prog-bars">${STUDY.map(k=>{ const n=(today[k]&&today[k].n)||0; return `<div class="pb" style="--c:${SUBJ[k].c}"><span class="pb-ico">${SUBJ[k].ico}</span><span class="pb-n">${n}</span><span class="pb-l">${SUBJ[k].n}</span></div>`; }).join('')}</div></div>
     <div class="prog-card"><div class="prog-h"><b>${m+1}월 공부 달력</b><span class="big-n">${studied}<small>일</small></span></div>
       <div class="cal">${['일','월','화','수','목','금','토'].map(w=>`<span class="cal-w">${w}</span>`).join('')}${cells}</div>
       <div class="cal-leg">⭐ 공부한 날 · 🌟 10개 넘게 한 날 · 이번 달 모두 ${sum}개</div></div></div>`;
 }
 function areaHead(k){ const a=AREAS[k]; return `<div class="head" style="--c:${a.c}"><button class="back" data-act="back">◀ 뒤로</button><span class="ico">${a.ico}</span><b>${a.n}</b></div>`; }
 function renderQuiz(area){
-  const LV = area==='kor' ? HLV : ELV, key = area==='kor' ? 'hlv' : 'elv', c=AREAS[area].c;
+  const {LV, key} = QUIZ[area], c=AREAS[area].c;
   if(!LV[App[key]]) App[key]=0;
   if(!Q || Q.area!==area || Q.lv!==App[key]) startSet(area, App[key], LV[App[key]].g);
   onDrop=afterDrop;
@@ -670,7 +718,7 @@ function renderQuiz(area){
       <button class="listen" data-act="sayQ">🔊 들어 보기</button>
       ${P.prompt?`<div class="prompt">${P.prompt}</div>`:''}
       <div class="eq">${P.eq||''} ${slots}</div>
-      <div class="tray">${P.tiles.map(v=>tileHTML(v,v,sm)).join('')}</div>
+      <div class="tray">${P.tiles.map(v=>tileHTML(v,v,P.tcls||sm)).join('')}</div>
       <div class="hint" id="hint"></div></div>`; }
   view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}">${i+1}. ${l.n}</button>`).join('')}</div>${body}</div>`;
   if(!Q.done) sayQ();
@@ -678,24 +726,26 @@ function renderQuiz(area){
 function sayQ(){ if(!Q||Q.done||!Q.list) return; const P=Q.list[Q.i]; if(P) speak(P.say, P.lang||'ko'); }
 /* 연산 학습지 */
 let MS=null; // {n, page, rows}
-function renderMath(){
-  const c=AREAS.math.c, done=store.get('mathDone',{});
-  if(!MS || MS.n!==App.mlv+1) MS={n:App.mlv+1, page:0, rows:mathPage(App.mlv+1)};
+function renderMath(area){
+  const M=MATH[area], c=AREAS[area].c, done=store.get(M.done,{}), plus=M.op==='+';
+  if(!MS || MS.area!==area || MS.n!==App[M.key]+1) MS={area, n:App[M.key]+1, page:0, rows:mathPage(App[M.key]+1, M.op)};
   onDrop=(s,t,ok)=>{
     if(!ok){ $('hint').textContent='다시 세어 볼까?'; speak('다시 세어 볼까?'); return; }
-    const r=MS.rows[+s.dataset.i]; addStar(1); logToday('math'); speak(`${r.a} 더하기 ${r.b}는 ${r.s}`);
+    const r=MS.rows[+s.dataset.i]; addStar(1); logToday('math', true, area); speak(`${r.a} ${M.w} ${r.b}는 ${r.s}`);
     if(!document.querySelectorAll('.wsheet .slot:not(.filled)').length){
-      MS.page++; const d=store.get('mathDone',{}); d[MS.n]=Math.max(d[MS.n]||0, MS.page); store.set('mathDone',d); burst();
+      MS.page++; const d=store.get(M.done,{}); d[MS.n]=Math.max(d[MS.n]||0, MS.page); store.set(M.done,d); burst();
       setTimeout(()=>{ $('hint').innerHTML=`<span class="praise">한 장 끝! ${MS.page>=2?'이 단계를 다 했어요 🏅':''}</span>`;
-        $('mathNext').hidden=false; speak(MS.page>=2?`와, 더하기 ${MS.n} 단계를 다 했어요!`:'한 장 끝! 다음 장도 해 볼까?'); },700);
+        $('mathNext').hidden=false; speak(MS.page>=2?`와, ${M.w} ${MS.n} 단계를 다 했어요!`:'한 장 끝! 다음 장도 해 볼까?'); },700);
     }
   };
   const tiles=shuffle([...MS.rows.map(r=>r.s), ...pick([...Array(19).keys()].filter(x=>!MS.rows.some(r=>r.s===x)),2)]);
-  view.innerHTML=`<div style="--c:${c}">${areaHead('math')}
-    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="mlv" data-v="${n-1}">+${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
-    <div class="wsheet"><div class="sheet-h"><b>더하기 ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
-      <div class="sheet-body"><div class="rows">${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} + ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
-        <div class="cnt">${'<i></i>'.repeat(r.a)}${'<i class="b"></i>'.repeat(r.b)}</div></div>`).join('')}</div>
+  // 구슬: 더하기는 두 색으로, 빼기는 처음 수만큼 놓고 빼는 만큼 빈 구슬로
+  const beads = r => plus ? '<i></i>'.repeat(r.a)+'<i class="b"></i>'.repeat(r.b) : '<i></i>'.repeat(r.s)+'<i class="x"></i>'.repeat(r.b);
+  view.innerHTML=`<div style="--c:${c}">${areaHead(area)}
+    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="${M.key}" data-v="${n-1}">${M.op}${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
+    <div class="wsheet"><div class="sheet-h"><b>${M.w} ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
+      <div class="sheet-body"><div class="rows">${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} ${M.op} ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
+        <div class="cnt">${beads(r)}</div></div>`).join('')}</div>
       <div class="tray">${tiles.map(v=>tileHTML(v,v,'small')).join('')}</div></div>
       <div class="hint" id="hint"></div>
       <div style="text-align:center"><button class="next" id="mathNext" hidden data-act="mathNext">${'다음 장 ▶'}</button></div></div></div>`;
@@ -969,7 +1019,7 @@ function drawAdm(){
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`:'<button class="pill on" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>'}</div>`}
     <p class="sub">${cloudTxt}</p>
     <p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
-    <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${AREAS[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
+    <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${SUBJ[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
     <p class="lbl">🎯 하루 목표 <small>(첫 화면 막대의 기준)</small></p>
     <div class="seg">${[10,15,20,30,40].map(g=>`<button class="pill ${admin.goal===g?'on':''}" data-act="admGoal" data-v="${g}">${g}개</button>`).join('')}</div>
     <p class="lbl">💌 지아에게 한마디 <small>(첫 화면에 보여요)</small></p>
@@ -996,10 +1046,10 @@ async function admLogin(){
 }
 async function admResetAll(){
   if(!confirm('지아의 별, 꾸민 방, 공부 기록을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.')) return;
-  ['stars','starsAt','log','deco','mathDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} });
+  ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} });
   const now=Date.now(); stars=0; store.set('stars',0); store.set('starsAt',now); store.set('resetAt',now); updateStars();
   if(await cloudInit()){ try{ const ref=kidRef(), qs=await ref.collection('daily').get(); await Promise.all(qs.docs.map(d=>d.ref.delete()));
-    await ref.set({name:who, resetAt:now, stars:0, starsAt:now, deco:{at:now}, mathDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
+    await ref.set({name:who, resetAt:now, stars:0, starsAt:now, deco:{at:now}, mathDone:{}, subDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
   toast('🗑️ 기록을 모두 지웠어요'); drawAdm();
 }
 function openAllAdmin(){
@@ -1031,11 +1081,11 @@ const ACT = {
   admStar: v=>{ if(admRole==='mom') return; stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
   admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
-  sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글, 연산, 영어, 동화를 차례로 건너 봐요.'),
+  sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
   again: ()=>{ Q=null; render(); },
-  mathNext: ()=>{ const n=MS.n, pg=MS.page; if(pg>=2){ App.mlv=Math.min(8,App.mlv+1); store.set('mlv',App.mlv); MS=null; } else MS={n, page:pg, rows:mathPage(n)}; render(); window.scrollTo(0,0); },
+  mathNext: ()=>{ const M=MATH[MS.area], n=MS.n, pg=MS.page; if(pg>=2){ App[M.key]=Math.min(8,App[M.key]+1); store.set(M.key,App[M.key]); MS=null; } else MS={area:MS.area, n, page:pg, rows:mathPage(n, M.op)}; render(); window.scrollTo(0,0); },
   openStory: v=>{ App.story=v; render(); window.scrollTo(0,0); },
   readAll: ()=>readFrom(0),
   readStop: ()=>{ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); },
