@@ -2160,11 +2160,19 @@ function showLogin(){
   document.getElementById('loginTitle').textContent='오늘은 어떤 고양이로 들어갈까? 🐱';
   document.getElementById('whoList').innerHTML = `<div class="lp"><div class="char-grid">${CHARS.map((c,i)=>
     `<button class="who" data-act="loginChar" data-v="${i}" aria-label="${c.t} 골라서 들어가기">${charHTML(c)}<b>${KID}</b><small>${c.t}</small></button>`).join('')}</div></div>`;
+  if(GUEST) document.getElementById('whoList').insertAdjacentHTML('beforeend','<p style="text-align:center;margin:14px 0 0"><button class="pill" data-act="guestBack" style="white-space:nowrap">← 구경하기로 돌아가기</button></p>');
   document.getElementById('settings').hidden=true;
   document.getElementById('login').hidden=false;
 }
-function loadProfile(name){
-  who=name; store.set('lastWho',name);
+/* 구경 모드: 처음 들어오면 비밀번호 없이 홈만 보여 줘요 (자랑하기 좋게). 과목 · 도서관 · 내 방 · 게임 등을 누르면 비밀번호 화면으로 가고,
+   맞히면 누르려던 곳으로 바로 가요. 구경하는 동안은 방문 · 공부 시간 · 온라인 저장을 남기지 않아요. */
+let GUEST=false, guestNext=null;
+const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','clockTile','wxTile','reloadApp','openSet','guestBack'];
+function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false; if(a==='tab') return el.dataset.v!=='home'; return !GUEST_OK.includes(a); }
+function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>{ const f=ACT[n.a]; if(f) f(n.v, el); }, 60); }
+function loadProfile(name, guest){
+  GUEST=!!guest;
+  who=name; if(!guest) store.set('lastWho',name);
   App.level=store.get('level',1); App.op=store.get('op','add'); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
   settings=Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
@@ -2173,7 +2181,7 @@ function loadProfile(name){
   if(!['clean','bright'].includes(settings.theme)) settings.theme='clean';
   stars=store.get('stars',0);
   V=C=Q=S=H=HQ=K=null; App.view='home'; lastDay=dayKey();
-  markVisit(); applySettings(); updateStars();
+  if(!guest) markVisit(); applySettings(); updateStars();
   document.getElementById('whoBtn').textContent=`${josa(name,'이의','의')} 공부방`;
   document.title=`${josa(name,'이의','의')} 공부방`;
   document.getElementById('login').hidden=true;
@@ -2183,8 +2191,9 @@ function loadProfile(name){
     if(!ok || who!==name) return;
     stars=store.get('stars',0); updateStars();
     if(App.view==='home') render();
-    cloudPush();
+    if(!GUEST) cloudPush();
   });
+  if(!guest) guestAfter();
 }
 function addWho(){
   const n=document.getElementById('newWho').value.trim().replace(/[<>"'&_]/g,'');
@@ -4704,6 +4713,7 @@ const ACT = {
   clockTile: ()=>{ if(!admin.subj.school){ toast('지금 시각을 잘 읽어 봐요!'); return; } App.unit='time'; store.set('unit','time'); S=null; App.smode='learn'; go('school'); },
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),
+  guestBack: ()=>{ guestNext=null; LP=null; document.getElementById('login').hidden=true; },
   login: v=>loginPin(v),
   loginChar: v=>{ store.set('charPick',{d:dayKey(), i:+v}); loginPin(KID); },
   lpin: v=>lpinKey(v),
@@ -4877,6 +4887,7 @@ const ACT = {
 document.addEventListener('click',e=>{
   if(e.target.id==='settings'){ closeModal(); return; }
   const el=e.target.closest('[data-act]'); if(!el) return;
+  if(guestBlocked(el)){ guestNext={a:el.dataset.act, v:el.dataset.v}; showLogin(); return; }
   const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el);
 });
 document.addEventListener('keydown',e=>{
@@ -4898,7 +4909,7 @@ document.addEventListener('keydown',e=>{
 
 applySettings();
 updateStars();
-showLogin();
+loadProfile(KID, true);   // 구경 모드로 시작
 cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);

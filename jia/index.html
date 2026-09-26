@@ -355,13 +355,14 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 </style>
 </head>
 <body>
-<div class="login" id="login">
+<div class="login" id="login" hidden>
   <div>
     <div class="gate-top">🌊</div>
     <h1>지아야, 안녕!</h1>
     <div class="hand" style="font-size:1.6rem;color:var(--sub)">오늘은 어떤 친구랑 들어갈까?</div>
     <div class="gate" id="gate"></div>
     <div class="adm-links"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>
+    <button class="pill" data-act="guestBack" style="margin-top:14px;white-space:nowrap">← 구경하기로 돌아가기</button>
   </div>
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
@@ -1131,7 +1132,8 @@ function openAllAdmin(){
 
 /* ───── 눌렀을 때 ───── */
 const ACT = {
-  gate: v=>{ const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); }); },
+  guestBack: ()=>{ guestNext=null; $('login').hidden=true; },
+  gate: v=>{ GUEST=false; const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); });  const n=guestNext; guestNext=null; if(n && ACT[n.a]){ const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>ACT[n.a](n.v, el), 60); } },
   go: v=>go(v),
   snd: ()=>{ muted=!muted; store.set('mute',muted); drawSnd(); if(muted){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); toast('🔇 소리를 껐어요'); } else { toast('🔊 소리를 켰어요'); speak('소리를 켰어요'); } },
   openMom: ()=>openAdmModal('mom'),
@@ -1177,8 +1179,16 @@ const ACT = {
   lockPick: v=>{ App.lockPick = App.lockPick===v ? null : v; renderMyRoom(); },
   decoGive: v=>decoGive(v),
 };
-document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); return; } const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return; const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
+/* 구경 모드: 처음 들어오면 비밀번호 없이 홈만 보여 줘요 (자랑하기 좋게). 과목 · 도서관 · 내 방 · 게임 등을 누르면 비밀번호 화면으로 가고,
+   맞히면 누르려던 곳으로 바로 가요. 구경하는 동안은 방문 · 공부 시간 · 온라인 저장을 남기지 않아요. */
+let GUEST=true, guestNext=null;
+const GUEST_OK=['sayHome','snd','openMom','openAdmin','guestBack'];
+function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || el.closest('#login,#modal,.admpop')) return false; if(a==='go') return el.dataset.v!=='home'; return !GUEST_OK.includes(a); }
+document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); return; } const el=e.target.closest('[data-act]'); if(!el || el.classList.contains('tile')) return;
+  if(guestBlocked(el)){ guestNext={a:el.dataset.act, v:el.dataset.v}; $('login').hidden=false; return; }
+  const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el); });
 drawGate(); updateStars(); drawSnd(); render();
+cloudPull().then(ok=>{ if(ok && GUEST) render(); }); cloudPullSettings().then(ch=>{ if(ch && GUEST) render(); });   // 구경 모드도 온라인 기록으로
 evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 </script>
 </body>

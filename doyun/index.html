@@ -2123,7 +2123,7 @@ function removeWrong(id){ store.set('wrongs', store.get('wrongs',[]).filter(x=>x
 let lastAct = 0, secBuf = 0;
 const dayMin = (k=dayKey(), name=who) => Math.round((store.get('studysec',{},name)[k]||0)/60);
 function studyTick(){
-  if(!who || document.hidden || App.view==='home' || App.view==='sticker') return;
+  if(!who || GUEST || document.hidden || App.view==='home' || App.view==='sticker') return;
   if(Date.now()-lastAct > 60000) return;
   if(!document.getElementById('login').hidden) return;
   if(++secBuf < 15) return;
@@ -2348,12 +2348,19 @@ function showLogin(){
   LP=null; document.getElementById('loginNew').hidden=true;
   document.getElementById('loginTitle').textContent='오늘은 어떤 친구랑 공부할까?';
   document.getElementById('whoList').innerHTML = `<div class="lp"><p class="sub" style="margin:0 0 10px">좋아하는 그림을 눌러서 들어가요 🌊</p>
-    <div class="sea-grid">${SEA_FRIENDS.map(e=>`<button class="sea" data-act="loginSea" data-v="${e}" aria-label="${e} 골라서 들어가기">${e}</button>`).join('')}</div></div>`;
+    <div class="sea-grid">${SEA_FRIENDS.map(e=>`<button class="sea" data-act="loginSea" data-v="${e}" aria-label="${e} 골라서 들어가기">${e}</button>`).join('')}</div>${GUEST?'<p style="text-align:center;margin:14px 0 0"><button class="pill" data-act="guestBack" style="white-space:nowrap">← 구경하기로 돌아가기</button></p>':''}</div>`;
   document.getElementById('settings').hidden=true;
   document.getElementById('login').hidden=false;
 }
-function loadProfile(name){
-  who=name; store.set('lastWho',name);
+/* 구경 모드: 처음 들어오면 비밀번호 없이 홈만 보여 줘요 (자랑하기 좋게). 과목 · 도서관 · 내 방 · 게임 등을 누르면 비밀번호 화면으로 가고,
+   맞히면 누르려던 곳으로 바로 가요. 구경하는 동안은 방문 · 공부 시간 · 온라인 저장을 남기지 않아요. */
+let GUEST=false, guestNext=null;
+const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','clockTile','wxTile','reloadApp','openSet','guestBack'];
+function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false; if(a==='tab') return el.dataset.v!=='home'; return !GUEST_OK.includes(a); }
+function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>{ const f=ACT[n.a]; if(f) f(n.v, el); }, 60); }
+function loadProfile(name, guest){
+  GUEST=!!guest;
+  who=name; if(!guest) store.set('lastWho',name);
   App.unit=store.get('unit','frac'); App.hlv=store.get('hlv',9); App.hslv=store.get('hslv',9); App.elv=store.get('elv','e4');
   settings=Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
@@ -2362,7 +2369,7 @@ function loadProfile(name){
   if(!['clean','bright'].includes(settings.theme)) settings.theme='clean';
   stars=store.get('stars',0);
   Q=S=H=HQ=K=R=G=E=SQ=null; App.view='home'; lastDay=dayKey();
-  markVisit(); applySettings(); updateStars();
+  if(!guest) markVisit(); applySettings(); updateStars();
   document.getElementById('whoBtn').textContent=`${josa(name,'이의','의')} 공부방`;
   document.title=`${josa(name,'이의','의')} 공부방`;
   document.getElementById('login').hidden=true;
@@ -2372,8 +2379,9 @@ function loadProfile(name){
     if(!ok || who!==name) return;
     stars=store.get('stars',0); updateStars();
     if(App.view==='home') render();
-    cloudPush();
+    if(!GUEST) cloudPush();
   });
+  if(!guest) guestAfter();
 }
 function addWho(){
   const n=document.getElementById('newWho').value.trim().replace(/[<>"'&_]/g,'');
@@ -5002,6 +5010,7 @@ const ACT = {
   clockTile: ()=>{ const t=new Date(), h=t.getHours(), s=`${h<12?'오전':'오후'} ${h%12||12}시 ${t.getMinutes()}분이에요`; toast('⏰ 지금은 '+s); speak('지금은 '+s,'ko'); },
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),
+  guestBack: ()=>{ guestNext=null; LP=null; document.getElementById('login').hidden=true; },
   login: v=>loginPin(v),
   loginSea: v=>{ store.set('seaPick',{d:dayKey(), e:v}); document.getElementById('loginTitle').textContent=v+' 친구랑 들어가요!'; loginPin(KID); },
   lpin: v=>lpinKey(v),
@@ -5193,6 +5202,7 @@ document.addEventListener('click',e=>{
   lastAct=Date.now();
   if(e.target.id==='settings'){ closeModal(); return; }
   const el=e.target.closest('[data-act]'); if(!el || el.disabled) return;
+  if(guestBlocked(el)){ guestNext={a:el.dataset.act, v:el.dataset.v}; showLogin(); return; }
   const f=ACT[el.dataset.act]; if(f) f(el.dataset.v, el);
 });
 document.addEventListener('keydown',e=>{
@@ -5215,7 +5225,7 @@ document.addEventListener('keydown',e=>{
 
 applySettings();
 updateStars();
-showLogin();
+loadProfile(KID, true);   // 구경 모드로 시작
 cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);
