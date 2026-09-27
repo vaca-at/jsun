@@ -10,12 +10,13 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141A28;--paper:#1B2336;--ink:#F2EDE3;--sub:#9CA2B0;--line:#2B3550;--accent:#F59C86}}
 :root[data-theme="dark"]{--bg:#141A28;--paper:#1B2336;--ink:#F2EDE3;--sub:#9CA2B0;--line:#2B3550;--accent:#F59C86}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.75;font-size:16px}
-.doc{max-width:760px;margin:0 auto;padding:20px 16px 48px;word-break:keep-all}
-h1{font-size:1.7rem;margin:.4rem 0 .2rem}
-h2{font-size:1.15rem;margin:1.8rem 0 .4rem;padding-top:.8rem;border-top:2px solid var(--line)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.7;font-size:13px}
+.doc{max-width:720px;margin:0 auto;padding:16px 16px 40px;word-break:keep-all}
+h1{font-size:1.25rem;margin:.3rem 0 .1rem}
+h2{font-size:1.05rem;margin:1.4rem 0 .3rem;padding-top:.6rem;border-top:1.5px solid var(--line)}
 .meta{color:var(--sub);font-size:.9rem}
 .top{font-size:.95rem}
+.top a+a{margin-left:12px}
 a{color:var(--accent)}
 ul{padding-left:1.3rem}
 li{margin:.2rem 0}
@@ -29,7 +30,7 @@ td:first-child{white-space:nowrap;font-weight:600}
 </head>
 <body>
 <main class="doc">
-<p class="top"><a href="./">◀ 아이아이노트로 돌아가기</a></p>
+<p class="top"><a href="./">◀ 아이아이노트로 돌아가기</a><a href="terms.html">이용약관 보기</a></p>
 <h1>개인정보처리방침</h1>
 <p class="meta">대상: 아이아이노트 웹앱(iinote.co.kr)과 안드로이드 앱 · 시행일 2026년 9월 27일</p>
 
@@ -68,6 +69,7 @@ td:first-child{white-space:nowrap;font-weight:600}
 <tr><td>AI 맞춤법 서비스</td><td>아이가 ‘AI 맞춤법 선생님’ 버튼을 누른 경우에만 그 일기의 본문과 학년을 보내 맞춤법 결과를 받아요. 이 기능은 현재 준비 중이에요. 연결하면 서비스 제공업체 이름을 여기에 적을게요.</td></tr>
 <tr><td>OpenStreetMap (Nominatim)</td><td>‘지금 있는 곳’을 누른 경우에만, 대략적인 위치 값을 보내 동네 이름을 받아 와요.</td></tr>
 </table>
+<p>‘카카오톡 공유하기’ 버튼을 위해 카카오 JavaScript SDK를 불러와요. 버튼을 누르면 아이아이노트 주소(일기 내용은 아님)가 카카오톡 공유 화면으로 전달돼요.</p>
 <p>일기 속 장소를 누르면 카카오맵이 열리는데, 이때는 장소 이름과 위치 값이 카카오맵 주소에 담겨 전달돼요.</p>
 
 <h2>5. 얼마나 보관하고, 어떻게 지우나요?</h2>

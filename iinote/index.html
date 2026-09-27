@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FBF6EE">
 <title>아이아이노트 - 가족이 함께 쓰는 일기장</title>
-<meta name="description" content="가족이 함께 쓰고, 서로 읽어 주는 일기장">
+<meta name="description" content="아이의 일기장을 AI 선생님이 맞춤법 검사를 해주고 피드백을 해줘요. 엄마 아빠는 앱에서, 아이는 웹에서 쉽게 일기를 쓰고 서로 댓글을 남길 수도 있어요.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="아이아이노트">
-<meta property="og:title" content="아이아이노트">
-<meta property="og:description" content="가족이 함께 쓰고, 서로 읽어 주는 일기장">
+<meta property="og:title" content="아이아이노트 - 온 가족이 함께 쓰는 일기장">
+<meta property="og:description" content="아이의 일기장을 AI 선생님이 맞춤법 검사를 해주고 피드백을 해줘요. 엄마 아빠는 앱에서, 아이는 웹에서 쉽게 일기를 쓰고 서로 댓글을 남길 수도 있어요.">
 <meta property="og:image" content="https://iinote.co.kr/icon.png">
 <meta property="og:url" content="https://iinote.co.kr/">
 <link rel="icon" type="image/png" href="icon.png">
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js" integrity="sha384-oroumrnFVE0xtgqyDZJARgERibXg2C28380uaUZz2kHDS5CR7tu20eGiOU6GkTpy" crossorigin="anonymous" defer></script>
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,6 +31,7 @@
   --butter:#F4BE45; --butter-soft:#FCEFC9;
   --sage:#3F7F70; --sage-soft:#DFEEE9;
   --sky:#6F9BD8; --sky-soft:#DDE8F6; --lilac:#A98BD0; --lilac-soft:#ECE3F6;
+  --kakao:#FEE500; --kakao-ink:#191919;
   --focus:#F4BE45;
   --r-lg:22px; --r-md:14px; --r-sm:10px;
   --sans:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
@@ -80,6 +82,11 @@ a{color:var(--coral-ink)}
 .ai-report{margin:10px 0 0;text-align:right}
 .ai-report .link-btn{font-size:13px}
 .btn.wide{width:100%}
+.btn-kakao{background:var(--kakao);color:var(--kakao-ink)}
+.btn-kakao:hover{filter:brightness(.96)}
+.btn-kakao .ic{fill:currentColor;stroke:none}
+.share-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:14px}
+.share-row small{font-size:13px;color:var(--ink3)}
 .icon-btn{display:inline-grid;place-items:center;width:36px;height:36px;border-radius:50%;border:0;background:none;color:var(--ink3)}
 .icon-btn:hover{background:var(--surface2);color:var(--ink)}
 .link-btn{display:inline-flex;align-items:center;gap:4px;border:0;background:none;padding:4px 2px;color:var(--ink3);font-size:14px;font-weight:600}
@@ -113,9 +120,17 @@ legend{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:6px;paddin
 .land-brand{display:flex;align-items:center;gap:14px;font-weight:800;font-size:20px;letter-spacing:-.3px}
 .land h1{font-family:var(--diary);font-weight:700;font-size:clamp(34px,5vw,50px);line-height:1.25;letter-spacing:-1px;margin:28px 0 16px}
 .land-lead{font-size:18px;color:var(--ink2);max-width:30em;margin:0 0 28px}
-.land-feats{list-style:none;padding:0;margin:0 0 32px;display:grid;gap:10px}
-.land-feats li{display:flex;gap:10px;align-items:flex-start;color:var(--ink2)}
-.land-feats .dot{width:10px;height:10px;border-radius:50%;margin-top:8px;flex:none}
+.app-soon{margin:-12px 0 18px;padding:10px 14px;border-radius:14px;background:var(--butter-soft);border:1.5px dashed var(--butter);font-size:14px;color:var(--ink2)}
+.app-soon b{color:var(--ink);margin-right:4px}
+.land-badges{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-wrap:wrap;gap:8px}
+.land-badges li{display:inline-flex;align-items:center;gap:5px;padding:5px 12px 5px 9px;border-radius:999px;background:var(--ink);color:var(--paper);font-size:14px;font-weight:700}
+.land-badges .ic{width:16px;height:16px;color:var(--butter)}
+.land-str{list-style:none;padding:0;margin:0 0 28px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.land-str li{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:18px;background:var(--surface);border:1.5px solid var(--line);border-top:4px solid var(--sc)}
+.ls-ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--ss);color:var(--ink);flex:none}
+.land-str b{display:block;font-size:16px;letter-spacing:-.2px}
+.land-str p{margin:4px 0 0;font-size:14px;line-height:1.5;color:var(--ink2)}
+@media (max-width:640px){ .land-str{grid-template-columns:1fr} }
 .demo-note{margin-top:16px;font-size:14px;color:var(--ink3);max-width:32em}
 .anywhere{background:var(--surface);border:1.5px solid var(--line);border-radius:28px;padding:28px}
 .anywhere h2{font-size:20px;margin:0 0 4px;letter-spacing:-.3px}
@@ -603,6 +618,9 @@ const FIREBASE_CONFIG = {
 const AI_WORKER_URL = "https://여기에-워커-주소.workers.dev";
 // 컴퓨터에서 접속하는 쉬운 주소 (화면 곳곳에 안내돼요)
 const SITE_ADDRESS = "jsun.site/iinote";
+// 카카오톡 공유: JavaScript 키 (카카오 개발자 > 앱 > 플랫폼 > Web에 사이트 도메인을 등록해야 동작해요)
+const KAKAO_JS_KEY = "af2b2ce946d6ce93d51a11914063e4fd";
+const SHARE_URL = "https://iinote.co.kr";
 // 기능별 사용 대상: "parent" = 어른만, "all" = 모두
 const FEATURES = { photos:"parent", location:"parent", audio:"all", tags:"all" };
 // 사진·소리는 파이어베이스 Storage에 저장돼요. (Storage는 Blaze 요금제에서 켤 수 있어요)
@@ -940,7 +958,8 @@ const ICONS = {
   mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   stop:'<rect x="6" y="6" width="12" height="12" rx="2"/>',
   search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
-  left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>'
+  left:'<path d="M15 5l-7 7 7 7"/>', right:'<path d="M9 5l7 7-7 7"/>',
+  talk:'<path d="M12 3.5c-5.2 0-9.5 3.3-9.5 7.4 0 2.6 1.7 4.9 4.3 6.2l-.9 3.4c-.1.3.3.6.6.4l4-2.7c.5.1 1 .1 1.5.1 5.2 0 9.5-3.3 9.5-7.4S17.2 3.5 12 3.5z"/>'
 };
 const ic = n => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICONS[n]||""}</svg>`;
 const logo = s => `<span class="logo-wrap" style="width:${s}px;height:${s}px;border-radius:${Math.round(s*.227)}px"><svg viewBox="0 0 440 440" aria-hidden="true"><rect width="440" height="440" fill="#FBF6EE"/><line x1="0" y1="352" x2="440" y2="352" stroke="#E9DCC8" stroke-width="8"/><line x1="92" y1="0" x2="92" y2="440" stroke="#F2B5A4" stroke-width="8"/><rect x="148" y="178" width="54" height="174" rx="27" fill="#1F2A44"/><rect x="240" y="226" width="54" height="126" rx="27" fill="#1F2A44"/><circle cx="175" cy="122" r="34" fill="#EF6F53"/><circle cx="267" cy="170" r="34" fill="#F4BE45"/></svg></span>`;
@@ -963,6 +982,7 @@ function viewLightbox(){
 }
 const moodChip = k => { const m=MOODS.find(x=>x[0]===k); return m?`<span class="mood-chip"><i style="background:${m[2]}"></i>${m[1]}</span>`:"<span></span>"; };
 const addrBox = () => `<div class="addr"><span class="addr-t"><small>컴퓨터·노트북에서는 이 주소로</small><strong>${esc(SITE_ADDRESS)}</strong></span><button class="btn btn-ghost sm" data-act="copy" data-v="https://${esc(SITE_ADDRESS)}">${ic("copy")}복사</button></div>`;
+const kakaoBtn = (sm) => `<div class="share-row"><button class="btn btn-kakao ${sm?"sm":""}" data-act="kakao-share">${ic("talk")}카카오톡 공유하기</button><button class="btn btn-ghost ${sm?"sm":""}" data-act="copy" data-v="${SHARE_URL}">${ic("link")}링크 복사</button></div>`;
 const devicesArt = () => `<svg class="devices" viewBox="0 0 400 210" aria-hidden="true" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round">
   <rect x="14" y="30" width="206" height="136" rx="10" fill="var(--paper)"/><path d="M2 176h230l-12 14H14z" fill="var(--surface2)"/>
   <line x1="44" y1="30" x2="44" y2="166" stroke="var(--margin)" stroke-width="2"/>
@@ -992,24 +1012,29 @@ function viewLanding(){
     <section>
       <div class="land-brand">${logo(44)}<span>아이아이노트</span></div>
       <h1>가족이 함께 쓰고,<br>서로 읽어 주는 일기장</h1>
-      <p class="land-lead">엄마 아빠의 하루와 아이의 하루가 한 권에 모여요. 아이 일기는 AI가 맞춤법을 살펴 주고, 자주 틀린 낱말은 퀴즈가 돼요.</p>
-      <ul class="land-feats">
-        <li><span class="dot" style="background:var(--coral)"></span>가족의 일기를 읽고 댓글과 답글로 이야기 나누기</li>
-        <li><span class="dot" style="background:var(--butter)"></span>아이 일기는 제출 전에 한 번, AI 맞춤법 선생님이 살펴봐요</li>
-        <li><span class="dot" style="background:var(--sage)"></span>가족 일정과 자주 가는 누리집을 첫 화면에 한눈에</li>
-        <li><span class="dot" style="background:var(--ink)"></span>사진 최대 9장, 장소, 목소리, #태그로 하루를 더 풍성하게</li>
+      <p class="land-lead"><strong>아이의 일기장을 AI 선생님이 맞춤법 검사를 해주고 피드백을 해줘요.</strong><br>엄마 아빠는 앱에서, 아이는 웹에서 쉽게 일기를 쓰고 서로 댓글을 남길 수도 있어요.</p>
+      <p class="app-soon"><b>앱은 곧 출시돼요!</b> 조금만 기다려 주세요. 지금은 휴대폰·아이패드·컴퓨터 어디서나 웹으로 바로 쓸 수 있어요.</p>
+      <ul class="land-badges" aria-label="아이아이노트의 약속">
+        <li>${ic("check")}광고 없음</li><li>${ic("check")}아이는 계정 없이</li><li>${ic("check")}아이는 말로 쓰기·붙여넣기 없이 직접</li><li>${ic("check")}휴대폰·아이패드·컴퓨터 함께</li>
+      </ul>
+      <ul class="land-str">
+        <li style="--sc:var(--coral);--ss:var(--coral-soft)"><span class="ls-ic">${ic("people")}</span><div><b>엄마 아빠는 앱, 아이는 웹</b><p>각자 편한 곳에서 써도 한 권에 모여요. 서로의 일기에 댓글과 답글로 대화해요.</p></div></li>
+        <li style="--sc:var(--butter);--ss:var(--butter-soft)"><span class="ls-ic">${ic("spark")}</span><div><b>AI 선생님의 맞춤법 검사·피드백</b><p>아이가 제출하기 전에 틀린 낱말을 짚고 칭찬과 조언을 남겨요. 결과는 부모님도 함께 봐요.</p></div></li>
+        <li style="--sc:var(--sage);--ss:var(--sage-soft)"><span class="ls-ic">${ic("quiz")}</span><div><b>틀린 낱말이 받아쓰기 퀴즈로</b><p>내 일기에서 틀린 낱말만 모아 퀴즈를 내고, 세 번 연속 맞히면 익힌 낱말이 돼요.</p></div></li>
+        <li style="--sc:var(--sky);--ss:var(--sky-soft)"><span class="ls-ic">${ic("cal")}</span><div><b>커 가는 모습이 한눈에</b><p>칭찬 스티커판, 글 길이 변화, 달력으로 아이의 성장을 지켜봐요.</p></div></li>
       </ul>
       <button class="btn btn-primary" data-act="signin">구글 계정으로 시작하기</button>
-      <p class="demo-note"><a href="privacy.html">개인정보처리방침</a></p>
+      ${kakaoBtn()}
+      <p class="demo-note"><a href="terms.html">이용약관</a> · <a href="privacy.html">개인정보처리방침</a></p>
       ${DEMO?`<p class="demo-note">지금은 체험 모드예요. 예시 가족으로 모든 기능을 눌러 볼 수 있고, 내용은 이 기기에만 저장돼요.</p>`:""}
     </section>
     <section class="anywhere" aria-labelledby="any-h">
       <h2 id="any-h">휴대폰, 아이패드, 컴퓨터 어디서든</h2>
-      <p>앱으로 쓰던 일기를 컴퓨터에서는 주소 하나로 그대로 열어요.</p>
+      <p>휴대폰에서 쓰던 일기를 컴퓨터에서는 주소 하나로 그대로 열어요.</p>
       ${devicesArt()}
       ${addrBox()}
       <div class="dev-rows">
-        <div class="dev-row"><b>휴대폰·아이패드</b><span>아이아이노트 앱 또는 홈 화면에 추가</span></div>
+        <div class="dev-row"><b>휴대폰·아이패드</b><span>지금은 웹에서 홈 화면에 추가 (앱 출시 준비 중)</span></div>
         <div class="dev-row"><b>컴퓨터·노트북</b><span>브라우저 주소창에 위 주소 입력</span></div>
       </div>
     </section>
@@ -1149,7 +1174,7 @@ function viewHomeDiary(){
     </div>
     <div class="col">${viewSchedules()}
       <section class="block any-mini" aria-labelledby="h-any"><div class="block-h"><h2 id="h-any">어디서든 같은 일기장</h2></div>
-        <p>휴대폰과 아이패드에서는 앱으로, 컴퓨터와 노트북에서는 주소로 들어와요. 어디서 써도 바로 함께 보여요.</p>${addrBox()}</section>
+        <p>휴대폰과 아이패드에서는 앱으로(출시 준비 중), 컴퓨터와 노트북에서는 주소로 들어와요. 어디서 써도 바로 함께 보여요.</p>${addrBox()}${kakaoBtn(true)}</section>
     </div>
   </div>`;
 }
@@ -1450,8 +1475,9 @@ function viewWrite(){
     <div class="sub-top"><button class="btn btn-ghost sm" data-act="back">${ic("back")}나가기</button><span class="muted">${submitted?(child?"제출한 일기를 고치고 있어요":"올린 일기를 고치고 있어요"):d.status==="draft"?"임시 저장된 일기예요":"새 일기"}</span></div>
     <label class="date-l">날짜<input type="date" id="w-date" value="${d.date}" max="${todayStr()}"></label>
     <fieldset class="moods"><legend>오늘 기분</legend>${MOODS.map(([k,l,c])=>`<label class="mood"><input type="radio" name="mood" value="${k}" ${d.mood===k?"checked":""}><span><i style="background:${c}"></i>${l}</span></label>`).join("")}</fieldset>
-    <label class="sr" for="w-title">제목</label><input id="w-title" class="w-title" maxlength="40" placeholder="제목" value="${esc(d.title)}">
-    <label class="sr" for="w-text">일기</label><textarea id="w-text" class="w-text" placeholder="오늘 있었던 일을 써 보세요">${esc(d.text)}</textarea>
+    ${child?`<p class="muted" style="font-size:13px;margin:0 0 8px">${ic("pen")} 아이 일기는 직접 손으로 써요. 말로 쓰기와 붙여넣기는 안 돼요.</p>`:""}
+    <label class="sr" for="w-title">제목</label><input id="w-title" class="w-title" maxlength="40" placeholder="제목" value="${esc(d.title)}" ${child?'spellcheck="false" autocomplete="off" autocorrect="off"':""}>
+    <label class="sr" for="w-text">일기</label><textarea id="w-text" class="w-text" placeholder="오늘 있었던 일을 써 보세요" ${child?'spellcheck="false" autocomplete="off" autocorrect="off"':""}>${esc(d.text)}</textarea>
     <div class="w-count muted"><span id="w-len">${d.text.length}</span>자</div>
     ${viewMedia(d)}
     ${child?(d.aiResult?viewAIResult(d.aiResult,d.text,true):(submitted?"":viewAIBox(d))):""}
@@ -1590,7 +1616,7 @@ function viewFamily(){
     <div class="col">
       <section class="block" aria-labelledby="h-any2"><div class="block-h"><h2 id="h-any2">어디서든 접속하기</h2></div>
         <div class="dev-rows" style="margin:0 0 14px"><div class="dev-row"><b>휴대폰·아이패드</b><span>아이아이노트 앱(출시 준비 중) 또는 브라우저 공유 메뉴에서 홈 화면에 추가</span></div>
-        <div class="dev-row"><b>컴퓨터·노트북</b><span>아래 주소를 브라우저에 입력하고 같은 구글 계정으로 로그인</span></div></div>${addrBox()}
+        <div class="dev-row"><b>컴퓨터·노트북</b><span>아래 주소를 브라우저에 입력하고 같은 구글 계정으로 로그인</span></div></div>${addrBox()}${kakaoBtn(true)}
       </section>
       <section class="block" aria-labelledby="h-set"><div class="block-h"><h2 id="h-set">화면 설정</h2></div>
         <div class="set-row"><span>화면 밝기</span><div class="seg" role="group" aria-label="화면 밝기"><label><input type="radio" name="theme" value="light" ${S.theme==="light"?"checked":""} data-pref="theme"><span>밝게</span></label><label><input type="radio" name="theme" value="dark" ${S.theme==="dark"?"checked":""} data-pref="theme"><span>어둡게</span></label></div></div>
@@ -1605,7 +1631,7 @@ function viewFamily(){
         ${groups.length>1&&isParent()?`<label style="margin-top:16px">내 가족 그룹<select data-pref="group">${groups.map(id=>`<option value="${esc(id)}" ${id===S.gid?"selected":""}>${id===S.gid?esc(g.name):"다른 가족 ("+esc(id.slice(0,6))+")"}</option>`).join("")}</select></label>`:""}
         <div class="acc-foot">
           ${isParent()||S.me.uid===S.user?.uid?`<button class="btn btn-ghost sm danger" data-act="delete-account">${ic("trash")}내 계정과 기록 지우기</button>`:""}
-          <a class="link-btn" href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
+          <span class="row" style="gap:4px 14px"><a class="link-btn" href="terms.html" target="_blank" rel="noopener">이용약관</a><a class="link-btn" href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></span>
         </div>
         ${DEMO?`<p class="muted" style="font-size:14px;margin:16px 0 0">체험 모드예요. <button class="link-btn" data-act="reset-demo">체험 내용을 처음 상태로 되돌리기</button></p>`:""}
       </section>
@@ -1674,6 +1700,10 @@ const acts = {
     S.calDay=null; render(); },
   "cal-day": el => { const d=el.dataset.v; S.calDay = S.calDay===d ? null : d; render();
     if(S.calDay) document.getElementById("cal-day")?.scrollIntoView({behavior:"smooth",block:"start"}); },
+  "kakao-share": () => { const K=window.Kakao;
+    if(!K){ toast("카카오톡을 불러오지 못했어요. 잠시 뒤 다시 눌러 주세요"); return; }
+    try{ if(!K.isInitialized()) K.init(KAKAO_JS_KEY); K.Share.sendScrap({requestUrl:SHARE_URL}); }
+    catch(e){ console.error(e); toast("카카오톡 공유를 열지 못했어요"); } },
   "fav-edit": () => { S.favEdit=!S.favEdit; render(); },
   grow: el => { S.growId=el.dataset.v; render(); },
   "del-schedule": el => guard(async()=>{ await B.remove(S.gid,"schedules",el.dataset.id); await reload("schedules"); render(); toast("일정을 지웠어요"); }),
@@ -1877,9 +1907,18 @@ const forms = {
 
 document.addEventListener("click", e => { const el=e.target.closest("[data-act]"); if(!el) return; const f=acts[el.dataset.act]; if(f){ e.preventDefault(); f(el,e); } });
 document.addEventListener("submit", e => { const f=e.target.closest("form[data-form]"); if(!f) return; e.preventDefault(); forms[f.dataset.form]?.(Object.fromEntries(new FormData(f)), f); });
+// 아이 일기: 붙여넣기·끌어다 놓기 막기
+const KID_MAX_BURST = 10, KID_TYPE_MSG = "아이 일기는 직접 손으로 써요. 말로 쓰기와 붙여넣기는 안 돼요";
+const kidField = t => S.me?.type==="child" && S.draft && (t.id==="w-text"||t.id==="w-title");
+["paste","drop"].forEach(ev=>document.addEventListener(ev, e => { if(kidField(e.target)){ e.preventDefault(); toast(KID_TYPE_MSG); } }));
 document.addEventListener("input", e => {
   if(e.target.id==="q"){ S.search=e.target.value; const w=document.getElementById("feed-wrap"); if(w) w.innerHTML=viewFeed(); return; }
   if(!S.draft) return;
+  // 아이 일기는 직접 손으로 써요: 말로 쓰기처럼 한꺼번에 긴 글이 들어오면 되돌려요
+  if(S.me?.type==="child" && (e.target.id==="w-text"||e.target.id==="w-title")){
+    const prev = e.target.id==="w-text" ? S.draft.text : S.draft.title;
+    if(e.target.value.length-prev.length >= KID_MAX_BURST){ e.target.value=prev; toast(KID_TYPE_MSG); return; }
+  }
   if(e.target.id==="w-text"){ S.draft.text=e.target.value; const n=document.getElementById("w-len"); if(n) n.textContent=S.draft.text.length; refreshAI(); }
   else if(e.target.id==="w-title") S.draft.title=e.target.value;
 });
