@@ -176,6 +176,8 @@ const CSS = `
 .kd .qres{ font-size:1.15em; padding:8px 12px; border-radius:12px; margin:8px 0; }
 .kd .qres.ok{ background:#DDF3E3; }
 .kd .qres.no{ background:#FDECEC; }
+.kd-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; cursor:pointer; }
+.kd-tool:hover{ opacity:1; }
 .kd-fixes{ margin-top:6px; font-size:.85em; background:#F2FAF4; border-radius:10px; padding:6px 10px; }
 .kd-fixes ul{ margin:2px 0 0; padding-left:1.2em; }
 .kd-fixes .wrong{ color:var(--red); text-decoration:line-through; }
@@ -216,7 +218,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
 
   const S = {
     view: "write", date: today(), entries: {}, status: {}, loaded: false,
-    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false, spellFailed: false, step: null, fam: "all"
+    weather: "", mood: "", qShift: 0, spell: null, found: 0, dirty: false, cloud: null, checking: false, spellFailed: false, step: null, fam: "all", fixLog: []
   };
   const keyOf = (date, w) => `${date}_${w}`;
   const mine = () => S.entries[keyOf(S.date, kid)];
@@ -335,6 +337,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     const useDraft = !!draft;
     const src = useDraft ? draft : e;
     S.weather = src.weather || ""; S.mood = src.mood || ""; S.spell = null; S.found = e.spellFound || 0;
+    S.fixLog = (e.spellFixes || []).slice();   // 고쳐서 다시 저장할 때도 예전에 고친 기록은 남겨요
     const q = e.question || question();
     const t = today(), y = addDays(t, -1);
     $("[data-kd=main]").innerHTML = `
@@ -444,6 +447,33 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     }
     return out;
   }
+  // 쉼표 · 마침표 · 물음표 · 느낌표 바로 뒤에 글자가 붙어 있으면 한 칸 띄어요. (2,3명 → 2, 3명 · 갔다.그리고 → 갔다. 그리고)
+  // 1,000 같은 자릿수 쉼표와 3.5 같은 소수점은 그대로 둬요.
+  function spaceErrors(text, known){
+    const out = [];
+    for (const m of text.matchAll(/[,.!?](?=[^\s.,!?)"'”’~…])/g)){
+      const i = m.index, c = m[0], prev = text[i - 1] || "", rest = text.slice(i + 1);
+      if (c === "," && /\d/.test(prev) && /^\d{3}(?!\d)/.test(rest)) continue;
+      if (c === "." && /\d/.test(prev) && /^\d/.test(rest)) continue;
+      const s = text.lastIndexOf(" ", i) + 1, nl = text.lastIndexOf("\n", i) + 1, start = Math.max(s, nl);
+      const e1 = text.slice(i).search(/\s/), end = e1 < 0 ? text.length : i + e1;
+      const wrong = text.slice(start, end);
+      if (!wrong || text.indexOf(wrong) !== text.lastIndexOf(wrong)) continue;
+      if ([...known, ...out].some(er => { const j = wrongAt(er, text); return j >= 0 && j < end && j + er.wrong.length > start; })) continue;
+      const cut = i - start + 1;
+      out.push({ wrong, right: wrong.slice(0, cut) + " " + wrong.slice(cut), kind: "띄어쓰기",
+        hint: "문장 부호 뒤에 글자가 딱 붙어 있어요. 어디를 한 칸 띄우면 될까요?",
+        why: "쉼표(,)나 마침표(.) 뒤에는 한 칸 띄어 써요." });
+    }
+    return out;
+  }
+  // 고친 기록: ai(빨간펜이 고쳐 줌) · hint(정답 보고 고침) · self(스스로 바르게) · other(다른 말로 바꿈)
+  function resolvedFixes(errs, text){
+    return errs.filter(er => !isLeft(er, text)).map(er => ({
+      wrong: er.wrong, right: er.right, kind: er.kind || "",
+      how: er.applied ? (P.autoFix ? "ai" : "hint") : !text.includes(er.right) ? "other" : er.shown ? "hint" : "self"
+    }));
+  }
   // 고친 말로 바꾸고, 다른 고친 곳들의 자리도 함께 옮겨 줘요.
   function applyOne(er){
     const ta = $("[data-kd=content]"), text = ta.value, i = wrongAt(er, text);
@@ -478,11 +508,14 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       const data = await r.json();
       const errors = (data.errors || []).filter(er => er.wrong && er.right && er.wrong !== er.right)
         .map(er => ({ ...er, shown: false, applied: false }));
+      errors.push(...spaceErrors(ta.value, errors).map(er => ({ ...er, shown: false, applied: false })));
       errors.push(...periodErrors(ta.value, errors).map(er => ({ ...er, shown: false, applied: false })));
+      // 앞 검사에서 고친 기록은 모아 두고 새 검사로 넘어가요
+      if (S.spell) S.fixLog.push(...resolvedFixes(S.spell.errors, ta.value));
       S.spell = { praise: data.praise || "", cheer: data.cheer || "", errors };
-      S.found = Math.max(S.found, errors.length);
+      S.found += errors.length;
       if (P.autoFix && errors.length){ applyAll(); S.dirty = true; saveDraft(); }
-      S.spell.chars = countChars(ta.value); S.spellFailed = false; S.dirty = true;
+      S.spell.chars = countChars(ta.value); S.spell.checked = ta.value; S.spellFailed = false; S.dirty = true;
       renderPen();
       $("[data-kd=pen]").scrollIntoView({ behavior: "smooth", block: "nearest" });
       return true;
@@ -518,7 +551,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     const box = $("[data-kd=pen]"); if (!box || !S.spell) return;
     const text = $("[data-kd=content]").value;
     const { errors, praise, cheer } = S.spell;
-    errors.forEach(er => { const was = er.left; er.left = isLeft(er, text); if (was && !er.left && !er.applied) toast(one(PRAISE_SELF)); });
+    errors.forEach(er => { const was = er.left; er.left = isLeft(er, text); if (was && !er.left && !er.applied && text.includes(er.right)) toast(one(PRAISE_SELF)); });
     const left = errors.filter(er => er.left);
     const praiseHtml = praise ? `<div class="praise">👏 ${esc(praise)}</div>` : "";
     if (!errors.length){
@@ -544,7 +577,8 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         ${er.kind ? `<span class="chip">${esc(er.kind)}</span>` : ""}
         ${er.left ? `<span class="hl-fix">${esc(er.wrong)}</span> ${esc(er.hint)}`
           : er.applied ? `<span class="good">✅ 고쳤어요</span> <span class="kd-soft">${esc(er.wrong)} → ${esc(er.right)}</span>`
-          : `<span class="good">👍 스스로 고쳤어요!</span> <span class="kd-soft">${esc(er.right)}</span>`}
+          : text.includes(er.right) ? `<span class="good">👍 스스로 고쳤어요!</span> <span class="kd-soft">${esc(er.right)}</span>`
+          : `<span>✏️ 다른 말로 바꿨어요.</span> <span class="kd-soft">저장할 때 빨간펜이 한 번 더 확인해요</span>`}
         ${er.left ? `<div><button class="mini" data-a="find" data-i="${i}">👀 찾기</button>${er.shown
             ? `<div class="ans">${pair(er)}<br><span class="kd-soft">${esc(er.why)}</span><br>
                 <button class="mini" data-a="apply" data-i="${i}">✏️ 이렇게 고칠래요</button></div>`
@@ -558,12 +592,9 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   function spellResult(){
     if (!S.spell) return {};
     const text = $("[data-kd=content]").value, errs = S.spell.errors;
-    // 어느 부분을 어떻게 고쳤는지 남겨요 → 내 일기장 · 엄마 화면에서 초록 형광펜으로 보여 줘요
-    // how: ai(빨간펜이 고쳐 줌) · hint(정답 보고 고침) · self(스스로 고침)
-    const fixes = errs.filter(er => !isLeft(er, text)).map(er => ({
-      wrong: er.wrong, right: er.right, kind: er.kind || "",
-      how: er.applied ? (P.autoFix ? "ai" : "hint") : er.shown ? "hint" : "self"
-    }));
+    // 어느 부분을 어떻게 고쳤는지 남겨요 → 내 일기장 · 엄마 화면에서 초록 형광펜으로 보여 줘요 (여러 번 검사한 기록을 모두 합쳐요)
+    const seen = new Set(), fixes = [...S.fixLog, ...resolvedFixes(errs, text)]
+      .filter(f => { const k = f.wrong + "→" + f.right; return !seen.has(k) && seen.add(k); });
     return {
       spellChecked: true, spellFound: S.found, spellAuto: !!P.autoFix, spellFixes: fixes,
       spellLeft: errs.filter(er => isLeft(er, text)).length,
@@ -576,9 +607,9 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     const ta = $("[data-kd=content]"), text = ta.value.trim(), n0 = countChars(text);
     if (!text) return toast("일기를 먼저 써 주세요 ✏️");
     if (n0 < P.goal) return toast(`💪 조금만 더! ${P.goal - n0}자만 더 쓰면 완성이에요!`);
-    // 빨간펜을 안 불렀거나, 검사 뒤에 새로 많이 썼으면 빨간펜부터
-    if (!S.spellFailed && (!S.spell || n0 > S.spell.chars + 10)){
-      toast("🖍 저장하기 전에 빨간펜 선생님이 먼저 읽어 볼게요!");
+    // 빨간펜을 안 불렀거나, 검사한 뒤에 글이 바뀌었으면 빨간펜이 한 번 더 읽어요 (고친 글에 새 실수가 없는지)
+    if (!S.spellFailed && (!S.spell || ta.value !== S.spell.checked)){
+      toast(S.spell ? "🖍 고친 글을 빨간펜 선생님이 한 번 더 읽어 볼게요!" : "🖍 저장하기 전에 빨간펜 선생님이 먼저 읽어 볼게요!");
       const ok = await spell($(".kd-acts [data-a=spell]"));
       if (ok && S.spell.errors.length) return;   // 고친 곳을 보고 다시 눌러요
       if (!ok && !S.spellFailed) return;
@@ -603,13 +634,14 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       store.del(draftKey()); clearTimeout(cloudTimer); cloudTimer = null; S.dirty = false;
       if (S.cloud && S.cloud.date === S.date) deleteDoc(doc(db, "diaryDraft", kid)).catch(() => {});
       const n = countChars(text);
-      const fixed = S.spell ? S.spell.errors.length : 0;
+      const fixList_ = spellResult().spellFixes || [], fixed = fixList_.length;
       let sticker = false;
       try { sticker = !!onSaved?.({ date: S.date, first: !exists }); } catch {}
       $("[data-kd=main]").innerHTML = `<div class="kd-party"><div class="big">🎉</div>
         <h3>${exists ? `고친 일기를 저장했어요! ${one(PRAISE_DONE)}` : `${call(P.name)}, 일기 완성! ${one(PRAISE_DONE)}`}</h3>
         <p>✏️ ${n}자를 썼어요. ${n >= P.goal * 1.5 ? "목표를 훌쩍 넘었어요, 대단해요!" : "목표 달성!"}</p>
         <p>${fixed ? `🖍 빨간펜이랑 ${fixed}군데를 고쳐서 글이 반짝반짝해졌어요!` : "💯 틀린 곳 하나 없이 썼어요. 맞춤법 왕이에요!"}</p>
+        ${fixed ? `<div style="text-align:left;max-width:520px;margin:0 auto 8px">${fixList(fixList_)}</div>` : ""}
         ${days >= 2 ? `<p>🔥 ${days}일 연속 일기! 대단한 끈기예요!</p>` : ""}
         ${sticker ? `<p style="font-size:1.2em">🏅 <b>일기 완성 스티커 1장</b>을 받았어요!</p>` : ""}
         <p>엄마가 곧 읽고 도장 찍어 줄 거예요 🌷</p>
@@ -636,13 +668,18 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<span class="hl-done">${esc(text.slice(s.i, s.e))}</span>`; pos = s.e; });
     return html + esc(text.slice(pos));
   }
-  const HOW = { ai: "🖍 빨간펜이 고쳐 줌", hint: "💡 정답 보고 고침", self: "👍 스스로 고침" };
+  const HOW = { ai: "🖍 빨간펜이 고쳐 줌", hint: "💡 정답 보고 고침", self: "👍 스스로 고침", other: "✏️ 다른 말로 바꿈" };
   function fixList(fixes){
     if (!fixes?.length) return "";
     return `<div class="kd-fixes"><b>🖍 빨간펜이랑 고친 곳 ${fixes.length}군데</b>
       <ul>${fixes.map(f => `<li><span class="wrong">${esc(f.wrong)}</span> → <span class="hl-done">${esc(f.right)}</span> <span class="kd-soft">${HOW[f.how] || ""}</span></li>`).join("")}</ul></div>`;
   }
   const cmtDraft = {};   // 한마디 쓰던 글: 화면이 새로 그려져도 지켜요
+  let kEdit = null;      // 내가 쓴 한마디를 고치는 중: { id, at, text }
+  async function saveKidComments(id, fn){
+    const list = fn((S.entries[id]?.comments || []).slice());
+    await updateDoc(doc(db, "diary", id), { comments: list });
+  }
   function renderList(authors, family){
     const a = document.activeElement, focusId = root.contains(a) ? a?.dataset?.cmt : null;
     const sel = focusId ? [a.selectionStart, a.selectionEnd] : null;
@@ -665,7 +702,14 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         <div class="kd-cmts">
           <button class="kd-heart" data-a="heart" data-id="${e.id}" aria-label="하트">${hearts[kid] ? "❤️" : "🤍"}</button>
           <span class="kd-soft">${heartBy.join(", ")}</span>
-          ${(e.comments || []).map(c => `<p><b style="color:${WHO(c.by).color}">${esc(c.by === kid ? "나" : nameFor(kid, c.by))}</b> ${esc(c.text)}</p>`).join("")}
+          ${(e.comments || []).map(c => {
+            const who = `<b style="color:${WHO(c.by).color}">${esc(c.by === kid ? "나" : nameFor(kid, c.by))}</b>`;
+            if (kEdit && kEdit.id === e.id && kEdit.at === c.at) return `<div class="kd-cmt">${who}
+              <input maxlength="120" data-kedit="${e.id}" value="${esc(kEdit.text)}">
+              <button data-a="kedit-save" data-id="${e.id}">저장</button><button data-a="kedit-cancel">취소</button></div>`;
+            return `<p>${who} ${esc(c.text)}${c.edited ? ` <span class="kd-soft" style="font-size:.75em">(고침)</span>` : ""}
+              ${c.by === kid ? `<button class="kd-tool" data-a="kedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="kd-tool" data-a="kdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
+          }).join("")}
           <div class="kd-cmt"><input maxlength="120" placeholder="${mine ? "답장하기" : `${nameFor(kid, e.author)}에게 한마디 (칭찬해 주세요!)`}" data-cmt="${e.id}" value="${esc(cmtDraft[e.id] || "")}"><button data-a="comment" data-id="${e.id}">남기기</button></div>
         </div></article>`;
     }).join("") : `<p class="kd-soft" style="text-align:center;padding:30px 0">${family ? "아직 가족 일기가 없어요." : "아직 쓴 일기가 없어요. 오늘 첫 일기를 써 볼까요?"}</p>`}</div>`;
@@ -700,14 +744,42 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     const s = (text || "").split(/(?<=[.!?\n])/).find(p => p.includes(frag));
     return s ? s.trim() : "";
   }
-  function quizItems(){
+  // 내가 틀렸던 말 (최근 일기부터)
+  function myFixes(){
     const seen = new Set(), out = [];
     Object.values(S.entries).filter(e => e.author === kid).sort((a, b) => b.date.localeCompare(a.date)).forEach(e =>
       (e.spellFixes || []).forEach(f => {
-        if (!f.right || f.right === f.wrong || seen.has(f.right)) return;
+        if (!f.right || f.right === f.wrong || seen.has(f.right) || !(e.content || "").includes(f.right)) return;
         seen.add(f.right);
         out.push({ right: f.right, wrong: f.wrong, kind: f.kind || "", ctx: sentenceOf(e.content, f.right), date: e.date, mine: true });
       }));
+    return out;
+  }
+  // 🤖 비슷한 문제: 틀렸던 말과 같은 규칙으로 빨간펜 선생님이 새로 만들어 줘요 (같은 묶음이면 3일 동안 다시 써요)
+  const SIM_KEY = `kd_sim_${kid}`;
+  const simState = { loading: false };
+  function simItems(){
+    const c = store.get(SIM_KEY); return c?.items || [];
+  }
+  async function loadSimilar(){
+    const mine = myFixes().slice(0, 8);
+    if (!mine.length || simState.loading) return;
+    const sig = mine.map(f => f.right).sort().join("|"), c = store.get(SIM_KEY);
+    if (c && c.sig === sig && Date.now() - c.at < 3 * 86400e3) return;
+    simState.loading = true;
+    try {
+      const r = await fetch(spellApi, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "similar", level: P.level, name: P.name, fixes: mine.map(({ wrong, right, kind }) => ({ wrong, right, kind })) }) });
+      const data = await r.json();
+      if (r.ok && Array.isArray(data.items)) store.set(SIM_KEY, { sig, at: Date.now(), items: data.items });
+    } catch {} finally { simState.loading = false; if (S.view === "quiz" && !Q.on) renderQuiz(); }
+  }
+  function quizItems(){
+    const out = myFixes(), seen = new Set(out.map(x => x.right));
+    for (const it of simItems()){
+      if (seen.has(it.right)) continue; seen.add(it.right);
+      out.push({ right: it.right, wrong: it.wrong, kind: it.kind || "", ctx: it.sentence || "", sim: true });
+    }
     for (const [r, w] of BANK[P.level] || []){
       if (out.length >= 8) break;
       if (!seen.has(r)){ seen.add(r); out.push({ right: r, wrong: w, kind: "", ctx: "", mine: false }); }
@@ -729,8 +801,9 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   }
   function startQuiz(mode){
     const m = mastery();
-    const list = quizItems().sort(() => Math.random() - .5)
-      .sort((a, b) => ((m[a.right] || 0) >= 3) - ((m[b.right] || 0) >= 3)).slice(0, 10)
+    // 내가 틀린 말 → 비슷한 문제 → 자주 틀리는 말 순서로 넣고, 완전 정복한 말은 뒤로
+    const rank = x => (x.mine ? 0 : x.sim ? 1 : 2) + ((m[x.right] || 0) >= 3 ? 3 : 0);
+    const list = quizItems().sort(() => Math.random() - .5).sort((a, b) => rank(a) - rank(b)).slice(0, 10)
       .map(it => ({ ...it, opts: [it.right, it.wrong].sort(() => Math.random() - .5) }));
     Object.assign(Q, { on: true, mode, list, i: 0, ok: 0, answered: null, done: false });
     renderQuiz();
@@ -757,11 +830,13 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     root.querySelectorAll(".kd-tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === "quiz"));
     const main = $("[data-kd=main]"), m = mastery();
     if (!Q.on){
-      const items = quizItems(), mine = items.filter(x => x.mine).length, master = items.filter(x => (m[x.right] || 0) >= 3).length;
+      loadSimilar();
+      const items = quizItems(), mine = items.filter(x => x.mine).length, sim = items.filter(x => x.sim).length, master = items.filter(x => (m[x.right] || 0) >= 3).length;
       main.innerHTML = `<div class="kd-quiz">
         <h3>🎯 내 일기 받아쓰기</h3>
-        <p>${mine ? `빨간펜이랑 고친 말 <b>${mine}개</b>로 퀴즈를 만들었어요!` : "아직 빨간펜으로 고친 말이 없어서, 자주 틀리는 말로 연습해요."}
-          ${master ? ` 🏅 완전 정복 <b>${master}개</b>!` : ""}</p>
+        <p>${mine ? `빨간펜이랑 고친 말 <b>${mine}개</b>${sim ? `와 🤖 비슷한 문제 <b>${sim}개</b>` : ""}로 퀴즈를 만들었어요!` : "아직 빨간펜으로 고친 말이 없어서, 자주 틀리는 말로 연습해요."}
+          ${master ? ` 🏅 완전 정복 <b>${master}개</b>!` : ""}
+          ${simState.loading ? `<br><span class="kd-soft">🤖 빨간펜 선생님이 비슷한 문제를 만드는 중이에요…</span>` : ""}</p>
         <div class="qchips">${items.map(x => `<i class="${(m[x.right] || 0) >= 3 ? "master" : ""}">${esc(x.right)}${(m[x.right] || 0) >= 3 ? " 🏅" : ""}</i>`).join("")}</div>
         <div class="kd-acts" style="margin-top:14px">
           <button class="kd-btn main" data-a="quiz-start" data-v="pick">👆 바른 말 고르기</button>
@@ -782,7 +857,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     }
     const it = Q.list[Q.i], mode = qmode(it), ans = Q.answered, last = Q.i + 1 >= Q.list.length;
     main.innerHTML = `<div class="kd-quiz">
-      <div class="kd-soft">${Q.i + 1} / ${Q.list.length} · 맞힌 개수 ${Q.ok} ${it.mine ? `· 📔 ${fmtDate(it.date)} 내 일기에서` : "· 💡 자주 틀리는 말"}</div>
+      <div class="kd-soft">${Q.i + 1} / ${Q.list.length} · 맞힌 개수 ${Q.ok} ${it.mine ? `· 📔 ${fmtDate(it.date)} 내 일기에서` : it.sim ? "· 🤖 내가 틀린 말과 비슷한 문제" : "· 💡 자주 틀리는 말"}</div>
       <div class="qbar"><i style="width:${Q.i / Q.list.length * 100}%"></i></div>
       <p class="qctx">${it.ctx ? blankCtx(it) : mode === "pick" ? "바르게 쓴 것은 어느 쪽일까요?" : "들리는 말을 바르게 써 보세요 ✏️"}</p>
       ${mode === "pick"
@@ -813,6 +888,24 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.a]));
         saveDraft(); break;
       case "fam": S.fam = v; render(); break;
+      case "kedit": {
+        const c = (S.entries[id]?.comments || []).find(c => String(c.at) === v && c.by === kid); if (!c) break;
+        kEdit = { id, at: c.at, text: c.text }; render();
+        const inp = root.querySelector(`[data-kedit="${id}"]`); inp?.focus(); inp?.setSelectionRange(inp.value.length, inp.value.length);
+        break;
+      }
+      case "kedit-cancel": kEdit = null; render(); break;
+      case "kedit-save": {
+        const ed = kEdit, text = root.querySelector(`[data-kedit="${id}"]`)?.value.trim();
+        if (!ed || !text) break;
+        saveKidComments(id, l => l.map(c => c.at === ed.at && c.by === kid ? { ...c, text, edited: Date.now() } : c))
+          .then(() => { kEdit = null; toast("✏️ 한마디를 고쳤어요"); render(); }).catch(() => toast("고치지 못했어요"));
+        break;
+      }
+      case "kdel":
+        if (!confirm("내 한마디를 지울까요?")) break;
+        saveKidComments(id, l => l.filter(c => !(String(c.at) === v && c.by === kid))).then(() => toast("한마디를 지웠어요")).catch(() => toast("지우지 못했어요"));
+        break;
       case "quiz-start": startQuiz(v); break;
       case "quiz-home": Q.on = false; renderQuiz(); break;
       case "quiz-say": speak(Q.list[Q.i].right); break;
@@ -869,10 +962,22 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       clearTimeout(penTimer); penTimer = setTimeout(renderPen, 350);
     } else if (k === "title" || k === "useq"){ S.dirty = true; saveDraft(); }
     else if (ev.target.dataset?.cmt) cmtDraft[ev.target.dataset.cmt] = ev.target.value;
+    else if (ev.target.dataset?.kedit && kEdit) kEdit.text = ev.target.value;
   });
+  // ✋ 일기 · 한마디 · 받아쓰기 칸은 복사 · 붙여넣기 없이 직접 써요
+  const NOPASTE = '[data-kd="content"],[data-kd="title"],[data-cmt],[data-kedit],[data-kd="qin"]';
+  let pasteToast = 0;
+  const blockPaste = ev => {
+    if (!ev.target.closest?.(NOPASTE)) return;
+    ev.preventDefault();
+    if (Date.now() - pasteToast > 2000){ pasteToast = Date.now(); toast("✋ 복사 · 붙여넣기는 안 돼요. 내 손으로 직접 써 볼까요? ✏️"); }
+  };
+  ["paste", "copy", "cut", "drop"].forEach(t => root.addEventListener(t, blockPaste));
+  root.addEventListener("beforeinput", ev => { if (/^insertFrom(Paste|Drop|PasteAsQuotation)/.test(ev.inputType || "")) blockPaste(ev); });
   root.addEventListener("keydown", ev => {
     if (ev.target.dataset?.cmt && ev.key === "Enter") root.querySelector(`[data-a="comment"][data-id="${ev.target.dataset.cmt}"]`)?.click();
     if (ev.target.dataset?.kd === "qin" && ev.key === "Enter") root.querySelector('[data-a="quiz-check"]')?.click();
+    if (ev.target.dataset?.kedit && ev.key === "Enter") root.querySelector(`[data-a="kedit-save"][data-id="${ev.target.dataset.kedit}"]`)?.click();
   });
 
   render();

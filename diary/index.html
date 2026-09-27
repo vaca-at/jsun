@@ -850,10 +850,8 @@ function renderEditor(){
       <span>✏️</span><div class="gauge" id="gauge"><i></i></div><span class="soft" id="gaugeTxt"></span>
     </div>
     <div class="actions">
-      <button class="btn red" data-act="spell" id="spellBtn">🖍 맞춤법 검사</button>
       <button class="btn main" data-act="save" id="saveBtn">💾 저장하기</button>
     </div>
-    <div id="redpen"></div>
     <div class="kidpeek">
       <span class="soft">이 날 아이들</span>
       ${KIDS.map(w => { const [ic, lb] = diaryMark(w, S.writeDate); return `<span style="--c:${PEOPLE[w].color}"><b>${PEOPLE[w].emoji} ${PEOPLE[w].name}</b> ${ic} ${lb}</span>`; }).join("")}
@@ -870,51 +868,6 @@ function updateGauge(){
   $("#gaugeTxt").textContent = n >= goal ? `${n}자` : `${n} / ${goal}자`;
 }
 
-
-async function runSpell(){
-  const text = $("#content").value.trim();
-  if (!text) return toast("먼저 일기를 써 주세요.");
-  const btn = $("#spellBtn"); btn.disabled = true; btn.textContent = "🖍 검사하는 중…";
-  try {
-    const r = await fetch(SPELL_API, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, level: "adult", name: PEOPLE[ME].name })
-    });
-    if (!r.ok) throw new Error(r.status);
-    const data = await r.json();
-    S.spell = { errors: Array.isArray(data.errors) ? data.errors : [], cheer: data.cheer || "" };
-    renderSpell();
-  } catch {
-    $("#redpen").innerHTML = `<div class="redpen"><h3>맞춤법 검사 서버에 연결하지 못했어요</h3>
-      <p class="soft">워커 주소와 API 키 설정을 확인해 주세요. 일기 저장은 그대로 할 수 있어요.</p></div>`;
-  } finally { btn.disabled = false; btn.textContent = "🖍 맞춤법 검사"; }
-}
-function renderSpell(){
-  if (!S.spell || !$("#redpen")) return;
-  const { errors, cheer } = S.spell, text = $("#content").value;
-  if (!errors.length){
-    $("#redpen").innerHTML = `<div class="redpen"><h3>💯 틀린 곳이 없어요!</h3><p>${esc(cheer)}</p></div>`;
-    return;
-  }
-  const marks = [];
-  errors.forEach((er, i) => {
-    const idx = text.indexOf(er.wrong);
-    if (idx >= 0 && !marks.some(f => idx < f.end && idx + er.wrong.length > f.idx)) marks.push({ idx, end: idx + er.wrong.length, i });
-  });
-  marks.sort((a, b) => a.idx - b.idx);
-  let html = "", pos = 0;
-  marks.forEach(f => { html += esc(text.slice(pos, f.idx)) + `<mark>${esc(text.slice(f.idx, f.end))}<sup>${f.i + 1}</sup></mark>`; pos = f.end; });
-  html += esc(text.slice(pos));
-  const left = errors.filter(er => text.includes(er.wrong)).length;
-  $("#redpen").innerHTML = `<div class="redpen">
-    <h3>${left ? `🖍 ${left}군데를 찾았어요` : "🎉 다 고쳤어요"}</h3>
-    ${left ? `<div class="preview">${html}</div>` : ""}
-    <ol>${errors.map((er, i) => `<li class="${text.includes(er.wrong) ? "" : "done"}">
-      <span class="wrong">${esc(er.wrong)}</span> → <span class="ans">${esc(er.right)}</span>
-      ${text.includes(er.wrong) ? `<button class="fix" data-act="fix" data-v="${i}">고치기</button>` : ""}
-      <br><span class="soft">${esc(er.hint || er.why || "")}</span></li>`).join("")}</ol>
-  </div>`;
-}
 
 async function save(){
   const text = $("#content").value.trim();
@@ -1194,9 +1147,9 @@ function dayCard(w, e){
   const fx = e.spellFixes || [];
   const howCount = h => fx.filter(f => f.how === h).length;
   const spellNote = p.kid ? `<div class="soft" style="font-size:.8em">✏️ ${n}자 · ${!e.spellChecked ? "🖍 빨간펜 검사 안 함"
-      : fx.length ? `🖍 고친 곳 ${fx.length}군데 (${[["ai", "AI가 고쳐 줌"], ["hint", "정답 보고"], ["self", "스스로"]].filter(([h]) => howCount(h)).map(([h, l]) => `${l} ${howCount(h)}`).join(" · ")})`
+      : fx.length ? `🖍 고친 곳 ${fx.length}군데 (${[["ai", "AI가 고쳐 줌"], ["hint", "정답 보고"], ["self", "스스로"], ["other", "다른 말로 바꿈"]].filter(([h]) => howCount(h)).map(([h, l]) => `${l} ${howCount(h)}`).join(" · ")})`
       : `🖍 찾은 곳 ${e.spellFound || 0} · 남은 곳 ${e.spellLeft || 0}`}</div>
-    ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}` : "";
+    ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로", other: "✏️ 다른 말로 바꿈" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}` : "";
   return `<div class="dcard" style="--c:${p.color}">${head}
     ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
     ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}
@@ -1289,12 +1242,6 @@ document.addEventListener("click", e => {
       a.parentElement.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === S[a.dataset.act]));
       break;
     case "q-next": S.qShift++; $("#qText").textContent = currentQuestion(); break;
-    case "spell": runSpell(); break;
-    case "fix": {
-      const er = S.spell.errors[+v], ta = $("#content");
-      ta.value = ta.value.replace(er.wrong, er.right); S.formDirty = true; updateGauge(); renderSpell();
-      break;
-    }
     case "save": save(); break;
     case "day-move": S.dayDate = addDays(S.dayDate, +v); if (S.dayDate > today()) S.dayDate = today(); renderTab(); break;
     case "open-day":
@@ -1370,12 +1317,8 @@ document.addEventListener("click", e => {
     }
   }
 });
-let spellTimer;
 document.addEventListener("input", e => {
-  if (e.target.id === "content"){
-    S.formDirty = true; updateGauge();
-    clearTimeout(spellTimer); spellTimer = setTimeout(renderSpell, 400);
-  }
+  if (e.target.id === "content"){ S.formDirty = true; updateGauge(); }
   else if (e.target.id === "title" || e.target.id === "useQ") S.formDirty = true;
   else if (e.target.dataset?.cmt) cmt.draft[e.target.dataset.cmt] = e.target.value;
   else if (e.target.dataset?.cedit && cmt.edit) cmt.edit.text = e.target.value;

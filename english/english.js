@@ -325,7 +325,7 @@ export function mountEnglish({ el, kidId, grade, firebaseConfig, name = "", host
 
   const V = { screen: "map", unit: null, tab: "learn", quiz: null, story: 0 };
   const level = () => CUR.find(c => c.lv === P.lv) || CUR[0];
-  const unlocked = u => { const us = level().units, i = us.indexOf(u); return i === 0 || (P.best[us[i - 1].id] || 0) >= PASS; };
+  const unlocked = () => true;   // 잠금 없이 아무 단원이나 골라서 봐요 (점수 · ⭐ 는 기록으로만)
   const starsOf = id => { const b = P.best[id] || 0; return b >= 10 ? "⭐⭐⭐" : b >= 9 ? "⭐⭐" : b >= PASS ? "⭐" : ""; };
 
   /* ---------- 화면 ---------- */
@@ -351,7 +351,7 @@ export function mountEnglish({ el, kidId, grade, firebaseConfig, name = "", host
           <span class="no">${i + 1}단원</span><span class="st">${open ? starsOf(u.id) || (u === now ? "▶" : "") : "🔒"}</span>
           <b>${esc(u.title)}</b><small>${esc(u.sub)}</small></button>`;
       }).join("")}</div>
-      <p style="text-align:center;opacity:.7;font-size:.85em;margin-top:10px">퀴즈 10문제 중 ${PASS}개 이상 맞히면 다음 단원이 열려요 🔓 · 맞힐 때마다 ⭐</p>
+      <p style="text-align:center;opacity:.7;font-size:.85em;margin-top:10px">보고 싶은 단원을 아무거나 눌러요 👆 · 퀴즈 ${PASS}개 이상 맞히면 단원에 ⭐ · 맞힐 때마다 별 ⭐</p>
     </div>`;
   }
   function unitHead(){
@@ -419,11 +419,11 @@ export function mountEnglish({ el, kidId, grade, firebaseConfig, name = "", host
       root.innerHTML = `<div class="en2">${unitHead()}<div class="en-done">
         <div class="big">${Qz.ok === QN ? "🏆" : pass ? "🎉" : "💪"}</div>
         <h3>${QN}문제 중 ${Qz.ok}개 맞혔어요!</h3>
-        <p>${pass ? (next ? `통과! <b>${esc(next.title)}</b> 단원이 열렸어요 🔓` : "이 단계를 모두 통과했어요! 다음 단계에 도전해 볼까요? 🚀") : `${PASS}개 이상 맞히면 통과예요. 조금만 더 하면 돼요! 🌱`}</p>
+        <p>${pass ? (next ? `통과! ⭐ 다음은 <b>${esc(next.title)}</b> 어때요?` : "마지막 단원까지 통과! 다른 단계도 구경해 볼까요? 🚀") : `${PASS}개 이상 맞히면 ⭐ 을 받아요. 조금만 더 하면 돼요! 🌱`}</p>
         <p>⭐ 맞힌 만큼 별을 받았어요!</p>
         <button class="en-btn sub" data-en="tab" data-v="learn">👂 다시 배우기</button>
         <button class="en-btn" data-en="again">🔁 한 번 더</button>
-        ${pass && next ? `<button class="en-btn" data-en="unit" data-v="${next.id}">다음 단원 ▶</button>` : ""}</div></div>`;
+        ${next ? `<button class="en-btn" data-en="unit" data-v="${next.id}">다음 단원 ▶</button>` : ""}</div></div>`;
       return;
     }
     const q = Qz.list[Qz.i], ans = Qz.ans;
@@ -467,7 +467,7 @@ export function mountEnglish({ el, kidId, grade, firebaseConfig, name = "", host
       Qz.done = true;
       const id = V.unit.id, before = P.best[id] || 0;
       P.best[id] = Math.max(before, Qz.ok); saveCloud();
-      if (Qz.ok >= PASS){ try { host.burst?.(); } catch {} if (before < PASS) toast("🔓 다음 단원이 열렸어요!"); }
+      if (Qz.ok >= PASS){ try { host.burst?.(); } catch {} if (before < PASS) toast("⭐ 이 단원 통과!"); }
     }
     drawQuiz(); if (!Qz.done) autoSay();
   }
