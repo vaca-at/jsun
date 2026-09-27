@@ -324,6 +324,9 @@ form:has(input[name="role"][value="parent"]:checked) .child-only{display:none}
 .mem{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--paper)}
 .mem span{flex:1;font-weight:650}
 .mem .av{flex:none}
+.mem{flex-wrap:wrap}
+.kid-start{max-width:440px;text-align:center}
+.kid-start .logo-wrap{margin:0 auto}
 .set-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0}
 .set-row+.set-row{border-top:1px dashed var(--line)}
 
@@ -542,6 +545,7 @@ function makeDemo(){
     demo:true,
     onAuth(f){ cb=f; setTimeout(()=>f(signed?user:null),0); },
     async signIn(){ signed=true; ls.set("iinote-demo-signed","1"); cb && cb(user); },
+    async signInKid(){ return api.signIn(); },
     async signOut(){ signed=false; ls.del("iinote-demo-signed"); cb && cb(null); },
     async getIdToken(){ return "demo"; },
     async getUser(uid){ return db.users[uid] || null; },
@@ -554,7 +558,7 @@ function makeDemo(){
       sub(gid,"profiles")[rid()]={name:myName,type:"parent",uid:u.uid,color:COLORS[0],createdAt:Date.now()};
       await api.addUserGroup(u.uid,gid); return gid; },
     async joinGroup(code,u,myName,role){ const gid=db.invites[code]; if(!gid) throw new Error("초대 코드를 찾을 수 없어요. 여섯 글자를 다시 확인해 주세요.");
-      const g=db.groups[gid]; if(!g.memberUids.includes(u.uid)){ g.memberUids.push(u.uid); sub(gid,"profiles")[rid()]={name:myName,...role,uid:u.uid,color:COLORS[g.memberUids.length%COLORS.length],createdAt:Date.now()}; }
+      const g=db.groups[gid]; if(!g.memberUids.includes(u.uid)){ g.memberUids.push(u.uid); if(role) sub(gid,"profiles")[rid()]={name:myName,...role,uid:u.uid,color:COLORS[g.memberUids.length%COLORS.length],createdAt:Date.now()}; }
       await api.addUserGroup(u.uid,gid); return gid; },
     async list(gid,c){ return Object.entries(sub(gid,c)).map(([id,v])=>({id,...v})); },
     async add(gid,c,data){ const id=rid(); sub(gid,c)[id]={...data}; save(); return id; },
@@ -583,6 +587,8 @@ async function makeFirebase(){
     onAuth(f){ AU.onAuthStateChanged(auth,f); },
     // 앱(Capacitor)으로 포장할 때는 이 함수만 앱용 로그인으로 바꾸면 돼요.
     async signIn(){ await AU.signInWithPopup(auth,new AU.GoogleAuthProvider()); },
+    // 휴대폰 연결 링크로 들어온 아이: 구글 계정 없이 이 브라우저를 익명 계정으로 기억해요.
+    async signInKid(){ await AU.signInAnonymously(auth); },
     async signOut(){ await AU.signOut(auth); },
     async getIdToken(){ return auth.currentUser ? auth.currentUser.getIdToken() : ""; },
     async getUser(uid){ const s=await F.getDoc(F.doc(db,"users",uid)); return s.exists()?s.data():null; },
@@ -605,7 +611,8 @@ async function makeFirebase(){
       if(!s.exists()) throw new Error("초대 코드를 찾을 수 없어요. 여섯 글자를 다시 확인해 주세요.");
       const gid=s.data().groupId;
       await F.updateDoc(F.doc(db,"groups",gid),{memberUids:F.arrayUnion(u.uid),lastJoinCode:code});
-      const mine=(await F.getDocs(col(gid,"profiles"))).docs.some(d=>d.data().uid===u.uid);
+      // role이 없으면(아이 휴대폰 연결) 새 프로필을 만들지 않고 가족에만 들어가요.
+      const mine=!role || (await F.getDocs(col(gid,"profiles"))).docs.some(d=>d.data().uid===u.uid);
       if(!mine) await F.addDoc(col(gid,"profiles"),{name:myName,...role,uid:u.uid,color:COLORS[Math.floor(Math.random()*COLORS.length)],createdAt:Date.now()});
       await api.addUserGroup(u.uid,gid);
       return gid;
@@ -683,7 +690,7 @@ const S = {
   replyTo:null, editing:null, quiz:null, pinFor:null, busy:false,
   search:"", tag:"", lb:null, rec:null, locEdit:false,
   joinCode:(new URLSearchParams(location.search).get("join")||"").toUpperCase(),
-  joinAs:new URLSearchParams(location.search).get("as")==="child"?"child":"parent",
+  kidId:new URLSearchParams(location.search).get("kid")||"", kidName:new URLSearchParams(location.search).get("n")||"",
   theme:ls.get("iinote-theme","light"), dfont:ls.get("iinote-dfont","batang")
 };
 function applyPrefs(){ document.documentElement.dataset.theme=S.theme; document.documentElement.dataset.dfont=S.dfont;
@@ -777,6 +784,14 @@ const devicesArt = () => `<svg class="devices" viewBox="0 0 400 210" aria-hidden
    7. 화면들
    ========================================================= */
 function viewLanding(){
+  if(S.joinCode && S.kidId){ const n=S.kidName||"우리 아이";
+    return `<main class="center-page"><div class="onb kid-start">
+      ${logo(64)}
+      <h1>${esc(n)}, 반가워요!</h1>
+      <p class="muted">우리 가족 일기장에 들어가요. 아래 버튼을 한 번만 누르면 돼요.</p>
+      <button class="btn btn-accent wide" data-act="signin-kid">${esc(n)}(으)로 시작하기</button>
+      <p class="muted" style="font-size:14px;margin-top:20px">크롬 메뉴(⋮)에서 '홈 화면에 추가'를 누르면 다음부터 아이콘으로 바로 들어올 수 있어요.</p>
+    </div></main>`; }
   return `<main class="landing"><div class="land">
     <section>
       <div class="land-brand">${logo(44)}<span>아이아이노트</span></div>
@@ -820,10 +835,10 @@ function viewOnboard(){
         <div><h2>초대 코드로 들어가기</h2><p>가족에게 받은 여섯 글자 코드를 넣어 주세요.</p></div>
         <label>초대 코드<input name="code" required maxlength="6" autocapitalize="characters" value="${esc(S.joinCode)}" placeholder="예: HAPPY7" style="text-transform:uppercase;letter-spacing:4px"></label>
         <fieldset class="seg" role="radiogroup"><legend>나는 누구예요?</legend>
-          <label><input type="radio" name="role" value="parent" ${S.joinAs==="parent"?"checked":""}><span>어른(보호자)</span></label>
-          <label><input type="radio" name="role" value="child" ${S.joinAs==="child"?"checked":""}><span>아이</span></label>
+          <label><input type="radio" name="role" value="parent" checked><span>어른(보호자)</span></label>
+          <label><input type="radio" name="role" value="child"><span>아이</span></label>
         </fieldset>
-        <label>나를 부르는 이름<input name="me" required maxlength="10" placeholder="${S.joinAs==="child"?"예: 하랑, 이안":"예: 아빠, 이모"}"></label>
+        <label>나를 부르는 이름<input name="me" required maxlength="10" placeholder="예: 아빠, 이모, 하랑"></label>
         <label class="child-only">학년<select name="grade">${[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}학년</option>`).join("")}</select></label>
         <button class="btn btn-accent wide">가족에 들어가기</button>
       </form>
@@ -1142,17 +1157,17 @@ function viewFamily(){
       <section class="block" aria-labelledby="h-inv"><div class="block-h"><h2 id="h-inv">${esc(g.name)} 초대하기</h2></div>
         <p style="margin:0 0 10px;color:var(--ink2)">가족에게 이 초대 코드를 알려 주세요. 앱이나 주소로 들어와 구글 계정으로 시작한 뒤 코드를 넣으면 돼요.</p>
         <div class="row" style="justify-content:space-between"><span class="code">${esc(g.inviteCode)}</span><button class="btn btn-ghost sm" data-act="copy" data-v="${esc(g.inviteCode)}">${ic("copy")}코드 복사</button></div>
-        <div class="row" style="margin-top:12px"><button class="btn btn-ghost sm" data-act="copy" data-v="${esc(link)}">${ic("link")}초대 링크 복사</button><button class="btn btn-ghost sm" data-act="copy" data-v="${esc(link)}&as=child">${ic("link")}아이용 초대 링크 복사</button></div>
-        <p class="muted" style="margin:12px 0 0;font-size:14px">휴대폰이 있는 아이에게는 아이용 초대 링크를 문자로 보내 주세요. 크롬에서 열고 메뉴(⋮)의 '홈 화면에 추가'를 누르면 앱처럼 쓸 수 있어요.</p>
+        <div class="row" style="margin-top:12px"><button class="btn btn-ghost sm" data-act="copy" data-v="${esc(link)}">${ic("link")}초대 링크 복사</button></div>
       </section>
       <section class="block" aria-labelledby="h-mem"><div class="block-h"><h2 id="h-mem">가족 구성원</h2><span class="muted">${ps.length}명</span></div>
-        <ul class="mem-list">${ps.map(p=>`<li class="mem">${av(p)}<span>${esc(p.name)}</span><small class="muted">${p.type==="child"?`${p.grade?p.grade+"학년":"어린이"}${p.pin?" (비밀번호)":""}`:"보호자"}</small></li>`).join("")}</ul>
+        <ul class="mem-list">${ps.map(p=>`<li class="mem">${av(p)}<span>${esc(p.name)}</span><small class="muted">${p.type==="child"?`${p.grade?p.grade+"학년":"어린이"}${p.pin?" (비밀번호)":""}`:"보호자"}</small>${p.type==="child"&&!p.uid&&isParent()?`<button class="link-btn" data-act="copy" data-v="${esc(`${link}&kid=${p.id}&n=${encodeURIComponent(p.name)}`)}" aria-label="${esc(p.name)} 휴대폰 연결 링크 복사">${ic("link")}휴대폰 연결 링크</button>`:""}</li>`).join("")}</ul>
+        ${isParent()&&ps.some(p=>p.type==="child"&&!p.uid)?`<p class="muted" style="margin:0 0 8px;font-size:13px">휴대폰 연결 링크를 아이 휴대폰에 문자로 보내면, 구글 계정 없이 크롬에서 바로 일기를 써요. 이 링크가 있으면 누구나 가족 일기장에 들어올 수 있으니 아이에게만 보내고, 걱정되면 비밀번호를 걸어 주세요.</p>`:""}
         ${isParent()?`<details class="add"><summary>${ic("plus")}아이 프로필 추가</summary>
           <form class="form-grid" data-form="child">
             <label>이름<input name="name" required maxlength="10" placeholder="예: 하랑"></label>
             <label>학년<select name="grade">${[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}학년</option>`).join("")}</select></label>
             <label class="span2">비밀번호 네 자리 (선택)<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="비워 두면 바로 들어가요"></label>
-            <p class="muted span2" style="margin:0;font-size:13px">휴대폰이 없는 아이는 여기서 추가하고 엄마·아빠 휴대폰에서 '프로필 바꾸기'로 써요. 휴대폰이 있는 아이는 아이용 초대 링크를 보내 주세요.</p>
+            <p class="muted span2" style="margin:0;font-size:13px">아이는 구글 계정 없이 이 프로필로 써요. 엄마·아빠 휴대폰에서 '프로필 바꾸기'로 쓰거나, 추가한 뒤 '휴대폰 연결 링크'를 아이 휴대폰에 보내 주세요.</p>
             <button class="btn btn-primary span2">아이 프로필 추가</button>
           </form></details>`:""}
       </section>
@@ -1202,6 +1217,7 @@ async function guard(fn){ if(S.busy) return; S.busy=true; try{ await fn(); }catc
    ========================================================= */
 const acts = {
   signin: () => guard(()=>B.signIn()),
+  "signin-kid": () => guard(()=>B.signInKid()),
   signout: () => guard(async()=>{ S.me=null; S.group=null; S.gid=null; await B.signOut(); }),
   tab: el => go(()=>{ S.tab=el.dataset.v; S.sub=null; S.replyTo=null; S.editing=null; }),
   filter: el => go(()=>{ S.filter=el.dataset.v; }),
@@ -1412,6 +1428,13 @@ B.onAuth(async u => {
   S.phase="loading"; render();
   try{
     S.userDoc = (await B.getUser(u.uid)) || {};
+    if(S.joinCode && S.kidId){ // 아이 휴대폰 연결 링크: 가족에 들어가서 그 아이 프로필로 바로 열기
+      const gid=await B.joinGroup(S.joinCode,u,"",null), kid=S.kidId;
+      S.joinCode=""; S.kidId=""; history.replaceState(null,"",location.pathname);
+      S.userDoc=await B.getUser(u.uid); ls.set("iinote-pid-"+gid,kid); await enterGroup(gid);
+      const p=prof(kid); if(S.phase==="picker" && p && p.pin){ S.pinFor=kid; render(); }
+      return;
+    }
     if(S.joinCode){ S.phase="onboard"; render(); return; }
     if(S.userDoc.lastGroupId) await enterGroup(S.userDoc.lastGroupId);
     else { S.phase="onboard"; render(); }
