@@ -301,6 +301,7 @@ mark{
 .orig summary{ cursor:pointer; color:var(--ink-soft); }
 .orig .body{ white-space:pre-wrap; margin-top:4px; }
 .wrong-mark{ text-decoration:underline wavy var(--red); text-underline-offset:4px; color:var(--red); }
+.when{ font-size:.72em; color:var(--ink-soft); white-space:nowrap; margin-left:4px; }
 .cmt-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; }
 .cmt-tool:hover{ opacity:1; }
 .emo{ display:flex; flex-wrap:wrap; gap:2px; margin-top:6px; padding:6px; border:1.5px dashed var(--line); border-radius:10px; background:var(--paper); }
@@ -448,6 +449,8 @@ const WEEK = ["일","월","화","수","목","금","토"];
 const fmtDate = s => { const d = parseYmd(s); return `${d.getMonth()+1}월 ${d.getDate()}일 ${WEEK[d.getDay()]}요일`; };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const toMs = v => !v ? 0 : typeof v === "number" ? v : v.toMillis ? v.toMillis() : Date.parse(v) || 0;
+// 한마디 남긴 때: 9월 27일 오후 5:42
+const whenOf = ms => { if (!ms) return ""; const d = new Date(ms), h = d.getHours(); return `${d.getMonth() + 1}월 ${d.getDate()}일 ${h < 12 ? "오전" : "오후"} ${h % 12 || 12}:${pad(d.getMinutes())}`; };
 const hhmm = ms => { const d = new Date(ms); return `${d.getHours()}시 ${pad(d.getMinutes())}분`; };
 const countChars = s => s.replace(/\s/g, "").length;
 const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
@@ -1195,7 +1198,7 @@ function dayCard(w, e){
           <input maxlength="120" data-cedit="${e.id}" value="${esc(cmt.edit.text)}">
           <button data-act="emoji-open" data-id="${e.id}" aria-label="이모지 넣기">💖</button>
           <button data-act="cedit-save" data-id="${e.id}">저장</button><button data-act="cedit-cancel">취소</button></div>`;
-        return `<p>${who} ${esc(c.text)}${c.edited ? ` <span class="soft" style="font-size:.75em">(고침)</span>` : ""}
+        return `<p>${who} ${esc(c.text)} <span class="when">${whenOf(c.at)}${c.edited ? " · 고침" : ""}</span>
           ${c.by === ME ? `<button class="cmt-tool" data-act="cedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="cdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
       }).join("")}
       ${cmt.edit?.id === e.id ? "" : `<div class="cmt-in"><input placeholder="한마디 남기기" maxlength="120" data-cmt="${e.id}" value="${esc(cmt.draft[e.id] || "")}">

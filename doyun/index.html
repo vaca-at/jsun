@@ -2359,7 +2359,13 @@ const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','
 /* 관리자(엄마 계정)로 로그인한 기기는 구경 모드여도 아이 비밀번호를 묻지 않아요 */
 let ADM_IN=false;
 cloudInit().then(ok=>{ if(!ok || !firebase.auth) return; firebase.auth().onAuthStateChanged(u=>{ if(!u){ ADM_IN=false; return; } isAdminUser(u).then(y=>{ ADM_IN=!!y; }).catch(()=>{}); }); });
-function guestBlocked(el){ const a=el.dataset.act; if(!GUEST || ADM_IN || el.closest('#login,#settings,.admpop')) return false; if(a==='tab') return el.dataset.v!=='home'; if(a==='set' && ['theme','font'].includes(el.dataset.k)) return false; /* 디자인 · 글씨는 구경하면서도 골라요 */ return !GUEST_OK.includes(a); }
+let ADM_NOTE=false;
+function guestBlocked(el){
+  const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false;
+  const b = a==='tab' ? el.dataset.v!=='home' : (a==='set' && ['theme','font'].includes(el.dataset.k)) ? false /* 디자인 · 글씨는 구경하면서도 골라요 */ : !GUEST_OK.includes(a);
+  if(b && ADM_IN){ if(!ADM_NOTE){ ADM_NOTE=true; toast('👩 관리자(엄마) 계정으로 로그인한 기기라 비밀번호 없이 열어요'); } return false; }
+  return b;
+}
 function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>{ const f=ACT[n.a]; if(f) f(n.v, el); }, 60); }
 function loadProfile(name, guest){
   GUEST=!!guest;

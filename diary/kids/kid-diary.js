@@ -63,6 +63,8 @@ const countChars = s => s.replace(/\s/g, "").length;
 const hash = s => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 const hasBatchim = w => { const c = w.charCodeAt(w.length - 1) - 0xAC00; return c >= 0 && c % 28 !== 0; };
 const call = name => name + (hasBatchim(name) ? "아" : "야");
+// 한마디 남긴 때: 9월 27일 오후 5:42
+const whenOf = ms => { if (!ms) return ""; const d = new Date(ms), h = d.getHours(); return `${d.getMonth() + 1}월 ${d.getDate()}일 ${h < 12 ? "오전" : "오후"} ${h % 12 || 12}:${pad(d.getMinutes())}`; };
 const store = {
   get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
   set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
@@ -195,6 +197,7 @@ const CSS = `
 .kd-orig{ margin-top:6px; background:#fff; border-radius:10px; padding:6px 10px; }
 .kd-orig .body{ white-space:pre-wrap; }
 .kd .wrong-mark{ text-decoration:underline wavy var(--red); text-underline-offset:4px; color:var(--red); }
+.kd-when{ font-size:.72em; color:var(--soft); white-space:nowrap; margin-left:4px; }
 .kd-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; cursor:pointer; }
 .kd-tool:hover{ opacity:1; }
 .kd-fixes{ margin-top:6px; font-size:.85em; background:#F2FAF4; border-radius:10px; padding:6px 10px; }
@@ -760,7 +763,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
             if (kEdit && kEdit.id === e.id && kEdit.at === c.at) return `<div class="kd-cmt">${who}
               <input maxlength="120" data-kedit="${e.id}" value="${esc(kEdit.text)}">
               <button data-a="kedit-save" data-id="${e.id}">저장</button><button data-a="kedit-cancel">취소</button></div>`;
-            return `<p>${who} ${esc(c.text)}${c.edited ? ` <span class="kd-soft" style="font-size:.75em">(고침)</span>` : ""}
+            return `<p>${who} ${esc(c.text)} <span class="kd-when">${whenOf(c.at)}${c.edited ? " · 고침" : ""}</span>
               ${c.by === kid ? `<button class="kd-tool" data-a="kedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="kd-tool" data-a="kdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
           }).join("")}
           <div class="kd-cmt"><input maxlength="120" placeholder="${mine ? "답장하기" : `${nameFor(kid, e.author)}에게 한마디 (칭찬해 주세요!)`}" data-cmt="${e.id}" value="${esc(cmtDraft[e.id] || "")}"><button data-a="comment" data-id="${e.id}">남기기</button></div>
