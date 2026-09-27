@@ -184,7 +184,7 @@ legend{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:6px;paddin
 .block{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--r-lg);padding:20px}
 .block-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
 .block-h h2{font-size:18px;margin:0;letter-spacing:-.3px}
-.st-list{list-style:none;padding:0;margin:0 0 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.st-list{list-style:none;padding:0;margin:0 0 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .st-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:var(--paper)}
 .st-name{font-weight:650;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .week{border-top:1px dashed var(--line);padding-top:14px;overflow-x:auto}
@@ -202,6 +202,56 @@ button.wk-dot::after{content:"";position:absolute;inset:-10px}
 button.wk-dot:hover{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft)}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink3);margin-top:10px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
+/* 달력형 첫 화면 */
+.ct-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.ct-card{border-radius:16px;background:var(--paper);padding:12px 14px;border-left:5px solid var(--pc)}
+.ct-top{display:flex;align-items:center;gap:10px}
+.ct-top b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ct-body{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;min-height:38px}
+.ct-title{font-family:var(--diary);font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal{margin-top:20px}
+.cal-h{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.cal-h h2{font-size:20px;margin:0 6px;letter-spacing:-.3px}
+.cal-h .flip .ic{transform:scaleX(-1)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink2);margin-bottom:12px}
+.cal-legend span{display:inline-flex;align-items:center;gap:6px}
+.cal-legend i{width:10px;height:10px;border-radius:50%}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.cal-w{text-align:center;font-size:13px;font-weight:650;color:var(--ink3);padding:4px 0}
+.cal-cell{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-height:104px;padding:8px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;min-width:0}
+.cal-cell:hover{border-color:var(--ink3)}
+.cal-cell.future{background:var(--surface2)}
+.cal-cell.today{border:2.5px solid var(--coral)}
+.cal-cell.sel{box-shadow:0 0 0 3px var(--butter)}
+.cal-n{font-weight:800;font-size:17px;line-height:1.2;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px}
+.cal-n small{font-size:11px;font-weight:650}
+.red .cal-n,.cal-w.red{color:var(--coral-ink)}
+.blue .cal-n,.cal-w.blue{color:#3B6FB6}
+[data-theme="dark"] .blue .cal-n,[data-theme="dark"] .cal-w.blue{color:#8DB4EA}
+.cal-sc{display:grid;gap:3px;min-width:0}
+.cal-sc em{font-style:normal;font-size:11px;font-weight:650;background:var(--butter-soft);color:#7A5710;border-radius:6px;padding:2px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+[data-theme="dark"] .cal-sc em{color:var(--butter)}
+.cal-sc em.more{background:none;padding:0 2px;color:var(--ink3)}
+.cal-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:auto}
+.cal-dots i{width:9px;height:9px;border-radius:50%}
+.cd-h{font-size:15px;margin:18px 0 8px;color:var(--ink2)}
+#cal-day{margin-top:20px;scroll-margin-top:80px}
+#cal-day+.block{margin-top:20px}
+.cal+.block:not(#cal-day){margin-top:20px}
+@media (max-width:640px){
+  .ct-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .ct-card{padding:10px}
+  .ct-top .pill{display:none}
+  .ct-body{flex-direction:column;align-items:flex-start;gap:6px;font-size:14px}
+  .ct-body .muted{font-size:13px}
+  .cal-grid{gap:3px}
+  .cal-cell{min-height:64px;padding:5px 4px;border-radius:10px}
+  .cal-n{font-size:14px}
+  .cal-n small{display:none}
+  .cal-sc em{font-size:0;height:5px;padding:0;background:var(--butter)}
+  .cal-sc em.more{display:none}
+  .cal-dots i{width:7px;height:7px}
+}
 .sc-day{margin:0 0 12px}
 .sc-day h3{font-size:14px;margin:0 0 6px;color:var(--ink2)}
 .sc-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
@@ -905,7 +955,11 @@ function viewMain(){
 }
 
 /* ---------- 홈 (다이어리) ---------- */
+// 첫 화면 모양: 어른은 프로필마다 고를 수 있고, 아이는 일기장형으로 고정
+const HOME_STYLES = [["diary","일기장"],["calendar","달력"]];
+const homeStyle = () => isParent() && HOME_STYLES.some(([k])=>k===S.me.homeStyle) ? S.me.homeStyle : "diary";
 function viewHome(){
+  if(homeStyle()==="calendar") return viewHomeCalendar();
   const t=todayStr(), ps=sortedProfiles(), week=weekDates(), mine=findDiary(S.me.id,t);
   const rows = ps.map(p=>{ const d=findDiary(p.id,t); const st=d?(d.status==="submitted"?["done","썼어요"]:["draft","쓰는 중"]):["none","아직이에요"];
     return `<li class="st-row">${av(p)}<span class="st-name">${esc(p.name)}</span><span class="pill ${st[0]}">${st[1]}</span></li>`; }).join("");
@@ -934,6 +988,82 @@ function viewHome(){
         <p>휴대폰과 아이패드에서는 앱으로, 컴퓨터와 노트북에서는 주소로 들어와요. 어디서 써도 바로 함께 보여요.</p>${addrBox()}</section>
     </div>
   </div>`;
+}
+
+/* ---------- 첫 화면: 달력형 ---------- */
+// 공휴일 (해마다 다음 해 목록을 추가해 주세요)
+const HOLIDAYS = {
+  "2026-01-01":"신정","2026-02-16":"설날 연휴","2026-02-17":"설날","2026-02-18":"설날 연휴","2026-03-01":"삼일절","2026-03-02":"대체공휴일",
+  "2026-05-05":"어린이날","2026-05-24":"부처님오신날","2026-05-25":"대체공휴일","2026-06-03":"지방선거","2026-06-06":"현충일",
+  "2026-08-15":"광복절","2026-08-17":"대체공휴일","2026-09-24":"추석 연휴","2026-09-25":"추석","2026-09-26":"추석 연휴",
+  "2026-10-03":"개천절","2026-10-05":"대체공휴일","2026-10-09":"한글날","2026-12-25":"성탄절",
+  "2027-01-01":"신정","2027-02-06":"설날 연휴","2027-02-07":"설날","2027-02-08":"설날 연휴","2027-02-09":"대체공휴일","2027-03-01":"삼일절",
+  "2027-05-05":"어린이날","2027-05-13":"부처님오신날","2027-06-06":"현충일","2027-08-15":"광복절","2027-08-16":"대체공휴일",
+  "2027-09-14":"추석 연휴","2027-09-15":"추석","2027-09-16":"추석 연휴","2027-10-03":"개천절","2027-10-04":"대체공휴일",
+  "2027-10-09":"한글날","2027-10-11":"대체공휴일","2027-12-25":"성탄절","2027-12-27":"대체공휴일"
+};
+const mySchedules = () => S.schedules.filter(s=>s.scope==="family" || s.profileId===S.me.id);
+const submittedOn = (pid,date) => findDiary(pid,date)?.status==="submitted";
+function viewHomeCalendar(){
+  const t=todayStr(), ps=sortedProfiles(), mine=findDiary(S.me.id,t);
+  const month=S.calMonth||t.slice(0,7), [yy,mm]=month.split("-").map(Number);
+  const first=`${month}-01`, lead=toDate(first).getDay(), days=new Date(yy,mm,0).getDate();
+  const dates=[...Array(days)].map((_,i)=>`${month}-${pad(i+1)}`);
+  const cta = mine && mine.status==="submitted"
+    ? `<button class="btn btn-ghost" data-act="open-diary" data-id="${mine.id}">${ic("book")}오늘 내 일기 보기</button>`
+    : `<button class="btn btn-primary" data-act="write">${ic("pen")}${mine?"오늘 일기 이어 쓰기":"오늘 일기 쓰기"}</button>`;
+  const today = ps.map(p=>{ const d=findDiary(p.id,t); const st=d?(d.status==="submitted"?["done","썼어요"]:["draft","쓰는 중"]):["none","아직이에요"];
+    const open = d && (d.status==="submitted" || p.id===S.me.id);
+    return `<div class="ct-card" style="--pc:${p.color||"var(--ink)"}"><div class="ct-top">${av(p,34)}<b>${esc(p.name)}</b><span class="pill ${st[0]}">${st[1]}</span></div>
+      <div class="ct-body"><span class="ct-title">${d?esc(d.title||"제목 없는 일기"):'<span class="muted">오늘 일기를 기다려요</span>'}</span>
+      ${open?(d.status==="submitted"?`<button class="btn btn-ghost sm" data-act="open-diary" data-id="${d.id}">읽기</button>`:`<button class="btn btn-ghost sm" data-act="write">이어 쓰기</button>`):""}</div></div>`; }).join("");
+  const legend = ps.map(p=>`<span><i style="background:${p.color||"var(--ink)"}"></i>${esc(p.name)} ${dates.filter(d=>submittedOn(p.id,d)).length}일</span>`).join("");
+  const sch = mySchedules();
+  const cells = dates.map(d=>{ const dow=toDate(d).getDay(), hol=HOLIDAYS[d], list=sch.filter(s=>s.date===d).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+    const who=ps.filter(p=>submittedOn(p.id,d));
+    const cls=["cal-cell", d===t?"today":"", d===S.calDay?"sel":"", d>t?"future":"", (dow===0||hol)?"red":dow===6?"blue":""].join(" ");
+    return `<button class="${cls}" data-act="cal-day" data-v="${d}" aria-label="${fmtLong(d)}${hol?" "+hol:""}, 일정 ${list.length}개, ${who.length}명 씀">
+      <span class="cal-n">${+d.slice(8)}${hol?`<small>${hol}</small>`:""}</span>
+      <span class="cal-sc">${list.slice(0,2).map(s=>`<em>${s.time?esc(s.time)+" ":""}${esc(s.title)}</em>`).join("")}${list.length>2?`<em class="more">+${list.length-2}</em>`:""}</span>
+      <span class="cal-dots">${who.map(p=>`<i style="background:${p.color||"var(--ink)"}"></i>`).join("")}</span></button>`; }).join("");
+  return `<section class="hero-date"><div><p class="muted">${esc(S.group.name)} 다이어리</p><h1 class="today-date">${fmtLong(t)}</h1></div>${cta}</section>
+  <section class="block" aria-labelledby="h-ct"><div class="block-h"><h2 id="h-ct">오늘</h2><span class="muted">${ps.filter(p=>submittedOn(p.id,t)).length}/${ps.length}명 썼어요</span></div>
+    <div class="ct-grid">${today}</div></section>
+  <section class="block cal" aria-labelledby="h-cal">
+    <div class="cal-h"><button class="icon-btn" data-act="cal-move" data-v="-1" aria-label="지난달">${ic("back")}</button>
+      <h2 id="h-cal">${yy}년 ${mm}월</h2><button class="icon-btn flip" data-act="cal-move" data-v="1" aria-label="다음 달">${ic("back")}</button>
+      ${month!==t.slice(0,7)?`<button class="btn btn-ghost sm" data-act="cal-move" data-v="0">오늘</button>`:""}</div>
+    <div class="cal-legend">${legend}</div>
+    <div class="cal-grid">${DAYS.map((w,i)=>`<span class="cal-w ${i===0?"red":i===6?"blue":""}">${w}</span>`).join("")}
+      ${lead?`<span style="grid-column:span ${lead}"></span>`:""}${cells}</div>
+    <p class="muted" style="font-size:13px;margin:10px 0 0">날짜를 누르면 그날 가족 일기와 일정을 볼 수 있어요.</p>
+  </section>
+  ${S.calDay?viewCalDay(S.calDay):""}
+  ${viewLinks()}`;
+}
+function viewCalDay(d){
+  const t=todayStr(), hol=HOLIDAYS[d], mine=findDiary(S.me.id,d);
+  const list=S.diaries.filter(x=>x.date===d && (x.status==="submitted" || x.profileId===S.me.id))
+    .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+  const sch=mySchedules().filter(s=>s.date===d).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
+  const write = d>t ? "" : mine?.status==="submitted" ? "" : `<button class="btn btn-primary sm" data-act="write" data-date="${d}">${ic("pen")}${mine?"이어 쓰기":"이날 일기 쓰기"}</button>`;
+  return `<section class="block" id="cal-day" aria-labelledby="h-cd"><div class="block-h"><h2 id="h-cd">${fmtLong(d)}${hol?` <span class="tag family">${hol}</span>`:""}</h2>
+      <div class="row">${write}<button class="icon-btn" data-act="cal-day" data-v="${d}" aria-label="닫기">${ic("x")}</button></div></div>
+    ${list.length?`<div class="feed">${list.map(dcard).join("")}</div>`:`<p class="empty">${d>t?"아직 오지 않은 날이에요.":"이날 쓴 가족 일기가 없어요."}</p>`}
+    <h3 class="cd-h">일정</h3>
+    ${sch.length?`<ul class="sc-list">${sch.map(s=>{ const del=s.profileId===S.me.id || isParent();
+      return `<li class="sc-item"><span class="sc-time">${s.time?esc(s.time):"하루 종일"}</span><span class="sc-title">${esc(s.title)}</span><span class="tag ${s.scope}">${s.scope==="family"?"가족":"나만"}</span>${del?`<button class="icon-btn" data-act="del-schedule" data-id="${s.id}" aria-label="${esc(s.title)} 일정 삭제">${ic("x")}</button>`:""}</li>`; }).join("")}</ul>`:`<p class="muted" style="margin:0">이날 일정이 없어요.</p>`}
+    <details class="add"><summary>${ic("plus")}이날 일정 추가</summary>
+      <form class="form-grid" data-form="schedule">
+        <input type="hidden" name="date" value="${d}">
+        <label>시간 (선택)<input type="time" name="time"></label>
+        <label>할 일<input name="title" required maxlength="40" placeholder="예: 태권도 승급 심사"></label>
+        <fieldset class="seg span2"><legend>누구와 볼 일정인가요?</legend>
+          <label><input type="radio" name="scope" value="family" checked><span>가족 모두</span></label>
+          <label><input type="radio" name="scope" value="personal"><span>나만 보기</span></label></fieldset>
+        <button class="btn btn-primary span2">일정 추가</button>
+      </form></details>
+  </section>`;
 }
 
 function viewSchedules(){
@@ -1211,6 +1341,7 @@ function viewFamily(){
       <section class="block" aria-labelledby="h-set"><div class="block-h"><h2 id="h-set">화면 설정</h2></div>
         <div class="set-row"><span>화면 밝기</span><div class="seg" role="group" aria-label="화면 밝기"><label><input type="radio" name="theme" value="light" ${S.theme==="light"?"checked":""} data-pref="theme"><span>밝게</span></label><label><input type="radio" name="theme" value="dark" ${S.theme==="dark"?"checked":""} data-pref="theme"><span>어둡게</span></label></div></div>
         <div class="set-row"><span>일기 글씨</span><div class="seg" role="group" aria-label="일기 글씨"><label><input type="radio" name="dfont" value="batang" ${S.dfont==="batang"?"checked":""} data-pref="dfont"><span style="font-family:'Gowun Batang',serif">바탕체</span></label><label><input type="radio" name="dfont" value="pen" ${S.dfont==="pen"?"checked":""} data-pref="dfont"><span style="font-family:'Nanum Pen Script',cursive;font-size:20px">손글씨</span></label></div></div>
+        ${isParent()?`<div class="set-row"><span>첫 화면 모양<small class="muted" style="display:block;font-size:12px">내 프로필에 저장돼서 다른 기기에서도 같아요</small></span><div class="seg" role="group" aria-label="첫 화면 모양">${HOME_STYLES.map(([k,l])=>`<label><input type="radio" name="home" value="${k}" ${homeStyle()===k?"checked":""} data-pref="home"><span>${l}</span></label>`).join("")}</div></div>`:""}
       </section>
       <section class="block" aria-labelledby="h-acc"><div class="block-h"><h2 id="h-acc">계정</h2></div>
         <div class="row">
@@ -1265,6 +1396,11 @@ const acts = {
   "cancel-reply": () => { S.replyTo=null; render(); },
   "edit-comment": el => { S.editing=el.dataset.id; S.replyTo=null; render(); document.getElementById("e-"+el.dataset.id)?.focus(); },
   "cancel-edit": () => { S.editing=null; render(); },
+  "cal-move": el => { const n=+el.dataset.v, t=todayStr();
+    if(!n){ S.calMonth=t.slice(0,7); } else { const [y,m]=(S.calMonth||t.slice(0,7)).split("-").map(Number); const d=new Date(y,m-1+n,1); S.calMonth=`${d.getFullYear()}-${pad(d.getMonth()+1)}`; }
+    S.calDay=null; render(); },
+  "cal-day": el => { const d=el.dataset.v; S.calDay = S.calDay===d ? null : d; render();
+    if(S.calDay) document.getElementById("cal-day")?.scrollIntoView({behavior:"smooth",block:"start"}); },
   "del-schedule": el => guard(async()=>{ await B.remove(S.gid,"schedules",el.dataset.id); await reload("schedules"); render(); toast("일정을 지웠어요"); }),
   "del-link": el => guard(async()=>{ if(!confirm("이 즐겨찾기를 지울까요?")) return; await B.remove(S.gid,"links",el.dataset.id); await reload("links"); render(); toast("즐겨찾기를 지웠어요"); }),
   copy: async el => { try{ await navigator.clipboard.writeText(el.dataset.v); toast("복사했어요"); }catch(e){ prompt("아래 내용을 복사해 주세요", el.dataset.v); } },
@@ -1434,6 +1570,7 @@ document.addEventListener("change", e => {
   if(t.name==="mood" && S.draft){ S.draft.mood=t.value; return; }
   if(t.dataset.pref==="theme"){ S.theme=t.value; ls.set("iinote-theme",t.value); applyPrefs(); }
   if(t.dataset.pref==="dfont"){ S.dfont=t.value; ls.set("iinote-dfont",t.value); applyPrefs(); }
+  if(t.dataset.pref==="home"){ guard(async()=>{ await B.update(S.gid,"profiles",S.me.id,{homeStyle:t.value}); S.me.homeStyle=t.value; const p=prof(S.me.id); if(p) p.homeStyle=t.value; toast("첫 화면 모양을 바꿨어요. 홈에서 확인해 보세요"); }); }
   if(t.dataset.pref==="group"){ guard(async()=>{ await B.setLastGroup(S.user.uid,t.value); S.me=null; await enterGroup(t.value); }); }
 });
 
