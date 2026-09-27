@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FBF6EE">
 <title>아이아이노트 - 가족이 함께 쓰는 일기장</title>
+<meta name="description" content="가족이 함께 쓰고, 서로 읽어 주는 일기장">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="아이아이노트">
+<meta property="og:title" content="아이아이노트">
+<meta property="og:description" content="가족이 함께 쓰고, 서로 읽어 주는 일기장">
+<meta property="og:image" content="https://jsun.site/iinote/icon.png">
+<meta property="og:url" content="https://jsun.site/iinote/">
 <link rel="icon" type="image/png" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
@@ -447,6 +454,9 @@ const weekDates = () => { const t = todayStr(); const back = (toDate(t).getDay()
 const rid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
 const makeCode = () => { const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; return [...Array(6)].map(()=>A[Math.floor(Math.random()*A.length)]).join(""); };
 const shuffle = a => { const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; };
+// 마지막 글자에 받침이 있는지 (도윤아/서희야, 이모랑/엄마랑)
+const hasBatchim = s => { const c=String(s||"").trim().slice(-1).charCodeAt(0); return c>=0xAC00 && c<=0xD7A3 && (c-0xAC00)%28!==0; };
+const kidInviteMsg = (kid,url) => `${kid.name}${hasBatchim(kid.name)?"아":"야"}! ${S.me.name}${hasBatchim(S.me.name)?"이랑":"랑"} 같이 일기 쓰자 ✏️\n아래 링크를 누르고 '시작하기'만 누르면 돼.\n${url}`;
 const onColor = hex => { const n=parseInt(hex.slice(1),16); const r=n>>16&255,g=n>>8&255,b=n&255; return (0.299*r+0.587*g+0.114*b)>140?"#1F2A44":"#FFFFFF"; };
 const relTime = ts => { if(!ts) return ""; const m=Math.floor((Date.now()-ts)/60000); if(m<1) return "방금"; if(m<60) return `${m}분 전`; const h=Math.floor(m/60); if(h<24) return `${h}시간 전`; const d=Math.floor(h/24); if(d<7) return `${d}일 전`; return fmtShort(ymd(new Date(ts))); };
 const host = u => { try { return new URL(u).hostname.replace(/^www\./,""); } catch(e) { return u; } };
@@ -1160,14 +1170,14 @@ function viewFamily(){
         <div class="row" style="margin-top:12px"><button class="btn btn-ghost sm" data-act="copy" data-v="${esc(link)}">${ic("link")}초대 링크 복사</button></div>
       </section>
       <section class="block" aria-labelledby="h-mem"><div class="block-h"><h2 id="h-mem">가족 구성원</h2><span class="muted">${ps.length}명</span></div>
-        <ul class="mem-list">${ps.map(p=>`<li class="mem">${av(p)}<span>${esc(p.name)}</span><small class="muted">${p.type==="child"?`${p.grade?p.grade+"학년":"어린이"}${p.pin?" (비밀번호)":""}`:"보호자"}</small>${p.type==="child"&&!p.uid&&isParent()?`<button class="link-btn" data-act="copy" data-v="${esc(`${link}&kid=${p.id}&n=${encodeURIComponent(p.name)}`)}" aria-label="${esc(p.name)} 휴대폰 연결 링크 복사">${ic("link")}휴대폰 연결 링크</button>`:""}</li>`).join("")}</ul>
-        ${isParent()&&ps.some(p=>p.type==="child"&&!p.uid)?`<p class="muted" style="margin:0 0 8px;font-size:13px">휴대폰 연결 링크를 아이 휴대폰에 문자로 보내면, 구글 계정 없이 크롬에서 바로 일기를 써요. 이 링크가 있으면 누구나 가족 일기장에 들어올 수 있으니 아이에게만 보내고, 걱정되면 비밀번호를 걸어 주세요.</p>`:""}
+        <ul class="mem-list">${ps.map(p=>`<li class="mem">${av(p)}<span>${esc(p.name)}</span><small class="muted">${p.type==="child"?`${p.grade?p.grade+"학년":"어린이"}${p.pin?" (비밀번호)":""}`:"보호자"}</small>${p.type==="child"&&!p.uid&&isParent()?`<button class="link-btn" data-act="copy" data-v="${esc(kidInviteMsg(p,`${link}&kid=${p.id}&n=${encodeURIComponent(p.name)}`))}" aria-label="${esc(p.name)}에게 보낼 초대 문자 복사">${ic("link")}초대 문자 복사</button>`:""}</li>`).join("")}</ul>
+        ${isParent()&&ps.some(p=>p.type==="child"&&!p.uid)?`<p class="muted" style="margin:0 0 8px;font-size:13px">초대 문자를 복사해 아이 휴대폰에 문자로 보내면, 구글 계정 없이 크롬에서 바로 일기를 써요. 이 링크가 있으면 누구나 가족 일기장에 들어올 수 있으니 아이에게만 보내고, 걱정되면 비밀번호를 걸어 주세요.</p>`:""}
         ${isParent()?`<details class="add"><summary>${ic("plus")}아이 프로필 추가</summary>
           <form class="form-grid" data-form="child">
             <label>이름<input name="name" required maxlength="10" placeholder="예: 하랑"></label>
             <label>학년<select name="grade">${[1,2,3,4,5,6].map(n=>`<option value="${n}">${n}학년</option>`).join("")}</select></label>
             <label class="span2">비밀번호 네 자리 (선택)<input name="pin" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="비워 두면 바로 들어가요"></label>
-            <p class="muted span2" style="margin:0;font-size:13px">아이는 구글 계정 없이 이 프로필로 써요. 엄마·아빠 휴대폰에서 '프로필 바꾸기'로 쓰거나, 추가한 뒤 '휴대폰 연결 링크'를 아이 휴대폰에 보내 주세요.</p>
+            <p class="muted span2" style="margin:0;font-size:13px">아이는 구글 계정 없이 이 프로필로 써요. 엄마·아빠 휴대폰에서 '프로필 바꾸기'로 쓰거나, 추가한 뒤 '초대 문자 복사'로 아이 휴대폰에 보내 주세요.</p>
             <button class="btn btn-primary span2">아이 프로필 추가</button>
           </form></details>`:""}
       </section>
