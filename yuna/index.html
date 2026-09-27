@@ -768,6 +768,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 .me-ground{position:absolute;left:0;right:0;bottom:0;height:30%;border-radius:50% 50% 0 0 / 22px 22px 0 0}
 .me-deco.sc{opacity:1;line-height:1}
 .me-box{position:absolute;display:block}
+.me-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .me-stage.mini .me-deco.sc{transform:scale(.5);transform-origin:top left}
 /* 캐릭터 그림 틀: 글자 한 칸(1em) 크기, 모자 · 소품은 그 안에서 em으로 */
 .me-char .me-fig{position:absolute;left:50%;bottom:0;width:1em;height:1em;margin-left:-.5em;font-size:130px;line-height:1}
@@ -948,6 +949,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
   #sbody .key.fn,#mbody .key.fn{font-size:1rem}
 }
 </style>
+<script src="/room/scenes.js?v=20260927"></script>
 </head>
 <body data-theme="clean">
 <header>
@@ -3958,7 +3960,7 @@ const DECO_ITEMS = [
 const decoItem = id => DECO_ITEMS.find(x=>x.id===id);
 /* 캐릭터마다 자기 모자 · 소품을 따로 입어요: wear = {캐릭터id: {hat, acc}}. 물건은 하나뿐이라 다른 캐릭터에게 주면 옮겨 가요 */
 /* 몸 전체 그림인 캐릭터는 머리 자리가 달라서 모자를 옮겨 씌워요: [가로 px, 세로 px, 기울기] (큰 방 기준) */
-const HAT_FIT = { moonwolf:[0,-12,0], peacock:[-8,-2,-6], goldeagle:[-22,4,-12], kraken:[0,0,0], stardeer:[-42,-18,-12], squirrel:[-16,10,-10], koala:[0,4,0], otter:[-34,22,-14], monkey:[0,4,0], sloth:[-18,26,-10], seal:[-36,20,-16], llama:[-24,-8,-8], flamingo:[-6,-10,-10], owl:[0,8,0], hippo:[-34,18,-10], giraffe:[-30,-12,-10], elephant:[-28,6,-10], chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-30,18,-14], whale:[-22,22,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
+const HAT_FIT = { moonwolf:[0,-12,0], peacock:[-8,-2,-6], goldeagle:[-58,8,-12], kraken:[0,0,0], stardeer:[-42,-18,-12], squirrel:[-16,10,-10], koala:[0,4,0], otter:[-34,22,-14], monkey:[0,4,0], sloth:[-18,26,-10], seal:[-36,20,-16], llama:[-24,-8,-8], flamingo:[-6,-10,-10], owl:[0,8,0], hippo:[-23,49,-10], giraffe:[-30,-12,-10], elephant:[-28,6,-10], chickb:[0,8,0], sheep:[-26,10,-12], hedgehog:[-26,44,-14], whale:[-22,0,-14], octo:[0,10,0], bluefish:[-26,26,-18], phoenix:[-18,4,-10], penguin:[0,6,0], shark:[-36,30,-20], dolphin:[-30,20,-22], dino:[-24,-2,-10], dragon:[-36,4,-14], unicorn:[-8,2,-8] };
 function decoGet(){
   const d=Object.assign({base:'dog', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0, wear:null}, store.get('deco',{}));
   DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
@@ -3986,9 +3988,10 @@ const decoMini = (d, baseId) => `<span class="cm-wrap"><span class="cm-in">${dec
 function decoStage(d, big=true){
   const bg=decoItem(d.bg)||decoItem('plain'), pet=d.pet?decoItem(d.pet):null;
   const spots=[[8,14],[82,10],[14,58],[86,52]];
+  const svg=window.ROOM_SCENE?window.ROOM_SCENE(bg.id):null;   // 새 배경 그림 (/room/scenes.js) · 없으면 예전 배경
   return `<div class="me-stage ${big?'':'mini'}" style="background:${bg.g}">
-    ${bg.floor?`<div class="me-ground" style="background:${bg.floor}"></div>`:''}
-    ${bg.scene?bg.scene.map(([e,x,y,s,h,col,rad])=>e==='#'?`<span class="me-box" style="left:${x}%;top:${y}%;width:${s}%;height:${h}%;background:${col};border-radius:${rad||0}px"></span>`:`<span class="me-deco sc" style="left:${x}%;top:${y}%;font-size:${s}px">${e}</span>`).join(''):bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}
+    ${svg||(bg.floor?`<div class="me-ground" style="background:${bg.floor}"></div>`:'')}
+    ${svg?'':bg.scene?bg.scene.map(([e,x,y,s,h,col,rad])=>e==='#'?`<span class="me-box" style="left:${x}%;top:${y}%;width:${s}%;height:${h}%;background:${col};border-radius:${rad||0}px"></span>`:`<span class="me-deco sc" style="left:${x}%;top:${y}%;font-size:${s}px">${e}</span>`).join(''):bg.d.map((e,i)=>`<span class="me-deco" style="left:${spots[i%4][0]}%;top:${spots[i%4][1]}%">${e}</span>`).join('')}
     <div class="me-floor"></div>
     ${decoChar(d, d.base)}
     ${pet?`<span class="me-pet ${['butterfly','parrot','bee'].includes(pet.id)?'fly':''}"><span class="me-pet-in">${pet.e}</span></span>`:''}
