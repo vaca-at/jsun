@@ -1155,7 +1155,8 @@ function dayCard(w, e){
   const spellNote = p.kid ? `<div class="soft" style="font-size:.8em">✏️ ${n}자 · ${!e.spellChecked ? "🖍 빨간펜 검사 안 함"
       : fx.length ? `🖍 고친 곳 ${fx.length}군데 (${[["ai", "AI가 고쳐 줌"], ["hint", "정답 보고"], ["self", "스스로"], ["other", "다른 말로 바꿈"]].filter(([h]) => howCount(h)).map(([h, l]) => `${l} ${howCount(h)}`).join(" · ")})`
       : `🖍 찾은 곳 ${e.spellFound || 0} · 남은 곳 ${e.spellLeft || 0}`}</div>
-    ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로", other: "✏️ 다른 말로 바꿈" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}` : "";
+    ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로", other: "✏️ 다른 말로 바꿈" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}
+    ${e.spellFeedback?.praise ? `<div class="soft" style="font-size:.8em; margin-top:4px">👏 빨간펜 칭찬: ${esc(e.spellFeedback.praise)}</div>` : ""}` : "";
   return `<div class="dcard" style="--c:${p.color}">${head}
     ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
     ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}

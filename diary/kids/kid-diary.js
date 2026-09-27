@@ -338,6 +338,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
     const src = useDraft ? draft : e;
     S.weather = src.weather || ""; S.mood = src.mood || ""; S.spell = null; S.found = e.spellFound || 0;
     S.fixLog = (e.spellFixes || []).slice();   // 고쳐서 다시 저장할 때도 예전에 고친 기록은 남겨요
+    S.feedback = e.spellFeedback || null;
     const q = e.question || question();
     const t = today(), y = addDays(t, -1);
     $("[data-kd=main]").innerHTML = `
@@ -513,6 +514,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       // 앞 검사에서 고친 기록은 모아 두고 새 검사로 넘어가요
       if (S.spell) S.fixLog.push(...resolvedFixes(S.spell.errors, ta.value));
       S.spell = { praise: data.praise || "", cheer: data.cheer || "", errors };
+      if (data.praise || data.cheer) S.feedback = { praise: data.praise || "", cheer: data.cheer || "" };   // 빨간펜 칭찬 · 응원도 일기와 함께 남겨요
       S.found += errors.length;
       if (P.autoFix && errors.length){ applyAll(); S.dirty = true; saveDraft(); }
       S.spell.chars = countChars(ta.value); S.spell.checked = ta.value; S.spellFailed = false; S.dirty = true;
@@ -597,6 +599,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
       .filter(f => { const k = f.wrong + "→" + f.right; return !seen.has(k) && seen.add(k); });
     return {
       spellChecked: true, spellFound: S.found, spellAuto: !!P.autoFix, spellFixes: fixes,
+      ...(S.feedback ? { spellFeedback: S.feedback } : {}),
       spellLeft: errs.filter(er => isLeft(er, text)).length,
       spellSelf: fixes.filter(f => f.how === "self").length
     };
@@ -703,6 +706,7 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
         <div class="body">${mine ? markFixes(e.content, e.spellFixes) : esc(e.content)}</div>
         ${mine ? fixList(e.spellFixes) : ""}
+        ${mine && e.spellFeedback?.praise ? `<div class="kd-fixes" style="background:#FFF8DD">👏 <b>빨간펜 선생님:</b> ${esc(e.spellFeedback.praise)} ${esc(e.spellFeedback.cheer || "")}</div>` : ""}
         <div class="kd-cmts">
           <button class="kd-heart" data-a="heart" data-id="${e.id}" aria-label="하트">${hearts[kid] ? "❤️" : "🤍"}</button>
           <span class="kd-soft">${heartBy.join(", ")}</span>
