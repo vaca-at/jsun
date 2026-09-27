@@ -297,6 +297,10 @@ mark{
 .bar small{ font-size:.7em; color:var(--ink-soft); }
 .fixes{ margin:4px 0 0; padding-left:1.2em; font-size:.8em; }
 .fixes s{ color:var(--red); }
+.orig{ margin-top:6px; font-size:.85em; border:1.5px dashed var(--line); border-radius:10px; padding:4px 8px; }
+.orig summary{ cursor:pointer; color:var(--ink-soft); }
+.orig .body{ white-space:pre-wrap; margin-top:4px; }
+.wrong-mark{ text-decoration:underline wavy var(--red); text-underline-offset:4px; color:var(--red); }
 .cmt-tool{ border:none; background:none; font-size:.8em; padding:0 2px; opacity:.55; }
 .cmt-tool:hover{ opacity:1; }
 .emo{ display:flex; flex-wrap:wrap; gap:2px; margin-top:6px; padding:6px; border:1.5px dashed var(--line); border-radius:10px; background:var(--paper); }
@@ -1126,6 +1130,20 @@ function markFixes(text, fixes){
   spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<span class="fx">${esc(text.slice(s.i, s.e))}</span>`; pos = s.e; });
   return html + esc(text.slice(pos));
 }
+// 처음 쓴 글(빨간펜 전)에서 틀렸던 곳에 빨간 물결 밑줄
+function markWrong(text, fixes){
+  const spans = [];
+  (fixes || []).forEach(f => {
+    if (!f.wrong) return;
+    let i = text.indexOf(f.wrong);
+    while (i >= 0 && spans.some(s => i < s.e && i + f.wrong.length > s.i)) i = text.indexOf(f.wrong, i + 1);
+    if (i >= 0) spans.push({ i, e: i + f.wrong.length });
+  });
+  spans.sort((a, b) => a.i - b.i);
+  let html = "", pos = 0;
+  spans.forEach(s => { html += esc(text.slice(pos, s.i)) + `<span class="wrong-mark">${esc(text.slice(s.i, s.e))}</span>`; pos = s.e; });
+  return html + esc(text.slice(pos));
+}
 function renderDay(){ keepFocus(renderDayInner); }
 function renderDayInner(){
   const d = S.dayDate, t = today();
@@ -1156,7 +1174,8 @@ function dayCard(w, e){
       : fx.length ? `🖍 고친 곳 ${fx.length}군데 (${[["ai", "AI가 고쳐 줌"], ["hint", "정답 보고"], ["self", "스스로"], ["other", "다른 말로 바꿈"]].filter(([h]) => howCount(h)).map(([h, l]) => `${l} ${howCount(h)}`).join(" · ")})`
       : `🖍 찾은 곳 ${e.spellFound || 0} · 남은 곳 ${e.spellLeft || 0}`}</div>
     ${fx.length ? `<ul class="fixes">${fx.map(f => `<li><s>${esc(f.wrong)}</s> → <span class="fx">${esc(f.right)}</span> <span class="soft">${{ ai: "🖍 AI", hint: "💡 정답 보고", self: "👍 스스로", other: "✏️ 다른 말로 바꿈" }[f.how] || ""}</span></li>`).join("")}</ul>` : ""}
-    ${e.spellFeedback?.praise ? `<div class="soft" style="font-size:.8em; margin-top:4px">👏 빨간펜 칭찬: ${esc(e.spellFeedback.praise)}</div>` : ""}` : "";
+    ${e.spellFeedback?.praise ? `<div class="soft" style="font-size:.8em; margin-top:4px">👏 빨간펜 칭찬: ${esc(e.spellFeedback.praise)} ${esc(e.spellFeedback.cheer || "")}</div>` : ""}
+    ${e.spellOriginal && e.spellOriginal !== e.content ? `<details class="orig"><summary>✍️ 처음 쓴 글 (빨간펜 전) 보기</summary><div class="body">${markWrong(e.spellOriginal, fx)}</div></details>` : ""}` : "";
   return `<div class="dcard" style="--c:${p.color}">${head}
     ${e.stamp ? `<div class="stamp">${esc(e.stamp)}</div>` : ""}
     ${e.question ? `<div class="qtag">💡 ${esc(e.question)}</div>` : ""}
