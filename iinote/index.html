@@ -145,6 +145,7 @@ legend{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:6px;paddin
 .top{position:sticky;top:0;z-index:15;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .top-brand{display:flex;align-items:center;gap:10px;font-weight:800;min-width:0}
 .top-brand span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-acts{display:flex;align-items:center;gap:4px;flex:none}
 .me-chip{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px 4px 4px;font-weight:650;font-size:14px}
 .sheet{position:relative;max-width:1080px;margin:0 auto;padding:24px 18px 120px}
 .sub-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:18px}
@@ -158,6 +159,7 @@ legend{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:6px;paddin
   .nav-item{flex-direction:row;gap:12px;font-size:16px;padding:12px 14px;min-height:48px}
   .nav-item.on{background:var(--paper)}
   .nav-foot{display:grid;gap:16px;margin-top:auto}
+  .nav-foot .link-btn{justify-self:start;margin:-8px 0 0 6px}
   .nav-addr{border:2px dashed var(--line);border-radius:14px;padding:12px 14px;font-size:13px;color:var(--ink3)}
   .nav-addr strong{display:block;color:var(--ink);font-size:15px}
   .sheet{padding:40px 48px 80px 72px}
@@ -847,11 +849,12 @@ function viewShell(){
       <div class="nav-items">${tabs.map(([k,l,i])=>`<button class="nav-item ${S.tab===k?"on":""}" data-act="tab" data-v="${k}" ${S.tab===k?'aria-current="page"':""}>${ic(i)}<span>${l}</span></button>`).join("")}</div>
       <div class="nav-foot">
         <button class="me-chip" data-act="switch-profile" aria-label="프로필 바꾸기">${av(S.me,30)}<span>${esc(S.me.name)}</span></button>
+        ${isParent()?`<button class="link-btn" data-act="signout">${ic("out")}로그아웃</button>`:""}
         <div class="nav-addr">컴퓨터에서도 이 주소로<strong>${esc(SITE_ADDRESS)}</strong></div>
       </div>
     </nav>
     <div>
-      <header class="top"><div class="top-brand">${logo(32)}<span>${esc(S.group.name)}</span></div><button class="me-chip" data-act="switch-profile" aria-label="프로필 바꾸기">${av(S.me,28)}<span>${esc(S.me.name)}</span></button></header>
+      <header class="top"><div class="top-brand">${logo(32)}<span>${esc(S.group.name)}</span></div><div class="top-acts"><button class="me-chip" data-act="switch-profile" aria-label="프로필 바꾸기">${av(S.me,28)}<span>${esc(S.me.name)}</span></button>${isParent()?`<button class="icon-btn" data-act="signout" aria-label="로그아웃" title="로그아웃">${ic("out")}</button>`:""}</div></header>
       <main class="sheet" id="main">${viewMain()}</main>
     </div>
     ${S.lb?viewLightbox():""}
