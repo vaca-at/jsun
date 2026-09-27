@@ -1085,13 +1085,19 @@ async function makeReport(w){
 }
 
 // 한마디를 쓰는 중에 도장·하트로 화면이 새로 그려져도, 쓰던 글과 커서 자리를 그대로 지켜요.
-const cmt = { draft: {}, edit: null, emoji: null };   // draft[일기id] · edit {id, at, text} · emoji: 이모지 판 열린 일기id
+const cmt = { draft: {}, edit: null, emoji: null, caret: null };   // draft[일기id] · edit {id, at, text} · emoji: 이모지 판 열린 일기id · caret: 마지막 커서 자리
 const EMOJIS = ["💖","❤️","🥰","😍","😊","😆","🤗","👍","👏","💪","🌟","⭐","✨","🎉","🏆","💯","🌈","🌷","🍀","🔥"];
+// 한마디 칸의 커서 자리를 계속 기억해요 → 도장 · 하트 · 이모지를 눌러 화면이 새로 그려져도 쓰던 칸 · 쓰던 자리로 돌아와요
+const cmtKey = el => el?.dataset?.cmt ? `[data-cmt="${el.dataset.cmt}"]` : el?.dataset?.cedit ? `[data-cedit="${el.dataset.cedit}"]` : null;
+function rememberCaret(el){ const key = cmtKey(el); if (key) cmt.caret = { key, s: [el.selectionStart ?? el.value.length, el.selectionEnd ?? el.value.length] }; }
 function keepFocus(fn){
-  const a = document.activeElement, key = a?.dataset?.cmt ? `[data-cmt="${a.dataset.cmt}"]` : a?.dataset?.cedit ? `[data-cedit="${a.dataset.cedit}"]` : null;
-  const s = key ? [a.selectionStart, a.selectionEnd] : null;
+  if (cmtKey(document.activeElement)) rememberCaret(document.activeElement);
   fn();
-  if (key){ const b = document.querySelector(key); if (b){ b.focus(); b.setSelectionRange(...s); } }
+  const c = cmt.caret, b = c && document.querySelector(c.key), act = document.activeElement;
+  // 쓰던 글이 있고, 지금 다른 입력 칸을 쓰고 있지 않으면 쓰던 칸으로 돌아가요
+  if (b && b.value && (!act || act === document.body || act === b || !act.matches?.("input,textarea,select"))){
+    b.focus({ preventScroll: true }); b.setSelectionRange(...c.s);
+  }
 }
 function rain(list){
   if (matchMedia("(prefers-reduced-motion: reduce)").matches || !list.length) return;
@@ -1309,10 +1315,14 @@ document.addEventListener("click", e => {
     case "emoji-open": cmt.emoji = cmt.emoji === id ? null : id; renderTab(); break;
     case "emoji": {
       const inp = document.querySelector(cmt.edit?.id === id ? `[data-cedit="${id}"]` : `[data-cmt="${id}"]`); if (!inp) break;
-      const s = inp.selectionStart ?? inp.value.length, en = inp.selectionEnd ?? s;
+      // 기억해 둔 커서 자리에 넣어요 (휴대폰에서 이모지를 누르면 칸의 초점이 빠져도 괜찮게)
+      const saved = cmt.caret && cmt.caret.key === cmtKey(inp) ? cmt.caret.s : null;
+      const s = document.activeElement === inp ? inp.selectionStart : saved ? saved[0] : inp.value.length;
+      const en = document.activeElement === inp ? inp.selectionEnd : saved ? saved[1] : s;
       inp.value = inp.value.slice(0, s) + v + inp.value.slice(en);
-      inp.focus(); inp.setSelectionRange(s + v.length, s + v.length);
+      inp.focus({ preventScroll: true }); inp.setSelectionRange(s + v.length, s + v.length);
       inp.dispatchEvent(new Event("input", { bubbles: true }));
+      rememberCaret(inp);
       break;
     }
   }
@@ -1320,9 +1330,11 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   if (e.target.id === "content"){ S.formDirty = true; updateGauge(); }
   else if (e.target.id === "title" || e.target.id === "useQ") S.formDirty = true;
-  else if (e.target.dataset?.cmt) cmt.draft[e.target.dataset.cmt] = e.target.value;
-  else if (e.target.dataset?.cedit && cmt.edit) cmt.edit.text = e.target.value;
+  else if (e.target.dataset?.cmt){ cmt.draft[e.target.dataset.cmt] = e.target.value; rememberCaret(e.target); }
+  else if (e.target.dataset?.cedit && cmt.edit){ cmt.edit.text = e.target.value; rememberCaret(e.target); }
 });
+// 커서를 옮기기만 해도(방향키 · 클릭) 자리를 기억해요
+["keyup", "click", "focusout"].forEach(t => document.addEventListener(t, e => { if (cmtKey(e.target)) rememberCaret(e.target); }, true));
 // 즐겨찾기 편집: 끌어서 놓기로 순서 바꾸기 (컴퓨터)
 let dragLi = null;
 document.addEventListener("dragstart", e => { const el = e.target.closest?.(".lk.editing"); if (!el) return; dragLi = +el.dataset.li; el.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; });

@@ -676,6 +676,10 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
   }
   const cmtDraft = {};   // 한마디 쓰던 글: 화면이 새로 그려져도 지켜요
   let kEdit = null;      // 내가 쓴 한마디를 고치는 중: { id, at, text }
+  let kCaret = null;     // 한마디 칸의 마지막 커서 자리: { id, s:[시작, 끝] }
+  ["input", "keyup", "click", "focusout"].forEach(t => root.addEventListener(t, ev => {
+    const id = ev.target?.dataset?.cmt; if (id) kCaret = { id, s: [ev.target.selectionStart ?? 0, ev.target.selectionEnd ?? 0] };
+  }, true));
   async function saveKidComments(id, fn){
     const list = fn((S.entries[id]?.comments || []).slice());
     await updateDoc(doc(db, "diary", id), { comments: list });
@@ -714,6 +718,11 @@ export function mountKidDiary({ el, kid, firebaseConfig, spellApi = SPELL_API, o
         </div></article>`;
     }).join("") : `<p class="kd-soft" style="text-align:center;padding:30px 0">${family ? "아직 가족 일기가 없어요." : "아직 쓴 일기가 없어요. 오늘 첫 일기를 써 볼까요?"}</p>`}</div>`;
     if (focusId){ const b = root.querySelector(`[data-cmt="${focusId}"]`); if (b){ b.focus(); b.setSelectionRange(...sel); } }
+    else if (kCaret && cmtDraft[kCaret.id]){
+      // 하트 등을 눌러 화면이 새로 그려져도 쓰던 한마디 칸 · 쓰던 자리로 돌아와요
+      const b = root.querySelector(`[data-cmt="${kCaret.id}"]`), act = document.activeElement;
+      if (b && (!act || act === document.body || !act.matches?.("input,textarea,select"))){ b.focus({ preventScroll: true }); b.setSelectionRange(...kCaret.s); }
+    }
     // 내 일기에 가족이 새 한마디를 남겼으면 그 이모지를 팡팡!
     if (!family){
       const seen = store.get(`kd_cmtseen_${kid}`) || 0;
