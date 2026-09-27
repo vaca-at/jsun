@@ -2218,7 +2218,7 @@ function renderEng2(){
   if(!engBox){
     engBox=document.createElement('div');
     engBox.innerHTML='<p class="center" style="padding:30px">🔤 영어를 여는 중…</p>';
-    import('/english/english.js')
+    import('='+Math.floor(Date.now()/6e5))
       .then(m=>m.mountEnglish({ el:engBox, kidId:KID_IDS[KID], grade:GRADE_ID, firebaseConfig:FIREBASE_CONFIG, name:KID,
         host:{ speak:(t,l)=>speak(t,l||'en'), beep, addStar:n=>{ if(who) addStar(n); }, logToday:ok=>{ if(who) logToday('eng',ok); }, toast, burst } }))
       .catch(e=>{ console.warn('영어를 열지 못했어요', e); engBox.innerHTML='<p class="center" style="padding:30px">영어를 열지 못했어요. 새로고침해 볼까요?</p>'; engBox=null; });
