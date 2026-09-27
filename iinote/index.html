@@ -197,7 +197,10 @@ legend{font-size:14px;font-weight:600;color:var(--ink2);margin-bottom:6px;paddin
 .wk-dot{justify-self:center;width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line)}
 .wk-dot.on{background:var(--coral);border-color:var(--coral)}
 .wk-dot.half{border-color:var(--coral);background:linear-gradient(90deg,var(--coral) 50%,transparent 50%)}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--ink3);margin-top:10px}
+button.wk-dot{position:relative;padding:0;background-color:transparent;border-color:var(--ink3)}
+button.wk-dot::after{content:"";position:absolute;inset:-10px}
+button.wk-dot:hover{border-color:var(--coral);box-shadow:0 0 0 3px var(--coral-soft)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink3);margin-top:10px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .sc-day{margin:0 0 12px}
 .sc-day h3{font-size:14px;margin:0 0 6px;color:var(--ink2)}
@@ -907,7 +910,12 @@ function viewHome(){
   const rows = ps.map(p=>{ const d=findDiary(p.id,t); const st=d?(d.status==="submitted"?["done","썼어요"]:["draft","쓰는 중"]):["none","아직이에요"];
     return `<li class="st-row">${av(p)}<span class="st-name">${esc(p.name)}</span><span class="pill ${st[0]}">${st[1]}</span></li>`; }).join("");
   const head = week.map(d=>`<span class="wk-h ${d===t?"today":""}">${DAYS[toDate(d).getDay()]}<b>${+d.slice(8)}</b></span>`).join("");
-  const wrows = ps.map(p=>`<div class="wk-row"><span class="wk-name">${esc(p.name)}</span>${week.map(d=>{ const x=findDiary(p.id,d); const c=x?(x.status==="submitted"?"on":"half"):""; return `<span class="wk-dot ${c}" title="${fmtShort(d)} ${x?(x.status==="submitted"?"썼어요":"쓰는 중"):"안 썼어요"}"></span>`; }).join("")}</div>`).join("");
+  const wrows = ps.map(p=>`<div class="wk-row"><span class="wk-name">${esc(p.name)}</span>${week.map(d=>{ const x=findDiary(p.id,d); const c=x?(x.status==="submitted"?"on":"half"):""; const tip=`${fmtShort(d)} ${x?(x.status==="submitted"?"썼어요":"쓰는 중"):"안 썼어요"}`;
+    // 내 줄의 오늘까지 동그라미는 눌러서 그날 일기를 쓰거나 볼 수 있어요
+    if(p.id===S.me.id && d<=t) return x&&x.status==="submitted"
+      ? `<button class="wk-dot ${c}" data-act="open-diary" data-id="${x.id}" title="${tip}" aria-label="${tip}, 일기 보기"></button>`
+      : `<button class="wk-dot ${c}" data-act="write" data-date="${d}" title="${tip}" aria-label="${tip}, 일기 쓰기"></button>`;
+    return `<span class="wk-dot ${c}" title="${tip}"></span>`; }).join("")}</div>`).join("");
   const cta = mine && mine.status==="submitted"
     ? `<button class="btn btn-ghost" data-act="open-diary" data-id="${mine.id}">${ic("book")}오늘 내 일기 보기</button>`
     : `<button class="btn btn-primary" data-act="write">${ic("pen")}${mine?"오늘 일기 이어 쓰기":"오늘 일기 쓰기"}</button>`;
@@ -917,7 +925,7 @@ function viewHome(){
       <section class="block" aria-labelledby="h-st"><div class="block-h"><h2 id="h-st">오늘의 일기</h2><span class="muted">${ps.filter(p=>findDiary(p.id,t)?.status==="submitted").length}/${ps.length}명 썼어요</span></div>
         <ul class="st-list">${rows}</ul>
         <div class="week"><div class="wk-row wk-head"><span></span>${head}</div>${wrows}
-          <div class="legend"><span><i class="wk-dot on"></i>썼어요</span><span><i class="wk-dot half"></i>쓰는 중</span></div></div>
+          <div class="legend"><span><i class="wk-dot on"></i>썼어요</span><span><i class="wk-dot half"></i>쓰는 중</span><span>내 줄 동그라미를 누르면 그날 일기를 써요</span></div></div>
       </section>
       ${viewSchedules()}
     </div>
@@ -1045,6 +1053,19 @@ function loadDraft(date){
   S.draft = d ? {id:d.id,date,mood:d.mood||"",title:d.title||"",text:d.text||"",status:d.status,aiChecked:!!d.aiChecked,aiResult:d.aiResult||null,
                  photos:(d.photos||[]).map(x=>({...x})),audio:d.audio?{...d.audio}:null,location:d.location||null,tags:[...(d.tags||[])],removed:[]}
               : {id:null,date,mood:"",title:"",text:"",status:"new",aiChecked:false,aiResult:null,photos:[],audio:null,location:null,tags:[],removed:[]};
+}
+// 쓰는 중에 날짜를 바꾸면 내용은 그대로 두고 날짜만 옮겨요. 그날 쓴 일기가 이미 있으면 불러올지 물어봐요.
+function changeDraftDate(input){
+  const d=S.draft, date=input.value;
+  if(date>todayStr()){ toast("앞으로의 날짜에는 쓸 수 없어요"); input.value=d.date; return; }
+  const ex=findDiary(S.me.id,date);
+  if(ex && ex.id!==d.id){
+    const empty=!d.text.trim() && !d.title.trim();
+    if(empty || confirm(`${fmtShort(date)}에 쓴 일기가 이미 있어요. 그 일기를 불러올까요?\n(지금 쓰던 내용은 저장되지 않아요)`)){ loadDraft(date); render(); }
+    else input.value=d.date;
+    return;
+  }
+  d.date=date;
 }
 function viewWrite(){
   const d=S.draft, child=S.me.type==="child", submitted=d.status==="submitted";
@@ -1407,7 +1428,7 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t=e.target;
-  if(t.id==="w-date" && t.value){ loadDraft(t.value); render(); return; }
+  if(t.id==="w-date" && t.value){ changeDraftDate(t); return; }
   if(t.id==="w-photos" && t.files?.length){ addPhotos([...t.files]); return; }
   if(t.id==="w-audio" && t.files?.[0]){ addAudioFile(t.files[0]); return; }
   if(t.name==="mood" && S.draft){ S.draft.mood=t.value; return; }
