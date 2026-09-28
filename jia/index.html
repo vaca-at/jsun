@@ -565,10 +565,14 @@ let koVoice=null, enVoice=null;
 function loadVoices(){ if(!('speechSynthesis' in window)) return; const vs=speechSynthesis.getVoices();
   koVoice=vs.find(v=>v.lang&&v.lang.replace('_','-').startsWith('ko'))||null; enVoice=vs.find(v=>v.lang==='en-US')||vs.find(v=>v.lang&&v.lang.startsWith('en'))||null; }
 if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
+/* 영어 음성은 대문자 한 글자(I, A …)를 "capital I" 처럼 읽어요. 글자 이름을 소리 나는 대로 적어 넘겨요 */
+const ABC_NAME = {A:'ay',B:'bee',C:'see',D:'dee',E:'ee',F:'eff',G:'gee',H:'aitch',I:'eye',J:'jay',K:'kay',L:'el',M:'em',N:'en',O:'oh',P:'pee',Q:'cue',R:'are',S:'ess',T:'tee',U:'you',V:'vee',W:'double you',X:'ex',Y:'why',Z:'zee'};
+const abcSay = t => String(t).replace(/\b[A-Z]\b/g, c=>ABC_NAME[c]);
 function speak(text, lang='ko', onend){
   if(!('speechSynthesis' in window)) return;
   try{ speechSynthesis.cancel(); }catch(e){}
   if(muted) return;
+  if(lang==='en') text=abcSay(text);   // 대문자 한 글자는 "capital I" 처럼 읽혀서 글자 이름(eye)으로 바꿔 읽어요
   const u=new SpeechSynthesisUtterance(text);
   if(lang==='en'){ u.lang='en-US'; u.rate=0.8; if(enVoice) u.voice=enVoice; } else { u.lang='ko-KR'; u.rate=0.85; if(koVoice) u.voice=koVoice; }
   if(onend) u.onend=onend;
