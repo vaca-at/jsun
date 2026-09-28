@@ -1074,7 +1074,7 @@ function drawAdm(){
     return;
   }
   if(admMode==='email'){
-    b.innerHTML=`<div class="adm-top"><h3>🔒 관리자 모드</h3><button class="pill on" data-act="admAll">📚 전체 관리자 (7명) ↗</button></div>
+    b.innerHTML=`<div class="adm-top"><h3>🔒 관리자 모드</h3></div>
       <p class="sub">관리자 구글 계정으로 로그인하세요.</p>
       <div class="adm-btns"><button class="next" data-act="admLogin">🔑 구글 계정으로 로그인</button><button class="next ghost" data-act="admClose">닫기</button></div>`;
     return;
@@ -1085,7 +1085,7 @@ function drawAdm(){
     const cells=STUDY.map(k=>{ const e=d[k]; if(!e||!e.n) return '<td class="z">-</td>'; n+=e.n; ok+=e.ok||0; return `<td>${e.ok||0}/${e.n}</td>`; }).join('');
     rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
   const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (다율이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 (7명) ↗</button>'}</div>
+  b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 ↗</button>'}</div>
     ${mom?'':`<div class="evadm"><b>🎉 가족 이벤트 · 별 2배</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`:'<button class="pill on" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>'}</div>
     <div class="evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
@@ -1132,7 +1132,7 @@ async function admResetAll(){
 }
 function openAllAdmin(){
   const o=$('admPop'); if(o){ o.hidden=false; return; }
-  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자"><div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자 (7명)</b>
+  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자"><div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자</b>
     <button class="pill" data-act="admPopClose">◀ 다율이 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div><iframe src="${DASHBOARD_URL}?v=dayul" title="공부방 관리자 대시보드"></iframe></div></div>`);
 }
 

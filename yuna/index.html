@@ -4583,7 +4583,7 @@ function admEnter(){
   const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
 }
 function admEmailHTML(){
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button></div>
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3></div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 구글 계정으로 로그인하세요.</p>
     <button class="big-btn" data-act="admLogin">🔑 구글 계정으로 로그인</button>
     <button class="big-btn" data-act="closeSet" style="opacity:.8">닫기</button>`;
@@ -4661,7 +4661,7 @@ function adminHTML(){
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button>'}</div>
+  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>
     ${isMom()?'':`<div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
       <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`

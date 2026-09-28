@@ -5087,7 +5087,7 @@ function admEnter(){
   const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
 }
 function admEmailHTML(){
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button></div>
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3></div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 구글 계정으로 로그인하세요.</p>
     <button class="big-btn" data-act="admLogin">🔑 구글 계정으로 로그인</button>
     <button class="big-btn" data-act="closeSet" style="opacity:.8">닫기</button>`;
@@ -5168,7 +5168,7 @@ function adminHTML(){
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (서진이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
-  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button>'}</div>
+  return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
