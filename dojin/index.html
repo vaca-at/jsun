@@ -4698,38 +4698,25 @@ function admEnter(){
   const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
 }
 function admEmailHTML(){
-  const f='display:block;width:100%;box-sizing:border-box;font:inherit;padding:.6rem .8rem;border:2px solid var(--line);border-radius:12px;margin:4px 0 12px;background:var(--paper);color:inherit';
-  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button></div>
-    <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 이메일과 비밀번호로 로그인하세요.</p>
-    <label class="lbl" for="admEm">이메일</label>
-    <input id="admEm" type="email" autocomplete="username" inputmode="email" autocapitalize="off" spellcheck="false" style="${f}">
-    <label class="lbl" for="admPw">비밀번호</label>
-    <input id="admPw" type="password" autocomplete="current-password" style="${f}">
-    <button class="big-btn" data-act="admLogin">로그인</button>
-    <button class="big-btn" data-act="closeSet" style="opacity:.8">닫기</button>
-    <div class="center"><button class="linkbtn" data-act="admReset">비밀번호를 잊었어요</button></div>`;
+  return `<div class="adm-head"><h3>🔒 관리자 모드</h3><button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button></div>
+    <p class="sub" style="margin:0 0 10px;font-size:.9rem">관리자 구글 계정으로 로그인하세요.</p>
+    <button class="big-btn" data-act="admLogin">🔑 구글 계정으로 로그인</button>
+    <button class="big-btn" data-act="closeSet" style="opacity:.8">닫기</button>`;
 }
-async function admEmailLogin(){
-  const em=((document.getElementById('admEm')||{}).value||'').trim().toLowerCase(), pw=(document.getElementById('admPw')||{}).value||'';
-  if(!em||!pw){ toast('이메일과 비밀번호를 넣어 주세요'); return; }
-  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
+/* 관리자 계정은 구글 로그인으로만 만들어져 있어요 (이메일 · 비밀번호 로그인은 안 돼요) */
+async function admGoogleLogin(){
   if(!await cloudInit()){ toast('온라인 저장에 연결하지 못했어요'); return; }
+  const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
   try{
-    const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
+    const r=await firebase.auth().signInWithPopup(p);
     if(await isAdminUser(r.user)){ if(setMode==='pin' && !isMom()) admEnter(); }
     else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
   }catch(e){
     console.warn('로그인 실패',e);
-    const m={'auth/invalid-credential':'이메일이나 비밀번호가 맞지 않아요','auth/wrong-password':'비밀번호가 맞지 않아요','auth/user-not-found':'등록되지 않은 이메일이에요','auth/too-many-requests':'여러 번 틀려서 잠시 막혔어요. 조금 뒤에 다시 해 주세요','auth/operation-not-allowed':'Firebase에서 이메일/비밀번호 로그인을 켜 주세요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'}[e.code];
-    toast(m||'로그인하지 못했어요');
+    if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'){ try{ await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    toast(({'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/operation-not-allowed':'Firebase에서 구글 로그인이 꺼져 있어요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/internal-error':'Firebase 내부 오류예요'}[e.code]||'로그인하지 못했어요')+(e.code?' ('+e.code+')':''));
   }
-}
-async function admEmailReset(){
-  const em=((document.getElementById('admEm')||{}).value||'').trim().toLowerCase();
-  if(!em){ toast('이메일을 먼저 넣어 주세요'); return; }
-  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
-  if(!await cloudInit()){ toast('온라인 저장에 연결하지 못했어요'); return; }
-  try{ await firebase.auth().sendPasswordResetEmail(em); toast('비밀번호 재설정 메일을 보냈어요'); }catch(e){ console.warn(e); toast('메일을 보내지 못했어요'); }
 }
 /* 이 기기에서 이미 로그인했으면 바로 관리자 모드로 */
 function admAuto(){
@@ -4765,7 +4752,7 @@ function pinKey(v){
   setTimeout(()=>{ if(setMode==='pin'){ pinBuf=''; drawSettings(); } },450);
 }
 /* 전체 관리자(다섯 방을 한곳에서 보는 관리자 대시보드) 주소 */
-const DASHBOARD_URL = 'https://vaca-at.github.io/study-admin/';
+const DASHBOARD_URL = 'https://jsun.site/admin/';   // 승인된 도메인(jsun.site)이라 구글 로그인이 돼요
 /* 🔒 관리자 모드: 다섯 방을 한곳에서 보는 관리자 대시보드를 큰 팝업으로 열어요 */
 function openAdminPopup(){
   const o=document.getElementById('admPop');
@@ -4798,7 +4785,7 @@ function adminHTML(){
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
               :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
       ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
-              :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'}</div>`}${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (6명) ↗</button>'}</div>
+              :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'}</div>`}${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 (7명) ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
     <div class="card" style="padding:12px">${grassHTML(admView)}</div>
@@ -4993,8 +4980,7 @@ const ACT = {
   admMomDel: ()=>{ if(!confirm('엄마 비밀번호를 지울까요? 엄마 모드로 들어갈 수 없게 돼요.')) return; admin.momH=''; saveAdmin(); toast('엄마 비밀번호를 지웠어요'); drawSettings(); },
   admRoom: ()=>{ ACT.admPopClose(); admRole='admin'; openModal('pin'); cloudPullSettings().then(ch=>{ if(ch && setMode==='pin' && !FIREBASE_CONFIG) drawSettings(); }); admAuto(); },
   pin: v=>pinKey(v),
-  admLogin: ()=>admEmailLogin(),
-  admReset: ()=>admEmailReset(),
+  admLogin: ()=>admGoogleLogin(),
   admLogout: ()=>{ if(window.firebase && firebase.auth) firebase.auth().signOut().catch(()=>{}); toast('관리자에서 로그아웃했어요'); closeModal(); },
   set: (v,el)=>{
     const k=el.dataset.k;

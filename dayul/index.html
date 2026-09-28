@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>지아의 공부방</title>
+<title>다율이의 공부방</title>
 <style>
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
@@ -218,7 +218,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .me-item.own small{color:var(--ok)}
 .me-item.on{border-color:var(--accent);background:var(--soft)}
 .me-item.pick{border-color:var(--hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--hi) 45%,transparent)}
-/* 지아 방에 없던 공통 모양 (방 꾸미기에서 써요) */
+/* 지아 · 다율 방에 없던 공통 모양 (방 꾸미기에서 써요) */
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);border:1px solid var(--line);padding:14px}
 .big-btn{height:54px;padding:0 24px;border-radius:999px;background:var(--room);color:#fff;font-weight:700;font-size:1.1rem}
 .seg{margin:12px 0}.seg.oneline{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.seg.oneline .pill{flex:none;white-space:nowrap}.seg.small .pill{min-height:44px;padding:0 16px;font-size:.95rem}
@@ -360,7 +360,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 <div class="login" id="login" hidden>
   <div>
     <div class="gate-top">🌊</div>
-    <h1>지아야, 안녕!</h1>
+    <h1>다율아, 안녕!</h1>
     <div class="hand" style="font-size:1.6rem;color:var(--sub)">오늘은 어떤 친구랑 들어갈까?</div>
     <div class="gate" id="gate"></div>
     <div class="adm-links"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>
@@ -369,7 +369,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="bar"><div class="bar-in">
-  <div class="logo"><i>🌱</i>지아의 공부방</div>
+  <div class="logo"><i>🌱</i>다율이의 공부방</div>
   <span class="star">⭐ <span id="starCount">0</span></span>
   <button class="home-btn" id="sndBtn" data-act="snd" aria-label="소리 끄기">🔊</button>
   <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
@@ -379,10 +379,10 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 <script>
 /* ───── 저장 (이 기기에 저장해요. 온라인 저장은 나중에 연결) ───── */
 const store = {
-  get(k, d){ try{ const v=localStorage.getItem('k7_'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('k7_'+k, JSON.stringify(v)); }catch(e){} }
+  get(k, d){ try{ const v=localStorage.getItem('dy_'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
+  set(k, v){ try{ localStorage.setItem('dy_'+k, JSON.stringify(v)); }catch(e){} }
 };
-const who = '지아';
+const who = '다율';
 let stars = store.get('stars', 0);
 const App = { view:'home', hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
 const view = document.getElementById('view');
@@ -400,7 +400,7 @@ function burst(){ for(let i=0;i<14;i++){ const s=document.createElement('div'); 
 function updateStars(){ $('starCount').textContent=stars; }
 /* ───── 가족 이벤트 (도윤 · 도진 · 지아 · 윤아 공통): 관리자가 켜면 10분 동안 별 2배 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요. 온라인 문서 family/event = {until, mult, rooms, at} */
-const EVENT_ROOMS = ['doyun','dojin','jia','yuna'], MY_ROOM = 'jia';
+const EVENT_ROOMS = ['doyun','dojin','jia','yuna'], MY_ROOM = 'dayul';   // 다율이 방은 아직 가족 이벤트 · 알 줍기 게임에 들어가지 않아요 (게임 둥지가 네 방 자리뿐)
 let EV = null, evSub = null;
 const evOn = () => !!(EV && EV.until > Date.now() && (EV.rooms||[]).includes(MY_ROOM));
 /* 상점 반값 세일 (family/event 의 saleUntil · 별 2배 이벤트와 따로 켜고 꺼요) */
@@ -492,7 +492,7 @@ function logToday(area, ok=true, sub){ const L=store.get('log',{}), k=dayKey(); 
 const todayN = area => { const e=((store.get('log',{})[dayKey()])||{})[area]; return e?(e.n||0):0; };
 const todaySub = sub => ((((store.get('log',{})[dayKey()])||{})._sub)||{})[sub]||0;
 
-/* ───── 온라인 저장 (Firebase: k7/jia · k7/jia/daily/날짜) ───── */
+/* ───── 온라인 저장 (Firebase: k7/dayul · k7/dayul/daily/날짜 · 설정은 k7/settings_dayul) ───── */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
   authDomain: "moon-15f88.firebaseapp.com",
@@ -502,7 +502,7 @@ const FIREBASE_CONFIG = {
   appId: "1:124372121061:web:b1596628daae0bb08eab0c",
   measurementId: "G-NV17H8CTJE"
 };
-const GRADE_ID = 'k7', KID_ID = 'jia';
+const GRADE_ID = 'k7', KID_ID = 'dayul', SETTINGS_ID = 'settings_dayul';
 const cloud = { ready:null, db:null };
 function cloudInit(){
   if(cloud.ready) return cloud.ready;
@@ -520,7 +520,7 @@ async function cloudPull(){
     const snap=await kidRef().get();
     if(snap.exists){
       const d=snap.data();
-      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
+      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
       if(typeof d.estars==='number' && (d.estarsAt||0) > store.get('estarsAt',0)){ store.set('estars',d.estars); store.set('estarsAt',d.estarsAt); }
       if(typeof d.stars==='number' && (d.starsAt||0) > store.get('starsAt',0)){ store.set('stars',d.stars); store.set('starsAt',d.starsAt); }
       if(d.deco && (d.deco.at||0) > (store.get('deco',{}).at||0)) store.set('deco',d.deco);
@@ -743,7 +743,7 @@ const GATE = [['🐬','돌고래'],['🐳','고래'],['🐠','물고기'],['🐙
 function drawGate(){ $('gate').innerHTML=GATE.map(([e,n])=>`<button data-act="gate" data-v="${e}" aria-label="${n}랑 들어가기">${e}</button>`).join(''); }
 function renderHome(){
   const me=store.get('gate','🐬');
-  view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">지아야, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
+  view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">다율아, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
     <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:k==='story'?todayN('story'):todaySub(k);
       return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}</div>
     ${progressHTML()}
@@ -842,7 +842,7 @@ function readFrom(i){
 /* 다섯 방에서 쓰는 작은 도구 */
 const esc = t => String(t??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pill = (act,v,label,cur,extra='') => `<button class="pill ${String(v)===String(cur)?'on':''}" data-act="${act}" data-v="${v}" ${extra}>${label}</button>`;
-/* ───── 내 캐릭터 방: 모은 별로 캐릭터 · 모자 · 소품 · 친구 · 배경을 사서 꾸며요 (여섯 방 공통 · 지아 방은 돌고래가 처음부터 있어요) ─────
+/* ───── 내 캐릭터 방: 모은 별로 캐릭터 · 모자 · 소품 · 친구 · 배경을 사서 꾸며요 (일곱 방 공통 · 다율이 방은 돌고래가 처음부터 있어요) ─────
    모은 별(stars)은 그대로 두고 쓴 별(deco.spent)을 따로 세요 → 스티커(모은 별 ÷ 10)는 줄지 않아요.
    저장: 'deco' = {base, hat, acc, pet, bg, own:[…], spent, at} — at이 더 새로운 쪽을 따라요 (온라인 저장 포함) */
 const DECO_CATS = {base:'캐릭터', hat:'모자', acc:'소품', pet:'친구', bg:'배경'};
@@ -898,7 +898,7 @@ const HAT_FIT = { moonwolf:[0,-12,0], peacock:[-8,-2,-6], goldeagle:[-58,8,-12],
 function decoGet(){
   const d=Object.assign({base:'dolphin', hat:null, acc:null, pet:null, bg:'plain', own:[], spent:0, at:0, wear:null}, store.get('deco',{}));
   DECO_ITEMS.forEach(x=>{ if(!x.p && !d.own.includes(x.id)) d.own.push(x.id); });
-  if(!d.own.includes('dolphin')) d.own.push('dolphin');   // 지아: 돌고래는 대문 친구라 처음부터 가지고 있어요
+  if(!d.own.includes('dolphin')) d.own.push('dolphin');   // 다율: 돌고래는 대문 친구라 처음부터 가지고 있어요
   if(!d.wear){ d.wear={}; if(d.hat||d.acc) d.wear[d.base]={hat:d.hat||null, acc:d.acc||null}; }   // 예전 기록 옮기기
   const w=d.wear[d.base]||{}; d.hat=w.hat||null; d.acc=w.acc||null;
   return d;
@@ -1036,23 +1036,23 @@ function decoGive(v){
 function renderRoom(){ renderMyRoom(); }
 
 /* ───── 엄마 모드 · 관리자 모드 (다른 다섯 방과 같은 방식) ─────
-   설정 문서 k7/settings: { goal, msg, momH, at } — 관리자 대시보드와 같이 써요 */
+   설정 문서 k7/settings_dayul: { goal, msg, momH, at } — 관리자 대시보드와 같이 써요 */
 const hashPin = (p, salt='') => { let h=2166136261; for(const ch of salt+'#'+p){ h^=ch.charCodeAt(0); h=Math.imul(h,16777619)>>>0; } return h.toString(16); };
 const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
-const DASHBOARD_URL = 'https://vaca-at.github.io/study-admin/';
+const DASHBOARD_URL = 'https://jsun.site/admin/';   // 승인된 도메인(jsun.site)이라 구글 로그인이 돼요
 async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 const isAdminUser = async u => { const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
 let admin = Object.assign({goal:20, msg:'', momH:''}, store.get('admin',{}));
 let admRole='admin', admMode=null, pinBuf='';
 async function cloudPullSettings(){
   if(!await cloudInit()) return false;
-  try{ const snap=await cloud.db.collection(GRADE_ID).doc('settings').get(); if(!snap.exists) return false; const d=snap.data();
+  try{ const snap=await cloud.db.collection(GRADE_ID).doc(SETTINGS_ID).get(); if(!snap.exists) return false; const d=snap.data();
     if((d.at||0) <= (admin.at||0)) return false;
     ['goal','msg','momH'].forEach(k=>{ if(d[k]!==undefined && d[k]!==null) admin[k]=d[k]; }); admin.at=d.at; store.set('admin',admin); return true;
   }catch(e){ console.warn('설정 불러오기 실패', e); return false; }
 }
 async function saveAdmin(){ admin.at=Date.now(); store.set('admin',admin);
-  if(await cloudInit()){ try{ await cloud.db.collection(GRADE_ID).doc('settings').set({goal:admin.goal, msg:admin.msg, momH:admin.momH||'', at:admin.at},{merge:true}); }catch(e){ console.warn('설정 저장 실패', e); } } }
+  if(await cloudInit()){ try{ await cloud.db.collection(GRADE_ID).doc(SETTINGS_ID).set({goal:admin.goal, msg:admin.msg, momH:admin.momH||'', at:admin.at},{merge:true}); }catch(e){ console.warn('설정 저장 실패', e); } } }
 function openAdmModal(role){
   admRole=role; pinBuf=''; admMode = role==='mom' ? 'pin' : 'email';
   $('modal').hidden=false; drawAdm();
@@ -1070,11 +1070,9 @@ function drawAdm(){
     return;
   }
   if(admMode==='email'){
-    b.innerHTML=`<div class="adm-top"><h3>🔒 관리자 모드</h3><button class="pill on" data-act="admAll">📚 전체 관리자 (6명) ↗</button></div>
-      <p class="sub">관리자 이메일과 비밀번호로 로그인하세요.</p>
-      <label class="lbl" for="admEm">이메일</label><input id="admEm" class="inp" type="email" autocomplete="username" autocapitalize="off" spellcheck="false">
-      <label class="lbl" for="admPw">비밀번호</label><input id="admPw" class="inp" type="password" autocomplete="current-password">
-      <div class="adm-btns"><button class="next" data-act="admLogin">로그인</button><button class="next ghost" data-act="admClose">닫기</button></div>`;
+    b.innerHTML=`<div class="adm-top"><h3>🔒 관리자 모드</h3><button class="pill on" data-act="admAll">📚 전체 관리자 (7명) ↗</button></div>
+      <p class="sub">관리자 구글 계정으로 로그인하세요.</p>
+      <div class="adm-btns"><button class="next" data-act="admLogin">🔑 구글 계정으로 로그인</button><button class="next ghost" data-act="admClose">닫기</button></div>`;
     return;
   }
   // 기록 보기 · 설정
@@ -1082,8 +1080,8 @@ function drawAdm(){
   for(let i=0;i<7;i++){ const t=new Date(); t.setDate(t.getDate()-i); const d=L[dayKey(t)]||{}; let n=0, ok=0;
     const cells=STUDY.map(k=>{ const e=d[k]; if(!e||!e.n) return '<td class="z">-</td>'; n+=e.n; ok+=e.ok||0; return `<td>${e.ok||0}/${e.n}</td>`; }).join('');
     rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
-  const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (지아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
-  b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 (6명) ↗</button>'}</div>
+  const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (다율이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 (7명) ↗</button>'}</div>
     ${mom?'':`<div class="evadm"><b>🎉 가족 이벤트 · 별 2배</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`:'<button class="pill on" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>'}</div>
     <div class="evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
@@ -1097,31 +1095,32 @@ function drawAdm(){
     <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${SUBJ[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
     <p class="lbl">🎯 하루 목표 <small>(첫 화면 막대의 기준)</small></p>
     <div class="seg">${[10,15,20,30,40].map(g=>`<button class="pill ${admin.goal===g?'on':''}" data-act="admGoal" data-v="${g}">${g}개</button>`).join('')}</div>
-    <p class="lbl">💌 지아에게 한마디 <small>(첫 화면에 보여요)</small></p>
+    <p class="lbl">💌 다율이에게 한마디 <small>(첫 화면에 보여요)</small></p>
     <div class="inrow"><input id="admMsg" class="inp" type="text" name="kid-note" autocomplete="off" maxlength="60" placeholder="예: 오늘도 화이팅! 🍦" value="${(admin.msg||'').replace(/"/g,'&quot;')}"><button class="pill on" data-act="admMsg">저장</button></div>
     <p class="lbl">👩 엄마 비밀번호 ${mom?'바꾸기':`<small>(${admin.momH?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
     <div class="inrow"><input id="momPin" class="inp pinbox" type="text" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill on" data-act="admMomPin">${admin.momH?'바꾸기':'정하기'}</button></div>
     ${!mom&&admin.momH?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
-    ${mom?'':`<p class="lbl">⭐ 지아 별 관리 (지금 ${stars}개)</p>
+    ${mom?'':`<p class="lbl">⭐ 다율이 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>
     <p class="lbl">🗑️ 기록 초기화 <small>(별 · 꾸민 방 · 공부 기록을 모두 지워요. 설정은 남아요)</small></p>
-    <button class="reset-btn" data-act="admReset">🗑️ 지아의 기록 모두 지우기</button>
+    <button class="reset-btn" data-act="admReset">🗑️ 다율이의 기록 모두 지우기</button>
     <p class="lbl">🔓 관리자 로그인</p><div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`}
     <div class="adm-btns"><button class="next" data-act="admClose">나가기</button></div>`;
 }
+/* 관리자 계정은 구글 로그인으로만 만들어져 있어요 (이메일 · 비밀번호 로그인은 안 돼요) */
 async function admLogin(){
-  const em=(($('admEm')||{}).value||'').trim().toLowerCase(), pw=($('admPw')||{}).value||'';
-  if(!em||!pw){ toast('이메일과 비밀번호를 넣어 주세요'); return; }
-  if(await sha256Hex(em)!==ADMIN_EMAIL_SHA256){ toast('관리자 이메일이 아니에요'); return; }
   if(!await cloudInit() || !firebase.auth){ toast('온라인 저장에 연결하지 못했어요'); return; }
-  try{ const r=await firebase.auth().signInWithEmailAndPassword(em,pw);
+  const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
+  try{ const r=await firebase.auth().signInWithPopup(p);
     if(await isAdminUser(r.user)){ admMode='panel'; drawAdm(); cloudPull().then(()=>drawAdm()); } else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
   }catch(e){ console.warn('로그인 실패',e);
-    toast({'auth/invalid-credential':'이메일이나 비밀번호가 맞지 않아요','auth/wrong-password':'비밀번호가 맞지 않아요','auth/too-many-requests':'여러 번 틀려서 잠시 막혔어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'}[e.code]||'로그인하지 못했어요'); }
+    if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'){ try{ await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;
+    toast(({'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/operation-not-allowed':'Firebase에서 구글 로그인이 꺼져 있어요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/internal-error':'Firebase 내부 오류예요'}[e.code]||'로그인하지 못했어요')+(e.code?' ('+e.code+')':'')); }
 }
 async function admResetAll(){
-  if(!confirm('지아의 별, 꾸민 방, 공부 기록을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.')) return;
-  ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('k7_'+k); }catch(e){} });
+  if(!confirm('다율이의 별, 꾸민 방, 공부 기록을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.')) return;
+  ['stars','starsAt','log','deco','mathDone','subDone','storyOk'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} });
   const now=Date.now(); stars=0; store.set('stars',0); store.set('starsAt',now); store.set('resetAt',now); updateStars();
   if(await cloudInit()){ try{ const ref=kidRef(), qs=await ref.collection('daily').get(); await Promise.all(qs.docs.map(d=>d.ref.delete()));
     await ref.set({name:who, resetAt:now, stars:0, starsAt:now, deco:{at:now}, mathDone:{}, subDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
@@ -1129,14 +1128,14 @@ async function admResetAll(){
 }
 function openAllAdmin(){
   const o=$('admPop'); if(o){ o.hidden=false; return; }
-  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자"><div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자 (6명)</b>
-    <button class="pill" data-act="admPopClose">◀ 지아 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div><iframe src="${DASHBOARD_URL}?v=jia" title="공부방 관리자 대시보드"></iframe></div></div>`);
+  document.body.insertAdjacentHTML('beforeend', `<div class="admpop" id="admPop" role="dialog" aria-label="공부방 관리자"><div class="admpop-box"><div class="admpop-bar"><b>📚 공부방 관리자 (7명)</b>
+    <button class="pill" data-act="admPopClose">◀ 다율이 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div><iframe src="${DASHBOARD_URL}?v=dayul" title="공부방 관리자 대시보드"></iframe></div></div>`);
 }
 
 /* ───── 눌렀을 때 ───── */
 const ACT = {
   guestBack: ()=>{ guestNext=null; $('login').hidden=true; },
-  gate: v=>{ GUEST=false; const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 지아야, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); });  const n=guestNext; guestNext=null; if(n && ACT[n.a]){ const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>ACT[n.a](n.v, el), 60); } },
+  gate: v=>{ GUEST=false; const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 다율아, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); });  const n=guestNext; guestNext=null; if(n && ACT[n.a]){ const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>ACT[n.a](n.v, el), 60); } },
   go: v=>go(v),
   snd: ()=>{ muted=!muted; store.set('mute',muted); drawSnd(); if(muted){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); toast('🔇 소리를 껐어요'); } else { toast('🔊 소리를 켰어요'); speak('소리를 켰어요'); } },
   openMom: ()=>openAdmModal('mom'),
@@ -1164,7 +1163,7 @@ const ACT = {
   admStar: v=>{ if(admRole==='mom') return; stars=Math.max(0,stars+ +v); store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
   admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
-  sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
+  sayHome: ()=>speak('다율아, 오늘도 놀아 볼까? 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
   again: ()=>{ Q=null; render(); },
