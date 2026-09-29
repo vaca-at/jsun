@@ -231,7 +231,7 @@ async function resetKid(k){
   const ref=kidRef(k), qs=await ref.collection('daily').get();
   await Promise.all(qs.docs.map(d=>d.ref.delete()));
   const now=Date.now();
-  await ref.set({resetAt:now, stars:0, starsAt:now, updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{},
+  await ref.set({resetAt:now, stars:0, starsAt:now, estars:0, estarsAt:now, deco:{at:now, own:[], spent:0}, buys:[], updatedAt:now, hmock:0, hwrong:{}, hwrongAt:now, kread:{}, hstory:{}, mbest:{}, stat:{},
     wrongs:[], wrongsAt:now, books:[], booksAt:now, best_1:null, best_2:null, best_3:null}, {merge:true});
 }
 
