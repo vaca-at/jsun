@@ -147,6 +147,17 @@ function lcsMarks(a, b) {
   while (i < n && j < m) { if (A[i] === B[j]) { okA[i] = okB[j] = true; i++; j++; } else if (dp[i + 1][j] >= dp[i][j + 1]) i++; else j++; }
   return { okA, okB };
 }
+/* ⌨️ 타수: 두벌식 자판을 누르는 횟수 (ㄲ · ㅖ 같은 Shift 글자는 1타, ㅘ · ㄺ 같은 겹글자는 2타, 띄어쓰기 · 문장부호도 1타) */
+const JUNG2 = [9, 10, 11, 14, 15, 16, 19], JONG2 = [3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18];
+function strokes(ch) {
+  const c = ch.charCodeAt(0) - 0xAC00;
+  if (c < 0 || c > 11171) return 1;
+  const jung = Math.floor(c % 588 / 28), jong = c % 28;
+  return 1 + (JUNG2.includes(jung) ? 2 : 1) + (jong ? (JONG2.includes(jong) ? 2 : 1) : 0);
+}
+/* 맞게 쓴 글자만 세어 1분에 몇 타인지 */
+const typeSpeed = (hits, ms) => Math.round(hits / Math.max(ms, 1000) * 60000);
+
 /* 채점: 맞춤법(글자) · 띄어쓰기 · 문장부호를 따로 봐요 */
 function grade(typed, ans) {
   const t = norm(typed), a = ans;
@@ -206,6 +217,11 @@ const CSS = `
 .dc-kind.k-띄어쓰기{background:#E1EEFB;color:#2767A8}
 .dc-kind.k-문장부호{background:#FFF1C9;color:#8A6400}
 .dc-score{font-size:2.6rem;font-weight:800;color:var(--accent);margin:4px 0}
+.dc-speed{margin:8px 0 0;font-size:1rem;color:var(--sub)}
+.dc-speed b{font-size:1.5rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.dc-speed.big{font-size:1.1rem;margin:2px 0 8px}
+.dc-speed.big b{font-size:2rem}
+.dc-speed .new{color:var(--ok,#3F8F60);font-weight:700}
 .dc-gap{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;font-size:1.7rem;gap:0;margin:14px 0}
 .dc-gap span{padding:0 1px}
 .dc-gap button{width:18px;height:44px;border:0;background:none;cursor:pointer;position:relative;padding:0}
@@ -266,7 +282,8 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   function view() {
     const best = st.best || {};
     const lvs = Object.keys(LEVELS).map(Number).sort((a, b) => a - b);
-    const modes = [['study', '📋', '프린트 보기', '듣고 칸 보며 익히기'], ['trace', '✍️', '따라 쓰기', '연한 글자 위에 쓰기'], ['test', '🎧', '받아쓰기 시험', '듣고 칸에 쓰기 · 100점'], ['gap', '✂️', '띄어쓰기', '어디를 띄울까?'], ['conf', '🧩', '헷갈리는 말', '비슷한 말 퀴즈'], ['punct', '❗', '문장부호', '. ? ! 고르기'], ['more', '🔁', '비슷한 문장', '프린트와 같은 모양으로 더'], ['wrong', '📒', '오답 노트', `${(st.wrong?.[S.lv] || []).length}개`]];
+    // 차례: 프린트 보기 → 퀴즈 넷 → 따라 쓰기 · 시험 → 오답 노트
+    const modes = [['study', '📋', '프린트 보기', '듣고 칸 보며 익히기'], ['gap', '✂️', '띄어쓰기 퀴즈', '어디를 띄울까?'], ['conf', '🧩', '비슷한 말 퀴즈', '헷갈리는 말 고르기'], ['punct', '❗', '문장부호 퀴즈', '. ? ! 고르기'], ['more', '🔁', '비슷한 문장 퀴즈', '바르게 쓴 문장 고르기'], ['trace', '✍️', '따라 쓰기', '연한 글자 위에 쓰기 · 타수'], ['test', '🎧', '받아쓰기 시험', '듣고 칸에 쓰기 · 100점'], ['wrong', '📒', '오답 노트', `${(st.wrong?.[S.lv] || []).length}개`]];
     el.innerHTML = `<div class="dc">
       <div class="dc-head"><h2>💯 받아쓰기</h2></div>
       <div class="card dc-exam"><div class="dd">${ex.left > 0 ? `D-${ex.left}` : ex.left === 0 ? '오늘!' : '끝'}</div><p><b>${ex.label} ${ex.lv}급 시험</b><br><span class="sub">📄 학교 프린트 그대로 · 띄어쓰기 · 맞춤법 · 문장부호까지 칸에 맞게 써요${sc.note ? `<br>${esc(sc.note)}` : ''}</span></p></div>
@@ -277,7 +294,7 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   }
   const B = () => el.querySelector('#dcBody');
   function body() {
-    ({ study, trace: () => startRun('trace'), test: () => startRun('test'), gap: startGap, conf: startConf, punct: startPunct, more: () => startRun('more'), wrong: wrongNote })[S.mode]();
+    ({ study, trace: () => startRun('trace'), test: () => startRun('test'), gap: startGap, conf: startConf, punct: startPunct, more: startMore, wrong: wrongNote })[S.mode]();
   }
 
   /* 📋 문장 보기 */
@@ -305,13 +322,22 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
       <div class="dc-prog"><i style="width:${R.k / R.items.length * 100}%"></i></div>
       <div class="dc-row"><button class="dc-say" data-dc="say" data-v="${esc(it.s)}">🔊 다시 듣기</button>${trace ? '' : '<span class="sub">두 번 읽어 줘요. 띄어쓰기와 문장부호까지!</span>'}</div>
       <div id="dcGrid">${grid(R.k + 1, '', { ghost: trace ? it.s : '' })}</div>
+      ${trace ? `<div class="dc-speed" id="dcSpeed">⌨️ <b>0</b>타 <span>· 쓰기 시작하면 시간을 재요${st.speed?.[S.lv] ? ` · 내 최고 ${st.speed[S.lv]}타` : ''}</span></div>` : ''}
       <input class="dc-in" id="dcIn" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="여기에 쓰면 칸에 들어가요" aria-label="받아쓰기 답">
       <div class="dc-btns"><button class="big-btn" data-dc="check">다 썼어요 ✔</button></div></div>`;
     const inp = el.querySelector('#dcIn');
+    R.t0 = 0;
+    // 따라 쓰기 타수: 맞는 칸에 맞게 쓴 글자만 세요
+    const hitsNow = () => { const a = cells(it.s); return cells(inp.value).reduce((n, c, k) => n + (c === a[k] ? strokes(c) : 0), 0); };
+    const drawSpeed = () => { const sp = el.querySelector('#dcSpeed'); if (!sp || !R.t0) return; const ms = Date.now() - R.t0;
+      sp.innerHTML = `⌨️ <b>${typeSpeed(hitsNow(), ms)}</b>타 <span>· ${(ms / 1000).toFixed(1)}초${st.speed?.[S.lv] ? ` · 내 최고 ${st.speed[S.lv]}타` : ''}</span>`; };
+    if (trace) { clearInterval(R.tick); R.tick = setInterval(() => { if (!el.querySelector('#dcSpeed')) { clearInterval(R.tick); return; } drawSpeed(); }, 250); }
     const paint = () => { const v = inp.value, g = el.querySelector('#dcGrid');
+      if (trace && !R.t0 && v) R.t0 = Date.now();
       let marks = null; if (trace) { const t = cells(v), a = cells(it.s); marks = t.map((c, k) => c === a[k] ? '' : 'bad'); }
-      g.innerHTML = grid(R.k + 1, v, { ghost: trace ? it.s : '', marks, cur: cells(v).length }); };
+      g.innerHTML = grid(R.k + 1, v, { ghost: trace ? it.s : '', marks, cur: cells(v).length }); drawSpeed(); };
     inp.addEventListener('input', paint);
+    if (trace) inp.addEventListener('compositionstart', () => { if (!R.t0) R.t0 = Date.now(); });
     inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); check(); } });
     el.querySelector('#dcGrid').addEventListener('click', () => inp.focus());
     inp.focus();
@@ -320,12 +346,16 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   function check() {
     const R = S.run, it = R.items[R.k], inp = el.querySelector('#dcIn'); if (!inp) return;
     const v = norm(inp.value); if (!v) { H.toast('먼저 써 볼까요?'); inp.focus(); return; }
-    const g = grade(v, it.s); R.res.push({ it, v, g });
+    const g = grade(v, it.s), { okA, okB } = lcsMarks(v, it.s);
+    clearInterval(R.tick);
+    // ⌨️ 따라 쓰기 타수: 맞게 쓴 글자의 타 ÷ 걸린 시간
+    const sp = R.kind === 'trace' && R.t0 ? { hits: cells(v).reduce((n, c, k) => n + (okA[k] ? strokes(c) : 0), 0), ms: Date.now() - R.t0 } : null;
+    R.res.push({ it, v, g, sp });
     H.logToday(g.ok); H.beep(g.ok);
     if (g.ok) { H.addStar(1); }
-    const { okA, okB } = lcsMarks(v, it.s);
     B().innerHTML = `<div class="card dc-card">
       <div class="dc-row"><b>${g.ok ? '⭕ 딩동댕! 칸까지 딱 맞았어요' : '❌ 한 번 더 볼까요?'}</b>${g.ok ? '' : g.kinds.map(k => `<span class="dc-kind k-${k}">${k}</span>`).join('')}</div>
+      ${sp ? `<div class="dc-speed">⌨️ <b>${typeSpeed(sp.hits, sp.ms)}</b>타 <span>· ${(sp.ms / 1000).toFixed(1)}초</span></div>` : ''}
       <p class="dc-note">내가 쓴 것</p>${grid(R.k + 1, v, { marks: cells(v).map((c, k) => okA[k] ? '' : 'bad') })}
       ${g.ok ? '' : `<p class="dc-note">바른 답</p>${grid('✓', it.s, { ans: true, marks: cells(it.s).map((c, k) => okB[k] ? '' : 'miss') })}<div class="dc-tip">${g.words.length ? `<div>다시 볼 곳: ${g.words.map(w => `<b>${esc(w)}</b>`).join(' · ')}</div>` : ''}${tipsWrong(it.s, g)}</div>`}
       <div class="dc-btns">${g.ok ? '' : `<button class="big-btn" style="background:var(--paper);color:var(--ink);border:2px solid var(--line)" data-dc="again">다시 쓰기</button>`}<button class="big-btn" data-dc="next">${R.k + 1 < R.items.length ? '다음 문장 ▶' : '결과 보기'}</button></div></div>`;
@@ -337,9 +367,18 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
     const R = S.run, n = R.items.length, ok = R.res.filter(r => r.g.ok).length, score = Math.round(ok / n * 100);
     const cnt = {}; R.res.forEach(r => r.g.kinds.forEach(k => cnt[k] = (cnt[k] || 0) + 1));
     if (R.kind === 'test') { st.best = st.best || {}; st.best[S.lv] = Math.max(st.best[S.lv] || 0, score); st.tries = st.tries || {}; st.tries[S.lv] = (st.tries[S.lv] || 0) + 1; save(); if (score === 100) { H.addStar(5); H.burst(); setTimeout(H.burst, 500); } }
+    // ⌨️ 따라 쓰기: 모든 문장을 합친 평균 타수 · 급마다 최고 기록
+    let speedHTML = '';
+    const sps = R.res.map(r => r.sp).filter(Boolean);
+    if (R.kind === 'trace' && sps.length) {
+      const avg = typeSpeed(sps.reduce((a, s) => a + s.hits, 0), sps.reduce((a, s) => a + s.ms, 0)), old = st.speed?.[S.lv] || 0;
+      if (avg > old) { st.speed = st.speed || {}; st.speed[S.lv] = avg; save(); }
+      speedHTML = `<div class="dc-speed big">⌨️ 평균 <b>${avg}</b>타 ${avg > old ? `<span class="new">${old ? `🏅 새 기록! (전에는 ${old}타)` : '🏅 첫 기록!'}</span>` : `<span>· 내 최고 ${old}타</span>`}</div>`;
+      if (avg > old && old) H.burst();
+    }
     B().innerHTML = `<div class="card dc-card center">
       <p><b>${{ trace: '✍️ 따라 쓰기', test: `🎧 ${S.lv}급 받아쓰기`, more: '🔁 비슷한 문장', retry: '📒 오답 다시 쓰기' }[R.kind]} 끝!</b></p>
-      <div class="dc-score">${R.kind === 'test' ? score + '점' : `${ok} / ${n}`}</div>
+      <div class="dc-score">${R.kind === 'test' ? score + '점' : `${ok} / ${n}`}</div>${speedHTML}
       <p class="sub">${score === 100 ? '🏆 100점! 칸까지 완벽해요' + (R.kind === 'test' ? ' · 별 5개 더!' : '') : `틀린 곳: ${Object.entries(cnt).map(([k, v]) => `${k} ${v}`).join(' · ') || '없어요'}`}</p>
       ${R.res.filter(r => !r.g.ok).map(r => `<div style="text-align:left;margin-top:10px">${grid('✗', r.v, {})}${grid('✓', r.it.s, { ans: true })}</div>`).join('')}
       <div class="dc-btns"><button class="big-btn" data-dc="mode" data-v="${R.kind === 'retry' ? 'wrong' : R.kind}">다시 하기</button>${R.res.some(r => !r.g.ok && typeof r.it.i === 'number') ? '<button class="big-btn" data-dc="mode" data-v="wrong">📒 오답 노트</button>' : ''}</div></div>`;
@@ -393,13 +432,28 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
     return shuffle(pool).map(s => { const m = s.match(/[.?!]$/), a = m ? m[0] : '없음';
       return { q: `${esc(m ? s.slice(0, -1) : s)}<span class="blank">□</span>`, say: s, opts: ['.', '?', '!', '없음'], a, why: punctWhy(s) }; });
   }
+  /* 🔁 비슷한 문장 퀴즈: 듣고 바르게 쓴 문장 고르기 (틀린 보기는 띄어쓰기 · 맞춤법 · 문장부호 중 하나씩만 달라요) */
+  function moreItems() {
+    return shuffle(L().more || []).map(s => {
+      const v = new Set(), w = s.split(' ');
+      if (w.length > 1) { const j = Math.floor(Math.random() * (w.length - 1)); v.add([...w.slice(0, j), w[j] + w[j + 1], ...w.slice(j + 2)].join(' ')); }   // 붙여 쓰기
+      const c = (L().conf || []).find(c => s.includes(c[0])); if (c) v.add(s.replace(c[0], c[1][0]));   // 헷갈리는 말
+      if (/[.?!]$/.test(s)) v.add(s.slice(0, -1) + (s.endsWith('?') ? '.' : '?')); else v.add(s + '.');   // 문장부호
+      const lw = w.map((x, i) => [x.replace(/[.?!]/g, '').length, i]).sort((a, b) => b[0] - a[0])[0];   // 가장 긴 낱말을 띄어 쓰기
+      if (lw && lw[0] >= 3) { const x = w[lw[1]]; v.add([...w.slice(0, lw[1]), x.slice(0, 1) + ' ' + x.slice(1), ...w.slice(lw[1] + 1)].join(' ')); }
+      v.delete(s);
+      return { q: '🎧 잘 듣고, <b>바르게</b> 쓴 문장을 골라요', say: s, opts: shuffle([s, ...shuffle([...v]).slice(0, 2)]), a: s, why: '띄어쓰기 · 글자 · 문장부호가 모두 바른 문장이에요.' };
+    });
+  }
   function startConf() { S.run = { kind: 'conf', items: confItems(), k: 0, ok: 0 }; drawQuiz(); }
   function startPunct() { S.run = { kind: 'punct', items: punctItems(), k: 0, ok: 0 }; drawQuiz(); }
+  function startMore() { S.run = { kind: 'more', items: moreItems(), k: 0, ok: 0 }; drawQuiz(); if (S.run.items[0]) say(S.run.items[0].say); }
+  const QUIZ_NAME = { conf: ['🧩 비슷한 말 퀴즈', '🧩 비슷한 말 퀴즈'], punct: ['❗ 문장부호 퀴즈', '❗ 알맞은 문장부호는?'], more: ['🔁 비슷한 문장 퀴즈', '🔁 비슷한 문장 퀴즈'] };
   function drawQuiz(picked) {
     const R = S.run, it = R.items[R.k];
-    if (!it) { B().innerHTML = `<div class="card dc-card center"><p><b>${R.kind === 'conf' ? '🧩 헷갈리는 말' : '❗ 문장부호'} 끝!</b></p><div class="dc-score">${R.ok} / ${R.items.length}</div><div class="dc-btns"><button class="big-btn" data-dc="mode" data-v="${R.kind}">다시 하기</button></div></div>`; return; }
+    if (!it) { B().innerHTML = `<div class="card dc-card center"><p><b>${QUIZ_NAME[R.kind][0]} 끝!</b></p><div class="dc-score">${R.ok} / ${R.items.length}</div><div class="dc-btns"><button class="big-btn" data-dc="mode" data-v="${R.kind}">다시 하기</button></div></div>`; return; }
     const done = picked !== undefined;
-    B().innerHTML = `<div class="card dc-card"><div class="dc-row"><b>${R.kind === 'conf' ? '🧩 헷갈리는 말' : '❗ 알맞은 문장부호는?'}</b><span class="sub">${R.k + 1} / ${R.items.length}</span>${it.say ? `<button class="dc-say" data-dc="say" data-v="${esc(it.say)}">🔊</button>` : ''}</div>
+    B().innerHTML = `<div class="card dc-card"><div class="dc-row"><b>${QUIZ_NAME[R.kind][1]}</b><span class="sub">${R.k + 1} / ${R.items.length}</span>${it.say ? `<button class="dc-say" data-dc="say" data-v="${esc(it.say)}">🔊</button>` : ''}</div>
       <p class="dc-q">${it.q}</p>
       <div class="dc-opts">${it.opts.map((o, i) => `<button class="dc-opt ${done ? (o === it.a ? 'right' : i === picked ? 'wrong' : '') : ''}" data-dc="opt" data-v="${i}" ${done ? 'disabled' : ''}>${esc(o)}</button>`).join('')}</div>
       ${done ? `<div class="dc-tip">${it.opts[picked] === it.a ? '⭕ ' : '❌ '}${esc(it.why || '')}</div><div class="dc-btns"><button class="big-btn" data-dc="qNext">다음 ▶</button></div>` : ''}</div>`;
@@ -430,7 +484,7 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
       const ok = ans.size === R.sel.size && [...ans].every(x => R.sel.has(x)); if (ok) { R.ok++; H.addStar(1); } H.beep(ok); H.logToday(ok); drawGap(true); }
     else if (a === 'gapNext') { R.k++; R.sel = new Set(); drawGap(); }
     else if (a === 'opt') { const it = R.items[R.k], ok = it.opts[+v] === it.a; if (ok) { R.ok++; H.addStar(1); } H.beep(ok); H.logToday(ok); drawQuiz(+v); }
-    else if (a === 'qNext') { R.k++; drawQuiz(); }
+    else if (a === 'qNext') { R.k++; drawQuiz(); if (R.kind === 'more' && R.items[R.k]) say(R.items[R.k].say); }   // 비슷한 문장은 듣고 고르니까 먼저 읽어 줘요
   });
   view();
   return { refresh: view };
