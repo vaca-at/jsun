@@ -11,13 +11,25 @@
 <style>
 /* ============================================================
    ▼ 평소 쓰시는 눈누 @font-face 코드를 여기에 붙여 넣으세요.
-     font-family 이름: 'OwnglyphYuntaeng', 'NexonBazzi', 'NexonMaplestory'
+     font-family 이름: 'OwnglyphYuntaeng', 'MitmiFont', 'OngleipUnz'
      (안 붙여도 비슷한 구글 폰트로 대신 보여요)
    ============================================================ */
 @font-face {
     font-family: 'OwnglyphYuntaeng';
     src: url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');
     font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MitmiFont';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2402_1@1.0/Ownglyph_meetme-Rg.woff2') format('woff2');
+    font-weight: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'OngleipUnz';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2406-1@1.0/Ownglyph_UNZ-Rg.woff2') format('woff2');
+    font-weight: normal;
     font-display: swap;
 }
 
@@ -40,8 +52,8 @@
 }
 /* ---------- 폰트 3종 ---------- */
 [data-font="yuntaeng"]{ --font:'OwnglyphYuntaeng','Gaegu',sans-serif; --fs:1.22rem; }
-[data-font="bazzi"]{ --font:'NexonBazzi','Jua',sans-serif; --fs:1.05rem; }
-[data-font="maple"]{ --font:'NexonMaplestory','Gowun Dodum',sans-serif; --fs:1rem; }
+[data-font="meetme"]{ --font:'MitmiFont','Gaegu',sans-serif; --fs:1.22rem; }
+[data-font="unz"]{ --font:'OngleipUnz','Gaegu',sans-serif; --fs:1.22rem; }
 
 *{ box-sizing:border-box; }
 html,body{ margin:0; }
@@ -369,8 +381,8 @@ mark{
       </div>
       <div class="switch" id="fontSw">
         <button data-act="font" data-v="yuntaeng">윤탱체</button>
-        <button data-act="font" data-v="bazzi">배찌체</button>
-        <button data-act="font" data-v="maple">메이플체</button>
+        <button data-act="font" data-v="meetme">밑미체</button>
+        <button data-act="font" data-v="unz">언즈체</button>
       </div>
     </div>
   </header>
@@ -1513,6 +1525,7 @@ function setTheme(v){
   document.querySelectorAll("#themeSw button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
 }
 function setFont(v){
+  v = ({ bazzi: "meetme", maple: "unz" })[v] || v;   // 예전에 고른 배찌체 · 메이플체는 밑미체 · 언즈체로
   document.documentElement.dataset.font = v; store.set("fd_font", v);
   document.querySelectorAll("#fontSw button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
 }
