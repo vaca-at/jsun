@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>예비초6 공부방</title>
+<title>원영이의 공부방</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Jua&display=swap" rel="stylesheet">
@@ -1001,7 +1001,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 
 <script>
 /* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
-   비워 두면(null) 이 기기에만 저장돼요. 규칙: e6/{seojin}, e6/{아이}/daily/{YYYY-MM-DD}, e6/settings
+   비워 두면(null) 이 기기에만 저장돼요. 규칙: e6/{ryu}, e6/{아이}/daily/{YYYY-MM-DD}, e6/settings
    (다른 공부방은 e2 · e4 를 써요. Firestore 규칙에서 e6 도 읽고 쓸 수 있게 열어 주세요) */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
@@ -1013,7 +1013,7 @@ const FIREBASE_CONFIG = {
   measurementId: "G-NV17H8CTJE"
 };
 const GRADE_ID = 'e6';
-const KID_IDS = { '서진':'seojin' };
+const KID_IDS = { '원영':'ryu' };
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲ */
 
 /* ───── 저장소 (이 기기에만 저장) ───── */
@@ -1021,8 +1021,8 @@ const KID_IDS = { '서진':'seojin' };
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
 const PROFILE_KEYS = ['stk','stkDay','deco','csbest','lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','mlv','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
-/* 다른 공부방(e2_ · e4_)과 같은 주소를 써도 섞이지 않게 e6_ 로 따로 저장해요 */
-const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e6_'+k : `e6_p_${name}_${k}`;
+/* 다른 공부방(e2_ · e4_)과 같은 주소를 써도 섞이지 않게 e6ryu_ 로 따로 저장해요 (같은 e6 서진이 방과도 섞이지 않게) */
+const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e6ryu_'+k : `e6ryu_p_${name}_${k}`;
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k, v, name){ try{ localStorage.setItem(skey(k,name), JSON.stringify(v)); }catch(e){} },
@@ -1555,15 +1555,15 @@ const PASSAGES = [
       ['‘재활용’의 뜻으로 알맞은 것은?','버린 물건을 다시 쓸 수 있게 만드는 것',['물건을 아주 많이 사는 것','쓰레기를 태우는 것','물건을 새로 만드는 것'],'④문단에 뜻이 나와요.',4],
       ['④문단의 ‘아낄’과 바꾸어 쓸 수 있는 말은?','절약할',['낭비할','버릴','잃어버릴'],'아끼다 = 함부로 쓰지 않다 = 절약하다',4]]},
   {id:'grandpa', g:'story', e:'🧓', t:'할아버지의 느린 시계', paras:[
-    '할아버지 방에는 오래된 괘종시계가 있어요. 이 시계는 늘 5분씩 늦게 가요. “할아버지, 시계가 또 늦어요. 고쳐야겠어요.” 서진이가 말하자 할아버지는 허허 웃으셨어요. “이 시계는 일부러 천천히 가는 거란다.”',
+    '할아버지 방에는 오래된 괘종시계가 있어요. 이 시계는 늘 5분씩 늦게 가요. “할아버지, 시계가 또 늦어요. 고쳐야겠어요.” 원영이가 말하자 할아버지는 허허 웃으셨어요. “이 시계는 일부러 천천히 가는 거란다.”',
     '“일부러요? 왜요?” 할아버지는 시계를 쓰다듬으며 옛이야기를 들려주셨어요. 할아버지가 어릴 때, 늘 급하게 서두르다 넘어지고 물건을 잃어버리기 일쑤였대요.',
     '그런 할아버지에게 증조할아버지께서 이 시계를 주시며 말씀하셨대요. “바쁠수록 돌아가라. 조금 늦더라도 차근차근 하는 게 더 빠른 법이다.”',
-    '그날 저녁, 서진이는 수학 숙제를 서둘러 끝내려다 계산을 여러 번 틀렸어요. 짜증이 나려던 순간, 똑딱똑딱 느린 시계 소리가 들렸어요. 서진이는 숨을 크게 한 번 쉬고, 처음부터 [[차근차근]] 다시 풀었어요.',
-    '이번에는 한 문제도 틀리지 않았어요. 서진이는 할아버지 방을 향해 씩 웃었어요. “느린 시계가 정말 빠른 시계였네.”'],
+    '그날 저녁, 원영이는 수학 숙제를 서둘러 끝내려다 계산을 여러 번 틀렸어요. 짜증이 나려던 순간, 똑딱똑딱 느린 시계 소리가 들렸어요. 원영이는 숨을 크게 한 번 쉬고, 처음부터 [[차근차근]] 다시 풀었어요.',
+    '이번에는 한 문제도 틀리지 않았어요. 원영이는 할아버지 방을 향해 씩 웃었어요. “느린 시계가 정말 빠른 시계였네.”'],
     qs:[['할아버지 방 시계의 특징은?','늘 5분씩 늦게 간다.',['늘 5분씩 빨리 간다.','소리가 나지 않는다.','바늘이 없다.'],'①문단을 보세요.',1],
       ['증조할아버지께서 하신 말씀 ‘바쁠수록 돌아가라’의 뜻은?','급할수록 서두르지 말고 차근차근 하라.',['바쁘면 먼 길로 가라.','바쁠 때는 집에 돌아가라.','시계를 자주 돌려라.'],'③문단의 뒷말이 뜻을 풀어 줘요.',3],
       ['④문단의 ‘차근차근’과 뜻이 반대인 말은?','허둥지둥',['천천히','꼼꼼히','찬찬히'],'‘허둥지둥’은 정신없이 서두르는 모양이에요.',4],
-      ['“느린 시계가 정말 빠른 시계였네.”에 담긴 서진이의 깨달음은?','차근차근 하는 것이 결국 더 빠르다.',['시계를 고쳐야 한다.','수학 숙제는 어렵다.','할아버지 시계가 고장 났다.'],'서둘렀을 땐 틀리고, 차근차근 하니 다 맞혔어요.',5]]}
+      ['“느린 시계가 정말 빠른 시계였네.”에 담긴 원영이의 깨달음은?','차근차근 하는 것이 결국 더 빠르다.',['시계를 고쳐야 한다.','수학 숙제는 어렵다.','할아버지 시계가 고장 났다.'],'서둘렀을 땐 틀리고, 차근차근 하니 다 맞혔어요.',5]]}
 ];
 const PASSAGE_BY_ID = Object.fromEntries(PASSAGES.map(p=>[p.id,p]));
 
@@ -1745,7 +1745,7 @@ const E4_WORDS = {
 Object.values(E4_WORDS).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); });
 /* 영어 1단계: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
 const E4_SENT = {
-  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Seojin.','내 이름은 서진이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
+  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Seojin.','내 이름은 원영이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
   can:{name:'🏊 할 수 있니?', e:'🏊', qa:[['Can you swim?','너는 수영할 수 있니?','Yes, I can.','응, 할 수 있어.'],['Can you skate?','너는 스케이트 탈 수 있니?','No, I can\'t.','아니, 못 해.'],['Can you help me?','나 좀 도와줄래?','Sure.','물론이지.']]},
   weather:{name:'☀️ 날씨', e:'☀️', qa:[['How\'s the weather?','날씨가 어때?','It\'s sunny.','날씨가 맑아.'],['Is it raining?','비가 오니?','Yes, it is.','응, 비가 와.'],['Is it cold outside?','밖이 춥니?','No, it\'s warm.','아니, 따뜻해.']]},
   time:{name:'⏰ 시각', e:'⏰', qa:[['What time is it?','몇 시니?','It\'s seven o\'clock.','7시야.'],['What time do you get up?','너는 몇 시에 일어나니?','I get up at seven.','나는 7시에 일어나.'],['Is it time for lunch?','점심 먹을 시간이니?','Yes, let\'s eat!','응, 먹자!']]},
@@ -1853,7 +1853,7 @@ const EN_TRAVEL = [
 const todayIdx = n => Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%n;
 App.bnTab='prov'; App.ja=0; App.en=0; // 쉬어가는 코너는 늘 1번부터
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
-/* 관리자(사이트 주인)와 엄마(서진이 엄마)는 비밀번호가 따로예요. 엄마 모드는 기록 보기 · 코스 · 과목 · 한마디만 바꿀 수 있어요 */
+/* 관리자(사이트 주인)와 엄마(원영이 엄마)는 비밀번호가 따로예요. 엄마 모드는 기록 보기 · 코스 · 과목 · 한마디만 바꿀 수 있어요 */
 let admRole = 'admin';
 const isMom = () => admRole==='mom';
 const momPinH = () => admin.momH || '';
@@ -2070,9 +2070,9 @@ function tick(){
 }
 
 /* ───── 온라인 저장 (Firebase Firestore) ─────
-   아이 문서(e6/seojin): { name, stars, starsAt, hmock, hwrong, hwrongAt, kread, hstory, mbest, stat, wrongs, wrongsAt, books, booksAt, pinH, pinAt, updatedAt }
+   아이 문서(e6/ryu): { name, stars, starsAt, hmock, hwrong, hwrongAt, kread, hstory, mbest, stat, wrongs, wrongsAt, books, booksAt, pinH, pinAt, updatedAt }
    설정 문서(e6/settings): { goal, subj, msg, pinH, momH, at }  ← 관리자 모드 설정 (모든 기기가 같이 써요)
-   날짜 문서(e6/seojin/daily/날짜): { visited, total, sec, korean:{n,ok}, school:{n,ok}, eng:{n,ok}, hanja:{n,ok}, history:{n,ok} }
+   날짜 문서(e6/ryu/daily/날짜): { visited, total, sec, korean:{n,ok}, school:{n,ok}, eng:{n,ok}, hanja:{n,ok}, history:{n,ok} }
    여러 기기에서 쓰면 문제 수 · 점수는 큰 쪽을, 별 · 목록은 나중에 바뀐 쪽을 따라요. */
 const cloud = { ready:null, db:null, ok:false };
 function cloudInit(){
@@ -2173,10 +2173,11 @@ async function cloudReset(name){
 
 /* 관리자 설정 (e6/settings): 나중에 바뀐 쪽을 따라요 */
 const SETTINGS_KEYS = ['goal','subj','course','msg','pinH','momH'];
+const SETTINGS_DOC = 'settings_ryu'; // 서진이 공부방(settings)과 섞이지 않게 따로 저장해요
 async function cloudPullSettings(){
   if(!await cloudInit()) return false;
   try{
-    const snap=await cloud.db.collection(GRADE_ID).doc('settings').get();
+    const snap=await cloud.db.collection(GRADE_ID).doc(SETTINGS_DOC).get();
     if(!snap.exists){ if(admin.at) cloudPushSettings(); return false; }
     const d=snap.data();
     if((d.at||0) <= (admin.at||0)) return false;
@@ -2190,18 +2191,18 @@ async function cloudPullSettings(){
 async function cloudPushSettings(){
   if(!await cloudInit()) return;
   const doc={at:admin.at||Date.now()}; SETTINGS_KEYS.forEach(k=>{ doc[k]=k==='pinH'?adminPinH():admin[k]; });
-  try{ await cloud.db.collection(GRADE_ID).doc('settings').set(doc,{merge:true}); }catch(e){ console.warn('설정 저장 실패', e); }
+  try{ await cloud.db.collection(GRADE_ID).doc(SETTINGS_DOC).set(doc,{merge:true}); }catch(e){ console.warn('설정 저장 실패', e); }
 }
 
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 /* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
-/* 이 공부방은 서진이 혼자 써요. 들어올 때마다 좋아하는 바다 친구 그림을 골라 누르고 들어와요 (상어 포함) */
-const KID = '서진';
+/* 이 공부방은 원영이 혼자 써요. 들어올 때마다 좋아하는 바다 친구 그림을 골라 누르고 들어와요 (상어 포함) */
+const KID = '원영';
 const SEA_FRIENDS = ['🦈','🐋','🐳','🐬','🐠','🐟','🐡','🦑','🐙','🦀','🦞','🐢','🪼','🦭','🐊','🦐'];
 /* 오늘 고른 그림 (날짜가 바뀌면 다시 골라요) */
 const todaySea = () => { const p=store.get('seaPick',null); return p && p.d===dayKey() ? p.e : '🦈'; };
-const AVATAR_BY_NAME = { '서진':{daily:true} };
+const AVATAR_BY_NAME = { '원영':{daily:true} };
 const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls||""}">${a.daily?todaySea():a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
 const getProfiles = () => [KID];
 /* 아이마다 나만의 비밀번호 (서로의 별 · 기록을 볼 수 없게) */
@@ -5114,7 +5115,7 @@ function admAuto(){
 }
 function pinHTML(){
   if(FIREBASE_CONFIG && !isMom()) return admEmailHTML();
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (서진이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (원영이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   if(isMom() && !momPinH()) return `<h3>👩 엄마 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <p class="center">아직 엄마 비밀번호가 없어요.<br><span class="sub">관리자에게 엄마 비밀번호를 받아 주세요.</span></p>
@@ -5165,7 +5166,7 @@ function adminHTML(){
     rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${cells}<td>${n?`${ok}/${n}`:'-'}</td><td>${mins?mins+'분':'-'}</td></tr>`;
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (서진이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (원영이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>

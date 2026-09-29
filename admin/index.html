@@ -91,7 +91,7 @@ const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b2
 const ROOM = 'https://jsun.site/';
 const S_E4 = {math:'연산', korean:'국어', school:'학교수학', eng:'영어', hanja:'한자', history:'한국사', social:'사회·과학'};
 const S_E2 = {math:'연산', school:'학교수학', korean:'국어', eng:'영어', hanja:'한자', history:'한국사', social:'사회', science:'과학'};
-/* 보이는 차례: 도윤 · 도진 · 윤아 · 지아 · 다율 · 서진 · 서희 */
+/* 보이는 차례: 도윤 · 도진 · 윤아 · 지아 · 다율 · 서진 · 원영 · 서희 */
 const KIDS = [
   {id:'doyun',  name:'도윤', ico:'🦈', grade:'e4', settings:'settings',      subj:S_E4, room:'doyun/',  time:true, mom:true},
   {id:'dojin',  name:'도진', ico:'🐲', grade:'e2', settings:'settings',      subj:S_E2, room:'dojin/',  time:false, mom:true},
@@ -99,6 +99,7 @@ const KIDS = [
   {id:'jia',    name:'지아', ico:'🐬', grade:'k7', settings:'settings',      subj:{kor:'한글', math:'연산', eng:'영어', story:'동화'}, room:'jia/', time:false, mom:true},
   {id:'dayul',  name:'다율', ico:'🐰', grade:'k7', settings:'settings_dayul', subj:{kor:'한글', math:'연산', eng:'영어', story:'동화'}, room:'dayul/', time:false, mom:true},
   {id:'seojin', name:'서진', ico:'📘', grade:'e6', settings:'settings',      subj:{korean:'국어', school:'수학', eng:'영어', hanja:'한자', history:'한국사', social:'사회·과학'}, room:'seojin/', time:true, mom:true},
+  {id:'ryu',    name:'원영', ico:'🌟', grade:'e6', settings:'settings_ryu', subj:{korean:'국어', school:'수학', eng:'영어', hanja:'한자', history:'한국사', social:'사회·과학'}, room:'Ryu/', time:true, mom:true},
   {id:'seohee', name:'서희', ico:'🌸', grade:'e3', settings:'settings',      subj:Object.assign({},S_E4,{school:'수학'}), room:'seohee/', time:true, mom:true}
 ];
 const SUBJ_DAY_MAX = 300;
