@@ -1015,6 +1015,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
   </div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">홈</button>
+    <button class="tab" data-act="tab" data-v="dict">💯 받아쓰기</button>
     <button class="tab" data-act="tab" data-v="math">연산</button>
     <button class="tab" data-act="tab" data-v="school">학교수학</button>
     <button class="tab" data-act="tab" data-v="korean">국어</button>
@@ -2297,6 +2298,21 @@ function addWho(){
 }
 
 /* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 도진 공부방과 같은 파일) ───── */
+/* ───── 💯 받아쓰기 (/dictation/dictation.js · 도진 · 윤아 방이 같이 써요) ─────
+   학교 급수표를 원고지 칸에 맞춰: 문장 보기 · 따라 쓰기 · 받아쓰기 시험 · 띄어쓰기 · 헷갈리는 말 · 문장부호 · 비슷한 문장 · 오답 노트 */
+let dictBox=null;
+function renderDict(){
+  if(!dictBox){
+    dictBox=document.createElement('div');
+    dictBox.innerHTML='<p class="center" style="padding:30px">💯 받아쓰기를 여는 중…</p>';
+    import('/dictation/dictation.js?v='+Math.floor(Date.now()/6e5))
+      .then(m=>m.mountDictation({ el:dictBox, name:KID, school:KID_IDS[KID],
+        host:{ speak:(t,l)=>speak(t,l||'ko'), beep, addStar:n=>{ if(who) addStar(n); }, logToday:ok=>{ if(who) logToday('korean',ok); }, toast, burst,
+          store:{ get:(k,d)=>store.get(k,d), set:(k,v)=>store.set(k,v) } } }))
+      .catch(e=>{ console.warn('받아쓰기를 열지 못했어요', e); dictBox.innerHTML='<p class="center" style="padding:30px">받아쓰기를 열지 못했어요. 새로고침해 볼까요?</p>'; dictBox=null; });
+  }
+  view.innerHTML=''; view.appendChild(dictBox);
+}
 let engBox=null;
 function renderEng2(){
   if(!engBox){
@@ -2319,7 +2335,7 @@ function render(){
     t.hidden = !!SUBJ[t.dataset.v] && !admin.subj[t.dataset.v];
   });
   if(subjClosed(App.view)){ renderClosed(App.view); return; }
-  ({home:renderHome, myroom:renderMyRoom, social:()=>renderCS('social'), science:()=>renderCS('science'), library:renderLibrary, math:renderCalc, school:renderSchool, korean:renderKorean, eng:renderEng2, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
+  ({home:renderHome, myroom:renderMyRoom, social:()=>renderCS('social'), science:()=>renderCS('science'), library:renderLibrary, math:renderCalc, school:renderSchool, korean:renderKorean, dict:renderDict, eng:renderEng2, hanja:renderHanja, history:renderHistory, sticker:renderSticker})[App.view]();
 }
 
 /* ───── 홈 ───── */
