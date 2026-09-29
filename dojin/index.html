@@ -88,6 +88,7 @@ h1 button::after{content:" ▾";font-size:.7em;color:var(--sub)}
 .lp .keypad{max-width:300px}
 .tab{flex:1 1 0;white-space:nowrap;padding:.5rem .2rem;border-radius:14px;background:var(--paper);border:2px solid var(--line);font-size:1.02rem;color:var(--sub)}
 .tab.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+a.tab{text-decoration:none;text-align:center;display:inline-block;font-family:inherit} /* 일기 탭은 아이아이노트로 가는 링크 */
 .tab[hidden]{display:none}
 
 main{padding:16px 12px 40px 28px}
@@ -988,7 +989,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
   </div>
   <div class="tabs">
     <button class="tab" data-act="tab" data-v="home">홈</button>
-    <button class="tab" data-act="tab" data-v="diary">📔 일기</button>
+    <a class="tab" href="https://iinote.co.kr/?k=7K8SVF-xfPTGtW1ciI14IiiAjsU&n=%EB%8F%84%EC%A7%84&write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기">📔 일기</a>
     <button class="tab" data-act="tab" data-v="math">연산</button>
     <button class="tab" data-act="tab" data-v="school">학교수학</button>
     <button class="tab" data-act="tab" data-v="korean">국어</button>
@@ -2262,24 +2263,9 @@ function diarySticker(info){
   setTimeout(()=>toast('🏅 일기 완성 스티커 1장을 받았어요!'),900);
   return true;
 }
-function renderDiary(){
-  if(!diaryBox){
-    diaryBox=document.createElement('div');
-    diaryBox.innerHTML='<p class="center" style="padding:30px">📔 일기장을 여는 중…</p>';
-    import('/diary/kids/kid-diary.js?v='+Math.floor(Date.now()/6e5))
-      .then(m=>m.mountKidDiary({ el:diaryBox, kid:'dojin', firebaseConfig:FIREBASE_CONFIG, onSaved:diarySticker, onQuiz:r=>{ if(r && r.ok>0 && who) addStar(r.ok); } }))
-      .catch(e=>{ console.warn('일기장을 열지 못했어요', e); diaryBox.innerHTML='<p class="center" style="padding:30px">일기장을 열지 못했어요. 새로고침해 볼까요?</p>'; diaryBox=null; });
-  }
-  view.innerHTML=iinoteBar('https://iinote.co.kr/?join=7K8SVF&kid=xfPTGtW1ciI14IiiAjsU&n=%EB%8F%84%EC%A7%84'); view.appendChild(diaryBox);
-}
-/* 아이아이노트(iinote.co.kr) 단추 두 개: 처음 한 번 '연결하러 가기'(도진 전용 가족 연결 링크), 그다음부터 '일기쓰러 가기' */
-function iinoteBar(join){
-  return `<div style="display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin:10px auto;max-width:1100px;padding:12px 16px;border-radius:16px;background:#FFF6D6;border:2.5px solid #F4BE45">
-    <b style="flex:1;min-width:220px">📒 이제 일기는 아이아이노트에서도 써요!</b>
-    <a href="${join}" target="_blank" rel="noopener" style="border-radius:999px;padding:8px 16px;background:#EF6F53;color:#fff;font-weight:700;text-decoration:none">🔗 iinote 연결하러 가기</a>
-    <a href="https://iinote.co.kr/?write" target="_blank" rel="noopener" style="border-radius:999px;padding:8px 16px;background:#1F2A44;color:#fff;font-weight:700;text-decoration:none">✏️ iinote 일기쓰러 가기</a>
-    <small style="flex-basis:100%;color:#6b6257">처음 한 번만 '연결하러 가기'를 누르고 '시작하기'를 눌러요. 그다음부터는 '일기쓰러 가기'만 누르면 돼요.</small></div>`;
-}/* ───── 📔 저녁 8시 전에 일기 쓰기 알림 ─────
+/* 📔 일기는 아이아이노트(iinote.co.kr)에서 써요. 공부방 안의 예전 일기장은 없앴어요 */
+const IINOTE_WRITE='https://iinote.co.kr/?k=7K8SVF-xfPTGtW1ciI14IiiAjsU&n=%EB%8F%84%EC%A7%84&write';
+function renderDiary(){ window.open(IINOTE_WRITE,'_blank','noopener'); App.view='home'; renderHome(); }/* ───── 📔 저녁 8시 전에 일기 쓰기 알림 ─────
    오늘 일기를 안 썼으면 모든 화면 위에 띠가 떠요. 8시가 가까울수록 진해지고, 6시부터는 10분마다 한 번 더 알려 줘요. */
 const DIARY_DUE=20;
 const diary={ done:false, day:null, unsub:null, nudge:'', lastToast:0 };
@@ -2329,7 +2315,7 @@ function diaryToast(){
   diary.lastToast=Date.now();
   toast(h>=DIARY_DUE ? '🚨 8시가 넘었어요! 일기 먼저 써요 📔' : '📔 8시 전에 일기 써요! 위에 있는 버튼을 눌러요');
 }
-setTimeout(diaryWatch,0);
+/* 예전 일기장 기준 8시 알림 띠는 껐어요 (일기는 아이아이노트에서) */
 /* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 윤아 공부방과 같은 파일) ───── */
 let engBox=null;
 function renderEng2(){
