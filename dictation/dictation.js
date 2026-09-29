@@ -27,15 +27,12 @@ const LEVELS = {
       ['안고', ['않고', '앉고'], "품에 '안다' → '안고'. '않고'는 '아니하고', '앉고'는 '앉다'예요."],
       ['동생을', ['동생를', '동생올'], "받침이 있는 말 뒤에는 '을', 받침이 없으면 '를'이에요."]],
     // 비슷한 문장 (같은 말 · 같은 규칙으로 더 연습)
-    more: ['기다려 줘서 고마워.', '도와줘서 고마워.', '뛰면 안 돼.', '늦을까 봐 걱정했어.', '먹을 게 너무 많아.', '큰 힘이 됐어.', '인형을 안고 잤다.', '신발을 신지 않고 나갔다.', '친구와 헤어져서 슬퍼.', '이제 정리할게.'],
-    // 같이 알면 좋은 짝 (비슷하지만 뜻이나 띄어쓰기가 다른 말)
-    quiz: [['방 청소할 □ 너무 많아.', '게', '께', "'할 것이'를 줄인 말이라 '게'로 쓰고 띄어 써요."],
-      ['엄마, 이제 방 □', '정리할게.', '정리할 게.', "하겠다고 약속하는 말은 '정리할게'로 붙여 써요."],
-      ['아기를 품에 □ 있다.', '안고', '않고', "품에 '안다'예요."],
-      ['숙제를 하지 □ 놀았다.', '않고', '안고', "'아니하고'를 줄이면 '않고'예요."],
-      ['친구가 □ 고마워.', '도와줘서', '도와 줘서', "'도와주다'는 한 낱말이라 붙여 써요."],
-      ['그러면 안 □.', '돼', '되', "문장 끝에는 '되어'를 줄인 '돼'를 써요."]],
-    pairs: [['정리할 게 많아.', '(것이) 많다는 뜻 → 띄어 써요'], ['이제 정리할게.', '약속하는 말 → 붙여 써요'], ['동생을 안고', "품에 안다 → '안'"], ['울지 않고', "아니하고 → '않'"], ['도와줘서', "'도와주다'는 한 낱말이라 붙여 써요"], ['걱정해 줘서', "'해 주다'는 띄어 써요"]] },
+    // 비슷한 문장: 프린트 문장과 같은 말 · 같은 띄어쓰기 · 같은 문장부호 모양으로만 (프린트와 다른 규칙은 넣지 않아요)
+    more: ['기다려 줘서 고마워.', '뛰면 안 돼.', '늦을까 봐', '먹을 게 너무 많아.', '큰 힘이 됐어.', '인형을 안고 있다.', '친구와 헤어져서 아쉬워.'],
+    // 비슷한 말 짝: 프린트 낱말과 소리가 비슷한 다른 말 (뜻 구별만, 띄어쓰기 규칙은 가르치지 않아요)
+    quiz: [['아기를 품에 □ 있다.', '안고', '않고', "프린트의 '동생을 안고 있다.'처럼 품에 안을 때는 '안고'예요. '않고'는 '하지 않고'처럼 쓰는 다른 말이에요."],
+      ['사용하면 안 □.', '돼', '되', "📄 프린트에는 '안 돼.'로 써 있어요."],
+      ['정리할 □ 너무 많아.', '게', '께', "📄 프린트에는 '정리할 게'로 써 있어요."]] },
   5: { s: ['사과를 꼭 해야 해.', '정중하게 물어봐야 해.', '상대를 탓하게 되거든.', '깨끗이 긁어내.', '묶음을 쓰임새에 따라', '이야기가 있잖아.', '무늬도 다양합니다.', '헬멧과 장갑', '좋은 생각이에요!', '핥아서 깜짝 놀랐어.'],
     guess: [9],
     conf: [['해야 해', ['해야해', '해야 헤'], "'해야'와 '해'는 띄어 써요."],
@@ -125,7 +122,12 @@ const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { c
 const pick = a => a[Math.floor(Math.random() * a.length)];
 const dayStr = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const WD = ['일', '월', '화', '수', '목', '금', '토'];
-const okList = lv => { const L = LEVELS[lv]; return L.s.map((s, i) => ({ s, i })).filter(x => x.s && !(L.need || []).includes(x.i)); };
+/* 연습 · 시험에 쓰는 문장: 프린트에서 확실히 읽은 것만 (짐작한 문장 guess · 모르는 문장 need 는 빼요) */
+const okList = lv => { const L = LEVELS[lv]; return L.s.map((s, i) => ({ s, i })).filter(x => x.s && !(L.need || []).includes(x.i) && !(L.guess || []).includes(x.i)); };
+/* 헷갈리는 말: 프린트(확실한 문장)에 나오는 낱말만 */
+const confOf = lv => { const P = okList(lv).map(x => x.s); return LEVELS[lv].conf.filter(c => P.some(s => s.includes(c[0]))); };
+/* 문장부호 안내는 프린트 그대로 */
+const punctWhy = s => { const m = s.match(/[.?!]$/); return m ? `📄 프린트에는 끝에 '${m[0]}' 가 있어요. 문장부호도 한 칸이에요.` : '📄 프린트에는 끝에 문장부호가 없어요. 찍지 않아요.'; };
 
 /* 이번 주 시험: 첫 목요일부터 한 주에 한 급씩 */
 function examInfo(school) {
@@ -250,26 +252,27 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
     }
     return `<div class="wg ${opt.ans ? 'ans' : ''}" style="--n:${n}" aria-label="${esc(str)}">${h}</div>`;
   }
-  const tipsFor = s => L().conf.filter(c => s.includes(c[0])).map(c => `<div><b>${esc(c[0])}</b> · ${esc(c[2])}</div>`).join('');
+  // 도움말: 📄 프린트에 쓰인 모양이 먼저, 틀리기 쉬운 모양, 기억 도우미
+  const tipLine = c => `<div>📄 프린트: <b>${esc(c[0])}</b> <span style="opacity:.7">(✗ ${c[1].map(esc).join(', ')})</span> · ${esc(c[2])}</div>`;
+  const tipsFor = s => confOf(S.lv).filter(c => s.includes(c[0])).map(tipLine).join('');
   /* 틀린 낱말에 맞는 도움말만 + 문장부호 도움말 */
   const bare = w => w.replace(/[.,?!~]/g, '');
   function tipsWrong(s, g) {
     const ws = g.words.map(bare).filter(Boolean);
-    const conf = g.kinds.some(k => k !== '문장부호') ? L().conf.filter(c => s.includes(c[0]) && c[0].split(' ').some(p => ws.some(w => w.includes(p) || p.includes(w)))) : [];
-    let h = conf.map(c => `<div><b>${esc(c[0])}</b> · ${esc(c[2])}</div>`).join('');
-    if (g.kinds.includes('문장부호')) { const m = s.match(/[.?!]$/);
-      h += `<div><b>문장부호</b> · ${m ? (m[0] === '?' ? '묻는 말 끝에는 물음표(?)를 써요.' : m[0] === '!' ? '느낌이 큰 말 끝에는 느낌표(!)를 써요.' : '문장이 끝나면 마침표(.)를 찍어요. 마침표도 한 칸이에요.') : '문장이 끝나지 않은 말(낱말 묶음)에는 문장부호를 찍지 않아요.'}</div>`; }
-    if (g.kinds.includes('띄어쓰기') && !conf.length) h += `<div><b>띄어쓰기</b> · 파란 ∨ 자리에서 한 칸 비워요.</div>`;
+    const conf = g.kinds.some(k => k !== '문장부호') ? confOf(S.lv).filter(c => s.includes(c[0]) && c[0].split(' ').some(p => ws.some(w => w.includes(p) || p.includes(w)))) : [];
+    let h = conf.map(tipLine).join('');
+    if (g.kinds.includes('문장부호')) h += `<div><b>문장부호</b> · ${punctWhy(s)}</div>`;
+    if (g.kinds.includes('띄어쓰기')) h += `<div><b>띄어쓰기</b> · 📄 프린트처럼 파란 ∨ 자리에서만 한 칸 비워요.</div>`;
     return h;
   }
 
   function view() {
     const best = st.best || {};
     const lvs = Object.keys(LEVELS).map(Number).sort((a, b) => a - b);
-    const modes = [['study', '📋', '문장 보기', '듣고 칸 보며 익히기'], ['trace', '✍️', '따라 쓰기', '연한 글자 위에 쓰기'], ['test', '🎧', '받아쓰기 시험', '듣고 칸에 쓰기 · 100점'], ['gap', '✂️', '띄어쓰기', '어디를 띄울까?'], ['conf', '🧩', '헷갈리는 말', '비슷한 말 퀴즈'], ['punct', '❗', '문장부호', '. ? ! 고르기'], ['more', '🔁', '비슷한 문장', '같은 규칙 더 쓰기'], ['wrong', '📒', '오답 노트', `${(st.wrong?.[S.lv] || []).length}개`]];
+    const modes = [['study', '📋', '프린트 보기', '듣고 칸 보며 익히기'], ['trace', '✍️', '따라 쓰기', '연한 글자 위에 쓰기'], ['test', '🎧', '받아쓰기 시험', '듣고 칸에 쓰기 · 100점'], ['gap', '✂️', '띄어쓰기', '어디를 띄울까?'], ['conf', '🧩', '헷갈리는 말', '비슷한 말 퀴즈'], ['punct', '❗', '문장부호', '. ? ! 고르기'], ['more', '🔁', '비슷한 문장', '프린트와 같은 모양으로 더'], ['wrong', '📒', '오답 노트', `${(st.wrong?.[S.lv] || []).length}개`]];
     el.innerHTML = `<div class="dc">
       <div class="dc-head"><h2>💯 받아쓰기</h2></div>
-      <div class="card dc-exam"><div class="dd">${ex.left > 0 ? `D-${ex.left}` : ex.left === 0 ? '오늘!' : '끝'}</div><p><b>${ex.label} ${ex.lv}급 시험</b><br><span class="sub">매주 목요일 · 띄어쓰기 · 맞춤법 · 문장부호까지 칸에 맞게 써요${sc.note ? `<br>${esc(sc.note)}` : ''}</span></p></div>
+      <div class="card dc-exam"><div class="dd">${ex.left > 0 ? `D-${ex.left}` : ex.left === 0 ? '오늘!' : '끝'}</div><p><b>${ex.label} ${ex.lv}급 시험</b><br><span class="sub">📄 학교 프린트 그대로 · 띄어쓰기 · 맞춤법 · 문장부호까지 칸에 맞게 써요${sc.note ? `<br>${esc(sc.note)}` : ''}</span></p></div>
       <div class="dc-lv" role="tablist">${lvs.map(v => `<button class="pill ${v === S.lv ? 'on' : ''}" data-dc="lv" data-v="${v}">${v}급${v === ex.lv ? '<small>이번 주</small>' : best[v] != null ? `<small>${best[v]}점</small>` : ''}</button>`).join('')}</div>
       <div class="dc-modes">${modes.map(([k, e, t, s]) => `<button class="dc-mode ${S.mode === k ? 'on' : ''}" data-dc="mode" data-v="${k}"><span class="e">${e}</span><span>${t}<small>${s}</small></span></button>`).join('')}</div>
       <div id="dcBody"></div></div>`;
@@ -283,9 +286,9 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   /* 📋 문장 보기 */
   function study() {
     const Lv = L(), guess = Lv.guess || [], need = Lv.need || [];
-    B().innerHTML = `<p class="dc-note">🔊 를 누르면 읽어 줘요. 파란 <b style="color:#3F8FD0">∨</b> 는 띄어 쓰는 칸, 문장부호도 한 칸을 차지해요.</p>` +
+    B().innerHTML = `<p class="dc-note">📄 학교 프린트와 똑같이 적었어요. 🔊 를 누르면 읽어 줘요. 파란 <b style="color:#3F8FD0">∨</b> 는 프린트에서 띄어 쓴 칸, 문장부호도 한 칸이에요.</p>` +
       Lv.s.map((s, i) => need.includes(i) ? `<div class="card dc-card"><div class="dc-row"><span class="num">${i + 1}.</span><span class="sub">사진이 잘 안 보여요. 엄마가 알려 주면 넣을게요.</span></div></div>` :
-        `<div class="card dc-card"><div class="dc-row"><span class="num">${i + 1}.</span><button class="dc-say" data-dc="say" data-v="${esc(s)}">🔊 듣기</button>${guess.includes(i) ? '<small class="sub">(사진이 흐려서 짐작한 문장)</small>' : ''}</div>${grid(i + 1, s, { ans: true })}${tipsFor(s) ? `<div class="dc-tip">${tipsFor(s)}</div>` : ''}</div>`).join('') +
+        `<div class="card dc-card"><div class="dc-row"><span class="num">${i + 1}.</span><button class="dc-say" data-dc="say" data-v="${esc(s)}">🔊 듣기</button>${guess.includes(i) ? '<small class="sub">(사진이 흐려서 확인 중인 문장 · 확인 전에는 시험 · 퀴즈에 안 나와요)</small>' : ''}</div>${grid(i + 1, s, { ans: true })}${tipsFor(s) ? `<div class="dc-tip">${tipsFor(s)}</div>` : ''}</div>`).join('') +
       (Lv.pairs ? `<div class="card dc-card"><b>🔍 같이 알면 좋은 짝</b><div class="dc-pair" style="margin-top:8px">${Lv.pairs.map(([a, b]) => `<b>${esc(a)}</b><span class="sub">${esc(b)}</span>`).join('')}</div></div>` : '');
   }
 
@@ -347,7 +350,7 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
 
   /* ✂️ 띄어쓰기: 붙여 쓴 문장에서 띄울 곳을 눌러요 */
   function startGap() {
-    const pool = shuffle(okList(S.lv).concat((L().more || []).map(s => ({ s })))).filter(x => x.s.includes(' ')).slice(0, 8);
+    const pool = shuffle(okList(S.lv)).filter(x => x.s.includes(' '));   // 띄어쓰기는 프린트 문장으로만
     S.run = { kind: 'gap', items: pool, k: 0, ok: 0 }; drawGap();
   }
   function drawGap(done) {
@@ -370,28 +373,28 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   function confItems() {
     const Lv = L(), out = [];
     // 1) 낱말 고르기: 문장에 빈칸 → 바른 말 고르기
-    for (const [right, wrongs, why] of Lv.conf) {
-      const src = okList(S.lv).map(x => x.s).concat(Lv.more || []).find(s => s.includes(right));
-      out.push({ q: src ? esc(src).replace(esc(right), '<span class="blank">?</span>') : '바르게 쓴 말은?', opts: shuffle([right, ...wrongs.slice(0, 2)]), a: right, why });
+    for (const [right, wrongs, why] of confOf(S.lv)) {
+      const src = okList(S.lv).map(x => x.s).find(s => s.includes(right));   // 문제 문장도 프린트 문장
+      out.push({ q: esc(src).replace(esc(right), '<span class="blank">?</span>'), say: src, opts: shuffle([right, ...wrongs.slice(0, 2)]), a: right, why: `📄 프린트에는 '${right}'(으)로 써 있어요. ${why}` });
     }
     // 2) 문장 통째로: 받아쓰기 답과 똑같이 쓴 것은? (띄어쓰기 · 맞춤법 · 문장부호 섞어서)
     for (const { s } of shuffle(okList(S.lv)).slice(0, 4)) {
       const v = new Set();
       if (s.includes(' ')) v.add(s.replace(' ', ''));
-      const c = Lv.conf.find(c => s.includes(c[0])); if (c) v.add(s.replace(c[0], c[1][0]));
+      const c = confOf(S.lv).find(c => s.includes(c[0])); if (c) v.add(s.replace(c[0], c[1][0]));
       if (/[.?!]$/.test(s)) v.add(s.slice(0, -1)); else v.add(s + '.');
       if (s.split(' ').length > 2) { const w = s.split(' '); const j = 1 + Math.floor(Math.random() * (w.length - 2)); v.add(w.slice(0, j).join(' ') + w[j] + ' ' + w.slice(j + 1).join(' ')); }
       v.delete(s); const opts = shuffle([s, ...shuffle([...v]).slice(0, 3)]);
-      out.push({ q: '🎧 받아쓰기 답과 <b>똑같이</b> 쓴 것은?', say: s, opts, a: s, why: '띄어쓰기 · 맞춤법 · 문장부호가 모두 같아야 해요.' });
+      out.push({ q: '🎧 학교 프린트와 <b>똑같이</b> 쓴 것은?', say: s, opts, a: s, why: '📄 프린트와 띄어쓰기 · 글자 · 문장부호가 모두 같아야 해요.' });
     }
     // 3) 뜻에 따라 달라지는 말 (quiz: [문제, 바른 답, 틀린 답, 까닭])
     for (const [q, a, w, why] of (Lv.quiz || [])) out.push({ q: esc(q).replace('□', '<span class="blank">?</span>'), opts: shuffle([a, w]), a, why });
     return shuffle(out).slice(0, 12);
   }
   function punctItems() {
-    const pool = okList(S.lv).map(x => x.s).concat(L().more || []);
-    return shuffle(pool).slice(0, 8).map(s => { const m = s.match(/[.?!]$/), a = m ? m[0] : '없음';
-      return { q: `${esc(m ? s.slice(0, -1) : s)}<span class="blank">□</span>`, say: s, opts: ['.', '?', '!', '없음'], a, why: a === '없음' ? '문장이 끝나지 않은 말(낱말 묶음)에는 문장부호를 찍지 않아요.' : a === '?' ? '묻는 말에는 물음표(?)예요.' : a === '!' ? '느낌이 큰 말에는 느낌표(!)예요.' : '문장이 끝나면 마침표(.)를 찍어요.' }; });
+    const pool = okList(S.lv).map(x => x.s);   // 문장부호는 프린트 문장으로만
+    return shuffle(pool).map(s => { const m = s.match(/[.?!]$/), a = m ? m[0] : '없음';
+      return { q: `${esc(m ? s.slice(0, -1) : s)}<span class="blank">□</span>`, say: s, opts: ['.', '?', '!', '없음'], a, why: punctWhy(s) }; });
   }
   function startConf() { S.run = { kind: 'conf', items: confItems(), k: 0, ok: 0 }; drawQuiz(); }
   function startPunct() { S.run = { kind: 'punct', items: punctItems(), k: 0, ok: 0 }; drawQuiz(); }
