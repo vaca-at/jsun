@@ -153,10 +153,10 @@ main{padding:16px 12px 40px 28px}
 .deco-row .seg{margin:0}
 .grass-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px 12px;margin-bottom:8px}
 .grass-head b{font-weight:normal;font-size:1.2rem}
-.grass-wrap{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 4px}
-.grass-d,.grass{display:grid;grid-template-rows:repeat(7,24px);gap:4px}
-.grass-d{font-size:.78rem;line-height:24px;color:var(--sub);padding-right:4px}
-.grass{grid-auto-flow:column;grid-auto-columns:24px}
+.grass-wrap{display:flex;flex-direction:column;gap:4px;max-width:360px;margin:0 auto;padding:2px 2px 4px}
+.grass-d,.grass{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.grass-d{font-size:.78rem;text-align:center;color:var(--sub)}
+.grass .g{width:auto;height:34px;display:grid;place-items:center;font-size:.72rem;color:var(--sub)}.grass .g.g3,.grass .g.g4{color:#fff}.grass .g.t{font-weight:bold;color:var(--ink)}.grass .g.g3.t,.grass .g.g4.t{color:#fff}
 .g{width:24px;height:24px;border-radius:6px;padding:0;background:color-mix(in srgb,var(--line) 75%,transparent)}
 .g.v{background:transparent;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--ok) 60%,transparent)}
 .g.g1{background:color-mix(in srgb,var(--ok) 30%,var(--paper))}
@@ -1914,7 +1914,7 @@ function grassLevel(n, visited){
   const g=admin.goal;
   return n>=g*2 ? 'g4' : n>=g ? 'g3' : n>=Math.ceil(g/2) ? 'g2' : 'g1';
 }
-/* 이번 달 공부 잔디: 한 칸 = 하루, 세로 한 줄 = 한 주. 색이 진할수록 많이 공부한 날 */
+/* 이번 달 공부 잔디: 달력처럼 한 칸 = 하루, 가로 한 줄 = 한 주 (일~토). 색이 진할수록 많이 공부한 날 */
 function grassHTML(name=who){
   const L=getLog(name), vis=store.get('visits',{},name);
   const today=new Date(); today.setHours(0,0,0,0);
@@ -1925,9 +1925,9 @@ function grassHTML(name=who){
   let cells='';
   for(const d=new Date(start); d<=end; d.setDate(d.getDate()+1)){
     if(d.getMonth()!==mo){ cells+='<span class="g out"></span>'; continue; }
-    if(d>today){ cells+=`<span class="g fut" title="${d.getDate()}일"></span>`; continue; }
+    if(d>today){ cells+=`<span class="g fut" title="${d.getDate()}일">${d.getDate()}</span>`; continue; }
     const k=dayKey(d), n=dayTotal(k,L);
-    cells+=`<button class="g ${grassLevel(n,vis[k])} ${k===dayKey()?'t':''}" data-act="grass" data-v="${k}" title="${d.getDate()}일 ${n}문제" aria-label="${mo+1}월 ${d.getDate()}일 ${n}문제"></button>`;
+    cells+=`<button class="g ${grassLevel(n,vis[k])} ${k===dayKey()?'t':''}" data-act="grass" data-v="${k}" title="${d.getDate()}일 ${n}문제" aria-label="${mo+1}월 ${d.getDate()}일 ${n}문제">${d.getDate()}</button>`;
   }
   // 연속 접속일, 이번 달 공부한 날
   let streak=0; const c=new Date(today);
