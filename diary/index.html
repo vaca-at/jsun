@@ -100,6 +100,9 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .btn.red{ border-color:var(--red); color:var(--red); }
 .btn:disabled{ opacity:.5; cursor:wait; }
 .soft{ color:var(--ink-soft); font-size:.88em; }
+.ii-note{ font-size:.82em; color:var(--ink-soft); background:color-mix(in srgb, var(--edge) 35%, transparent); border-radius:10px; padding:5px 10px; margin:6px 0; }
+#iiBar{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; }
+#iiBar + .logout{ margin-left:10px; }
 
 /* ---------- 월 머리 ---------- */
 .daynav{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:12px; }
@@ -385,7 +388,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signO
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, doc, setDoc, updateDoc, onSnapshot, collection, query, where,
-  arrayUnion, serverTimestamp, deleteField
+  arrayUnion, serverTimestamp, deleteField, getDoc, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* ============================================================
@@ -477,6 +480,9 @@ const S = {
   weather: "", mood: "", qShift: 0, spell: null, formDirty: false,
   unsub: null, unsubStatus: null, unsubMonths: null, unsubStudy: [], unsubDrafts: null, range: null
 };
+S.oldEntries = {}; S.iiEntries = {};
+// 이 일기장 + iinote 일기를 합쳐요. 같은 날 같은 사람이면 이 일기장 것이 먼저예요
+const mergeEntries = () => { S.entries = { ...S.iiEntries, ...S.oldEntries }; };
 const keyOf = (date, w) => `${date}_${w}`;
 const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
 
@@ -486,8 +492,8 @@ const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
 onAuthStateChanged(auth, user => {
   if (user && user.email === ADMIN_EMAIL){
     S.ok = true;
-    $("#authBar").innerHTML = `<span class="soft">🌷 ${esc(user.email)}</span><button class="logout" data-act="logout">로그아웃</button>`;
-    startData();
+    $("#authBar").innerHTML = `<span class="soft">🌷 ${esc(user.email)}</span><span id="iiBar"></span><button class="logout" data-act="logout">로그아웃</button>`;
+    startData(); renderIiBar();
     renderTabs(); goTab(S.tab); renderLinks();
   } else {
     S.ok = false; stopData();
@@ -551,7 +557,106 @@ function stopData(){
   S.unsub && S.unsub(); S.unsubStatus && S.unsubStatus(); S.unsubMonths && S.unsubMonths();
   S.unsubStudy.forEach(u => u()); S.unsubStudy = []; S.study = {};
   S.unsubDrafts && S.unsubDrafts(); S.unsubDrafts = null; S.drafts = {};
-  S.unsub = S.unsubStatus = S.unsubMonths = null; S.range = null; S.entries = {}; S.loaded = false;
+  S.unsub = S.unsubStatus = S.unsubMonths = null; S.range = null; S.entries = {}; S.oldEntries = {}; S.loaded = false;
+  iiStop();
+}
+
+/* ---------- 🌐 iinote(iinote.co.kr) 우리 가족 일기 같이 보기 ----------
+   같은 구글 계정으로 iinote 에 한 번 더 로그인해서, 우리 가족 그룹의 제출한 일기 · 댓글 · 하트 · 도장을 읽기만 해요.
+   (쓰기 · 고치기는 iinote 에서. 예전 일기장에서 iinote 로 가져간 일기(importKey old:)는 여기 원본이 있으니 빼요) */
+const IINOTE_CONFIG = {
+  apiKey: "AIzaSyDAA9awvX3nmdY41Tgvy0KJDkEfxt7dxpM",
+  authDomain: "iinote.firebaseapp.com",
+  projectId: "iinote",
+  storageBucket: "iinote.firebasestorage.app",
+  messagingSenderId: "412097553357",
+  appId: "1:412097553357:web:ca64a3b887316f79ba5a84"
+};
+const II_WEATHER = { sunny:"☀️", partly:"⛅", cloudy:"☁️", rain:"🌧️", storm:"⛈️", snow:"❄️", rainbow:"🌈" };
+const II_MOOD = { good:"😊", great:"😆", love:"🥰", calm:"😐", sad:"😢", angry:"😠", tired:"😴" };
+const iiApp = initializeApp(IINOTE_CONFIG, "iinote"), iiAuth = getAuth(iiApp), iiDb = getFirestore(iiApp);
+const ii = { user: null, gid: null, map: {}, names: {}, diaries: [], comments: [], unsubD: null, unsubC: null, from: null, err: "" };
+onAuthStateChanged(iiAuth, u => {
+  if (u && u.email !== ADMIN_EMAIL){ signOut(iiAuth); u = null; }
+  ii.user = u || null;
+  if (!ii.user){ iiStop(); ii.gid = null; ii.map = {}; }
+  else if (S.ok) iiWatch();
+  renderIiBar();
+});
+async function iiLogin(){
+  const p = new GoogleAuthProvider(); p.setCustomParameters({ login_hint: ADMIN_EMAIL });
+  try { await signInWithPopup(iiAuth, p); }
+  catch (err){ if (err.code !== "auth/popup-closed-by-user") toast("iinote에 로그인하지 못했어요 (" + err.code + ")"); }
+}
+// 우리 가족 그룹 찾기: 도윤 · 도진 프로필이 있는 가족. 엄마 = 이 계정의 프로필
+async function iiFindGroup(){
+  const uid = ii.user.uid, ud = (await getDoc(doc(iiDb, "users", uid))).data() || {};
+  for (const gid of [ud.lastGroupId, ...(ud.groupIds || [])].filter(Boolean)){
+    const ps = (await getDocs(collection(iiDb, "groups", gid, "profiles"))).docs.map(d => ({ id: d.id, ...d.data() }));
+    const map = {}, names = {};
+    ps.forEach(p => {
+      names[p.id] = p.name || "";
+      if (p.uid === uid || (p.uids || []).includes(uid)) map[p.id] = ME;
+      else if (p.type === "child"){ const w = KIDS.find(k => (p.name || "").includes(PEOPLE[k].name)); if (w) map[p.id] = w; }
+    });
+    if (KIDS.some(k => Object.values(map).includes(k))){ ii.gid = gid; ii.map = map; ii.names = names; return true; }
+  }
+  return false;
+}
+async function iiWatch(){
+  if (!ii.user || !S.ok || !S.range) return;
+  try {
+    if (!ii.gid && !(await iiFindGroup())){ ii.err = "도윤 · 도진이 있는 가족을 찾지 못했어요"; renderIiBar(); return; }
+  } catch (err){ ii.err = "가족을 불러오지 못했어요 (" + (err.code || err.message) + ")"; renderIiBar(); return; }
+  ii.err = "";
+  if (ii.unsubD && ii.from === S.range.from) return;
+  ii.unsubD && ii.unsubD(); ii.from = S.range.from;
+  ii.unsubD = onSnapshot(query(collection(iiDb, "groups", ii.gid, "diaries"), where("date", ">=", S.range.from)), snap => {
+    ii.diaries = snap.docs.map(d => ({ id: d.id, ...d.data() })); iiMerge();
+  }, err => { ii.err = "일기를 읽지 못했어요 (" + err.code + ")"; renderIiBar(); });
+  if (!ii.unsubC) ii.unsubC = onSnapshot(collection(iiDb, "groups", ii.gid, "comments"), snap => {
+    ii.comments = snap.docs.map(d => ({ id: d.id, ...d.data() })); iiMerge();
+  }, () => {});
+  renderIiBar();
+}
+function iiStop(){
+  ii.unsubD && ii.unsubD(); ii.unsubC && ii.unsubC(); ii.unsubD = ii.unsubC = null; ii.from = null;
+  ii.diaries = []; ii.comments = []; S.iiEntries = {}; mergeEntries();
+}
+const iiWho = pid => ii.map[pid] || ii.names[pid] || "가족";
+// iinote 일기 → 이 일기장 모양으로 (읽기 전용 표시 iinote:true)
+function iiMerge(){
+  const cm = {};
+  ii.comments.filter(c => !c.deleted && c.text).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+    .forEach(c => (cm[c.diaryId] = cm[c.diaryId] || []).push({ by: iiWho(c.profileId), text: (c.parentId ? "↪ " : "") + c.text, at: c.createdAt || 0 }));
+  const out = {};
+  ii.diaries.forEach(d => {
+    const w = ii.map[d.profileId];
+    if (!w || d.status !== "submitted" || !d.date || String(d.importKey || "").startsWith("old:")) return;
+    const k = keyOf(d.date, w);
+    if (out[k] && (out[k].updatedAt || 0) >= (d.updatedAt || 0)) return;   // 하루에 두 편이면 나중에 고친 것
+    const r = d.aiResult || null, text = d.text || "";
+    out[k] = {
+      id: "ii:" + d.id, iinote: true, author: w, date: d.date, updatedAt: d.updatedAt || 0,
+      weather: II_WEATHER[d.weather] || "", mood: II_MOOD[d.mood] || "", title: "", content: text, chars: countChars(text),
+      question: d.prompt || "", stamp: d.stamp || "", photos: (d.photos || []).length,
+      hearts: Object.fromEntries(Object.keys(d.hearts || {}).filter(p => d.hearts[p]).map(p => [iiWho(p), true])),
+      comments: cm[d.id] || [],
+      spellChecked: !!d.aiChecked,
+      spellFixes: (r?.corrections || []).filter(c => c.wrong && c.right).map(c => ({ wrong: c.wrong, right: c.right, kind: c.kind || "", how: c.how === "kept" ? "" : c.how || "" })),
+      spellFeedback: r ? { praise: r.praise || "", cheer: r.feedback || "" } : null,
+      spellOriginal: r?.original || ""
+    };
+  });
+  S.iiEntries = out; mergeEntries(); refresh(); renderIiBar();
+}
+function renderIiBar(){
+  const box = $("#iiBar"); if (!box) return;
+  const n = Object.keys(S.iiEntries).length;
+  box.innerHTML = !ii.user
+    ? `<button class="logout" data-act="ii-login" title="iinote.co.kr 에 쓴 우리 가족 일기도 여기서 같이 봐요">🌐 iinote 일기 같이 보기</button>`
+    : ii.err ? `<span class="soft" style="color:var(--red)">🌐 ${esc(ii.err)}</span> <button class="logout" data-act="ii-logout">iinote 끊기</button>`
+    : `<span class="soft" title="iinote 일기는 읽기만 해요. 쓰기 · 도장 · 댓글은 iinote 에서">🌐 iinote 연결됨${n ? ` · ${n}편` : ""}</span> <button class="logout" data-act="ii-logout">끊기</button>`;
 }
 function ensureRange(){
   const t = today();
@@ -564,11 +669,13 @@ function ensureRange(){
   S.range = { from, to };
   const q = query(collection(db, "diary"), where("date", ">=", from), where("date", "<=", to));
   S.unsub = onSnapshot(q, snap => {
-    S.entries = {};
-    snap.forEach(d => { S.entries[d.id] = { id: d.id, ...d.data() }; });
+    S.oldEntries = {};
+    snap.forEach(d => { S.oldEntries[d.id] = { id: d.id, ...d.data() }; });
+    mergeEntries();
     S.loaded = true;
     refresh();
   }, err => toast("일기를 불러오지 못했어요. Firestore 규칙을 확인해 주세요. (" + err.code + ")"));
+  iiWatch();
 }
 function refresh(){
   if (!S.ok) return;
@@ -834,7 +941,7 @@ function renderEditor(){
       <p class="soft" style="margin-top:10px">📌 앞으로 올 날이에요. 일정 칸에 일정만 적을 수 있어요. 일기는 그날이 되면 써요 🌷</p>`;
     return;
   }
-  const e = S.entries[keyOf(S.writeDate, ME)] || {};
+  const e0 = S.entries[keyOf(S.writeDate, ME)], e = e0 && !e0.iinote ? e0 : {};
   S.weather = e.weather || ""; S.mood = e.mood || ""; S.spell = null;
   const q = e.question || currentQuestion();
   box.innerHTML = `
@@ -842,6 +949,7 @@ function renderEditor(){
       <h3>${fmtDate(S.writeDate)}${S.writeDate === today() ? " (오늘)" : ""}</h3>
       <span class="soft">${e.content ? "✅ 쓴 날 · 고쳐서 다시 저장할 수 있어요" : ""}</span>
     </div>
+    ${e0?.iinote ? `<p class="ii-note">🌐 이날은 iinote에 쓴 일기가 있어요. <button class="btn" style="padding:0 10px" data-act="open-day" data-v="${S.writeDate}">읽기</button> 여기에 또 쓰면 이 일기장 것이 먼저 보여요.</p>` : ""}
     <div class="row">
       <div class="pick"><span>날씨</span>${WEATHERS.map(v => `<button data-act="weather" data-v="${v}" class="${S.weather === v ? "on" : ""}">${v}</button>`).join("")}</div>
       <div class="pick"><span>기분</span>${MOODS.map(v => `<button data-act="mood" data-v="${v}" class="${S.mood === v ? "on" : ""}">${v}</button>`).join("")}</div>
@@ -879,7 +987,7 @@ function updateGauge(){
 async function save(){
   const text = $("#content").value.trim();
   if (!text) return toast("일기 내용을 써 주세요.");
-  const id = keyOf(S.writeDate, ME), exists = !!S.entries[id];
+  const id = keyOf(S.writeDate, ME), exists = !!S.oldEntries[id];
   const btn = $("#saveBtn"); btn.disabled = true;
   try {
     await setDoc(doc(db, "diary", id), {
@@ -1168,8 +1276,8 @@ function dayCard(w, e){
     return `<div class="dcard" style="--c:${p.color}">${head}
       <div class="empty"><div>아직 안 썼어요${canPoke ? `<br><button class="btn" style="margin-top:8px" data-act="poke" data-w="${w}">👉 콕 찌르기</button>` : ""}</div></div></div>`;
   }
-  const hearts = e.hearts || {};
-  const heartBy = ORDER.filter(k => hearts[k]);
+  const hearts = e.hearts || {}, ro = !!e.iinote;
+  const heartBy = ro ? Object.keys(hearts) : ORDER.filter(k => hearts[k]);
   const n = e.chars ?? countChars(e.content || "");
   const fx = e.spellFixes || [];
   const howCount = h => fx.filter(f => f.how === h).length;
@@ -1185,10 +1293,11 @@ function dayCard(w, e){
     ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
     <div class="body">${markFixes(e.content, fx)}</div>
     ${spellNote}
-    ${p.kid ? `<div class="stamps">${STAMPS.map(s =>
+    ${ro ? `<div class="ii-note">🌐 iinote에서 쓴 일기${e.photos ? ` · 📷 사진 ${e.photos}장` : ""} · 도장 · 하트 · 댓글은 <a href="https://iinote.co.kr/" target="_blank" rel="noopener">iinote</a>에서</div>` : ""}
+    ${p.kid && !ro ? `<div class="stamps">${STAMPS.map(s =>
       `<button class="${e.stamp === s ? "on" : ""}" data-act="stamp" data-id="${e.id}" data-v="${s}">${s}</button>`).join("")}</div>` : ""}
     <div class="hearts">
-      <button data-act="heart" data-id="${e.id}" aria-label="하트">${hearts[ME] ? "❤️" : "🤍"}</button>
+      ${ro ? (heartBy.length ? "❤️" : "") : `<button data-act="heart" data-id="${e.id}" aria-label="하트">${hearts[ME] ? "❤️" : "🤍"}</button>`}
       <span class="soft">${heartBy.map(k => PEOPLE[k]?.name || k).join(", ")}</span>
     </div>
     <div class="cmts">
@@ -1199,9 +1308,9 @@ function dayCard(w, e){
           <button data-act="emoji-open" data-id="${e.id}" aria-label="이모지 넣기">💖</button>
           <button data-act="cedit-save" data-id="${e.id}">저장</button><button data-act="cedit-cancel">취소</button></div>`;
         return `<p>${who} ${esc(c.text)} <span class="when">${whenOf(c.at)}${c.edited ? " · 고침" : ""}</span>
-          ${c.by === ME ? `<button class="cmt-tool" data-act="cedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="cdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
+          ${c.by === ME && !ro ? `<button class="cmt-tool" data-act="cedit" data-id="${e.id}" data-v="${c.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="cdel" data-id="${e.id}" data-v="${c.at}" aria-label="지우기">🗑</button>` : ""}</p>`;
       }).join("")}
-      ${cmt.edit?.id === e.id ? "" : `<div class="cmt-in"><input placeholder="한마디 남기기" maxlength="120" data-cmt="${e.id}" value="${esc(cmt.draft[e.id] || "")}">
+      ${cmt.edit?.id === e.id || ro ? "" : `<div class="cmt-in"><input placeholder="한마디 남기기" maxlength="120" data-cmt="${e.id}" value="${esc(cmt.draft[e.id] || "")}">
         <button data-act="emoji-open" data-id="${e.id}" aria-label="이모지 넣기" title="이모지 넣기">💖</button>
         <button data-act="comment" data-id="${e.id}">남기기</button></div>`}
       ${cmt.emoji === e.id ? `<div class="emo">${EMOJIS.map(x => `<button data-act="emoji" data-id="${e.id}" data-v="${x}">${x}</button>`).join("")}</div>` : ""}
@@ -1229,7 +1338,7 @@ function renderShelf(){
     <div class="shelf-list">${list.length ? list.map(e => {
       const p = PEOPLE[e.author] || { name: e.author, emoji: "", color: "#999" };
       return `<article style="--c:${p.color}">
-        <div class="meta"><b>${p.emoji} ${p.name}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span>${e.stamp ? `<span style="color:var(--red)">🔴 ${esc(e.stamp)}</span>` : ""}</div>
+        <div class="meta"><b>${p.emoji} ${p.name}</b><span>${fmtDate(e.date)}</span><span>${e.weather || ""}${e.mood || ""}</span>${e.stamp ? `<span style="color:var(--red)">🔴 ${esc(e.stamp)}</span>` : ""}${e.iinote ? `<span class="soft">🌐 iinote</span>` : ""}</div>
         ${e.title ? `<h4>${esc(e.title)}</h4>` : ""}
         <div class="body">${esc(e.content)}</div></article>`;
     }).join("") : `<p class="soft" style="text-align:center">이 달에는 아직 일기가 없어요.</p>`}</div>`;
@@ -1245,6 +1354,8 @@ document.addEventListener("click", e => {
     case "theme": setTheme(v); break;
     case "font": setFont(v); break;
     case "login": login(); break;
+    case "ii-login": iiLogin(); break;
+    case "ii-logout": signOut(iiAuth); break;
     case "logout": if (leaveForm("저장하지 않은 일기가 있어요. 로그아웃할까요?")) signOut(auth); break;
     case "tab": goTab(v); break;
     case "pick-date":
