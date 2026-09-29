@@ -152,6 +152,32 @@ main{padding:16px 12px 40px 28px}
 .dchip.on{background:var(--hi);border-color:var(--hi);color:#3A2E1A}
 .dsep{flex:none;width:1.5px;height:1rem;background:var(--line);margin:0 4px}
 .grasscard{margin-top:12px}
+/* 과목 맨 위 단계 고르기 (공통): 오른쪽 작은 드롭다운 · 스위치 + 옆에 회색 설명 한 줄 */
+.lvbar{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-height:38px;margin:0 0 10px}
+.lvdesc{flex:1;min-width:0;text-align:right;font-size:.82rem;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lvdd{position:relative;flex:none}
+.lvdd summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);font-weight:bold;white-space:nowrap;user-select:none}
+.lvdd summary::-webkit-details-marker{display:none}
+.lvdd .car{font-size:.8em;color:var(--sub)}
+.lvdd[open] summary{border-color:var(--accent)}
+.lvmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;min-width:240px;display:grid;gap:2px;padding:6px;border-radius:14px;border:1.5px solid var(--line);background:var(--paper);box-shadow:0 12px 28px rgba(0,0,0,.14)}
+.lvmenu button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:8px 12px;border:0;border-radius:10px;background:none;text-align:left;cursor:pointer;color:var(--ink)}
+.lvmenu button small{font-size:.78rem;color:var(--sub)}
+.lvmenu button:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.lvmenu button.on{background:var(--accent);color:var(--accent-ink)}
+.lvmenu button.on small{color:inherit;opacity:.85}
+.lvsw{flex:none;display:inline-flex;padding:3px;gap:2px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper)}
+.lvsw button{padding:6px 14px;border:0;border-radius:999px;background:none;font-weight:bold;color:var(--sub);white-space:nowrap;cursor:pointer}
+.lvsw button.on{background:var(--accent);color:var(--accent-ink)}
+.lvsw.sm button{padding:4px 11px;font-size:.88rem}
+/* 단원 · 주제 버튼: 한 줄, 넘치면 옆으로 밀기. 고른 단원은 진한 남색 */
+.unitrow{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 6px;margin-bottom:8px}
+.unitrow .pill{flex:none;white-space:nowrap;margin:0}
+.unitrow.navy .pill.on{background:#1F2A44;border-color:#1F2A44;color:#fff}
+.unit-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 2px}
+.unit-h b{font-size:1.35rem;font-weight:normal}
+.kindrow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 6px;margin-bottom:6px}
+.kindrow .pill{flex:none;white-space:nowrap;margin:0}
 .deco{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .deco-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .deco-row b{font-weight:normal;color:var(--sub);min-width:4.5em}
@@ -1755,6 +1781,18 @@ const rnd = (a,b)=> a + Math.floor(Math.random()*(b-a+1));
 const one = arr => arr[Math.floor(Math.random()*arr.length)];
 const shuffle = arr => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const praise = ()=> one(PRAISE);
+/* 과목 맨 위 단계 고르기 (모든 과목 공통): 3개 이상이면 작은 드롭다운 ▾, 2개면 [A | B] 스위치.
+   items: [{v, name, sub}], opt.k: data-k (사회·과학처럼 과목 이름이 더 필요할 때). 고른 항목의 설명은 옆에 회색 한 줄 */
+function lvPick(act, cur, items, opt={}){
+  const on=items.find(x=>String(x.v)===String(cur))||items[0], k=opt.k!=null?` data-k="${opt.k}"`:'';
+  const ctl = items.length<=2
+    ? `<div class="lvsw" role="group" aria-label="단계 고르기">${items.map(x=>`<button class="${String(x.v)===String(cur)?'on':''}" data-act="${act}" data-v="${x.v}"${k}>${x.name}</button>`).join('')}</div>`
+    : `<details class="lvdd"><summary aria-label="단계 고르기">${on.name} <span class="car">▾</span></summary><div class="lvmenu">${items.map(x=>`<button class="${String(x.v)===String(cur)?'on':''}" data-act="${act}" data-v="${x.v}"${k}><b>${x.name}</b>${x.sub?`<small>${x.sub}</small>`:''}</button>`).join('')}</div></details>`;
+  return `<div class="lvbar"><span class="lvdesc">${on.sub||''}</span>${ctl}</div>`;
+}
+/* 단원 제목 + 작은 [설명 | 퀴즈 10문제] 스위치 */
+const modeSw = (act, cur, onlyQuiz, k='') => `<div class="lvsw sm" role="group" aria-label="설명 또는 퀴즈">${onlyQuiz?'':`<button class="${cur==='learn'?'on':''}" data-act="${act}" data-v="learn"${k?` data-k="${k}"`:''}>📖 설명</button>`}<button class="${cur!=='learn'?'on':''}" data-act="${act}" data-v="quiz"${k?` data-k="${k}"`:''}>✏️ 퀴즈 10문제</button></div>`;
+document.addEventListener('click', e=>{ document.querySelectorAll('details.lvdd[open]').forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
 const pill = (act,v,label,cur,extra='') => `<button class="pill ${String(v)===String(cur)?'on':''}" data-act="${act}" data-v="${v}" ${extra}>${label}</button>`;
 const fmt = s => s>=60 ? `${Math.floor(s/60)}분 ${s%60}초` : `${s}초`;
 const pad = n => String(n).padStart(2,'0');
@@ -2846,11 +2884,8 @@ function renderSchool(){
   if(!UNITS[App.unit]) App.unit='n4';
   const learn = App.smode==='learn' && App.unit!=='mix';
   view.innerHTML=`
-    <div class="seg small">${Object.keys(UNITS).map(k=>pill('unit',k,UNITS[k].name,App.unit)).join('')}</div>
-    ${App.unit==='mix' ? '' : `<div class="lvtabs">
-      <button class="lvtab ${learn?'on':''}" data-act="smode" data-v="learn"><b>📖 공부하기</b><small>그림으로 개념 익히기</small></button>
-      <button class="lvtab ${learn?'':'on'}" data-act="smode" data-v="quiz"><b>✏️ 문제풀기</b><small>10문제 풀고 별 받기</small></button>
-    </div>`}
+    <div class="unitrow navy">${Object.keys(UNITS).map(k=>pill('unit',k,UNITS[k].name,App.unit)).join('')}</div>
+    <div class="unit-h"><b>${UNITS[App.unit].name.replace(/^\d+\. /,'')}</b>${App.unit==='mix' ? '' : modeSw('smode', learn?'learn':'quiz', false)}</div>
     <p class="desc">${UNITS[App.unit].desc}</p>
     <div id="sbody"></div>`;
   learn ? drawLesson() : drawS();
@@ -3125,7 +3160,7 @@ function renderHanja(){
   if(!hPool(App.hgrp).length) App.hgrp='all';
   const lv=HANJA_LV[App.hlv]||HANJA_LV[9];
   view.innerHTML=`
-    <div class="lvtabs">${[9,8].map(l=>`<button class="lvtab ${+App.hlv===l?'on':''}" data-act="hlv" data-v="${l}"><b>${l}급</b><small>${HANJA_LV[l].list.length}자 · ${HANJA_LV[l].sub}</small></button>`).join('')}</div>
+    ${lvPick('hlv', +App.hlv, [9,8].map(l=>({v:l, name:`${l}급`, sub:`${HANJA_LV[l].list.length}자 · ${HANJA_LV[l].sub}`})))}
     <p class="desc">${lv.desc}</p>
     <div class="seg">${pill('hmode','card','📜 한자 카드',App.hmode)}${pill('hmode','meaning','🤔 뜻 고르기',App.hmode)}${pill('hmode','find','🔍 한자 찾기',App.hmode)}</div>
     <div id="hbody"></div>`;
@@ -3242,7 +3277,7 @@ const KO_GEN = {
 function renderKorean(){
   if(!KO_LV[App.klv].acts[App.kact]) App.kact=Object.keys(KO_LV[App.klv].acts)[0];
   view.innerHTML=`
-    <div class="lvtabs">${[1,2].map(l=>`<button class="lvtab ${App.klv===l?'on':''}" data-act="klv" data-v="${l}"><b>${l}단계</b><small>${KO_LV[l].sub}</small></button>`).join('')}</div>
+    ${lvPick('klv', App.klv, [1,2].map(l=>({v:l, name:`${l}단계`, sub:KO_LV[l].sub})))}
     <div class="seg">${Object.entries(KO_LV[App.klv].acts).map(([k,n])=>pill('kact',k,n,App.kact)).join('')}</div>
     <p class="desc">${KO_DESC[App.kact]}</p>
     <div id="kbody"></div>`;
@@ -4396,9 +4431,9 @@ function renderCS(s){
   const C=CS_SUBJ[s], st=csState(s); if(!C.tracks[st.tr]) st.tr=0;
   const tr=C.tracks[st.tr]; if(!tr.units.some(u=>u.id===st.unit)) st.unit=tr.units[0].id;
   const u=tr.units.find(x=>x.id===st.unit), best=store.get('csbest',{});
-  view.innerHTML=`<div class="lvtabs" style="grid-template-columns:repeat(${C.tracks.length},1fr)">${C.tracks.map((t,i)=>`<button class="lvtab ${i===st.tr?'on':''}" data-act="csTr" data-k="${s}" data-v="${i}"><b>${t.name}</b><small>${t.sub}</small></button>`).join('')}</div>
-    <div class="seg small">${tr.units.map((x,i)=>{ const b=best[s+'|'+x.id]; return `<button class="pill ${x.id===st.unit?'on':''}" data-act="csUnit" data-k="${s}" data-v="${x.id}">${x.e} ${i+1}. ${x.n}${b===10?' 🏅':b!==undefined?' ✔':''}</button>`; }).join('')}</div>
-    <div class="seg" style="display:grid;grid-template-columns:repeat(2,1fr)"><button class="pill ${st.mode==='learn'?'on':''}" data-act="csMode" data-k="${s}" data-v="learn">📖 설명</button><button class="pill ${st.mode==='quiz'?'on':''}" data-act="csMode" data-k="${s}" data-v="quiz">✏️ 퀴즈 10문제</button></div>
+  view.innerHTML=`${lvPick('csTr', st.tr, C.tracks.map((t,i)=>({v:i, name:t.name, sub:t.sub})), {k:s})}
+    <div class="unitrow navy">${tr.units.map((x,i)=>{ const b=best[s+'|'+x.id]; return `<button class="pill ${x.id===st.unit?'on':''}" data-act="csUnit" data-k="${s}" data-v="${x.id}">${x.e} ${i+1}. ${x.n}${b===10?' 🏅':b!==undefined?' ✔':''}</button>`; }).join('')}</div>
+    <div class="unit-h"><b>${u.e} ${esc(u.n)}</b>${modeSw('csMode', st.mode, false, s)}</div>
     <div id="csbody"></div>`;
   st.mode==='learn' ? drawCSLearn(s,u) : drawCSQuiz(s,u);
 }
