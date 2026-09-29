@@ -1735,30 +1735,30 @@ const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽
 const WD = ['일','월','화','수','목','금','토'];
 
 /* 영어 1단계: 단어 [영어, 뜻, 그림] */
+/* 영어 1단계 (초5 교과서 기본): 단어 — 원영이 방 */
 const E4_WORDS = {
-  school:{name:'🏫 학교',items:[['book','책','📕'],['bag','가방','🎒'],['pencil','연필','✏️'],['ruler','자','📏'],['scissors','가위','✂️'],['crayon','크레파스','🖍️'],['chair','의자','🪑'],['clock','시계','🕰️'],['computer','컴퓨터','💻'],['notebook','공책','📓']]},
-  family:{name:'👪 가족',items:[['family','가족','👪'],['father','아버지','👨'],['mother','어머니','👩'],['brother','형 · 남동생','👦'],['sister','누나 · 여동생','👧'],['grandfather','할아버지','👴'],['grandmother','할머니','👵'],['baby','아기','👶'],['uncle','삼촌','🧔'],['friend','친구','🧑‍🤝‍🧑']]},
-  weather:{name:'☀️ 날씨 · 계절',items:[['sunny','맑은','☀️'],['rainy','비 오는','🌧️'],['cloudy','흐린','☁️'],['snowy','눈 오는','❄️'],['windy','바람 부는','🌬️'],['hot','더운','🥵'],['cold','추운','🥶'],['warm','따뜻한','🌤️'],['spring','봄','🌸'],['winter','겨울','⛄']]},
-  action:{name:'🏃 동작',items:[['swim','수영하다','🏊'],['run','달리다','🏃'],['jump','뛰어오르다','🦘'],['dance','춤추다','💃'],['sing','노래하다','🎤'],['skate','스케이트 타다','⛸️'],['ski','스키 타다','⛷️'],['cook','요리하다','🧑‍🍳'],['read','읽다','📖'],['sleep','자다','😴']]},
-  food:{name:'🍕 음식',items:[['pizza','피자','🍕'],['chicken','치킨','🍗'],['bread','빵','🍞'],['rice','밥','🍚'],['soup','수프','🍲'],['salad','샐러드','🥗'],['cake','케이크','🍰'],['cookie','쿠키','🍪'],['water','물','💧'],['carrot','당근','🥕']]},
-  place:{name:'📍 장소',items:[['school','학교','🏫'],['park','공원','🏞️'],['library','도서관','📚'],['hospital','병원','🏥'],['zoo','동물원','🦓'],['museum','박물관','🏛️'],['store','가게','🏪'],['kitchen','부엌','🍳'],['bedroom','침실','🛏️'],['bathroom','욕실','🛁']]},
-  clothes:{name:'👕 옷',items:[['shirt','셔츠','👕'],['pants','바지','👖'],['cap','야구 모자','🧢'],['shoes','신발','👟'],['socks','양말','🧦'],['gloves','장갑','🧤'],['jacket','재킷','🧥'],['skirt','치마','👗'],['glasses','안경','👓'],['scarf','목도리','🧣']]}
+  country:{name:'🌏 나라',items:[['Korea','한국','🥋'],['America','미국','🗽'],['China','중국','🐼'],['Japan','일본','🗾'],['France','프랑스','🥐'],['Canada','캐나다','🍁'],['Australia','호주','🦘'],['England','영국','💂'],['Brazil','브라질','⚽'],['India','인도','🐘']]},
+  week:{name:'📆 요일 · 달',items:[['Monday','월요일','🌙'],['Tuesday','화요일','🔥'],['Wednesday','수요일','💧'],['Thursday','목요일','🌳'],['Friday','금요일','💰'],['Saturday','토요일','🏖️'],['Sunday','일요일','☀️'],['January','1월','⛄'],['May','5월','🌷'],['December','12월','🎄']]},
+  order:{name:'🥇 순서 · 학년',items:[['first','첫 번째','🥇'],['second','두 번째','🥈'],['third','세 번째','🥉'],['fourth','네 번째','4️⃣'],['fifth','다섯 번째','5️⃣'],['sixth','여섯 번째','6️⃣'],['grade','학년','🏫'],['birthday','생일','🎂'],['date','날짜','📅'],['year','해 · 년','🗓️']]},
+  chores:{name:'🧹 집안일',items:[['clean my room','내 방을 청소하다','🧹'],['wash the dishes','설거지하다','🍽️'],['make the bed','이불을 개다','🛏️'],['set the table','상을 차리다','🍴'],['water the plants','화분에 물을 주다','🌱'],['feed the dog','개에게 먹이를 주다','🐕'],['take out the trash','쓰레기를 내다 버리다','🗑️'],['do my homework','숙제를 하다','📝'],['help','돕다','🤝'],['wash my hands','손을 씻다','🧼']]},
+  hobby:{name:'🎨 취미 · 주말',items:[['play soccer','축구를 하다','⚽'],['play the piano','피아노를 치다','🎹'],['ride a bike','자전거를 타다','🚲'],['draw pictures','그림을 그리다','🎨'],['take pictures','사진을 찍다','📷'],['go camping','캠핑하러 가다','⛺'],['go fishing','낚시하러 가다','🎣'],['watch movies','영화를 보다','🎬'],['play games','게임을 하다','🎮'],['go shopping','쇼핑하러 가다','🛍️']]},
+  taste:{name:'🍜 음식 · 맛',items:[['sandwich','샌드위치','🥪'],['noodles','국수','🍜'],['spaghetti','스파게티','🍝'],['hamburger','햄버거','🍔'],['ice cream','아이스크림','🍦'],['delicious','맛있는','😋'],['sweet','달콤한','🍬'],['salty','짠','🧂'],['spicy','매운','🌶️'],['sour','신','🍋']]},
+  animal:{name:'🐾 동물',items:[['dolphin','돌고래','🐬'],['penguin','펭귄','🐧'],['giraffe','기린','🦒'],['tiger','호랑이','🐯'],['rabbit','토끼','🐰'],['turtle','거북','🐢'],['elephant','코끼리','🐘'],['monkey','원숭이','🐵'],['bear','곰','🐻'],['lion','사자','🦁']]}
 };
 Object.values(E4_WORDS).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); });
-/* 영어 1단계: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
+/* 영어 1단계: 초5 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
 const E4_SENT = {
-  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Seojin.','내 이름은 원영이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
-  can:{name:'🏊 할 수 있니?', e:'🏊', qa:[['Can you swim?','너는 수영할 수 있니?','Yes, I can.','응, 할 수 있어.'],['Can you skate?','너는 스케이트 탈 수 있니?','No, I can\'t.','아니, 못 해.'],['Can you help me?','나 좀 도와줄래?','Sure.','물론이지.']]},
-  weather:{name:'☀️ 날씨', e:'☀️', qa:[['How\'s the weather?','날씨가 어때?','It\'s sunny.','날씨가 맑아.'],['Is it raining?','비가 오니?','Yes, it is.','응, 비가 와.'],['Is it cold outside?','밖이 춥니?','No, it\'s warm.','아니, 따뜻해.']]},
-  time:{name:'⏰ 시각', e:'⏰', qa:[['What time is it?','몇 시니?','It\'s seven o\'clock.','7시야.'],['What time do you get up?','너는 몇 시에 일어나니?','I get up at seven.','나는 7시에 일어나.'],['Is it time for lunch?','점심 먹을 시간이니?','Yes, let\'s eat!','응, 먹자!']]},
-  like:{name:'🍕 좋아하니?', e:'🍕', qa:[['Do you like pizza?','너는 피자를 좋아하니?','Yes, I do.','응, 좋아해.'],['Do you like carrots?','너는 당근을 좋아하니?','No, I don\'t.','아니, 안 좋아해.'],['What do you like?','너는 무엇을 좋아하니?','I like apples.','나는 사과를 좋아해.']]},
-  where:{name:'📍 어디에 있니?', e:'📍', qa:[['Where is my cap?','내 모자 어디 있어?','It\'s on the desk.','책상 위에 있어.'],['Where is the cat?','고양이는 어디 있니?','It\'s under the table.','탁자 밑에 있어.'],['Where is the library?','도서관은 어디 있니?','It\'s next to the park.','공원 옆에 있어.']]},
-  whose:{name:'🎒 누구 거니?', e:'🎒', qa:[['Whose bag is this?','이건 누구 가방이니?','It\'s Mina\'s.','미나 거야.'],['Is this your pencil?','이거 네 연필이니?','No, it isn\'t.','아니, 내 것이 아니야.']]},
-  doing:{name:'🧑‍🍳 뭐 하니?', e:'🧑‍🍳', qa:[['What are you doing?','너는 무엇을 하고 있니?','I\'m cooking.','나는 요리하고 있어.'],['Let\'s play soccer.','축구 하자.','Sounds good!','좋아!'],['Let\'s go swimming.','수영하러 가자.','Sorry, I can\'t.','미안, 못 가.']]},
-  shop:{name:'🛒 얼마예요?', e:'🛒', qa:[['How much is it?','이거 얼마예요?','It\'s two thousand won.','2,000원이에요.'],['What do you want?','무엇을 원하니?','I want some water.','나는 물을 원해.'],['How many apples?','사과가 몇 개니?','Three apples.','사과 세 개야.']]},
-  feel:{name:'😷 괜찮니?', e:'😷', qa:[['What\'s wrong?','무슨 일이야?','I have a cold.','나 감기에 걸렸어.'],['Are you hungry?','너 배고프니?','Yes, I am.','응, 배고파.'],['May I come in?','들어가도 되나요?','Sure. Come in.','물론이지, 들어와.']]}
+  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['What\'s your name?','이름이 뭐니?','My name is Wonyoung.','내 이름은 원영이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['How are you today?','오늘 기분 어때?','I\'m great, thanks.','아주 좋아, 고마워.']]},
+  from:{name:'🌏 어디에서 왔니?', e:'🌏', qa:[['Where are you from?','너는 어디에서 왔니?','I\'m from Korea.','나는 한국에서 왔어.'],['Where is she from?','그녀는 어디에서 왔니?','She\'s from Canada.','그녀는 캐나다에서 왔어.'],['Is he from China?','그는 중국에서 왔니?','No, he\'s from Japan.','아니, 일본에서 왔어.']]},
+  grade:{name:'🏫 몇 학년이니?', e:'🏫', qa:[['What grade are you in?','너는 몇 학년이니?','I\'m in the fifth grade.','나는 5학년이야.'],['When is your birthday?','네 생일은 언제니?','It\'s May fifth.','5월 5일이야.'],['What day is it today?','오늘 무슨 요일이니?','It\'s Monday.','월요일이야.']]},
+  weekend:{name:'🎨 주말에 뭐 하니?', e:'🎨', qa:[['What do you do on weekends?','너는 주말에 무엇을 하니?','I usually ride my bike.','나는 보통 자전거를 타.'],['Do you like fishing?','너는 낚시를 좋아하니?','Yes, I do. It\'s fun.','응, 좋아해. 재미있어.'],['How often do you play soccer?','너는 얼마나 자주 축구를 하니?','Twice a week.','일주일에 두 번.']]},
+  may:{name:'📷 해도 되니?', e:'📷', qa:[['Can I take a picture?','사진 찍어도 되나요?','Sure, go ahead.','물론이죠, 찍으세요.'],['Can I sit here?','여기 앉아도 되니?','Sorry, you can\'t.','미안, 안 돼.'],['May I use your eraser?','네 지우개를 써도 될까?','Of course.','물론이지.']]},
+  vacation:{name:'🏖️ 방학에 뭐 했니?', e:'🏖️', qa:[['What did you do during the vacation?','너는 방학 동안 무엇을 했니?','I visited my grandparents.','나는 조부모님 댁에 갔어.'],['How was your trip?','여행 어땠니?','It was fun.','재미있었어.'],['Did you go camping?','캠핑 갔었니?','Yes, I did.','응, 갔었어.']]},
+  help:{name:'🧹 도와줄래?', e:'🧹', qa:[['Can you help me?','나 좀 도와줄래?','Sure. What can I do?','물론이지. 뭘 할까?'],['Did you clean your room?','네 방 청소했니?','Yes, I did.','응, 했어.'],['Please wash the dishes.','설거지 좀 해 주렴.','Okay, I will.','네, 할게요.']]},
+  order:{name:'🍝 주문하기', e:'🍝', qa:[['What would you like?','무엇을 드시겠어요?','I\'d like spaghetti, please.','스파게티 주세요.'],['How does it taste?','맛이 어떠니?','It\'s delicious.','맛있어.'],['Would you like some more?','좀 더 먹을래?','No, thanks. I\'m full.','아니, 괜찮아. 배불러.']]},
+  why:{name:'🤔 왜?', e:'🤔', qa:[['Why are you happy?','너는 왜 기분이 좋니?','Because I got a present.','선물을 받았기 때문이야.'],['Why do you like dogs?','너는 왜 개를 좋아하니?','Because they\'re cute.','귀엽기 때문이야.'],['Why are you late?','왜 늦었니?','Because I missed the bus.','버스를 놓쳤기 때문이야.']]},
+  whose:{name:'👟 누구 거니?', e:'👟', qa:[['Whose shoes are these?','이건 누구 신발이니?','They\'re mine.','내 거야.'],['Is this yours?','이거 네 거니?','No, it\'s his.','아니, 그의 거야.'],['Whose cap is that?','저건 누구 모자니?','It\'s my sister\'s.','우리 언니 거야.']]}
 };
-
 /* 영어 2단계 (초5 · 6 교과서): 단어 */
 const E5_WORDS = {
   job:{name:'🧑‍🚀 직업',items:[['teacher','선생님','🧑‍🏫'],['doctor','의사','🧑‍⚕️'],['pilot','조종사','🧑‍✈️'],['farmer','농부','🧑‍🌾'],['scientist','과학자','🧑‍🔬'],['chef','요리사','🧑‍🍳'],['singer','가수','🧑‍🎤'],['firefighter','소방관','🧑‍🚒'],['artist','화가 · 예술가','🧑‍🎨'],['astronaut','우주 비행사','🧑‍🚀']]},
@@ -1807,7 +1807,7 @@ const E6_SENT = {
 const sentLines = S => Object.entries(S).flatMap(([k,t])=>t.qa.flatMap(([q,qk,a,ak])=>[{en:q,ko:qk,top:k,e:t.e},{en:a,ko:ak,top:k,e:t.e}]));
 /* 영어 세 단계: 1단계(예전 초4 교과서) · 2단계(초5 · 6) · 3단계(중1) */
 const ENG_LV = {
-  1:{name:'🌱 1단계', sub:'교과서 기본 단어와 문장', words:E4_WORDS, sent:E4_SENT, first:'school'},
+  1:{name:'🌱 1단계', sub:'초5 교과서 기본 단어와 문장', words:E4_WORDS, sent:E4_SENT, first:'country'},
   2:{name:'🚀 2단계', sub:'초5 · 6 교과서 단어와 표현', words:E5_WORDS, sent:E5_SENT, first:'job'},
   3:{name:'🏆 3단계', sub:'중1 수준 단어와 표현', words:E6_WORDS, sent:E6_SENT, first:'env'}
 };
@@ -1815,7 +1815,7 @@ Object.values(ENG_LV).forEach(L=>{ L.lines=sentLines(L.sent); });
 const engLv = () => ENG_LV[App.elv] || ENG_LV[1];
 
 /* ───── 상태 ───── */
-const App = { view:'home', roomv:'room', lockPick:null, emode:'abc', cat:'animal', qcat:'all', letter:'A', elv: '1', e4type:'word', e4mode:'wcard', e4cat:'school', e4qcat:'all', e4top:'all',
+const App = { view:'home', roomv:'room', lockPick:null, emode:'abc', cat:'animal', qcat:'all', letter:'A', elv: '1', e4type:'word', e4mode:'wcard', e4cat:'country', e4qcat:'all', e4top:'all',
   unit: 'range5', mlv: 'e5b', hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'story', hslv: store.get('hslv',9), story:null, spage:0, kact:'read', kgenre:'all', pid:null, phv:'a', smode:'learn', hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: 0, provOpen:false };
 let settings = Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
