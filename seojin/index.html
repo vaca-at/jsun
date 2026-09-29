@@ -163,12 +163,23 @@ main{padding:16px 12px 40px 28px}
 .lvsw button.on{background:var(--accent);color:var(--accent-ink)}
 .lvsw.sm button{padding:4px 11px;font-size:.88rem}
 /* 단원 · 주제 버튼: 한 줄, 넘치면 옆으로 밀기. 고른 단원은 진한 남색 */
-.unitrow{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 6px;margin-bottom:8px}
+.unitrow{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px;margin-bottom:8px;scroll-behavior:smooth}
+.unitrow::-webkit-scrollbar{display:none}
+/* 한 줄 칩: 스크롤 막대 대신 넘치면 양 끝에 작은 ‹ › 단추 + 흐려지는 끝 (rowArrows) */
+.rowwrap{position:relative;margin-bottom:8px}
+.rowwrap>.unitrow{margin-bottom:0}
+.rowwrap::before,.rowwrap::after{content:"";position:absolute;top:0;bottom:0;width:56px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:1}
+.rowwrap::before{left:0;background:linear-gradient(to left,transparent,var(--paper) 70%)}
+.rowwrap::after{right:0;background:linear-gradient(to right,transparent,var(--paper) 70%)}
+.rowwrap.l::before,.rowwrap.r::after{opacity:1}
+.rowarr{position:absolute;top:50%;z-index:2;width:30px;height:30px;margin-top:-15px;display:none;place-items:center;padding:0;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-size:1.2rem;font-weight:bold;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.rowarr.l{left:0}.rowarr.r{right:0}
+.rowwrap.l .rowarr.l,.rowwrap.r .rowarr.r{display:grid}
 .unitrow .pill{flex:none;white-space:nowrap;margin:0}
 .unitrow.navy .pill.on{background:#1F2A44;border-color:#1F2A44;color:#fff}
 .unit-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:4px 0 2px}
 .unit-h b{font-size:1.35rem;font-weight:normal}
-.kindrow{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 6px;margin-bottom:6px}
+.kindrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:2px;margin-bottom:8px}
 .kindrow .pill{flex:none;white-space:nowrap;margin:0}
 .deco{margin-top:12px;display:flex;flex-direction:column;gap:8px}
 .deco-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -981,7 +992,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 <body data-theme="clean">
 <header>
   <div class="toprow">
-    <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="showLogin" aria-label="이름 바꾸기">예비초6 공부방</button></h1>
+    <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">예비초6 공부방</button></h1>
     <div class="decobar" id="decobar"></div>
     <div class="starbox" title="모은 별"><svg class="sico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9Z"/></svg> <span id="starCount">0</span></div>
     <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
@@ -1902,6 +1913,23 @@ function lvPick(act, cur, items, opt={}){
 /* 단원 제목 + 작은 [설명 | 퀴즈 10문제] 스위치 */
 const modeSw = (act, cur, onlyQuiz, k='') => `<div class="lvsw sm" role="group" aria-label="설명 또는 퀴즈">${onlyQuiz?'':`<button class="${cur==='learn'?'on':''}" data-act="${act}" data-v="learn"${k?` data-k="${k}"`:''}>📖 설명</button>`}<button class="${cur!=='learn'?'on':''}" data-act="${act}" data-v="quiz"${k?` data-k="${k}"`:''}>✏️ 퀴즈 10문제</button></div>`;
 document.addEventListener('click', e=>{ document.querySelectorAll('details.lvdd[open]').forEach(d=>{ if(!d.contains(e.target)) d.open=false; }); });
+/* 한 줄 칩(.unitrow): 스크롤 막대 대신 넘칠 때만 양 끝 ‹ › 단추 (화면이 새로 그려지면 알아서 붙음) */
+function rowArrows(){
+  document.querySelectorAll('.unitrow').forEach(r=>{
+    let w=r.parentNode;
+    if(!w.classList.contains('rowwrap')){
+      w=document.createElement('div'); w.className='rowwrap'; r.before(w); w.append(r);
+      ['l','r'].forEach(d=>{ const b=document.createElement('button'); b.type='button'; b.className='rowarr '+d; b.textContent=d==='l'?'‹':'›'; b.setAttribute('aria-label',d==='l'?'앞쪽 보기':'더 보기');
+        b.onclick=()=>{ r.scrollBy({left:(d==='l'?-1:1)*Math.max(120,r.clientWidth*.7)}); setTimeout(()=>rowArrowSet(w,r),450); }; w.append(b); });
+      r.addEventListener('scroll',()=>rowArrowSet(w,r),{passive:true});
+      const on=r.querySelector('.on'); if(on && on.offsetLeft+on.offsetWidth>r.clientWidth) r.style.scrollBehavior='auto', r.scrollLeft=on.offsetLeft-40, r.style.scrollBehavior='';
+    }
+    rowArrowSet(w,r);
+  });
+}
+function rowArrowSet(w,r){ w.classList.toggle('l',r.scrollLeft>2); w.classList.toggle('r',r.scrollLeft+r.clientWidth<r.scrollWidth-2); }
+{ let pend=0; const kick=()=>{ if(pend) return; pend=1; requestAnimationFrame(()=>{ pend=0; rowArrows(); }); };
+  new MutationObserver(kick).observe(document.body,{childList:true,subtree:true}); addEventListener('resize',kick); }
 const pill = (act,v,label,cur,extra='') => `<button class="pill ${String(v)===String(cur)?'on':''}" data-act="${act}" data-v="${v}" ${extra}>${label}</button>`;
 const fmt = s => s>=60 ? `${Math.floor(s/60)}분 ${s%60}초` : `${s}초`;
 const pad = n => String(n).padStart(2,'0');
