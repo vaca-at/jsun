@@ -77,6 +77,10 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .tile{touch-action:none;min-width:110px;height:110px;padding:0 14px;border-radius:26px;background:#fff;border:3px solid color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,var(--line));font-size:3.4rem;font-weight:700;display:grid;place-items:center;cursor:grab}
 .tile.small{min-width:78px;height:78px;border-radius:20px;font-size:2.2rem}
 .tile.pic-tile{font-size:3.6rem}
+:root{--clock:#E0A33A;--count:#0F9D8A;--read:#E8604C;--school:#5B6CE8;--mind:#E2558A} /* @@K7 */
+.read-s{font-size:1.9rem;font-weight:700;line-height:1.5} /* @@K7 */
+.bundle{letter-spacing:.02em} /* @@K7 */
+.slot-mark{display:inline-block;min-width:2.2em;border-bottom:3px solid currentColor;text-align:center} /* @@K7 */
 .tile.lift{opacity:.25}
 .tile.used{visibility:hidden}
 .tile.shake{animation:shake .45s}
@@ -573,7 +577,7 @@ async function cloudPull(){
       if(d.storyOk){ store.set('storyOk',Object.assign({},store.get('storyOk',{}),d.storyOk)); }
     }
     const L=store.get('log',{}), qs=await kidRef().collection('daily').get();
-    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{}); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]}); }); } ['kor','math','eng','story'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
+    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{}); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]}); }); } ['kor','math','eng','story','life'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
     store.set('log',L);
     stars=store.get('stars',0); updateStars();
     return true;
@@ -586,7 +590,7 @@ async function cloudPushNow(){
   try{
     const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
     const doc={name:who, stk:stkCount(), estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), subDone:store.get('subDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()}, lg=ledgerDoc(doc); await ref.set(doc,{merge:true}); ledgerSent(lg); try{ ledgerApply((await ref.get()).data()); }catch(e){}
-    const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
+    const total=['kor','math','eng','story','life'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
     await ref.collection('daily').doc(k).set(Object.assign({visited:true, total, starsGot:(o=>o.d===k?o.n:0)(store.get('starDay',{})), stkGot:(o=>o.d===k?o.n:0)(store.get('stkDay',{}))}, day),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
 }
@@ -738,6 +742,64 @@ const EWLV = [
   {n:'듣고 그림 찾기', g:()=>{ const i=rnd(0,25), [,w,e]=ABC[i]; const o=[e,...pick(ABC.filter((_,k)=>k!==i).map(x=>x[2]),2)];
     return {say:w, lang:'en', prompt:'들리는 단어의 그림을 찾아요', slots:[e], tiles:shuffle(o), tcls:'pic-tile', after:w, afterLang:'en'}; }}
 ];
+/* @@K7-PLAY START ───── 7세 입학 준비 (지아 · 다율): 🕐 몇 시야? · 🔢 숫자 세기 · 📖 글 읽기 · 🏫 학교 가요 ─────
+   모두 듣고 · 보고 · 끌어다 놓기. 기록: 몇 시야 · 숫자 세기 → 연산, 글 읽기 → 한글, 학교 가요 → 생활 */
+const k7o = (arr, not, n=2) => shuffle(arr.filter(x=>x!==not)).slice(0,n);
+/* 숫자 뒤 조사: 읽는 소리에 받침이 있으면 앞말 (1 일 · 3 삼 · 6 육 · 7 칠 · 8 팔 · 10 십), 없으면 뒷말 */
+const nj = (n,a,b) => n + ([0,1,3,6,7,8].includes(n%10) ? a : b);
+/* 🕐 몇 시야? */
+function clockFace(h,m){
+  const a=(h%12+m/60)*30*Math.PI/180, b=m*6*Math.PI/180, nums=[...Array(12)].map((_,i)=>{ const t=(i+1)*30*Math.PI/180; return `<text x="${50+38*Math.sin(t)}" y="${54+38*-Math.cos(t)}" text-anchor="middle" font-size="11" font-weight="700" fill="#4A3A28">${i+1}</text>`; }).join('');
+  return `<svg viewBox="0 0 100 100" width="170" height="170" aria-label="${h}시 ${m?m+'분':''}"><circle cx="50" cy="50" r="47" fill="#fff" stroke="#E0A33A" stroke-width="5"/>${nums}
+    <line x1="50" y1="50" x2="${50+24*Math.sin(a)}" y2="${50-24*Math.cos(a)}" stroke="#2E3A59" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="50" x2="${50+34*Math.sin(b)}" y2="${50-34*Math.cos(b)}" stroke="#E2554A" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="50" r="3.5" fill="#2E3A59"/></svg>`;
+}
+const tm = (h,m) => m ? `${h}시 반` : `${h}시`;
+const DAYS=['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+const SEASON=[['🌸','봄','꽃이 피는 봄'],['🏖️','여름','바다에서 물놀이하는 여름'],['🍂','가을','나뭇잎이 물드는 가을'],['⛄','겨울','눈사람을 만드는 겨울']];
+const CLOCKLV = [
+  {n:'몇 시일까?', g:()=>{ const h=rnd(1,12); return {say:'시계가 몇 시를 가리킬까요?', pic:clockFace(h,0), prompt:'짧은바늘이 가리키는 숫자가 몇 시예요', slots:[tm(h,0)], tiles:shuffle([tm(h,0),...k7o([...Array(12)].map((_,i)=>tm(i+1,0)),tm(h,0))]), wide:true, after:`${h}시예요`}; }},
+  {n:'몇 시 반일까?', g:()=>{ const h=rnd(1,12); return {say:'긴바늘이 6을 가리키면 반이에요. 몇 시 반일까요?', pic:clockFace(h,30), prompt:'긴바늘이 6에 있으면 ‘반’이에요', slots:[tm(h,30)], tiles:shuffle([tm(h,30),tm(h%12+1,30),tm(h,0)]), wide:true, after:`${h}시 반이에요`}; }},
+  {n:'다음 요일은?', g:()=>{ const i=rnd(0,5), a=DAYS[i], b=DAYS[i+1]; return {say:`${a} 다음은 무슨 요일일까요?`, prompt:`<b>${a}</b> 다음은?`, slots:[b], tiles:shuffle([b,...k7o(DAYS,b)]), wide:true, after:`${a} 다음은 ${b}`}; }},
+  {n:'어제 · 오늘 · 내일', g:()=>{ const i=rnd(1,5), k=rnd(0,1), q=k?'내일':'어제', a=DAYS[k?i+1:i-1]; return {say:`오늘이 ${DAYS[i]}이면 ${q}${q==='어제'?'는':'은'} 무슨 요일일까요?`, prompt:`오늘이 <b>${DAYS[i]}</b>이면<br><b>${q}</b>${q==='어제'?'는':'은'}?`, slots:[a], tiles:shuffle([a,...k7o(DAYS.filter(x=>x!==DAYS[i]),a)]), wide:true, after:`${q}${q==='어제'?'는':'은'} ${a}`}; }},
+  {n:'어느 계절일까?', g:()=>{ const [e,s,t]=SEASON[rnd(0,3)]; return {say:'어느 계절일까요?', pic:e, prompt:'어느 계절일까요?', slots:[s], tiles:shuffle([s,...k7o(SEASON.map(x=>x[1]),s)]), wide:true, after:t}; }}
+];
+/* 🔢 숫자 세기 */
+const numT = (n,lo,hi) => { const o=new Set([n]); while(o.size<3){ const x=rnd(lo,hi); if(x!==n) o.add(x); } return shuffle([...o]).map(String); };
+const COUNTLV = [
+  {n:'10 만들기', g:()=>{ const a=rnd(1,9); return {say:`${nj(a,'과','와')} 몇을 모으면 10이 될까요?`, prompt:'모아서 10이 되게 해요', eq:`${a} <span class="op">+</span>`, slots:[String(10-a)], tiles:numT(10-a,1,9), after:`${nj(a,'과','와')} ${nj(10-a,'을','를')} 모으면 10`}; }},
+  {n:'10 가르기', g:()=>{ const a=rnd(1,9); return {say:`10은 ${nj(a,'과','와')} 몇으로 가를 수 있을까요?`, prompt:`10은 <b>${nj(a,'과','와')}</b> 몇?`, eq:`10 <span class="op">→</span> ${a} <span class="op">·</span>`, slots:[String(10-a)], tiles:numT(10-a,1,9), after:`10은 ${nj(a,'과','와')} ${10-a}`}; }},
+  {n:'20까지 다음 수', g:()=>{ const a=rnd(8,17); return {say:`${a}, ${a+1}, 그다음은?`, prompt:'다음에 올 수는?', eq:`${a} <span class="op">·</span> ${a+1} <span class="op">·</span>`, slots:[String(a+2)], tiles:numT(a+2,8,20)}; }},
+  {n:'10개씩 묶어 세기', g:()=>{ const t=rnd(1,4), o=rnd(1,9), n=t*10+o; return {say:`10개 묶음 ${t}개와 낱개 ${o}개는 모두 몇일까요?`, prompt:`<div class="count-pics bundle">${'🔟'.repeat(t)} ${'🟡'.repeat(o)}</div>10개 묶음 <b>${t}</b>개, 낱개 <b>${o}</b>개`, slots:[String(n)], tiles:shuffle([String(n), String(o*10+t===n?n+10:o*10+t), String(n+1)]), after:`모두 ${n}`}; }},
+  {n:'더 큰 수는?', g:()=>{ let a=rnd(11,50), b=rnd(11,50); if(a===b) b=a<50?a+1:a-1; const big=Math.max(a,b); return {say:`${nj(a,'과','와')} ${b} 중에서 더 큰 수는?`, prompt:'더 큰 수는?', slots:[String(big)], tiles:shuffle([String(a),String(b)]), after:`${nj(big,'이','가')} 더 커요`}; }}
+];
+/* 📖 글 읽기 */
+const READ_PIC=[['사과가 빨개요','🍎'],['바나나는 노래요','🍌'],['비가 주룩주룩 와요','🌧️'],['눈사람을 만들어요','⛄'],['해가 쨍쨍해요','☀️'],['기차가 칙칙폭폭 달려요','🚂'],['물고기가 헤엄쳐요','🐟'],['새가 하늘을 날아요','🐦'],['생일 케이크를 먹어요','🎂'],['우산을 써요','☂️'],['책을 읽어요','📖'],['꽃이 활짝 피었어요','🌷']];
+const READ_FILL=[['나는 우유를 □','마셔요',['입어요','타요']],['동생이 옷을 □','입어요',['마셔요','읽어요']],['아빠와 자전거를 □','타요',['먹어요','불어요']],['엄마가 책을 □','읽어 줘요',['입어 줘요','타 줘요']],['나는 밥을 □','먹어요',['신어요','그려요']],['친구와 그림을 □','그려요',['마셔요','신어요']],['발에 양말을 □','신어요',['써요','마셔요']]];
+const READ_ORDER=[['씨앗을 심어요','싹이 나요'],['손을 씻어요','밥을 먹어요'],['잠옷을 입어요','잠을 자요'],['신발을 신어요','밖에 나가요'],['비가 그쳐요','무지개가 떠요']];
+const READ_WORDS=['사탕','수박','딸기','우산','연필','책상','가방','달팽이','강아지','자전거','눈사람','무지개','운동장','선생님'];
+const READLV = [
+  {n:'읽고 그림 찾기', g:()=>{ const [s,e]=READ_PIC[rnd(0,READ_PIC.length-1)]; return {say:'글을 읽고 알맞은 그림을 찾아요', prompt:`<span class="read-s">${s}.</span>`, slots:[e], tiles:shuffle([e,...k7o(READ_PIC.map(x=>x[1]),e)]), tcls:'pic-tile', after:s}; }},
+  {n:'들리는 글 찾기', g:()=>{ const [s]=READ_PIC[rnd(0,READ_PIC.length-1)]; return {say:s, prompt:'들리는 글을 찾아요', slots:[s], tiles:shuffle([s,...k7o(READ_PIC.map(x=>x[0]),s)]), wide:true, after:s}; }},
+  {n:'알맞은 낱말 넣기', g:()=>{ const [q,a,o]=READ_FILL[rnd(0,READ_FILL.length-1)]; return {say:q.replace('□','음'), prompt:`<span class="read-s">${q.replace('□','<span class="slot-mark">?</span>')}</span>`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:q.replace('□',a)}; }},
+  {n:'무엇이 먼저?', g:()=>{ const s=READ_ORDER[rnd(0,READ_ORDER.length-1)]; return {say:'먼저 일어나는 일부터 차례로 놓아요', prompt:'먼저 → 나중, 차례로 놓아요', slots:s, tiles:shuffle(s), wide:true, after:s.join(', 그다음 ')}; }},
+  {n:'듣고 글자 놓기', g:()=>{ const w=READ_WORDS[rnd(0,READ_WORDS.length-1)], ch=[...w], extra=syl(CHO[rnd(0,13)][2], JUNG[rnd(0,9)][2]); return {say:w, prompt:'들리는 낱말을 글자로 놓아요', slots:ch, small:ch.length>2, tiles:shuffle([...new Set([...ch, extra])]), after:w}; }}
+];
+/* 🏫 학교 가요 */
+const K7_FEELS=[['😊','기뻐요'],['😢','슬퍼요'],['😠','화나요'],['😨','무서워요'],['😲','놀랐어요'],['😳','부끄러워요']];
+const K7_SIT=[['처음 학교에 가서 친구를 사귀었어요','😊'],['발표를 잘해서 칭찬을 받았어요','😊'],['친구가 놀려서 속상해요','😢'],['내 차례인데 친구가 새치기했어요','😠'],['복도에서 큰 소리가 갑자기 났어요','😲'],['모르는 곳에서 엄마를 잃어버렸어요','😨'],['모두 앞에서 노래를 불러요','😳']];
+const K7_WORD=[['친구가 지우개를 빌려줬어요','고마워',['몰라','싫어']],['실수로 친구 발을 밟았어요','미안해',['고마워','잘 가']],['아침에 선생님을 만났어요','안녕하세요',['잘 먹었습니다','미안해']],['급식을 다 먹었어요','잘 먹었습니다',['안녕하세요','싫어요']],['친구가 넘어져서 울어요','괜찮아?',['웃겨','몰라']]];
+const K7_RULE=[['선생님께 말하고 싶어요','손을 들어요',['소리쳐요','뛰어다녀요']],['수업 중에 화장실에 가고 싶어요','선생님께 말해요',['그냥 나가요','꾹 참아요']],['급식을 받을 때','줄을 서요',['새치기해요','밀어요']],['선생님이 이야기하실 때','앉아서 들어요',['돌아다녀요','떠들어요']],['친구 물건을 쓰고 싶어요','빌려 달라고 해요',['그냥 가져가요','숨겨요']],['다 쓴 휴지는','휴지통에 버려요',['바닥에 버려요','책상에 둬요']]];
+const K7_SAFE=[['신호등이 빨간불이에요','멈춰서 기다려요',['뛰어서 건너요','그냥 건너요']],['초록불이 켜졌어요','좌우를 보고 건너요',['눈 감고 뛰어요','휴대폰을 보며 건너요']],['모르는 사람이 같이 가자고 해요','싫어요! 하고 어른께 알려요',['따라가요','과자를 받아요']],['불이 났어요','코와 입을 막고 몸을 낮춰요',['엘리베이터를 타요','숨어요']],['차가 다니는 길이에요','인도로 걸어요',['차도에서 놀아요','공을 차요']]];
+const SCHOOLLV = [
+  {n:'이럴 땐 어떤 마음?', g:()=>{ const [s,e]=K7_SIT[rnd(0,K7_SIT.length-1)], w=K7_FEELS.find(x=>x[0]===e)[1]; return {say:`${s}. 어떤 마음일까요?`, prompt:`${s}.<br>어떤 마음일까요?`, slots:[e], tiles:shuffle([e,...k7o(K7_FEELS.map(x=>x[0]),e)]), tcls:'pic-tile', after:w}; }},
+  {n:'고운 말', g:()=>{ const [s,a,o]=K7_WORD[rnd(0,K7_WORD.length-1)]; return {say:`${s}. 뭐라고 말할까요?`, prompt:`${s}.<br>뭐라고 말할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
+  {n:'학교 약속', g:()=>{ const [s,a,o]=K7_RULE[rnd(0,K7_RULE.length-1)]; return {say:`${s}. 어떻게 할까요?`, prompt:`${s}.<br>어떻게 할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
+  {n:'안전 약속', g:()=>{ const [s,a,o]=K7_SAFE[rnd(0,K7_SAFE.length-1)]; return {say:`${s}. 어떻게 할까요?`, prompt:`${s}.<br>어떻게 할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
+  {n:'학교 물건', g:()=>{ const L=[['글씨를 쓸 때','✏️'],['색칠할 때','🖍️'],['종이를 자를 때','✂️'],['책을 넣고 다닐 때','🎒'],['비 오는 날 학교 갈 때','☂️'],['길이를 잴 때','📏']], [s,e]=L[rnd(0,L.length-1)];
+    return {say:`${s} 필요한 것은?`, prompt:`<b>${s}</b> 필요한 것은?`, slots:[e], tiles:shuffle([e,...k7o(L.map(x=>x[1]),e)]), tcls:'pic-tile'}; }}
+];
+/* @@K7-PLAY END */
 /* ───── 연산: 더하기 +1 ~ +9 · 빼기 −1 ~ −9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
 function mathPage(n, op='+'){ const ks=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5);
   return op==='+' ? ks.map(a=>({a, b:n, s:a+n})) : ks.map(k=>({a:k+n, b:n, s:k})); }
@@ -769,9 +831,13 @@ const STORIES = [
 
 /* ───── 화면 ───── */
 /* 과목(기록 · 엄마 모드 · 관리자 대시보드는 이 네 과목으로 모아요) */
-const SUBJ = {kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'연산', ico:'1+1', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}};
+const SUBJ = {life:{n:'생활', ico:'😊', c:'var(--mind)'}, kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'연산', ico:'1+1', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}};
 /* 놀이 길 칸: 한글 · 연산 · 영어는 두 칸씩 (p = 기록할 과목) */
 const AREAS = {
+  clock:{n:'몇 시야?', ico:'🕐', c:'var(--clock)', p:'math', d:'시계 · 요일 · 계절'},   // @@K7
+  count:{n:'숫자 세기', ico:'🔢', c:'var(--count)', p:'math', d:'10 만들기 · 50까지'},   // @@K7
+  read:{n:'글 읽기', ico:'📖', c:'var(--read)', p:'kor', d:'읽고 그림 찾기'},   // @@K7
+  school:{n:'학교 가요', ico:'🏫', c:'var(--school)', p:'life', d:'마음 · 고운 말 · 규칙 · 안전'},   // @@K7
   kor:{n:'한글 글자', ico:'ㄱㅏ', c:'var(--kor)', p:'kor', d:'자음 · 모음 · 글자'},
   word:{n:'한글 낱말', ico:'나비', c:'var(--kor2)', p:'kor', d:'그림 · 받침 · 빈칸'},
   math:{n:'더하기', ico:'1+1', c:'var(--math)', p:'math', d:'+1 ~ +9 학습지'},
@@ -781,6 +847,7 @@ const AREAS = {
   story:{n:'동화', ico:'📖', c:'var(--story)', p:'story', d:'읽고 문제 풀기'},
   room:{n:'내 방', ico:'🏠', c:'var(--room)', d:'별로 꾸미기'}};
 const QUIZ = {kor:{LV:HLV, key:'hlv'}, word:{LV:WLV, key:'wlv'}, eng:{LV:ELV, key:'elv'}, engw:{LV:EWLV, key:'ewlv'}};
+Object.assign(QUIZ, {clock:{LV:CLOCKLV, key:'cklv'}, count:{LV:COUNTLV, key:'ctlv'}, read:{LV:READLV, key:'rdlv'}, school:{LV:SCHOOLLV, key:'sclv'}});   // @@K7
 function go(v){ App.view=v; Q=null; MS=null; App.story=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
 function render(){ if(!AREAS[App.view] && App.view!=='home') App.view='home';
   const v=App.view;
@@ -799,7 +866,7 @@ function renderHome(){
     <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
 /* 첫 화면 진도: 오늘(영역별 큰 숫자) + 이번 달 달력(한 날마다 도장) */
-const STUDY = ['kor','math','eng','story'];
+const STUDY = ['kor','math','eng','story','life'];
 const dayTotalOf = d => STUDY.reduce((a,k)=>a+((d&&d[k]&&d[k].n)||0),0);
 function progressHTML(){
   const L=store.get('log',{}), t=new Date(), today=L[dayKey()]||{}, y=t.getFullYear(), m=t.getMonth();
@@ -1287,7 +1354,7 @@ const ACT = {
   admStar: v=>{ if(admRole==='mom') return; { const dv=Math.max(0,stars+ +v)-stars; stars+=dv; ledgerAdd('stars',dv); } store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
   admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
-  sayHome: ()=>speak('다율아, 오늘도 놀아 볼까? 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
+  sayHome: ()=>speak('다율아, 오늘도 놀아 볼까? 몇 시야, 숫자 세기, 글 읽기, 학교 가요, 그리고 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
   // ◀ 이전 · 다음 ▶ (넘어간 문제는 별 없이 지나가요)
