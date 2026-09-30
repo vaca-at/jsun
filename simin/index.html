@@ -9,6 +9,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script>/* 고른 글씨체를 화면이 그려지기 전에 먼저 (깜빡임 없게) */ try{ const f=JSON.parse(localStorage.getItem("simin:font")||"\"\""); if(f) document.documentElement.dataset.font=f; }catch(e){}</script>
 <style>
 /* ───── 행원심인당 자성동이 AI 공부방 (jsun.site/simin) ─────
    연꽃 · 연분홍 · 연두 · 금빛, 둥글고 귀엽게. 진각종 상징(육자진언 옴마니반메훔 · 연꽃)은 작게만 */
@@ -25,6 +26,16 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17p
   background-image:radial-gradient(circle at 12% 8%,#FDE7EF 0 120px,transparent 121px),radial-gradient(circle at 92% 22%,#E7F5EC 0 150px,transparent 151px),radial-gradient(circle at 80% 96%,#FBF0D9 0 160px,transparent 161px)}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+/* 글씨체 3가지 (처음 화면에서 고르고 이 기기에 기억): 기본(고운돋움 + 주아) · 윤탱체 · 언즈체 (눈누 온글잎, 웹 사용 가능) */
+@font-face{font-family:"OwnglyphYuntaeng";src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"OngleipUnz";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2406-1@1.0/Ownglyph_UNZ-Rg.woff2") format("woff2");font-weight:normal;font-display:swap}
+:root[data-font="yuntaeng"]{--font:"OwnglyphYuntaeng","Gowun Dodum",sans-serif;--font-t:"OwnglyphYuntaeng","Jua",sans-serif}
+:root[data-font="unz"]{--font:"OngleipUnz","Gowun Dodum",sans-serif;--font-t:"OngleipUnz","Jua",sans-serif}
+:root:is([data-font="yuntaeng"],[data-font="unz"]) body{font-size:20px}
+.font-pick{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.font-pick span{color:var(--sub);font-size:.9rem}
+.font-pick button{padding:.35rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:1.05rem}
+.font-pick button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
 h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .wrap{width:min(960px,100%);margin:0 auto;padding:18px 16px 0;flex:1}
 /* 머리 */
@@ -259,12 +270,15 @@ const pinPad = (label, sub='') => `<div class="card center">${label}${sub?`<p cl
     <div class="msg" id="msg"></div></div>`;
 
 /* 처음 화면 */
+const FONTS = [["","기본","'Jua',sans-serif"],["yuntaeng","윤탱체","'OwnglyphYuntaeng',sans-serif"],["unz","언즈체","'OngleipUnz',sans-serif"]];
+const fontPick = () => { const cur=LS.get("font",""); return `<div class="font-pick" role="group" aria-label="글씨체 고르기"><span>✏️ 글씨체</span>${FONTS.map(([k,n,ff])=>`<button class="${cur===k?"on":""}" data-font="${k}" aria-pressed="${cur===k}" style="font-family:${ff}">${n}</button>`).join("")}</div>`; };
 function entry(){
   view.innerHTML = `<div class="hello"><span class="dongi">🪷</span><div class="bub">반가워요, 자성동이! 오늘은 어디에서 공부할까요?</div></div>
     <div class="doors">
       <button class="door board" data-go="board"><span class="ico">🖥️</span><div><b>전자칠판</b><small>심인당에서~</small><span class="door-note">다 같이 한 팀으로 협동해요<br>공부한 기록은 저장되지 않아요</span></div></button>
       <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>집에서~</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
     </div>
+    ${fontPick()}
     <div class="side-links"><button data-go="parent">👩 엄마아빠 모드</button><button data-go="adminLogin">🔒 관리자</button></div>`;
 }
 
@@ -486,6 +500,7 @@ document.addEventListener('click', e=>{
   const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade}); return; }
   const ag=e.target.closest('[data-age]'); if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
   const q=e.target.closest('[data-quick]'); if(q){ const k=localKids().find(x=>x.id===q.dataset.quick); if(k){ S.form={name:k.name, age:k.age, pin:'', first:'', quick:k.id}; go('phonePin'); } return; }
+  const fp=e.target.closest(".font-pick [data-font]"); if(fp){ const k=fp.dataset.font; LS.set("font",k); if(k) document.documentElement.dataset.font=k; else delete document.documentElement.dataset.font; render(); return; }
   const rs=e.target.closest('[data-reset]'); if(rs){ adminReset(rs.dataset.reset); return; }
   const p=e.target.closest('[data-pin]'); if(p){ const v=p.dataset.pin, f=S.form;
     if(v==='back'){ if(S.dialog){ S.dialog=null; parentHome(); return; } go({phonePin:'phoneAge', parentPin:'parentAge', parentSetup:'parentPin'}[S.screen]||'entry'); return; }
