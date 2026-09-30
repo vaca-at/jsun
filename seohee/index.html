@@ -1051,6 +1051,18 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 .sp-row b{flex:none;white-space:nowrap}
 .sp-old{margin-top:12px;padding-top:10px;border-top:2px dashed var(--line,#ddd)}
 .sp-chips{display:flex;flex-wrap:wrap;gap:6px}
+/* ⭐ 별 · 스티커 약속 (맨 위 별을 누르면 캐릭터 방 '🧾 쓴 별'에서 보여요) */
+button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
+.sp-rule{padding:16px 18px;border:2px solid var(--accent)}
+.sp-rule-h{margin:0 0 8px;font-size:1.2rem;font-weight:700;color:var(--accent)}
+.sp-rule ul{margin:0;padding-left:1.2em;line-height:1.75;font-size:1.02rem}
+.sp-rule ul b{color:var(--accent)}
+.sp-today{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.sp-today div{background:var(--soft,rgba(127,127,127,.12));border-radius:14px;padding:8px 12px}
+.sp-today span{display:block;font-size:.8rem;opacity:.75}
+.sp-today b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
+.sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
@@ -1060,7 +1072,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   <div class="toprow">
     <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">초3 공부방</button></h1>
     <div class="decobar" id="decobar"></div>
-    <div class="starbox" title="모은 별"><svg class="sico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9Z"/></svg> <span id="starCount">0</span></div>
+    <button class="starbox" data-act="starInfo" title="별 · 스티커 약속 보기" aria-label="모은 별 · 별과 스티커 약속 보기"><svg class="sico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9Z"/></svg> <span id="starCount">0</span></button>
     <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
     <button class="iconbtn" data-act="openSet" aria-label="설정"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button>
   </div>
@@ -1081,6 +1093,7 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
   <button class="dock-t" data-act="libOpen" aria-label="명작 도서관"><span class="dk-ico">📚</span><small>도서관</small><b id="dkLib"></b></button>
   <button class="dock-t" data-act="tab" data-v="sticker" aria-label="스티커 보기"><span class="dk-ico">🏅</span><small>스티커</small><b id="dkStk"></b></button>
   <button class="dock-t" data-act="tab" data-v="myroom" aria-label="내 캐릭터 방"><span class="dk-ico" id="dkMe">🐶</span><small>내 방</small><b style="font-size:.9rem">꾸미기</b></button>
+  <button class="dock-t" data-act="typingGame" aria-label="타자 게임"><span class="dk-ico">⌨️</span><small>타자</small><b style="font-size:.9rem">게임</b></button>
   <button class="dock-t dk-wx" data-act="wxTile" aria-label="오늘 날씨 자세히 보기"><span class="dk-ico" id="dkWxIco">🌡️</span><b id="dkWxT">날씨</b><small id="dkWxS"></small></button>
 </aside>
 
@@ -4762,6 +4775,16 @@ function ledgerRefresh(){
 document.addEventListener('visibilitychange', ledgerRefresh);
 setInterval(ledgerRefresh, 180000);
 /* 캐릭터 방 '🧾 쓴 별': 가게에서 언제 무엇에 별을 얼마 썼는지 */
+/* ⭐ 별 · 스티커 약속: 캐릭터 방 '🧾 쓴 별' 맨 위에 크게 보여요 */
+function starRulesHTML(){
+  const k=dayKey(), sd=store.get('starDay',{}), kd=store.get('stkDay',{}), s=sd.d===k?sd.n:0, t=Math.min(kd.d===k?kd.n:0,STICKER_DAY_MAX);
+  const bar=(n,m)=>`<i><em style="width:${Math.min(100,Math.round(n/m*100))}%"></em></i>`;
+  return `<div class="card sp-rule"><p class="sp-rule-h">⭐ 별 · 🏅 스티커 약속</p>
+    <ul><li>문제를 맞히면 별이 <b>1개</b>씩 모여요</li><li>별 <b>10개</b>가 모이면 스티커 <b>1장</b>이 생겨요</li>
+      <li>별은 하루에 <b>${STAR_DAY_MAX}개</b>까지 모을 수 있어요</li><li>스티커는 하루에 <b>${STICKER_DAY_MAX}장</b>까지 받을 수 있어요</li>
+      <li>가게에서 별을 써도 스티커는 줄지 않아요</li></ul>
+    <div class="sp-today"><div><span>오늘 모은 별</span><b>⭐ ${s} / ${STAR_DAY_MAX}</b>${bar(s,STAR_DAY_MAX)}</div><div><span>오늘 받은 스티커</span><b>🏅 ${t} / ${STICKER_DAY_MAX}</b>${bar(t,STICKER_DAY_MAX)}</div></div></div>`;
+}
 function drawSpentLog(d){
   const b=document.getElementById('roombody'); if(!b) return;
   const p2=n=>String(n).padStart(2,'0'), when=t=>{ const x=new Date(t); return (x.getMonth()+1)+'/'+x.getDate()+' '+p2(x.getHours())+':'+p2(x.getMinutes()); };
@@ -4770,7 +4793,7 @@ function drawSpentLog(d){
   const oldItems=d.own.map(decoItem).filter(x=>x && x.p && !inLog.has(x.id));
   const es=typeof eStars==='function' ? eStars() : 0, today=new Date().toDateString();
   const todaySpent=buys.filter(x=>new Date(x.at).toDateString()===today).reduce((a,x)=>a+(x.p||0),0);
-  b.innerHTML=`<div class="card sp-sum">
+  b.innerHTML=`${starRulesHTML()}<div class="card sp-sum">
       <div><span>모은 별</span><b>⭐ ${stars}${es?` <small>+ 🌈 ${es}</small>`:''}</b></div>
       <div><span>쓴 별</span><b>− ${d.spent||0}</b></div>
       <div><span>남은 별</span><b>⭐ ${decoLeft()}</b></div></div>
@@ -5550,6 +5573,8 @@ const ACT = {
   libPick: v=>libAnswer(+v),
   libSkip: ()=>libAnswer(-1),
   tab: v=>go(v),
+  starInfo: ()=>{ App.roomv='spent'; go('myroom'); },   // 맨 위 별: 캐릭터 방 '🧾 쓴 별' + 별 · 스티커 약속
+  typingGame: ()=>{ location.href='/typing/?room=seohee&lv=3&n='+encodeURIComponent(who||''); },   // ⌨️ 낱말 비 타자 게임 (하루 30분)
   clockTile: ()=>{ const t=new Date(), h=t.getHours(), s=`${h<12?'오전':'오후'} ${h%12||12}시 ${t.getMinutes()}분이에요`; toast('⏰ 지금은 '+s); speak('지금은 '+s,'ko'); },
   grass: v=>grassInfo(v),
   showLogin: ()=>showLogin(),

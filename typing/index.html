@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex, nofollow">
+<title>낱말 비 타자 게임</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ───── ⌨️ 낱말 비 (한컴타자 산성비처럼): 떨어지는 낱말을 쳐서 없애요 ─────
+   모든 공부방이 같이 써요: /typing/?room=doyun&n=도윤&lv=3
+   - 하루 30분까지 (방마다 · 이 기기에서 센 시간) · 별은 주지 않고 신기록만 남겨요 */
+:root{--bg:#EEF4FF;--paper:#FFFFFF;--ink:#1F3354;--sub:#6A7FA0;--line:#D5E3F5;--accent:#2F6FDB;--accent-ink:#FFFFFF;--hi:#FFD84D;--ok:#23A065;--no:#E5484D;
+  --sky1:#CFE6FF;--sky2:#F4F9FF;--word:#FFFFFF;--word-ink:#1F3354;--word-line:#9CC2F2;--ground:#8BC77A}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121A26;--paper:#1B2636;--ink:#E6EDF7;--sub:#93A4BD;--line:#2C3B52;--accent:#6EA2FF;--accent-ink:#0E1624;--hi:#F2C94C;--ok:#4CC38A;--no:#FF6B6E;
+  --sky1:#1A2A48;--sky2:#223457;--word:#2B3B5C;--word-ink:#F1F5FF;--word-line:#4A6496;--ground:#3F7A4B}}
+:root[data-theme="dark"]{--bg:#121A26;--paper:#1B2636;--ink:#E6EDF7;--sub:#93A4BD;--line:#2C3B52;--accent:#6EA2FF;--accent-ink:#0E1624;--hi:#F2C94C;--ok:#4CC38A;--no:#FF6B6E;
+  --sky1:#1A2A48;--sky2:#223457;--word:#2B3B5C;--word-ink:#F1F5FF;--word-line:#4A6496;--ground:#3F7A4B}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',system-ui,sans-serif;font-size:16px;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+button:focus-visible,input:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.jua,h1,h2,.hud b,.word,.big{font-family:'Jua',sans-serif;font-weight:normal}
+#app{display:flex;flex-direction:column;height:100dvh;max-width:900px;margin:0 auto;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.top h1{margin:0;font-size:1.35rem;flex:1;white-space:nowrap}
+.pill{padding:.35rem .85rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.9rem;white-space:nowrap}
+.hud{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;margin:8px 0;font-size:.9rem;color:var(--sub)}
+.hud b{font-size:1.25rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.hearts{letter-spacing:1px;font-size:1.05rem}
+.field{position:relative;flex:1;min-height:180px;border-radius:18px;overflow:hidden;border:2px solid var(--line);background:linear-gradient(var(--sky1),var(--sky2))}
+.ground{position:absolute;left:0;right:0;bottom:0;height:14px;background:var(--ground)}
+.word{position:absolute;top:0;left:0;padding:.2rem .7rem;border-radius:999px;background:var(--word);color:var(--word-ink);border:2px solid var(--word-line);font-size:clamp(1.05rem,3.6vw,1.45rem);white-space:nowrap;will-change:transform;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.word.hit{animation:pop .35s ease-out forwards}
+.word.miss{background:var(--no);color:#fff;border-color:var(--no);animation:fade .5s ease-out forwards}
+@keyframes pop{to{transform:var(--t) scale(1.6);opacity:0}}
+@keyframes fade{to{opacity:0}}
+.float{position:absolute;font-family:'Jua',sans-serif;color:var(--ok);font-size:1.2rem;pointer-events:none;animation:up .8s ease-out forwards}
+@keyframes up{to{transform:translateY(-40px);opacity:0}}
+.bar{display:flex;gap:8px;margin-top:10px}
+.bar input{flex:1;min-width:0;font:inherit;font-size:1.3rem;padding:.65rem .9rem;border-radius:14px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.bar input:focus{outline:none;border-color:var(--accent)}
+.bar input.bad{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.btn{padding:.65rem 1.1rem;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-family:'Jua',sans-serif;font-size:1.15rem;white-space:nowrap}
+.btn.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.over{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,var(--bg) 70%,transparent);z-index:5;overflow:auto}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:20px;max-width:440px;width:100%;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.card h2{margin:0 0 6px;font-size:1.7rem}
+.card p{margin:6px 0}
+.sub{color:var(--sub);font-size:.9rem}
+.big{font-size:2.6rem;color:var(--accent);margin:4px 0}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0}
+.stats div{background:var(--bg);border-radius:12px;padding:8px}
+.stats small{display:block;color:var(--sub);font-size:.78rem}
+.stats b{font-family:'Jua',sans-serif;font-weight:normal;font-size:1.4rem}
+.new{display:inline-block;margin:4px 0;padding:.2rem .8rem;border-radius:999px;background:var(--hi);color:#3A2A00;font-family:'Jua',sans-serif;font-size:1.1rem;animation:bounce .6s ease-in-out 3}
+@keyframes bounce{50%{transform:scale(1.12)}}
+.rules{text-align:left;font-size:.9rem;color:var(--sub);background:var(--bg);border-radius:12px;padding:10px 12px;margin:10px 0}
+.rules li{margin:2px 0}
+.card .btn{width:100%;margin-top:8px}
+.timebar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 2px}
+.timebar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+@media (max-width:520px){ #app{padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))} .top h1{font-size:1.15rem} .hud{font-size:.82rem} .hud b{font-size:1.05rem} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top"><h1>⌨️ 낱말 비</h1><button class="pill" id="pauseBtn" hidden>⏸ 쉬기</button><a class="pill" id="backBtn" href="../" style="text-decoration:none;color:inherit">← 공부방</a></div>
+  <div class="hud" aria-live="off"><span>점수 <b id="hScore">0</b></span><span>단계 <b id="hLevel">1</b></span><span class="hearts" id="hHearts" aria-label="남은 하트"></span><span>남은 시간 <b id="hTime">30:00</b></span></div>
+  <div class="field" id="field"><div class="ground"></div></div>
+  <form class="bar" id="bar" autocomplete="off"><input id="inp" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" placeholder="떨어지는 낱말을 쓰고 Enter" aria-label="낱말 쓰기" disabled><button class="btn" type="submit" id="shootBtn" disabled>⏎</button></form>
+</div>
+<script>
+/* ───── 설정 ───── */
+const DAY_LIMIT = 30 * 60 * 1000;   // 하루 30분
+const HEARTS = 5;
+const ROOMS = { doyun:3, dojin:2, yuna:2, jia:1, dayul:1, seojin:3, seohee:3, ryu:3 };   // 방마다 처음 난도
+/* 낱말: 1 받침 없는 쉬운 말 → 2 받침 있는 말 → 3 겹받침 · 긴 말 → 4 속담 */
+const WORDS = {
+  1: '아이 아니 어머니 아기 어디 미나리 말 나무 바다 나비 모자 오리 우유 사자 기차 포도 구두 다리 머리 하마 이마 바지 치마 두부 가지 오이 거미 새우 사과 노래 비누 코 소 개 해 배 무 파 너구리 도토리 고구마 허수아비 자두 호두 여우 나라 누나 오빠 아빠 이모 고모 토끼 코끼리 타조 기러기 부츠 바나나 피아노 라디오 가위 시소 소라 조개 나사 우주 아기새 하루 구름 너무 마루 부리 수저 의자 휴지 차표'.split(' '),
+  2: '학교 친구 공부 연필 책상 가방 강아지 고양이 햄버거 자전거 비행기 무지개 눈사람 달팽이 병아리 딸기 수박 참외 옥수수 김밥 떡볶이 놀이터 도서관 시장 버스 할머니 할아버지 동생 가족 우산 장갑 목도리 신발 모래 바람 하늘 별빛 선생님 운동장 교실 칠판 공책 지우개 색연필 필통 줄넘기 축구 농구 수영 태권도 피자 라면 만두 감자 양파 당근 사탕 초콜릿 케이크 생일 선물 편지 사진 그림 음악 노을 바닷가 모험 약속 인사 친절 용기 행복 사랑 감사'.split(' '),
+  3: '닭고기 읽기 앉다 많이 괜찮아 없어요 깨끗이 까닭 굵기 핥다 짧은 밟다 넓다 삶은 달걀 무릎 부엌 옷걸이 꽃다발 햇볕 해돋이 설거지 받아쓰기 맞춤법 띄어쓰기 곰곰이 반짝반짝 알록달록 뒤죽박죽 우당탕탕 싫어요 끓이다 닮았다 흙탕물 값비싼 몫 여덟 넋두리 밝은 달 맑은 하늘 젊은이 굶주린 옳은 일 잃어버린 않았다 괜히 웬일 왠지 돼지고기 됐어 쬐끔 꿰매다 뛰어넘다 씌우다 틔우다 헤엄치다 휘파람 뜻깊은 삐뚤빼뚤 어리둥절 들썩들썩 꽁꽁 얼음'.split(' '),
+  4: ['가는 말이 고와야', '오는 말이 곱다', '티끌 모아 태산', '누워서 떡 먹기', '발 없는 말이 천 리 간다', '백지장도 맞들면 낫다', '세 살 버릇 여든까지', '소 잃고 외양간 고친다', '콩 심은 데 콩 난다', '원숭이도 나무에서 떨어진다', '낮말은 새가 듣고', '밤말은 쥐가 듣는다', '식은 죽 먹기', '금강산도 식후경', '꿩 먹고 알 먹기', '호랑이도 제 말 하면 온다', '우물 안 개구리', '등잔 밑이 어둡다', '하늘의 별 따기', '도토리 키 재기', '바늘 도둑이 소도둑 된다', '고래 싸움에 새우 등 터진다', '돌다리도 두들겨 보고 건너라', '보기 좋은 떡이 먹기도 좋다', '아는 길도 물어 가라']
+};
+
+/* ───── 도움 ───── */
+const $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+const ROOM = ROOMS[Q.get('room')] ? Q.get('room') : 'guest';
+const NAME = (Q.get('n') || '').slice(0, 10);
+const START_TIER = Math.min(4, Math.max(1, +Q.get('lv') || ROOMS[ROOM] || 1));
+if (ROOM !== 'guest') $('backBtn').href = '../' + (ROOM === 'ryu' ? 'Ryu' : ROOM) + '/';
+const pad = n => String(n).padStart(2, '0');
+const dayKey = () => { const t = new Date(); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())}`; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('typing:' + ROOM + ':' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('typing:' + ROOM + ':' + k, JSON.stringify(v)); } catch (e) { } }
+};
+const usedToday = () => { const u = store.get('used', {}); return u.d === dayKey() ? u.ms : 0; };
+const addUsed = ms => store.set('used', { d: dayKey(), ms: usedToday() + ms });
+const leftMs = () => Math.max(0, DAY_LIMIT - usedToday());
+const mmss = ms => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${pad(s % 60)}`; };
+/* 타수: 두벌식 자판 누르는 횟수 (겹모음 · 겹받침은 2타) */
+const JUNG2 = [9, 10, 11, 14, 15, 16, 19], JONG2 = [3, 5, 6, 9, 10, 11, 12, 13, 14, 15, 18];
+const strokes = s => [...s].reduce((n, ch) => { const c = ch.charCodeAt(0) - 0xAC00; if (c < 0 || c > 11171) return n + 1;
+  const jung = Math.floor(c % 588 / 28), jong = c % 28; return n + 1 + (JUNG2.includes(jung) ? 2 : 1) + (jong ? (JONG2.includes(jong) ? 2 : 1) : 0); }, 0);
+
+/* ───── 게임 ───── */
+const field = $('field'), inp = $('inp');
+let G = null;   // 지금 판
+function tierOf(level) { return Math.min(4, START_TIER + Math.floor((level - 1) / 4)); }
+function pickWord() {
+  const t = tierOf(G.level), from = t > 1 && Math.random() < 0.3 ? t - 1 : t, list = WORDS[from];
+  let w; for (let i = 0; i < 8; i++) { w = list[Math.floor(Math.random() * list.length)]; if (!G.words.some(x => x.text === w)) break; }
+  return w;
+}
+/* 떨어지는 빠르기 (바닥까지 걸리는 초) · 나오는 간격 (초) */
+const fallSec = () => Math.max(4, (START_TIER === 1 ? 16 : 13) * Math.pow(0.92, G.level - 1));
+const gapSec = () => Math.max(0.75, (START_TIER === 1 ? 2.8 : 2.3) * Math.pow(0.93, G.level - 1));
+
+function spawn() {
+  const text = pickWord(), el = document.createElement('span');
+  el.className = 'word'; el.textContent = text; field.appendChild(el);
+  const fw = field.clientWidth, ww = el.offsetWidth, x = Math.random() * Math.max(0, fw - ww - 8) + 4;
+  const slow = text.includes(' ') ? 1.35 : 1;   // 속담은 길어서 조금 천천히
+  G.words.push({ text, el, x, y: -el.offsetHeight, v: (field.clientHeight + el.offsetHeight) / (fallSec() * slow) });
+}
+function start() {
+  if (leftMs() <= 0) { drawStart(); return; }
+  field.querySelectorAll('.word,.float,.over').forEach(e => e.remove());
+  G = { score: 0, level: 1, hearts: HEARTS, hit: 0, typed: 0, keys: 0, play: 0, words: [], next: 0.4, last: 0, run: true, saved: 0 };
+  inp.disabled = false; $('shootBtn').disabled = false; $('pauseBtn').hidden = false; $('pauseBtn').textContent = '⏸ 쉬기';
+  inp.value = ''; inp.focus(); hud();
+  requestAnimationFrame(t => { G.last = t; requestAnimationFrame(tick); });
+}
+function tick(t) {
+  if (!G || !G.run) return;
+  const dt = Math.min(0.1, (t - G.last) / 1000); G.last = t;
+  if (!document.hidden) {
+    G.play += dt * 1000; G.saved += dt * 1000;
+    if (G.saved >= 1000) { addUsed(G.saved); G.saved = 0; }
+    if (leftMs() - G.saved <= 0) { end('time'); return; }
+    G.next -= dt; if (G.next <= 0) { spawn(); G.next = gapSec(); }
+    const floor = field.clientHeight - 14;
+    for (const w of G.words.slice()) {
+      w.y += w.v * dt;
+      const tr = `translate(${w.x}px,${w.y}px)`; w.el.style.transform = tr; w.el.style.setProperty('--t', tr);
+      if (w.y + w.el.offsetHeight >= floor) {   // 바닥에 닿았어요
+        G.words.splice(G.words.indexOf(w), 1); w.el.classList.add('miss'); setTimeout(() => w.el.remove(), 500);
+        G.hearts--; if (G.hearts <= 0) { hud(); end('hearts'); return; }
+      }
+    }
+  }
+  hud(); requestAnimationFrame(tick);
+}
+function shoot() {
+  if (!G || !G.run) return;
+  const v = inp.value.replace(/\s+/g, ' ').trim(); inp.value = '';
+  if (!v) return;
+  G.typed++;
+  const hits = G.words.filter(w => w.text === v).sort((a, b) => b.y - a.y);   // 같은 낱말이면 바닥에 가까운 것부터
+  if (!hits.length) { inp.classList.remove('bad'); void inp.offsetWidth; inp.classList.add('bad'); return; }
+  const w = hits[0]; G.words.splice(G.words.indexOf(w), 1);
+  w.el.classList.add('hit'); setTimeout(() => w.el.remove(), 350);
+  const pts = v.replace(/ /g, '').length * 10 * G.level;
+  G.score += pts; G.hit++; G.keys += strokes(v);
+  const f = document.createElement('span'); f.className = 'float'; f.textContent = '+' + pts; f.style.left = (w.x + 10) + 'px'; f.style.top = Math.max(0, w.y) + 'px'; field.appendChild(f); setTimeout(() => f.remove(), 800);
+  if (G.hit % 10 === 0) { G.level++; flash(`${G.level}단계! 조금 더 빨라져요`); }
+  hud();
+}
+function flash(msg) { const f = document.createElement('span'); f.className = 'float'; f.style.cssText = 'left:50%;top:40%;transform:translateX(-50%);font-size:1.6rem;color:var(--accent)'; f.textContent = msg; field.appendChild(f); setTimeout(() => f.remove(), 800); }
+function hud() {
+  $('hScore').textContent = G ? G.score : 0; $('hLevel').textContent = G ? G.level : 1;
+  const h = G ? G.hearts : HEARTS; $('hHearts').textContent = '❤️'.repeat(Math.max(0, h)) + '🤍'.repeat(HEARTS - Math.max(0, h));
+  $('hTime').textContent = mmss(leftMs() - (G ? G.saved : 0));
+}
+function pause(on) {
+  if (!G) return;
+  G.run = !on; $('pauseBtn').textContent = on ? '▶ 계속' : '⏸ 쉬기'; inp.disabled = on;
+  field.querySelector('.over')?.remove();
+  if (on) { field.insertAdjacentHTML('beforeend', `<div class="over"><div class="card"><h2>⏸ 잠깐 쉬는 중</h2><p class="sub">쉬는 동안은 시간이 흐르지 않아요</p><button class="btn" data-act="resume">▶ 계속하기</button><button class="btn ghost" data-act="quit">그만하기</button></div></div>`); }
+  else { inp.focus(); requestAnimationFrame(t => { G.last = t; requestAnimationFrame(tick); }); }
+}
+function end(why) {
+  if (!G) return;
+  G.run = false; if (G.saved) { addUsed(G.saved); G.saved = 0; }
+  field.querySelectorAll('.over').forEach(e => e.remove());   // 쉬는 화면이 떠 있으면 치워요
+  inp.disabled = true; $('shootBtn').disabled = true; $('pauseBtn').hidden = true;
+  const speed = G.play > 3000 ? Math.round(G.keys / G.play * 60000) : 0;
+  const acc = G.typed ? Math.round(G.hit / G.typed * 100) : 0;
+  const best = store.get('best', {}), newScore = G.score > (best.score || 0), newSpeed = speed > (best.speed || 0) && G.hit >= 5;
+  if (newScore || newSpeed) store.set('best', { score: Math.max(G.score, best.score || 0), level: newScore ? G.level : best.level, speed: Math.max(newSpeed ? speed : 0, best.speed || 0), at: Date.now() });
+  const title = why === 'time' ? '⏰ 오늘 30분 끝!' : why === 'quit' ? '🏁 그만했어요' : '💧 하트를 다 썼어요';
+  field.insertAdjacentHTML('beforeend', `<div class="over"><div class="card">
+    <h2>${title}</h2>
+    ${newScore ? `<div class="new">🏆 점수 신기록!</div>` : ''}${newSpeed ? `<div class="new">⚡ 타수 신기록!</div>` : ''}
+    <div class="big">${G.score}점</div>
+    <div class="stats"><div><small>단계</small><b>${G.level}</b></div><div><small>없앤 낱말</small><b>${G.hit}개</b></div>
+      <div><small>타수 (1분에)</small><b>${speed}타</b></div><div><small>정확도</small><b>${acc}%</b></div></div>
+    <p class="sub">🏆 최고 점수 ${Math.max(G.score, best.score || 0)}점 · ⚡ 최고 타수 ${Math.max(newSpeed ? speed : 0, best.speed || 0)}타</p>
+    ${leftMs() > 0 ? `<p class="sub">오늘 남은 시간 ${mmss(leftMs())}</p><button class="btn" data-act="start">🔁 다시 하기</button>` : '<p><b>오늘은 여기까지! 내일 또 만나요 👋</b></p>'}
+    <a class="btn ghost" style="display:block;text-decoration:none;margin-top:8px" href="${$('backBtn').href}">← 공부방으로</a></div></div>`);
+  G = null; hud();
+}
+function drawStart() {
+  const best = store.get('best', {}), left = leftMs();
+  field.querySelectorAll('.over').forEach(e => e.remove());
+  field.insertAdjacentHTML('beforeend', `<div class="over"><div class="card">
+    <h2>⌨️ 낱말 비</h2><p>${NAME ? `${esc(NAME)}, ` : ''}하늘에서 낱말이 떨어져요!</p>
+    <ul class="rules"><li>떨어지는 낱말을 똑같이 쓰고 <b>Enter</b> (⏎) 를 누르면 사라져요</li><li>바닥에 닿으면 하트 ❤️ 가 하나 줄어요 (${HEARTS}개)</li><li>낱말 10개마다 단계가 올라가고 조금씩 빨라져요</li><li>하루에 <b>30분</b>까지 놀 수 있어요</li></ul>
+    <p class="sub">🏆 최고 점수 ${best.score || 0}점${best.level ? ` (${best.level}단계)` : ''} · ⚡ 최고 타수 ${best.speed || 0}타</p>
+    <div class="timebar"><i style="width:${left / DAY_LIMIT * 100}%"></i></div><p class="sub">오늘 남은 시간 ${mmss(left)}</p>
+    ${left > 0 ? '<button class="btn" data-act="start">▶ 시작하기</button>' : '<p><b>오늘 30분을 다 놀았어요. 내일 또 만나요 👋</b></p>'}</div></div>`);
+  hud();
+}
+
+/* ───── 누르기 · 쓰기 ───── */
+$('bar').addEventListener('submit', e => { e.preventDefault(); shoot(); inp.focus(); });
+// 한글은 Enter 를 누를 때 마지막 글자가 아직 조합 중일 수 있어서, 조합이 끝난 다음에 읽어요
+inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); setTimeout(shoot, 0); } });
+$('pauseBtn').addEventListener('click', () => pause(!!(G && G.run)));
+document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (!b) return;
+  const a = b.dataset.act; if (a === 'start') start(); else if (a === 'resume') pause(false); else if (a === 'quit') end('quit'); });
+field.addEventListener('click', () => { if (G && G.run) inp.focus(); });
+document.addEventListener('visibilitychange', () => { if (G && G.run && !document.hidden) G.last = performance.now(); });
+window.addEventListener('pagehide', () => { if (G && G.saved) { addUsed(G.saved); G.saved = 0; } });
+drawStart();
+</script>
+</body>
+</html>

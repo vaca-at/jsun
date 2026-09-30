@@ -492,7 +492,9 @@ const S = {
   weather: "", mood: "", qShift: 0, spell: null, formDirty: false,
   unsub: null, unsubStatus: null, unsubMonths: null, unsubStudy: [], unsubDrafts: null, range: null
 };
-S.oldEntries = {}; S.iiEntries = {};
+S.oldEntries = {};
+// 한 번 가져온 iinote 일기는 이 기기에 남겨 두고 들어오자마자 보여 줘요 (엄마만 들어오는 일기장이에요)
+S.iiEntries = (() => { try { return JSON.parse(store.get("ii_cache") || "{}") || {}; } catch { return {}; } })();
 // 이 일기장 + iinote 일기를 합쳐요. 같은 날 같은 사람이면 이 일기장 것이 먼저예요
 const mergeEntries = () => { S.entries = { ...S.iiEntries, ...S.oldEntries }; };
 const keyOf = (date, w) => `${date}_${w}`;
@@ -633,7 +635,7 @@ async function iiWatch(){
 }
 function iiStop(){
   ii.unsubD && ii.unsubD(); ii.unsubC && ii.unsubC(); ii.unsubD = ii.unsubC = null; ii.from = null;
-  ii.diaries = []; ii.comments = []; S.iiEntries = {}; mergeEntries();
+  ii.diaries = []; ii.comments = [];   // 가져온 일기(S.iiEntries)는 연결이 끊겨도 그대로 둬요
 }
 const iiWho = pid => ii.map[pid] || ii.names[pid] || "가족";
 // iinote 일기 → 이 일기장 모양으로 (읽기 전용 표시 iinote:true)
@@ -660,13 +662,17 @@ function iiMerge(){
       spellOriginal: r?.original || ""
     };
   });
-  S.iiEntries = out; mergeEntries(); refresh(); renderIiBar();
+  // 지금 보는 기간(ii.from 부터)은 새로 받은 것으로, 그보다 옛날 것은 전에 가져온 것 그대로
+  const kept = Object.fromEntries(Object.entries(S.iiEntries).filter(([, e]) => ii.from && e.date < ii.from));
+  S.iiEntries = { ...kept, ...out }; store.set("ii_cache", JSON.stringify(S.iiEntries));
+  mergeEntries(); refresh(); renderIiBar();
 }
 function renderIiBar(){
   const box = $("#iiBar"); if (!box) return;
   const n = Object.keys(S.iiEntries).length;
   box.innerHTML = !ii.user
-    ? `<button class="logout" data-act="ii-login" title="iinote.co.kr 에 쓴 우리 가족 일기도 여기서 같이 봐요">🌐 iinote 일기 같이 보기</button>`
+    ? (n ? `<span class="soft" title="전에 가져온 iinote 일기예요. 새 일기는 [새로 가져오기]를 누르면 들어와요">🌐 iinote 일기 ${n}편</span> <button class="logout" data-act="ii-login">새로 가져오기</button>`
+         : `<button class="logout" data-act="ii-login" title="iinote.co.kr 에 쓴 우리 가족 일기도 여기서 같이 봐요">🌐 iinote 일기 같이 보기</button>`)
     : ii.err ? `<span class="soft" style="color:var(--red)">🌐 ${esc(ii.err)}</span> <button class="logout" data-act="ii-logout">iinote 끊기</button>`
     : `<span class="soft" title="iinote 일기는 읽기만 해요. 쓰기 · 도장 · 댓글은 iinote 에서">🌐 iinote 연결됨${n ? ` · ${n}편` : ""}</span> <button class="logout" data-act="ii-logout">끊기</button>`;
 }

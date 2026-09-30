@@ -368,6 +368,20 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 .sp-row b{flex:none;white-space:nowrap}
 .sp-old{margin-top:12px;padding-top:10px;border-top:2px dashed var(--line,#ddd)}
 .sp-chips{display:flex;flex-wrap:wrap;gap:6px}
+/* ⭐ 별 · 스티커 약속 (맨 위 별을 누르면 캐릭터 방 '🧾 쓴 별'에서 보여요) */
+button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
+.stk-n{font-size:.85em;opacity:.85}
+@media (max-width:400px){ .stk-n{display:none} }
+.sp-rule{padding:16px 18px;border:2px solid var(--accent)}
+.sp-rule-h{margin:0 0 8px;font-size:1.2rem;font-weight:700;color:var(--accent)}
+.sp-rule ul{margin:0;padding-left:1.2em;line-height:1.75;font-size:1.02rem}
+.sp-rule ul b{color:var(--accent)}
+.sp-today{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.sp-today div{background:var(--soft,rgba(127,127,127,.12));border-radius:14px;padding:8px 12px}
+.sp-today span{display:block;font-size:.8rem;opacity:.75}
+.sp-today b{font-size:1.25rem;font-variant-numeric:tabular-nums}
+.sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
+.sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
@@ -386,7 +400,7 @@ body.ev .toast{bottom:calc(var(--evh,56px) + 28px + env(safe-area-inset-bottom,0
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="bar"><div class="bar-in">
   <div class="logo" data-act="go" data-v="home" role="button" title="홈으로" style="cursor:pointer"><i>🌱</i>다율이의 공부방</div>
-  <span class="star">⭐ <span id="starCount">0</span></span>
+  <button class="star" data-act="starInfo" title="별 · 스티커 약속 보기" aria-label="모은 별 · 별과 스티커 약속 보기">⭐ <span id="starCount">0</span> <span class="stk-n">· 🏅 <span id="stkCount">0</span></span></button>
   <button class="home-btn" id="sndBtn" data-act="snd" aria-label="소리 끄기">🔊</button>
   <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
 </div></div>
@@ -400,6 +414,9 @@ const store = {
 };
 const who = '다율';
 let stars = store.get('stars', 0);
+/* 별 · 스티커 약속 (다른 방과 같아요): 별 10개 = 스티커 1장 · 하루에 별은 300개, 스티커는 30장까지 (🌈 이벤트 별은 따로) */
+const STICKER_DAY_MAX = 30, STAR_DAY_MAX = 300;
+const stkCount = () => { const v=store.get('stk',null); return v===null ? Math.floor(store.get('stars',0)/10) : v; };
 const App = { view:'home', hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
 const view = document.getElementById('view');
 const $ = id => document.getElementById(id);
@@ -413,7 +430,7 @@ function toast(m){ const t=document.createElement('div'); t.className='toast'; t
 function burst(){ for(let i=0;i<14;i++){ const s=document.createElement('div'); s.className='burst'; s.textContent=['⭐','✨','🌟','💖'][i%4];
   s.style.left=(innerWidth/2)+'px'; s.style.top=(innerHeight/2)+'px'; s.style.setProperty('--dx',(Math.random()*360-180)+'px'); s.style.setProperty('--dy',(Math.random()*-320-40)+'px');
   document.body.appendChild(s); setTimeout(()=>s.remove(),1000); } }
-function updateStars(){ $('starCount').textContent=stars; }
+function updateStars(){ $('starCount').textContent=stars; const t=$('stkCount'); if(t) t.textContent=stkCount(); }
 /* ───── 가족 이벤트 (도윤 · 도진 · 지아 · 윤아 공통): 관리자가 켜면 10분 동안 별 2배 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요. 온라인 문서 family/event = {until, mult, rooms, at} */
 const EVENT_ROOMS = ['doyun','dojin','jia','yuna'], MY_ROOM = 'dayul';   // 다율이 방은 아직 가족 이벤트 · 알 줍기 게임에 들어가지 않아요 (게임 둥지가 네 방 자리뿐)
@@ -499,7 +516,18 @@ window.addEventListener('storage', e=>{ if(e.key==='eggRewards') eggCollect(); }
 setInterval(eggCollect, 3000);
 function addStar(n=1){
   if(n>0 && evOn()){ ledgerAdd('estars',n*(EV.mult||2)); store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
-  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); ledgerAdd('stars',n); updateStars(); cloudPush(); }
+  if(n<=0) return;
+  const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
+  n=Math.min(n, STAR_DAY_MAX-got);
+  if(n<=0){ if(!App.starFull){ App.starFull=true; setTimeout(()=>toast(`⭐ 오늘 별 ${STAR_DAY_MAX}개를 다 모았어요! 내일 또 모아요`),600); } return; }
+  store.set('starDay',{d:k, n:got+n}); App.starFull=false;
+  const stk0=stkCount(), before=Math.floor(stars/10);
+  stars+=n; store.set('stars',stars); store.set('starsAt',Date.now()); ledgerAdd('stars',n);
+  const crossed=Math.floor(stars/10)-before, kd=store.get('stkDay',{}), sgot=kd.d===k?kd.n:0, give=Math.min(crossed, STICKER_DAY_MAX-sgot);
+  if(give>0){ store.set('stk',stk0+give); store.set('stkDay',{d:k, n:sgot+give}); setTimeout(()=>toast('🎉 새 스티커를 받았어요!'),600); }
+  else { store.set('stk',stk0); if(crossed>0 && !App.stkFull){ App.stkFull=true; setTimeout(()=>toast(`🏅 오늘 스티커 ${STICKER_DAY_MAX}장을 다 받았어요! 별은 계속 모여요`),600); } }
+  updateStars(); cloudPush();
+}
 /* 날짜별 기록: log[날짜][영역] = {n, ok} (다른 방 · 관리자 대시보드와 같은 모양) */
 /* area는 과목(kor · math · eng · story)으로 쌓고, 나눈 놀이(글자 · 낱말 · 더하기 · 빼기 …)는 _sub에 따로 세요 */
 function logToday(area, ok=true, sub){ const L=store.get('log',{}), k=dayKey(); L[k]=L[k]||{}; const e=L[k][area]=(typeof L[k][area]==='object'?L[k][area]:{n:0,ok:0}); e.n++; if(ok) e.ok++;
@@ -536,13 +564,13 @@ async function cloudPull(){
     const snap=await kidRef().get();
     if(snap.exists){
       const d=snap.data();
-      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','subDone','storyOk','estars','starsPend','estarsPend','spentPend','buys','buysPend'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
+      if(d.resetAt && d.resetAt > store.get('resetAt',0)){ ['stars','starsAt','log','deco','mathDone','subDone','storyOk','estars','starsPend','estarsPend','spentPend','buys','buysPend','stk','starDay','stkDay'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} }); store.set('resetAt',d.resetAt); }
       ledgerApply(d);   // 별 · 🌈 · 쓴 별 · 산 물건 (별 장부)
       ['mathDone','subDone'].forEach(dk=>{ if(!d[dk]) return; const m=store.get(dk,{}); for(const k in d[dk]) m[k]=Math.max(m[k]||0,d[dk][k]); store.set(dk,m); });
       if(d.storyOk){ store.set('storyOk',Object.assign({},store.get('storyOk',{}),d.storyOk)); }
     }
     const L=store.get('log',{}), qs=await kidRef().collection('daily').get();
-    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); ['kor','math','eng','story'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
+    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{}); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]}); }); } ['kor','math','eng','story'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
     store.set('log',L);
     stars=store.get('stars',0); updateStars();
     return true;
@@ -554,9 +582,9 @@ async function cloudPushNow(){
   if(!await cloudInit()) return;
   try{
     const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
-    const doc={name:who, estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), subDone:store.get('subDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()}, lg=ledgerDoc(doc); await ref.set(doc,{merge:true}); ledgerSent(lg); try{ ledgerApply((await ref.get()).data()); }catch(e){}
+    const doc={name:who, stk:stkCount(), estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), subDone:store.get('subDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()}, lg=ledgerDoc(doc); await ref.set(doc,{merge:true}); ledgerSent(lg); try{ ledgerApply((await ref.get()).data()); }catch(e){}
     const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
-    await ref.collection('daily').doc(k).set(Object.assign({visited:true, total}, day),{merge:true});
+    await ref.collection('daily').doc(k).set(Object.assign({visited:true, total, starsGot:(o=>o.d===k?o.n:0)(store.get('starDay',{})), stkGot:(o=>o.d===k?o.n:0)(store.get('stkDay',{}))}, day),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
 }
 
@@ -763,7 +791,7 @@ function renderHome(){
   const me=store.get('gate','🐬');
   view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">다율아, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
     <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:k==='story'?todayN('story'):todaySub(k);
-      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}</div>
+      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}<button class="stop" style="--c:#7C5CFF" data-act="typingGame"><span class="ball">⌨️</span><b>타자 게임</b><small>하루 30분</small></button></div>
     ${progressHTML()}
     <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
@@ -975,6 +1003,16 @@ function ledgerRefresh(){
 document.addEventListener('visibilitychange', ledgerRefresh);
 setInterval(ledgerRefresh, 180000);
 /* 캐릭터 방 '🧾 쓴 별': 가게에서 언제 무엇에 별을 얼마 썼는지 */
+/* ⭐ 별 · 스티커 약속: 캐릭터 방 '🧾 쓴 별' 맨 위에 크게 보여요 */
+function starRulesHTML(){
+  const k=dayKey(), sd=store.get('starDay',{}), kd=store.get('stkDay',{}), s=sd.d===k?sd.n:0, t=Math.min(kd.d===k?kd.n:0,STICKER_DAY_MAX);
+  const bar=(n,m)=>`<i><em style="width:${Math.min(100,Math.round(n/m*100))}%"></em></i>`;
+  return `<div class="card sp-rule"><p class="sp-rule-h">⭐ 별 · 🏅 스티커 약속</p>
+    <ul><li>문제를 맞히면 별이 <b>1개</b>씩 모여요</li><li>별 <b>10개</b>가 모이면 스티커 <b>1장</b>이 생겨요</li>
+      <li>별은 하루에 <b>${STAR_DAY_MAX}개</b>까지 모을 수 있어요</li><li>스티커는 하루에 <b>${STICKER_DAY_MAX}장</b>까지 받을 수 있어요</li>
+      <li>가게에서 별을 써도 스티커는 줄지 않아요</li></ul>
+    <div class="sp-today"><div><span>오늘 모은 별</span><b>⭐ ${s} / ${STAR_DAY_MAX}</b>${bar(s,STAR_DAY_MAX)}</div><div><span>오늘 받은 스티커</span><b>🏅 ${t} / ${STICKER_DAY_MAX}</b>${bar(t,STICKER_DAY_MAX)}</div><div><span>모은 스티커</span><b>🏅 ${stkCount()}장</b></div></div></div>`;
+}
 function drawSpentLog(d){
   const b=document.getElementById('roombody'); if(!b) return;
   const p2=n=>String(n).padStart(2,'0'), when=t=>{ const x=new Date(t); return (x.getMonth()+1)+'/'+x.getDate()+' '+p2(x.getHours())+':'+p2(x.getMinutes()); };
@@ -983,7 +1021,7 @@ function drawSpentLog(d){
   const oldItems=d.own.map(decoItem).filter(x=>x && x.p && !inLog.has(x.id));
   const es=typeof eStars==='function' ? eStars() : 0, today=new Date().toDateString();
   const todaySpent=buys.filter(x=>new Date(x.at).toDateString()===today).reduce((a,x)=>a+(x.p||0),0);
-  b.innerHTML=`<div class="card sp-sum">
+  b.innerHTML=`${starRulesHTML()}<div class="card sp-sum">
       <div><span>모은 별</span><b>⭐ ${stars}${es?` <small>+ 🌈 ${es}</small>`:''}</b></div>
       <div><span>쓴 별</span><b>− ${d.spent||0}</b></div>
       <div><span>남은 별</span><b>⭐ ${decoLeft()}</b></div></div>
@@ -1207,10 +1245,10 @@ async function admLogin(){
 }
 async function admResetAll(){
   if(!confirm('다율이의 별, 꾸민 방, 공부 기록을 모두 지울까요?\n지운 기록은 되살릴 수 없어요.')) return;
-  ['stars','starsAt','log','deco','mathDone','subDone','storyOk','estars','starsPend','estarsPend','spentPend','buys','buysPend'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} });
+  ['stars','starsAt','log','deco','mathDone','subDone','storyOk','estars','starsPend','estarsPend','spentPend','buys','buysPend','stk','starDay','stkDay'].forEach(k=>{ try{ localStorage.removeItem('dy_'+k); }catch(e){} });
   const now=Date.now(); stars=0; store.set('stars',0); store.set('starsAt',now); store.set('resetAt',now); updateStars();
   if(await cloudInit()){ try{ const ref=kidRef(), qs=await ref.collection('daily').get(); await Promise.all(qs.docs.map(d=>d.ref.delete()));
-    await ref.set({name:who, resetAt:now, stars:0, starsAt:now, deco:{at:now, own:[], spent:0}, buys:[], estars:0, estarsAt:now, mathDone:{}, subDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
+    await ref.set({name:who, resetAt:now, stars:0, stk:0, starsAt:now, deco:{at:now, own:[], spent:0}, buys:[], estars:0, estarsAt:now, mathDone:{}, subDone:{}, storyOk:{}, updatedAt:now},{merge:true}); }catch(e){ console.warn('지우기 실패', e); } }
   toast('🗑️ 기록을 모두 지웠어요'); drawAdm();
 }
 function openAllAdmin(){
@@ -1224,6 +1262,8 @@ const ACT = {
   guestBack: ()=>{ guestNext=null; $('login').hidden=true; },
   gate: v=>{ GUEST=false; const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 다율아, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); });  const n=guestNext; guestNext=null; if(n && ACT[n.a]){ const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>ACT[n.a](n.v, el), 60); } },
   go: v=>go(v),
+  starInfo: ()=>{ App.roomv='spent'; go('room'); },   // 맨 위 별: 캐릭터 방 '🧾 쓴 별' + 별 · 스티커 약속
+  typingGame: ()=>{ location.href='/typing/?room=dayul&lv=1&n='+encodeURIComponent(who||''); },   // ⌨️ 낱말 비 타자 게임 (하루 30분)
   snd: ()=>{ muted=!muted; store.set('mute',muted); drawSnd(); if(muted){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); toast('🔇 소리를 껐어요'); } else { toast('🔊 소리를 켰어요'); speak('소리를 켰어요'); } },
   openMom: ()=>openAdmModal('mom'),
   openAdmin: ()=>openAdmModal('admin'),
