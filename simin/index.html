@@ -54,6 +54,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .door .ico{font-size:4rem;line-height:1.1}
 .door b{font-family:var(--font-t);font-size:1.5rem}
 .door small{color:var(--sub)}
+.door-note{margin-top:6px;font-size:.88rem;line-height:1.5;color:var(--ink);opacity:.8}
 .door div{display:flex;flex-direction:column;align-items:inherit;gap:2px}   /* 제목 아래 줄에 설명 (넓은 화면 · 전자칠판에서도) */
 .door.board{border-color:#F7C9D8;background:linear-gradient(180deg,#FFF 55%,var(--lotus-s))}
 .door.phone{border-color:#BFE3CB;background:linear-gradient(180deg,#FFF 55%,var(--leaf-s))}
@@ -261,8 +262,8 @@ const pinPad = (label, sub='') => `<div class="card center">${label}${sub?`<p cl
 function entry(){
   view.innerHTML = `<div class="hello"><span class="dongi">🪷</span><div class="bub">반가워요, 자성동이! 오늘은 어디에서 공부할까요?</div></div>
     <div class="doors">
-      <button class="door board" data-go="board"><span class="ico">🖥️</span><div><b>전자칠판</b><small>심인당에서~</small></div></button>
-      <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>집에서~</small></div></button>
+      <button class="door board" data-go="board"><span class="ico">🖥️</span><div><b>전자칠판</b><small>심인당에서~</small><span class="door-note">다 같이 한 팀으로 협동해요<br>공부한 기록은 저장되지 않아요</span></div></button>
+      <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>집에서~</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
     </div>
     <div class="side-links"><button data-go="parent">👩 엄마아빠 모드</button><button data-go="adminLogin">🔒 관리자</button></div>`;
 }
