@@ -74,6 +74,9 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .tile{touch-action:none;min-width:110px;height:110px;padding:0 14px;border-radius:26px;background:#fff;border:3px solid color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,var(--line));font-size:3.4rem;font-weight:700;display:grid;place-items:center;cursor:grab}
 .tile.small{min-width:78px;height:78px;border-radius:20px;font-size:2.2rem}
 .tile.pic-tile{font-size:3.6rem}
+:root{--mind:#E2558A;--sound:#E8883A;--mom:#5DAE3E;--size:#3F7FE8}
+.pos-pic{line-height:1.05}
+.slot-mark{display:inline-block;min-width:2.2em;border-bottom:3px solid currentColor;text-align:center}
 .count-pics{font-size:2.6rem;line-height:1.25;letter-spacing:.06em;max-width:15em;margin:0 auto 6px}
 .two-sides{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:2.1rem;margin-bottom:6px}
 .two-sides div{padding:8px 12px;border-radius:16px;background:#fff;border:2px solid #EEE3D3}
@@ -422,7 +425,7 @@ let stars = store.get('stars', 0);
 /* 별 · 스티커 약속 (다른 방과 같아요): 별 10개 = 스티커 1장 · 하루에 별은 300개, 스티커는 30장까지 (🌈 이벤트 별은 따로) */
 const STICKER_DAY_MAX = 30, STAR_DAY_MAX = 300;
 const stkCount = () => { const v=store.get('stk',null); return v===null ? Math.floor(store.get('stars',0)/10) : v; };
-const App = { view:'home', nlv:store.get('nlv',0), plv:store.get('plv',0), hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
+const App = { view:'home', mdlv:store.get('mdlv',0), sdlv:store.get('sdlv',0), molv:store.get('molv',0), szlv:store.get('szlv',0), nlv:store.get('nlv',0), plv:store.get('plv',0), hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
 const view = document.getElementById('view');
 const $ = id => document.getElementById(id);
 const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
@@ -575,7 +578,7 @@ async function cloudPull(){
       if(d.storyOk){ store.set('storyOk',Object.assign({},store.get('storyOk',{}),d.storyOk)); }
     }
     const L=store.get('log',{}), qs=await kidRef().collection('daily').get();
-    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{}); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]}); }); } ['kor','math','eng','story'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
+    qs.forEach(doc=>{ const k=doc.id, d=doc.data(); if(k===dayKey()){ [['starDay','starsGot'],['stkDay','stkGot']].forEach(([lk,rk])=>{ const o=store.get(lk,{}); if((d[rk]||0) > (o.d===k?o.n:0)) store.set(lk,{d:k,n:d[rk]}); }); } ['kor','math','eng','story','life'].forEach(a=>{ if(!d[a]) return; const day=L[k]||(L[k]={}), e=typeof day[a]==='object'?day[a]:(day[a]={n:0,ok:0}); e.n=Math.max(e.n,d[a].n||0); e.ok=Math.max(e.ok,d[a].ok||0); }); });
     store.set('log',L);
     stars=store.get('stars',0); updateStars();
     return true;
@@ -588,7 +591,7 @@ async function cloudPushNow(){
   try{
     const ref=kidRef(), k=dayKey(), day=(store.get('log',{})[k])||{};
     const doc={name:who, stk:stkCount(), estars:eStars(), estarsAt:store.get('estarsAt',0), stars:store.get('stars',0), starsAt:store.get('starsAt',0), deco:store.get('deco',{}), mathDone:store.get('mathDone',{}), subDone:store.get('subDone',{}), storyOk:store.get('storyOk',{}), updatedAt:Date.now()}, lg=ledgerDoc(doc); await ref.set(doc,{merge:true}); ledgerSent(lg); try{ ledgerApply((await ref.get()).data()); }catch(e){}
-    const total=['kor','math','eng','story'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
+    const total=['kor','math','eng','story','life'].reduce((a,x)=>a+((day[x]&&day[x].n)||0),0);
     await ref.collection('daily').doc(k).set(Object.assign({visited:true, total, starsGot:(o=>o.d===k?o.n:0)(store.get('starDay',{})), stkGot:(o=>o.d===k?o.n:0)(store.get('stkDay',{}))}, day),{merge:true});
   }catch(e){ console.warn('저장 실패', e); }
 }
@@ -774,6 +777,60 @@ const SHAPELV = [
   {n:'다른 하나 찾기', g:()=>{ const [a,b]=shuffle(SAME_PICS).slice(0,2), k=rnd(0,3), row=[0,1,2,3].map(i=>i===k?b:a);
     return {say:'하나만 달라요. 다른 하나를 찾아요', prompt:`<div class="count-pics">${row.join(' ')}</div>다른 하나는?`, slots:[b], tiles:shuffle([a,b,SAME_PICS.filter(x=>x!==a&&x!==b)[rnd(0,9)]]), tcls:'pic-tile'}; }}
 ];
+/* ───── 5세 생활 놀이 (민준): 😊 마음 알기 · 🐶 소리 친구 · 🐣 엄마 찾아 주기 · ⚖️ 크다 작다 · 먼저 나중 ─────
+   모두 듣고 · 보고 · 끌어다 놓기. 기록은 '생활'(life)로 모아요 */
+const others3 = (arr, not, n=2) => shuffle(arr.filter(x=>x!==not)).slice(0,n);
+/* 😊 마음 알기 */
+const FEELS=[['😊','기뻐요'],['😢','슬퍼요'],['😠','화나요'],['😨','무서워요'],['😲','놀랐어요'],['😴','졸려요']];
+const FEEL_SIT=[['선물을 받았어요','😊'],['엄마가 꼭 안아 줬어요','😊'],['놀이터에서 신나게 놀았어요','😊'],['아끼던 장난감이 부서졌어요','😢'],['강아지를 잃어버렸어요','😢'],['친구가 내 블록을 무너뜨렸어요','😠'],['동생이 내 그림을 찢었어요','😠'],['깜깜한 밤에 천둥이 쳐요','😨'],['큰 개가 갑자기 짖어요','😨'],['생일 케이크가 짠 하고 나왔어요','😲'],['밤늦게까지 놀았어요','😴']];
+const KIND_ACT=[['친구가 넘어져서 울어요','괜찮아? 물어봐요',['웃어요','그냥 가요']],['친구가 장난감이 없어서 심심해해요','같이 놀자고 해요',['혼자 놀아요','장난감을 숨겨요']],['동생이 우유를 쏟았어요','같이 닦아 줘요',['화를 내요','모른 척해요']],['엄마가 무거운 짐을 들어요','도와드려요',['텔레비전을 봐요','도망가요']],['친구가 그림을 잘 그렸어요','멋지다고 말해요',['흉을 봐요','그림을 가져가요']],['줄을 서서 기다려요','차례를 지켜요',['새치기해요','밀어요']]];
+const KIND_WORD=[['친구가 장난감을 빌려줬어요','고마워',['싫어','몰라']],['실수로 친구를 밀었어요','미안해',['고마워','잘 가']],['아침에 선생님을 만났어요','안녕하세요',['잘 먹었습니다','미안해']],['밥을 다 먹었어요','잘 먹었습니다',['안녕하세요','싫어요']],['친구가 집에 가요','잘 가',['미안해','고마워']],['할머니가 과자를 주셨어요','감사합니다',['몰라요','싫어요']]];
+const MINDLV = [
+  {n:'표정 보고 마음', g:()=>{ const [e,w]=FEELS[rnd(0,FEELS.length-1)]; return {say:'이 친구는 어떤 마음일까요?', pic:e, prompt:'이 친구는 어떤 마음일까요?', slots:[w], tiles:shuffle([w,...others3(FEELS.map(x=>x[1]),w)]), wide:true, after:w}; }},
+  {n:'마음 듣고 얼굴 찾기', g:()=>{ const [e,w]=FEELS[rnd(0,FEELS.length-1)]; return {say:`${w}. 어떤 얼굴일까요?`, prompt:`<b>${w}</b> 얼굴을 찾아요`, slots:[e], tiles:shuffle([e,...others3(FEELS.map(x=>x[0]),e)]), tcls:'pic-tile', after:w}; }},
+  {n:'이럴 땐 어떤 마음?', g:()=>{ const [s,e]=FEEL_SIT[rnd(0,FEEL_SIT.length-1)], w=FEELS.find(x=>x[0]===e)[1]; return {say:`${s}. 어떤 마음일까요?`, prompt:`${s}.<br>어떤 마음일까요?`, slots:[e], tiles:shuffle([e,...others3(FEELS.map(x=>x[0]),e)]), tcls:'pic-tile', after:w}; }},
+  {n:'친구를 도와줘요', g:()=>{ const [s,a,o]=KIND_ACT[rnd(0,KIND_ACT.length-1)]; return {say:`${s}. 어떻게 하면 좋을까요?`, prompt:`${s}.<br>어떻게 하면 좋을까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
+  {n:'고운 말 하기', g:()=>{ const [s,a,o]=KIND_WORD[rnd(0,KIND_WORD.length-1)]; return {say:`${s}. 뭐라고 말할까요?`, prompt:`${s}.<br>뭐라고 말할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }}
+];
+/* 🐶 소리 친구 */
+const ANI_SND=[['🐶','강아지','멍멍'],['🐱','고양이','야옹'],['🐮','소','음매'],['🐷','돼지','꿀꿀'],['🐔','닭','꼬끼오'],['🦆','오리','꽥꽥'],['🐸','개구리','개굴개굴'],['🐑','양','매애'],['🐭','쥐','찍찍'],['🐝','벌','윙윙'],['🐤','병아리','삐약삐약'],['🦁','사자','어흥']];
+const THING_SND=[['🚂','기차','칙칙폭폭'],['🚗','자동차','빵빵'],['🚑','구급차','삐뽀삐뽀'],['⏰','시계','째깍째깍'],['🔔','종','딩동댕'],['🥁','북','둥둥'],['🌧️','비','주룩주룩'],['⚡','천둥','우르르 쾅쾅'],['🐴','말','히힝'],['📞','전화','따르릉']];
+const MIMIC=[['비가 □ 내려요','주룩주룩'],['별이 □ 빛나요','반짝반짝'],['토끼가 □ 뛰어요','깡충깡충'],['시계가 □ 가요','째깍째깍'],['시냇물이 □ 흘러요','졸졸'],['오리가 □ 걸어요','뒤뚱뒤뚱'],['아기가 □ 웃어요','방긋방긋'],['공이 □ 굴러가요','데굴데굴']];
+const SOUNDLV = [
+  {n:'동물 소리 듣고 찾기', g:()=>{ const [e,n,s]=ANI_SND[rnd(0,ANI_SND.length-1)]; return {say:`${s}! ${s}! 누구 소리일까요?`, prompt:`<b>${s}!</b> 누구 소리일까요?`, slots:[e], tiles:shuffle([e,...others3(ANI_SND.map(x=>x[0]),e)]), tcls:'pic-tile', after:`${josa(n,'은','는')} ${s}`}; }},
+  {n:'그림 보고 소리 고르기', g:()=>{ const [e,n,s]=ANI_SND[rnd(0,ANI_SND.length-1)]; return {say:`${josa(n,'은','는')} 어떻게 울까요?`, pic:e, prompt:`${josa(n,'은','는')} 어떻게 울까요?`, slots:[s], tiles:shuffle([s,...others3(ANI_SND.map(x=>x[2]),s)]), wide:true, after:`${s}! ${s}!`}; }},
+  {n:'탈것 · 물건 소리', g:()=>{ const [e,n,s]=THING_SND[rnd(0,THING_SND.length-1)]; return {say:`${s}! 무슨 소리일까요?`, prompt:`<b>${s}!</b> 무슨 소리일까요?`, slots:[e], tiles:shuffle([e,...others3(THING_SND.map(x=>x[0]),e)]), tcls:'pic-tile', after:`${n} 소리, ${s}`}; }},
+  {n:'흉내 내는 말', g:()=>{ const [q,a]=MIMIC[rnd(0,MIMIC.length-1)]; return {say:q.replace('□','음'), prompt:q.replace('□','<span class="slot-mark">?</span>'), slots:[a], tiles:shuffle([a,...others3(MIMIC.map(x=>x[1]),a)]), wide:true, after:q.replace('□',a)}; }},
+  {n:'섞어서 듣기', g:()=>{ const all=[...ANI_SND,...THING_SND], [e,n,s]=all[rnd(0,all.length-1)]; return {say:`${s}! 누구일까요?`, prompt:`<b>${s}!</b> 누구일까요?`, slots:[e], tiles:shuffle([e,...others3(all.map(x=>x[0]),e)]), tcls:'pic-tile', after:`${n}, ${s}`}; }}
+];
+/* 🐣 엄마 찾아 주기 */
+const BABY=[['병아리','🐔','닭'],['강아지','🐕','개'],['송아지','🐄','소'],['망아지','🐎','말'],['올챙이','🐸','개구리'],['애벌레','🦋','나비'],['새끼 돼지','🐖','돼지'],['아기 펭귄','🐧','펭귄']];
+const PAIR=[['🔑','🔒'],['🧦','👟'],['✏️','📒'],['🥄','🍚'],['🪥','🦷'],['☂️','🌧️'],['🍼','👶'],['🖌️','🎨'],['⚽','🥅'],['🐝','🌸'],['🐰','🥕'],['🐵','🍌'],['🐶','🦴'],['🧤','⛄']];
+const HOME=[['🐟','🌊','물고기는 바다에 살아요'],['🐧','🧊','펭귄은 얼음나라에 살아요'],['🐫','🏜️','낙타는 사막에 살아요'],['🐿️','🌳','다람쥐는 나무에 살아요'],['🐦','🪺','새는 둥지에 살아요'],['🐄','🌾','소는 농장 풀밭에 살아요']];
+const GROUP=[['과일',['🍎','🍌','🍇','🍓','🍉','🍑']],['탈것',['🚗','🚌','🚲','✈️','🚂','🚀']],['동물',['🐶','🐱','🐰','🐻','🐼','🐯']],['옷',['👕','👖','👗','🧦','🧢','🧥']]];
+const MOMLV = [
+  {n:'아기의 엄마는?', g:()=>{ const [b,e,m]=BABY[rnd(0,BABY.length-1)]; return {say:`${b}의 엄마는 누구일까요?`, prompt:`<b>${b}</b>의 엄마는 누구일까요?`, slots:[e], tiles:shuffle([e,...others3(BABY.map(x=>x[1]),e)]), tcls:'pic-tile', after:`${b}의 엄마는 ${m}`}; }},
+  {n:'짝꿍 찾기', g:()=>{ const [a,b]=PAIR[rnd(0,PAIR.length-1)]; return {say:'누구랑 짝일까요?', pic:a, prompt:'누구랑 짝일까요?', slots:[b], tiles:shuffle([b,...others3(PAIR.map(x=>x[1]),b)]), tcls:'pic-tile'}; }},
+  {n:'어디에 살까?', g:()=>{ const [a,h,t]=HOME[rnd(0,HOME.length-1)]; return {say:'어디에 살까요?', pic:a, prompt:'어디에 살까요?', slots:[h], tiles:shuffle([h,...others3(HOME.map(x=>x[1]),h)]), tcls:'pic-tile', after:t}; }},
+  {n:'같은 무리 찾기', g:()=>{ const gi=rnd(0,GROUP.length-1), [nm,list]=GROUP[gi], a=list[rnd(0,5)], ot=GROUP.filter((_,i)=>i!==gi).map(g=>g[1][rnd(0,5)]);
+    return {say:`${nm}은 어느 것일까요?`, prompt:`<b>${nm}</b>은 어느 것일까요?`, slots:[a], tiles:shuffle([a,...shuffle(ot).slice(0,2)]), tcls:'pic-tile', after:nm}; }},
+  {n:'다른 무리 찾기', g:()=>{ const gi=rnd(0,GROUP.length-1), [,list]=GROUP[gi], same=shuffle(list).slice(0,3), og=GROUP.filter((_,i)=>i!==gi)[rnd(0,2)], odd=og[1][rnd(0,5)];
+    return {say:'하나만 다른 무리예요. 찾아볼까요?', prompt:`<div class="count-pics">${shuffle([...same,odd]).join(' ')}</div>다른 무리는?`, slots:[odd], tiles:shuffle([odd,same[0],same[1]]), tcls:'pic-tile', after:`${og[0]}이에요`}; }}
+];
+/* ⚖️ 크다 작다 · 먼저 나중 */
+const SIZES=[['🐜',1,'개미'],['🐭',2,'쥐'],['🍓',2,'딸기'],['🐱',3,'고양이'],['🍎',3,'사과'],['🐶',4,'강아지'],['🍉',5,'수박'],['🐴',7,'말'],['🚗',7,'자동차'],['🐘',9,'코끼리'],['🏠',9,'집'],['🐳',10,'고래']];
+const POS=[['위','🐱<br>📦','고양이가 상자 위에 있어요'],['아래','📦<br>🐱','고양이가 상자 아래에 있어요'],['옆','🐱 📦','고양이가 상자 옆에 있어요']];
+const SEQ3=[[['🌱','🌿','🌻'],'씨앗, 싹, 꽃'],[['🥚','🐣','🐔'],'알, 병아리, 닭'],[['👶','🧒','🧑'],'아기, 어린이, 어른'],[['🌅','🪥','🍳'],'해가 뜨고, 이를 닦고, 아침을 먹어요'],[['🌑','🌓','🌕'],'달이 점점 차올라요'],[['🌸','☀️','🍂'],'봄, 여름, 가을']];
+const SEQ2=[[['🧼','🍽️'],'손을 씻고 밥을 먹어요'],[['🛁','😴'],'씻고 잠을 자요'],[['🧦','👟'],'양말을 신고 신발을 신어요'],[['🌱','🌻'],'싹이 나고 꽃이 펴요'],[['🥚','🐣'],'알에서 병아리가 나와요'],[['☁️','🌧️'],'구름이 끼고 비가 와요']];
+const SIZELV = [
+  {n:'더 큰 것은?', g:()=>{ let [a,b]=shuffle(SIZES).slice(0,2); if(a[1]===b[1]) b=SIZES.find(x=>Math.abs(x[1]-a[1])>=2); const big=a[1]>b[1]?a:b;
+    return {say:'어느 쪽이 더 클까요?', prompt:'어느 쪽이 더 클까요?', slots:[big[0]], tiles:shuffle([a[0],b[0]]), tcls:'pic-tile', after:`${josa(big[2],'이','가')} 더 커요`}; }},
+  {n:'더 작은 것은?', g:()=>{ let [a,b]=shuffle(SIZES).slice(0,2); if(a[1]===b[1]) b=SIZES.find(x=>Math.abs(x[1]-a[1])>=2); const sm=a[1]<b[1]?a:b;
+    return {say:'어느 쪽이 더 작을까요?', prompt:'어느 쪽이 더 작을까요?', slots:[sm[0]], tiles:shuffle([a[0],b[0]]), tcls:'pic-tile', after:`${josa(sm[2],'이','가')} 더 작아요`}; }},
+  {n:'어디에 있을까?', g:()=>{ const [w,h,t]=POS[rnd(0,POS.length-1)]; return {say:'고양이는 상자 어디에 있을까요?', prompt:`<div class="count-pics pos-pic">${h}</div>고양이는 상자 어디에 있을까요?`, slots:[w], tiles:shuffle(POS.map(x=>x[0])), wide:true, after:t}; }},
+  {n:'무엇이 먼저?', g:()=>{ const [s,t]=SEQ2[rnd(0,SEQ2.length-1)]; return {say:'먼저 하는 것부터 차례로 놓아요', prompt:'먼저 → 나중, 차례로 놓아요', slots:s, tiles:shuffle(s), tcls:'pic-tile', after:t}; }},
+  {n:'차례대로 놓기', g:()=>{ const [s,t]=SEQ3[rnd(0,SEQ3.length-1)]; return {say:'차례대로 놓아 볼까요?', prompt:'처음 → 다음 → 마지막, 차례로 놓아요', slots:s, tiles:shuffle(s), tcls:'pic-tile', after:t}; }}
+];
 /* ───── 연산: 더하기 +1 ~ +9 · 빼기 −1 ~ −9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
 function mathPage(n, op='+'){ const ks=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5);
   return op==='+' ? ks.map(a=>({a, b:n, s:a+n})) : ks.map(k=>({a:k+n, b:n, s:k})); }
@@ -805,9 +862,13 @@ const STORIES = [
 
 /* ───── 화면 ───── */
 /* 과목(기록 · 엄마 모드 · 관리자 대시보드는 이 네 과목으로 모아요) */
-const SUBJ = {kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'숫자', ico:'123', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}};
+const SUBJ = {life:{n:'생활', ico:'😊', c:'var(--mind)'}, kor:{n:'한글', ico:'가', c:'var(--kor)'}, math:{n:'숫자', ico:'123', c:'var(--math)'}, eng:{n:'영어', ico:'ABC', c:'var(--eng)'}, story:{n:'동화', ico:'📖', c:'var(--story)'}};
 /* 놀이 길 칸: 한글 · 연산 · 영어는 두 칸씩 (p = 기록할 과목) */
 const AREAS = {
+  mind:{n:'마음 알기', ico:'😊', c:'var(--mind)', p:'life', d:'표정 · 기분 · 고운 말'},
+  sound:{n:'소리 친구', ico:'🐶', c:'var(--sound)', p:'life', d:'동물 · 탈것 소리 · 흉내 말'},
+  mom:{n:'엄마 찾아 주기', ico:'🐣', c:'var(--mom)', p:'life', d:'엄마 · 짝꿍 · 사는 곳 · 무리'},
+  size:{n:'크다 작다 · 먼저 나중', ico:'⚖️', c:'var(--size)', p:'life', d:'크기 · 위치 · 순서'},
   kor:{n:'한글 글자', ico:'ㄱㅏ', c:'var(--kor)', p:'kor', d:'자음 · 모음 · 글자'},
   word:{n:'한글 낱말', ico:'나비', c:'var(--kor2)', p:'kor', d:'그림 · 받침 · 빈칸'},
   num:{n:'숫자', ico:'123', c:'var(--math)', p:'math', d:'세기 · 듣기 · 다음 수 · 많다'},
@@ -816,7 +877,7 @@ const AREAS = {
   engw:{n:'영어 낱말', ico:'🍎', c:'var(--eng2)', p:'eng', d:'첫 소리 · 단어 · 그림'},
   story:{n:'동화', ico:'📖', c:'var(--story)', p:'story', d:'읽고 문제 풀기'},
   room:{n:'내 방', ico:'🏠', c:'var(--room)', d:'별로 꾸미기'}};
-const QUIZ = {kor:{LV:HLV, key:'hlv'}, word:{LV:WLV, key:'wlv'}, num:{LV:NUMLV, key:'nlv'}, shape:{LV:SHAPELV, key:'plv'}, eng:{LV:ELV, key:'elv'}, engw:{LV:EWLV, key:'ewlv'}};
+const QUIZ = {kor:{LV:HLV, key:'hlv'}, word:{LV:WLV, key:'wlv'}, num:{LV:NUMLV, key:'nlv'}, mind:{LV:MINDLV, key:'mdlv'}, sound:{LV:SOUNDLV, key:'sdlv'}, mom:{LV:MOMLV, key:'molv'}, size:{LV:SIZELV, key:'szlv'}, shape:{LV:SHAPELV, key:'plv'}, eng:{LV:ELV, key:'elv'}, engw:{LV:EWLV, key:'ewlv'}};
 function go(v){ App.view=v; Q=null; MS=null; App.story=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); }
 function render(){ if(!AREAS[App.view] && App.view!=='home') App.view='home';
   const v=App.view;
@@ -835,7 +896,7 @@ function renderHome(){
     <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
 /* 첫 화면 진도: 오늘(영역별 큰 숫자) + 이번 달 달력(한 날마다 도장) */
-const STUDY = ['kor','math','eng','story'];
+const STUDY = ['kor','math','eng','story','life'];
 const dayTotalOf = d => STUDY.reduce((a,k)=>a+((d&&d[k]&&d[k].n)||0),0);
 function progressHTML(){
   const L=store.get('log',{}), t=new Date(), today=L[dayKey()]||{}, y=t.getFullYear(), m=t.getMonth();
@@ -1321,7 +1382,7 @@ const ACT = {
   admStar: v=>{ if(admRole==='mom') return; { const dv=Math.max(0,stars+ +v)-stars; stars+=dv; ledgerAdd('stars',dv); } store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
   admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
-  sayHome: ()=>speak('민준아, 오늘도 놀아 볼까? 한글 글자와 낱말, 숫자와 모양, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
+  sayHome: ()=>speak('민준아, 오늘도 놀아 볼까? 마음 알기, 소리 친구, 엄마 찾아 주기, 크다 작다, 한글 글자와 낱말, 숫자와 모양, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
   again: ()=>{ Q=null; render(); },

@@ -251,7 +251,27 @@ export function mountDictation({ el, name = '', school = 'dojin', host = {} }) {
   const save = () => H.store.set('dict', st);
   const S = { lv: ex.lv, mode: 'study', run: null };
 
-  const say = (t, twice) => { H.speak(t, 'ko'); if (twice) setTimeout(() => H.speak(t, 'ko'), Math.max(2600, t.length * 380)); };
+  /* 띄어쓰기는 티 나게 쉬어서 읽어요: 어절(띄어 쓴 덩어리)마다 따로 읽고 사이에 잠깐 쉬어요 → 듣고 바로 써도 띄울 곳을 알아요
+     (아이패드 사파리는 '다 읽었어요' 신호가 가끔 안 와서, 글자 수만큼 기다리는 예비 시계도 같이 둬요) */
+  const GAP_MS = 650;
+  let sayRun = 0;
+  function sayWords(t, done) {
+    const run = ++sayRun, ws = String(t).split(' ').filter(Boolean);
+    if (!('speechSynthesis' in window) || ws.length < 2) { H.speak(t, 'ko'); if (done) setTimeout(() => { if (run === sayRun) done(); }, Math.max(1600, t.length * 330)); return; }
+    speechSynthesis.cancel();
+    const voice = speechSynthesis.getVoices().find(v => v.lang && v.lang.replace('_', '-').startsWith('ko'));
+    let i = 0;
+    const next = () => {
+      if (run !== sayRun) return;
+      if (i >= ws.length) { if (done) done(); return; }
+      const w = ws[i++], u = new SpeechSynthesisUtterance(w); u.lang = 'ko-KR'; u.rate = 0.8; if (voice) u.voice = voice;
+      let fired = false; const after = () => { if (fired) return; fired = true; setTimeout(next, i < ws.length ? GAP_MS : 200); };
+      u.onend = after; u.onerror = after; setTimeout(after, 900 + [...w].length * 420);
+      speechSynthesis.speak(u);
+    };
+    next();
+  }
+  const say = (t, twice) => sayWords(t, twice ? () => setTimeout(() => sayWords(t), 1400) : null);
   const L = () => LEVELS[S.lv];
 
   /* 원고지 한 줄: str 을 칸에 놓아요. opt.ghost = 연하게 보일 답, opt.marks = 칸마다 표시 */
