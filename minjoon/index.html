@@ -394,6 +394,10 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
+.momnote{margin:0 0 12px;padding:10px 14px;border-radius:14px;border:2px dashed color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 9%,transparent);font-size:.9rem;line-height:1.55;text-align:left}
+.momnote a{color:inherit}
+.legal-f{max-width:780px;margin:0 auto;padding:10px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
+.legal-f a{color:var(--sub)}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
@@ -442,7 +446,7 @@ function burst(){ for(let i=0;i<14;i++){ const s=document.createElement('div'); 
   s.style.left=(innerWidth/2)+'px'; s.style.top=(innerHeight/2)+'px'; s.style.setProperty('--dx',(Math.random()*360-180)+'px'); s.style.setProperty('--dy',(Math.random()*-320-40)+'px');
   document.body.appendChild(s); setTimeout(()=>s.remove(),1000); } }
 function updateStars(){ $('starCount').textContent=stars; const t=$('stkCount'); if(t) t.textContent=stkCount(); }
-/* ───── 가족 이벤트 (도윤 · 도진 · 민준 · 윤아 공통): 관리자가 켜면 10분 동안 별 2배 ─────
+/* ───── 가족 이벤트 (가족 이벤트 방 공통): 관리자가 켜면 10분 동안 별 2배 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요. 온라인 문서 family/event = {until, mult, rooms, at} */
 const EVENT_ROOMS = ['doyun','dojin','jia','yuna'], MY_ROOM = 'minjoon';   // 민준이 방은 아직 가족 이벤트에 들어가지 않아요
 let EV = null, evSub = null;
@@ -1288,6 +1292,8 @@ function openAdmModal(role){
   if(role==='admin') cloudInit().then(ok=>{ if(!ok || !firebase.auth) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y){ admMode='panel'; drawAdm(); } }); });
 }
 function closeAdm(){ $('modal').hidden=true; admMode=null; const o=$('admPop'); if(o) o.hidden=true; render(); }
+/* 운영자(관리자 구글 계정)는 이 아이의 공부 기록을 보지 않아요 (2026-09-30). 기록은 엄마 모드에서 엄마만 봐요 */
+function OPNP(){ return true; }
 function drawAdm(){
   const b=$('sheet'), mom=admRole==='mom';
   if(admMode==='pin'){
@@ -1310,10 +1316,11 @@ function drawAdm(){
     rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
   const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (민준 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 ↗</button>'}</div>
-    <!-- 가족 이벤트는 도윤 · 도진 · 윤아 · 민준 네 방에서만 켜요 -->
+    <!-- 가족 이벤트는 정해진 네 방에서만 켜요 -->
     <p class="sub">${cloudTxt}</p>
-    <p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
-    <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${SUBJ[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
+    ${mom?`<div class="momnote">🔒 이 기록은 <b>엄마(보호자)만</b> 볼 수 있어요. 공부방 운영자는 아이의 공부 기록(푼 문제 · 정답률 · 별 · 공부 시간)을 보지 않고, 공부방에 들어온 날만 확인해요. <a href="../policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></div>`:''}
+    ${mom||!OPNP()?`<p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
+    <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${SUBJ[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>`:`<div class="momnote">🙈 운영자는 이 아이의 공부 기록을 보지 않아요. 기록은 <b>👩 엄마 모드</b>에서 엄마만 봐요.<br>운영자는 엄마 비밀번호 · 아이 비밀번호 · 기록 초기화처럼 엄마가 부탁한 일만 도와요.</div>`}
     <p class="lbl">🎯 하루 목표 <small>(첫 화면 막대의 기준)</small></p>
     <div class="seg">${[10,15,20,30,40].map(g=>`<button class="pill ${admin.goal===g?'on':''}" data-act="admGoal" data-v="${g}">${g}개</button>`).join('')}</div>
     <p class="lbl">💌 민준이에게 한마디 <small>(첫 화면에 보여요)</small></p>
@@ -1321,8 +1328,8 @@ function drawAdm(){
     <p class="lbl">👩 엄마 비밀번호 ${mom?'바꾸기':`<small>(${admin.momH?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
     <div class="inrow"><input id="momPin" class="inp pinbox" type="text" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill on" data-act="admMomPin">${admin.momH?'바꾸기':'정하기'}</button></div>
     ${!mom&&admin.momH?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
-    ${mom?'':`<p class="lbl">⭐ 민준 별 관리 (지금 ${stars}개)</p>
-    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>
+    ${mom?'':`${!OPNP()?`<p class="lbl">⭐ 민준 별 관리 (지금 ${stars}개)</p>
+    <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     <p class="lbl">🗑️ 기록 초기화 <small>(별 · 꾸민 방 · 공부 기록을 모두 지워요. 설정은 남아요)</small></p>
     <button class="reset-btn" data-act="admReset">🗑️ 민준이의 기록 모두 지우기</button>
     <p class="lbl">🔓 관리자 로그인</p><div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`}
@@ -1333,7 +1340,7 @@ async function admLogin(){
   if(!await cloudInit() || !firebase.auth){ toast('온라인 저장에 연결하지 못했어요'); return; }
   const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
   try{ const r=await firebase.auth().signInWithPopup(p);
-    if(await isAdminUser(r.user)){ admMode='panel'; drawAdm(); cloudPull().then(()=>drawAdm()); } else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
+    if(await isAdminUser(r.user)){ admMode='panel'; drawAdm(); if(!OPNP()) cloudPull().then(()=>drawAdm()); } else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); }
   }catch(e){ console.warn('로그인 실패',e);
     if(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'){ try{ await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
     if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request') return;

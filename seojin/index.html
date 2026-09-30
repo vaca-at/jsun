@@ -1014,6 +1014,10 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
+.momnote{margin:0 0 12px;padding:10px 14px;border-radius:14px;border:2px dashed color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 9%,transparent);font-size:.9rem;line-height:1.55;text-align:left}
+.momnote a{color:inherit}
+.legal-f{max-width:780px;margin:0 auto;padding:10px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
+.legal-f a{color:var(--sub)}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
@@ -1541,16 +1545,16 @@ const PASSAGES = [
       ['③문단의 ‘얼얼했다’는 어떤 느낌일까요?','맵거나 차가워서 아리고 따끔한 느낌',['보들보들 부드러운 느낌','따뜻하고 포근한 느낌','간지러운 느낌'],'‘얼얼하다’는 맵거나 차거나 맞아서 아린 느낌이에요.',3],
       ['이 글은 어떤 종류의 글인가요?','겪은 일과 느낌을 쓴 일기',['물건을 파는 광고','주장하는 글','설명서'],'날짜와 날씨, 겪은 일과 생각이 들어 있어요.',0],
       ['글쓴이가 마지막에 느낀 마음으로 알맞은 것은?','가족과 함께해서 뿌듯하고 따뜻한 마음',['힘들어서 다시는 하기 싫은 마음','김치가 싫어진 마음','혼나서 속상한 마음'],'⑤문단: 내년에도 꼭 돕고 싶다고 했어요.',5]]},
-  {id:'firefighter', g:'letter', e:'🚒', t:'소방관 아저씨께', by:'20○○년 ○월 ○일 · 행복초등학교 4학년 김민재 올림', paras:[
-    '소방관 아저씨께. 안녕하세요? 저는 행복초등학교 4학년 김민재예요. 지난주 우리 아파트에 불이 났을 때 달려와 주신 소방관 아저씨께 꼭 감사 인사를 드리고 싶어서 편지를 써요.',
+  {id:'firefighter', g:'letter', e:'🚒', t:'소방관 아저씨께', by:'20○○년 ○월 ○일 · 행복초등학교 4학년 김민수 올림', paras:[
+    '소방관 아저씨께. 안녕하세요? 저는 행복초등학교 4학년 김민수예요. 지난주 우리 아파트에 불이 났을 때 달려와 주신 소방관 아저씨께 꼭 감사 인사를 드리고 싶어서 편지를 써요.',
     '그날 밤, 아래층에서 매캐한 연기가 올라와서 우리 가족은 너무 무서웠어요. 엄마가 젖은 수건으로 제 코와 입을 막아 주셨고, 우리는 몸을 낮추고 계단으로 내려갔어요.',
     '밖에 나와 보니 소방차 여러 대가 벌써 와 있었어요. 아저씨들은 무거운 장비를 메고 연기 속으로 [[망설임]] 없이 들어가셨어요. 그 모습을 보니 무서운 마음이 조금씩 사라졌어요.',
     '다행히 다친 사람 없이 불이 꺼졌어요. 뜨거운 불 앞에서 얼마나 힘드셨을까 생각하니 마음이 뭉클했어요. 저도 커서 아저씨들처럼 다른 사람을 돕는 사람이 되고 싶어요.',
     '늘 건강하시고 다치지 마세요. 정말 고맙습니다!'],
-    qs:[['민재가 편지를 쓴 까닭은?','불을 꺼 준 소방관께 감사하려고',['소방관이 되는 방법을 물으려고','아파트 이사를 알리려고','불조심 포스터를 부탁하려고'],'①문단에 편지를 쓴 까닭이 나와요.',1],
-      ['불이 났을 때 민재네 가족이 한 일로 알맞은 것은?','젖은 수건으로 코와 입을 막고 몸을 낮춰 계단으로 내려갔다.',['엘리베이터를 타고 내려갔다.','창문을 열고 기다렸다.','불을 직접 끄려고 물을 뿌렸다.'],'②문단: 불이 나면 엘리베이터 대신 계단으로 가요.',2],
+    qs:[['민수가 편지를 쓴 까닭은?','불을 꺼 준 소방관께 감사하려고',['소방관이 되는 방법을 물으려고','아파트 이사를 알리려고','불조심 포스터를 부탁하려고'],'①문단에 편지를 쓴 까닭이 나와요.',1],
+      ['불이 났을 때 민수네 가족이 한 일로 알맞은 것은?','젖은 수건으로 코와 입을 막고 몸을 낮춰 계단으로 내려갔다.',['엘리베이터를 타고 내려갔다.','창문을 열고 기다렸다.','불을 직접 끄려고 물을 뿌렸다.'],'②문단: 불이 나면 엘리베이터 대신 계단으로 가요.',2],
       ['③문단의 ‘망설임 없이’와 뜻이 가장 비슷한 것은?','머뭇거리지 않고',['천천히 쉬면서','무서워하며','몰래 숨어서'],'망설이다 = 이리저리 생각만 하고 머뭇거리다',3],
-      ['편지의 짜임에서 ‘20○○년 ○월 ○일, 김민재 올림’은 무엇에 해당할까요?','쓴 날짜와 쓴 사람',['받을 사람','첫인사','끝인사'],'편지 끝에는 쓴 날짜와 쓴 사람을 써요.',0]]},
+      ['편지의 짜임에서 ‘20○○년 ○월 ○일, 김민수 올림’은 무엇에 해당할까요?','쓴 날짜와 쓴 사람',['받을 사람','첫인사','끝인사'],'편지 끝에는 쓴 날짜와 쓴 사람을 써요.',0]]},
   {id:'camel', g:'info', e:'🐫', t:'사막의 배, 낙타', paras:[
     '낮에는 뜨겁고 밤에는 추운 사막. 모래바람이 불고 물도 거의 없는 곳이에요. 이런 사막에서 무거운 짐을 지고 먼 길을 가는 동물이 있어요. 바로 ‘사막의 배’라고 불리는 낙타예요.',
     '낙타의 등에 있는 혹에는 물이 아니라 지방이 들어 있어요. 먹이를 구하기 어려울 때 이 지방을 에너지로 써요. 그래서 오랫동안 먹지 못해도 [[견딜]] 수 있어요.',
@@ -1712,7 +1716,7 @@ const PROVERB_EX = [
   "자전거를 밖에 두고 자물쇠를 안 채웠다가 잃어버린 뒤에야 자물쇠를 샀어요.",
   "4학년이 된 형이 3학년 동생에게 \"그것도 못 해?\" 하고 놀렸어요. 형도 작년엔 못 했는데!",
   "줄넘기 100번이 목표라면, 오늘은 10번부터 시작해요.",
-  "\"민준이는 언제 오지?\" 하고 말하는데 바로 그때 민준이가 교실로 들어왔어요.",
+  "\"하준이는 언제 오지?\" 하고 말하는데 바로 그때 하준이가 교실로 들어왔어요.",
   "우리 동네 놀이터가 제일 크다고 생각했는데, 다른 동네에 가 보니 훨씬 큰 놀이터가 있었어요.",
   "매일 책을 읽은 친구는 글쓰기를 잘하게 되었어요. 한 만큼 돌아와요.",
   "1 + 1은 나한테 누워서 떡 먹기처럼 쉬워요!",
@@ -5252,14 +5256,14 @@ function drawSettings(){
     <div class="center"><button class="linkbtn" data-act="openMom">👩 엄마 모드</button> · <button class="linkbtn" data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
 /* 관리자 로그인: 온라인 저장(Firebase)이 켜져 있으면 이메일/비밀번호로 들어가요.
-   메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요. (도윤 · 도진 · 가스 · 방 앱과 같은 관리자 계정)
+   메일 주소가 소스에 드러나지 않도록 SHA-256 값만 적어요. (다른 공부방과 같은 관리자 계정)
    엄마 모드는 이메일 없이 엄마 비밀번호(4자리)로 들어가요. */
 const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
 async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 const isAdminUser=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
 function admEnter(){
   setMode='admin'; pinBuf=''; drawSettings();
-  const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+  const v=admView||who||getProfiles()[0]; if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
 }
 function admEmailHTML(){
   return `<div class="adm-head"><h3>🔒 관리자 모드</h3></div>
@@ -5309,7 +5313,7 @@ function pinKey(v){
   if(pinBuf.length<4){ drawSettings(); return; }
   if(isMom() ? hashPin(pinBuf,'mom')===momPinH() : hashPin(pinBuf,'admin')===adminPinH()){
     setMode='admin'; pinBuf=''; drawSettings();
-    const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+    const v=admView||who||getProfiles()[0]; if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
     return;
   }
   drawSettings(); shake('pinrow'); beep(false); toast('비밀번호가 틀렸어요');
@@ -5327,6 +5331,8 @@ function openAdminPopup(){
       <button class="pill" data-act="admPopClose">◀ 이 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div>
     <iframe src="${DASHBOARD_URL}?v=${kid}" title="공부방 관리자 대시보드"></iframe></div></div>`);
 }
+/* 운영자(관리자 구글 계정)는 이 아이의 공부 기록을 보지 않아요 (2026-09-30). 기록은 엄마 모드에서 엄마만 봐요 */
+function OPNP(){ return true; }
 function adminHTML(){
   const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
   const L=getLog(admView), keys=Object.keys(SUBJ), sec=store.get('studysec',{},admView);
@@ -5345,15 +5351,16 @@ function adminHTML(){
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
+    ${isMom()?`<div class="momnote">🔒 이 기록은 <b>엄마(보호자)만</b> 볼 수 있어요. 공부방 운영자는 아이의 공부 기록(푼 문제 · 정답률 · 별 · 공부 시간)을 보지 않고, 공부방에 들어온 날만 확인해요. <a href="../policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></div>`:''}
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
-    <div class="card" style="padding:12px">${grassHTML(admView)}</div>
+    ${isMom()||!OPNP()?`<div class="card" style="padding:12px">${grassHTML(admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제 · 공부한 시간)</small></p>
     <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th><th>시간</th></tr>${rows}</table></div>
     <p class="sub" style="font-size:.85rem">⏱ 시간은 공부 화면을 보면서 1분 안에 무언가 누르고 있을 때만 세요. 문제 수에 비해 시간이 아주 짧으면 대충 넘겼을 수 있어요.</p>
     <p class="lbl">📈 단원 · 활동별 정답률 <small>(5문제 넘게 풀고 70% 아래면 ⚠️)</small></p>
     ${stats.length?`<div class="scroll-x"><table class="tbl logtbl"><tr><th>과목</th><th>단원 · 활동</th><th>정답률</th><th>맞음/푼 문제</th></tr>
       ${stats.map(r=>`<tr><td>${SUBJ[r.s]?SUBJ[r.s].name:r.s}</td><td>${esc(r.sub)}${r.weak?' ⚠️':''}</td><td>${r.pct}%</td><td>${r.ok}/${r.n}</td></tr>`).join('')}</table></div>`:'<p class="sub">아직 기록이 없어요.</p>'}
-    <p class="sub" style="font-size:.9rem">📚 읽은 긴 글 ${kr}편 · 🏯 읽은 이야기책 ${hs}권 · 📒 독서 기록 ${bn}권 · 🔁 복습함 ${wn}문제</p>
+    <p class="sub" style="font-size:.9rem">📚 읽은 긴 글 ${kr}편 · 🏯 읽은 이야기책 ${hs}권 · 📒 독서 기록 ${bn}권 · 🔁 복습함 ${wn}문제</p>`:`<div class="momnote">🙈 운영자는 이 아이의 공부 기록을 보지 않아요. 기록은 <b>👩 엄마 모드</b>에서 엄마만 봐요.<br>운영자는 엄마 비밀번호 · 아이 비밀번호 · 기록 초기화처럼 엄마가 부탁한 일만 도와요.</div>`}
     <p class="lbl">🎯 하루 목표 문제 수 <small>(홈 화면 막대와 공부 잔디 색의 기준이에요)</small></p>
     <div class="seg">${[20,30,40,50,70].map(g=>tg('goal',g,g+'문제',admin.goal===g)).join('')}</div>
     <p class="lbl">📚 보이는 과목</p>
@@ -5365,7 +5372,7 @@ function adminHTML(){
     ${!isMom()&&momPinH()?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
     <p class="lbl">🔒 아이 비밀번호 <small>(잊어버렸을 때 지우면 다음에 새로 만들어요)</small></p>
     <div class="seg">${names.map(n=>`<button class="pill" data-act="kidPinReset" data-v="${esc(n)}">${esc(n)} ${kidPins()[n]?'비밀번호 지우기':'(아직 없음)'}</button>`).join('')}</div>
-    ${isMom()?'':`${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
+    ${isMom()?'':`${who&&!OPNP()?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}
     ${FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 관리자 비밀번호 바꾸기</p>
@@ -5418,7 +5425,7 @@ const ACT = {
   lpin: v=>lpinKey(v),
   kidPinReset: v=>{ if(!confirm(`${v}의 비밀번호를 지울까요? 다음에 들어갈 때 새로 만들어요.`)) return; setKidPin(v,null); cloudPushNow(v); toast('비밀번호를 지웠어요'); drawSettings(); },
   addWho: ()=>addWho(),
-  admWho: v=>{ admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
+  admWho: v=>{ admView=v; drawSettings(); if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
   delWho: v=>{
     if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
     store.set('profiles', getProfiles().filter(n=>n!==v));

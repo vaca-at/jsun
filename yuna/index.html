@@ -1013,6 +1013,10 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
+.momnote{margin:0 0 12px;padding:10px 14px;border-radius:14px;border:2px dashed color-mix(in srgb,var(--ok) 55%,transparent);background:color-mix(in srgb,var(--ok) 9%,transparent);font-size:.9rem;line-height:1.55;text-align:left}
+.momnote a{color:inherit}
+.legal-f{max-width:780px;margin:0 auto;padding:10px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
+.legal-f a{color:var(--sub)}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
@@ -1090,24 +1094,14 @@ const KID_IDS = { '윤아':'yuna' };
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','charPick'];
 const PROFILE_KEYS = ['starsPend','estarsPend','spentPend','buys','buysPend','estars','estarsAt','stk','stkDay','deco','csbest','lib','op','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','best_1','best_2','best_3','level','unit','hlv','settings','today','starDay','kdeck','kread2','estory','books','booksAt'];
-/* 도진이 공부방과 같은 주소를 써도 관리자 설정이 섞이지 않게 공통 값은 e2y_ 로 따로 저장해요 (아이 기록은 예전처럼 e2_p_윤아_) */
+/* 다른 공부방과 같은 주소를 써도 관리자 설정이 섞이지 않게 공통 값은 e2y_ 로 따로 저장해요 (아이 기록은 예전처럼 e2_p_윤아_) */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'e2y_'+k : `e2_p_${name}_${k}`;
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k, v, name){ try{ localStorage.setItem(skey(k,name), JSON.stringify(v)); }catch(e){} },
   del(k, name){ try{ localStorage.removeItem(skey(k,name)); }catch(e){} }
 };
-/* 예전(이름 없던 때) 기록은 도진이에게 옮겨요 */
-(function migrate(){
-  try{
-    if(localStorage.getItem('e2_profiles')!==null) return;
-    PROFILE_KEYS.forEach(k=>{
-      const v=localStorage.getItem('e2_'+k);
-      if(v!==null){ localStorage.setItem(`e2_p_도진_${k}`, v); localStorage.removeItem('e2_'+k); }
-    });
-    localStorage.setItem('e2_profiles', JSON.stringify(['도진','윤아']));
-  }catch(e){}
-})();
+/* (예전 다른 방 기록 옮기기 코드는 2026-09-30에 뺐어요) */
 
 /* ───── 데이터 ───── */
 /* 과목 아이콘 (선 그림 · 과목 색은 CSS의 [data-v]에서). 새 과목은 SICO에 하나 더해서 SUBJ의 ico로 써요 */
@@ -1507,7 +1501,7 @@ koAdd(KO_MAIN, [['봄이 오면 여러 가지 꽃이 피어요.',['개나리가 
   ['물은 우리에게 꼭 필요해요.',['목이 마를 때 마셔요.','몸을 씻을 때 써요.','식물을 키울 때 써요.']],['나무는 우리에게 많은 것을 줘요.',['시원한 그늘을 만들어 줘요.','맛있는 열매를 줘요.','맑은 공기를 만들어 줘요.']],
   ['동물들은 저마다 사는 곳이 달라요.',['물고기는 물속에 살아요.','새는 나무 위에 살아요.','두더지는 땅속에 살아요.']],['탈것에는 여러 가지가 있어요.',['땅에서는 자동차를 타요.','하늘에서는 비행기를 타요.','바다에서는 배를 타요.']],
   ['교실을 깨끗하게 해야 해요.',['쓰레기를 주워요.','책상을 정리해요.','바닥을 쓸어요.']],['손을 자주 씻어야 해요.',['병균이 없어져요.','감기에 덜 걸려요.','음식을 깨끗하게 먹을 수 있어요.']],
-  ['우리 반 친구들은 좋아하는 운동이 달라요.',['민수는 축구를 좋아해요.','지아는 줄넘기를 좋아해요.','현우는 수영을 좋아해요.']],['시장에는 여러 가게가 있어요.',['생선 가게가 있어요.','과일 가게가 있어요.','떡집이 있어요.']],
+  ['우리 반 친구들은 좋아하는 운동이 달라요.',['민수는 축구를 좋아해요.','수아는 줄넘기를 좋아해요.','현우는 수영을 좋아해요.']],['시장에는 여러 가게가 있어요.',['생선 가게가 있어요.','과일 가게가 있어요.','떡집이 있어요.']],
   ['겨울잠을 자는 동물이 있어요.',['곰이 겨울잠을 자요.','개구리가 겨울잠을 자요.','뱀이 겨울잠을 자요.']],['전기를 아껴 써야 해요.',['빈방의 불을 꺼요.','텔레비전을 오래 켜 두지 않아요.','안 쓰는 플러그를 뽑아요.']],
   ['음식을 골고루 먹어야 해요.',['고기는 힘을 줘요.','채소는 몸을 튼튼하게 해요.','우유는 뼈를 튼튼하게 해요.']],['공원에서는 여러 가지 일을 할 수 있어요.',['산책을 해요.','자전거를 타요.','도시락을 먹어요.']],
   ['개미는 서로 도우며 살아요.',['먹이를 함께 날라요.','집을 함께 지어요.','여왕개미를 돌봐요.']],['새는 여러 방법으로 먹이를 구해요.',['딱따구리는 나무를 쪼아요.','독수리는 사냥을 해요.','벌새는 꽃꿀을 먹어요.']],
@@ -1666,7 +1660,7 @@ const PROVERB_EX = [
   "자전거를 밖에 두고 자물쇠를 안 채웠다가 잃어버린 뒤에야 자물쇠를 샀어요.",
   "2학년이 된 형이 1학년 동생에게 \"그것도 못 해?\" 하고 놀렸어요. 형도 작년엔 못 했는데!",
   "줄넘기 100번이 목표라면, 오늘은 10번부터 시작해요.",
-  "\"도진이는 언제 오지?\" 하고 말하는데 바로 그때 도진이가 교실로 들어왔어요.",
+  "\"하준이는 언제 오지?\" 하고 말하는데 바로 그때 하준이가 교실로 들어왔어요.",
   "우리 동네 놀이터가 제일 크다고 생각했는데, 다른 동네에 가 보니 훨씬 큰 놀이터가 있었어요.",
   "매일 책을 읽은 친구는 글쓰기를 잘하게 되었어요. 한 만큼 돌아와요.",
   "1 + 1은 나한테 누워서 떡 먹기처럼 쉬워요!",
@@ -1892,7 +1886,7 @@ const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(who?stkCount():0,STICKERS.length)}장`; }
-/* ───── 가족 이벤트: 관리자가 켜면 네 방(도윤 · 도진 · 지아 · 윤아)에서 동시에 별이 2배로 모여요 ─────
+/* ───── 가족 이벤트: 관리자가 켜면 네 방에서 동시에 별이 2배로 모여요 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요 (스티커는 평소 별로만 모아요).
    온라인 문서: family/event = {until(끝나는 시각), mult(배수), rooms:[방 id…], at} */
 const EVENT_ROOMS = ['doyun','dojin','jia','yuna'];
@@ -2179,7 +2173,7 @@ async function cloudReset(name){
 
 /* 관리자 설정 (e2/settings): 나중에 바뀐 쪽을 따라요 */
 const SETTINGS_KEYS = ['goal','subj','dans','msg','pinH','momH'];
-const SETTINGS_DOC = 'settings_yuna'; // 도진이 공부방(settings)과 섞이지 않게 따로 저장해요
+const SETTINGS_DOC = 'settings_yuna'; // 다른 공부방(settings)과 섞이지 않게 따로 저장해요
 async function cloudPullSettings(){
   if(!await cloudInit()) return false;
   try{
@@ -2273,7 +2267,7 @@ let ADM_NOTE=false;
 function guestBlocked(el){
   const a=el.dataset.act; if(!GUEST || el.closest('#login,#settings,.admpop')) return false;
   const b = a==='tab' ? el.dataset.v!=='home' : (a==='set' && ['theme','font'].includes(el.dataset.k)) ? false /* 디자인 · 글씨는 구경하면서도 골라요 */ : !GUEST_OK.includes(a);
-  if(b && ADM_IN){ if(!ADM_NOTE){ ADM_NOTE=true; toast('👩 관리자(엄마) 계정으로 로그인한 기기라 비밀번호 없이 열어요'); } return false; }
+  if(b && ADM_IN && !OPNP()){ if(!ADM_NOTE){ ADM_NOTE=true; toast('👩 관리자(엄마) 계정으로 로그인한 기기라 비밀번호 없이 열어요'); } return false; }
   return b;
 }
 function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>{ const f=ACT[n.a]; if(f) f(n.v, el); }, 60); }
@@ -2310,8 +2304,8 @@ function addWho(){
   loginPin(n);
 }
 
-/* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 도진 공부방과 같은 파일) ───── */
-/* ───── 💯 받아쓰기 (/dictation/dictation.js · 도진 · 윤아 방이 같이 써요) ─────
+/* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 초2 공부방과 같은 파일) ───── */
+/* ───── 💯 받아쓰기 (/dictation/dictation.js · 초2 방들이 같이 써요) ─────
    학교 급수표를 원고지 칸에 맞춰: 문장 보기 · 따라 쓰기 · 받아쓰기 시험 · 띄어쓰기 · 헷갈리는 말 · 문장부호 · 비슷한 문장 · 오답 노트 */
 let dictBox=null;
 function renderDict(){
@@ -4767,7 +4761,7 @@ async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new Te
 const isAdminUser=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
 function admEnter(){
   setMode='admin'; pinBuf=''; drawSettings();
-  const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+  const v=admView||who||getProfiles()[0]; if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
 }
 function admEmailHTML(){
   return `<div class="adm-head"><h3>🔒 관리자 모드</h3></div>
@@ -4817,7 +4811,7 @@ function pinKey(v){
   if(pinBuf.length<4){ drawSettings(); return; }
   if(isMom() ? hashPin(pinBuf,'mom')===momPinH() : hashPin(pinBuf,'admin')===adminPinH()){
     setMode='admin'; pinBuf=''; drawSettings();
-    const v=admView||who||getProfiles()[0]; cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
+    const v=admView||who||getProfiles()[0]; if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin') drawSettings(); });
     return;
   }
   drawSettings(); shake('pinrow'); beep(false); toast('비밀번호가 틀렸어요');
@@ -4835,6 +4829,8 @@ function openAdminPopup(){
       <button class="pill" data-act="admPopClose">◀ 이 방 관리자로</button><button class="pill" data-act="admPopClose">✕ 닫기</button></div>
     <iframe src="${DASHBOARD_URL}?v=${kid}" title="공부방 관리자 대시보드"></iframe></div></div>`);
 }
+/* 운영자(관리자 구글 계정)는 이 아이의 공부 기록을 보지 않아요 (2026-09-30). 기록은 엄마 모드에서 엄마만 봐요 */
+function OPNP(){ return true; }
 function adminHTML(){
   const names=getProfiles(); if(!names.includes(admView)) admView=who||names[0];
   const L=getLog(admView), keys=Object.keys(SUBJ);
@@ -4850,19 +4846,20 @@ function adminHTML(){
   const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>
     ${isMom()?'':`<div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
-      <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
+      <p class="sub">가족 이벤트를 함께하는 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
-    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
+    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">가족 이벤트를 함께하는 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
               :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
       ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
               :'<button class="big-btn" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'}</div>`}
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
+    ${isMom()?`<div class="momnote">🔒 이 기록은 <b>엄마(보호자)만</b> 볼 수 있어요. 공부방 운영자는 아이의 공부 기록(푼 문제 · 정답률 · 별 · 공부 시간)을 보지 않고, 공부방에 들어온 날만 확인해요. <a href="../policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></div>`:''}
     <div class="seg">${names.map(n=>pill('admWho',esc(n),'👤 '+esc(n),admView)).join('')}</div>
-    <div class="card" style="padding:12px">${grassHTML(admView)}</div>
+    ${isMom()||!OPNP()?`<div class="card" style="padding:12px">${grassHTML(admView)}</div>
     <p class="lbl">📊 최근 7일 학습 기록 <small>(맞은 문제 / 푼 문제)</small></p>
-    <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th></tr>${rows}</table></div>
+    <div class="scroll-x"><table class="tbl logtbl"><tr><th>날짜</th>${keys.map(s=>`<th>${SUBJ[s].name}</th>`).join('')}<th>합계</th></tr>${rows}</table></div>`:`<div class="momnote">🙈 운영자는 이 아이의 공부 기록을 보지 않아요. 기록은 <b>👩 엄마 모드</b>에서 엄마만 봐요.<br>운영자는 엄마 비밀번호 · 아이 비밀번호 · 기록 초기화처럼 엄마가 부탁한 일만 도와요.</div>`}
     <p class="lbl">🎯 하루 목표 문제 수</p>
     <div class="seg">${[10,20,30,50].map(g=>tg('goal',g,g+'문제',admin.goal===g)).join('')}</div>
     <p class="lbl">📚 보이는 과목</p>
@@ -4874,7 +4871,7 @@ function adminHTML(){
     <p class="lbl">👩 엄마 비밀번호 ${isMom()?'바꾸기':`<small>(${momPinH()?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
     <div class="inrow"><input id="momPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>
     ${!isMom()&&momPinH()?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
-    ${isMom()?'':`${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
+    ${isMom()?'':`${who&&!OPNP()?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}`}
     ${isMom()?'':FIREBASE_CONFIG?`<p class="lbl">🔓 관리자 로그인</p>
     <div class="seg"><button class="pill" data-act="admLogout">로그아웃</button></div>`:`<p class="lbl">🔑 비밀번호 바꾸기</p>
@@ -4920,7 +4917,7 @@ const ACT = {
   lpin: v=>lpinKey(v),
   kidPinReset: v=>{ if(!confirm(`${v}의 비밀번호를 지울까요? 다음에 들어갈 때 새로 만들어요.`)) return; setKidPin(v,null); cloudPushNow(v); toast('비밀번호를 지웠어요'); drawSettings(); },
   addWho: ()=>addWho(),
-  admWho: v=>{ admView=v; drawSettings(); cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
+  admWho: v=>{ admView=v; drawSettings(); if(isMom()||!OPNP()) cloudPull(v).then(ok=>{ if(ok && setMode==='admin' && admView===v) drawSettings(); }); },
   delWho: v=>{
     if(!confirm(`'${v}' 이름과 기록을 모두 지울까요?`)) return;
     store.set('profiles', getProfiles().filter(n=>n!==v));
