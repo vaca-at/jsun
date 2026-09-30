@@ -220,7 +220,11 @@ main{padding:16px 12px 40px 28px}
 .x2card{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-bottom:12px;border-color:var(--hi);background:color-mix(in srgb,var(--hi) 16%,var(--card))}
 .x2card b{font-size:1.2rem;font-weight:normal}
 .x2card .sub{flex:1 1 14em}
-.x2card button{padding:.45rem 1rem;border-radius:12px;background:var(--accent);color:var(--accent-ink)}
+.x2card button{padding:.35rem .9rem;border-radius:12px;background:var(--accent);color:var(--accent-ink);flex:none}
+.x2row{flex-basis:100%;display:flex;align-items:center;gap:10px}
+.x2name{flex:none;min-width:6.5em}
+.x2row .x2bar{flex:1;flex-basis:auto}
+.x2n{flex:none;font-size:.9rem;color:var(--sub);min-width:4.5em;text-align:right}
 .x2bar{flex-basis:100%;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
 .x2bar i{display:block;height:100%;background:var(--hi);border-radius:99px}
 .subj.x2{border-color:var(--hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--hi) 45%,transparent),var(--shadow)}
@@ -2586,35 +2590,47 @@ function subjTodayHTML(s){
   const L=getLog(), days=balDays(), n=balN(L,days[BAL_DAYS-1].k,s);
   return `<span class="subj-today">${n?`오늘 <b>${n}</b>문제`:'오늘 아직 안 했어요'}<span class="bal-dots" aria-hidden="true">${days.map((d,i)=>`<i class="l${balLv(balN(L,d.k,s))}${i===BAL_DAYS-1?' today':''}"></i>`).join('')}</span></span>`;
 }
-/* ───── ⭐×2 오늘의 도전 과목 (2026-09-30, 도윤 · 도진 방만) ─────
-   어제까지 최근 7일 동안 가장 적게 한 과목을 하루에 한 번 정해요 (오늘 풀어도 하루 내내 그대로).
-   그 과목 문제를 맞히면 별을 한 개 더 줘요. 하루 X2_MAX개까지 (대충 많이 풀어 별만 모으지 않게) */
-const X2_MAX = 20;
-function x2Subj(){
-  const k=dayKey(), on=Object.keys(SUBJ).filter(s=>admin.subj[s]), saved=store.get('x2Pick',{});
-  if(saved.d===k && on.includes(saved.s)) return saved.s;
-  if(on.length<2) return '';
+/* ───── ⭐×2 오늘의 도전 과목 두 개 (2026-09-30, 도윤 · 도진 방만) ─────
+   어제까지 최근 7일 동안 가장 적게 한 두 과목을 하루에 한 번 정해요 (오늘 풀어도 하루 내내 그대로).
+   그 과목 문제를 맞히면 별을 한 개 더 줘요. 과목마다 하루 X2_MAX개까지 (25 + 25). 하루 별 상한(STAR_DAY_MAX) 안에서만 쌓여요 */
+const X2_MAX = 25, X2_N = 2;
+function x2Subjs(){
+  const k=dayKey(), on=Object.keys(SUBJ).filter(s=>admin.subj[s]), saved=store.get('x2Pick2',{});
+  if(saved.d===k && Array.isArray(saved.s) && saved.s.length && saved.s.every(s=>on.includes(s))) return saved.s;
+  if(on.length<3) return [];
   const L=getLog(), t=new Date();
   const past=Array.from({length:7},(_,i)=>dayKey(new Date(t.getFullYear(),t.getMonth(),t.getDate()-1-i)));
   const tot=s=>past.reduce((a,d)=>a+balN(L,d,s),0);
-  const s=on.slice().sort((a,b)=>tot(a)-tot(b) || on.indexOf(a)-on.indexOf(b))[0];
-  store.set('x2Pick',{d:k,s}); return s;
+  const old=store.get('x2Pick',{});   // 오늘 이미 한 과목으로 정해졌으면 그 과목은 그대로 두고 하나를 더해요
+  const first=old.d===k && on.includes(old.s) ? [old.s] : [];
+  const rest=on.filter(s=>!first.includes(s)).sort((a,b)=>tot(a)-tot(b) || on.indexOf(a)-on.indexOf(b));
+  const s=[...first,...rest].slice(0,X2_N);
+  // 기록을 아직 못 불러왔으면(최근 7일이 모두 0) 오늘로 정해 두지 않아요. 불러온 뒤 다시 정해요
+  if(on.some(x=>tot(x)>0)) store.set('x2Pick2',{d:k,s});
+  return s;
 }
-function x2Got(){ const o=store.get('x2Day',{}); return o.d===dayKey() ? o.n : 0; }
+function x2Counts(){
+  const k=dayKey(), o=store.get('x2Day2',{});
+  if(o.d===k) return o.n||{};
+  const old=store.get('x2Day',{}), p=store.get('x2Pick',{});   // 예전(한 과목) 오늘 보너스를 이어서 세요
+  return old.d===k && p.d===k && p.s ? {[p.s]:old.n||0} : {};
+}
+function x2Got(s){ return x2Counts()[s]||0; }
 function x2Bonus(s, ok){
-  if(!ok || !SUBJ[s] || s!==x2Subj()) return;
-  const got=x2Got(); if(got>=X2_MAX) return;
-  store.set('x2Day',{d:dayKey(), n:got+1}); addStar(1);
-  if(got===0) setTimeout(()=>toast(`⭐×2 도전 과목 보너스! ${SUBJ[s].name} 맞힐 때마다 별이 하나 더 (하루 ${X2_MAX}개까지)`),700);
-  else if(got+1===X2_MAX) setTimeout(()=>{ toast(`🏆 오늘의 도전 과목 보너스 별 ${X2_MAX}개를 다 받았어요! 정말 멋져요`); burst(); },900);
+  if(!ok || !SUBJ[s] || !x2Subjs().includes(s)) return;
+  const n=x2Counts(), got=n[s]||0; if(got>=X2_MAX) return;
+  n[s]=got+1; store.set('x2Day2',{d:dayKey(), n}); addStar(1);
+  if(got===0) setTimeout(()=>toast(`⭐×2 도전 과목 보너스! ${SUBJ[s].name} 맞힐 때마다 별이 하나 더 (과목마다 ${X2_MAX}개까지)`),700);
+  else if(got+1===X2_MAX) setTimeout(()=>{ toast(`🏆 ${SUBJ[s].name} 보너스 별 ${X2_MAX}개를 다 받았어요! 정말 멋져요`); burst(); },900);
 }
 function x2HTML(){
-  const s=x2Subj(); if(!s) return '';
-  const got=x2Got(), full=got>=X2_MAX;
-  return `<div class="card x2card"><b>⭐×2 오늘의 도전 과목: ${SUBJ[s].ico} ${SUBJ[s].name}</b>
-    <span class="sub">${full ? `보너스 별 ${X2_MAX}개를 다 받았어요! 🎉` : `최근 7일 동안 가장 적게 한 과목이에요. 맞히면 별이 두 배! (보너스 ${got} / ${X2_MAX})`}</span>
-    ${full ? '' : `<button data-act="tab" data-v="${s}">도전하기 →</button>`}
-    <span class="x2bar" aria-hidden="true"><i style="width:${Math.round(got/X2_MAX*100)}%"></i></span></div>`;
+  const ss=x2Subjs(); if(!ss.length) return '';
+  const all=ss.reduce((a,s)=>a+x2Got(s),0), max=ss.length*X2_MAX;
+  return `<div class="card x2card"><b>⭐×2 오늘의 도전 과목 ${ss.length}개</b>
+    <span class="sub">최근 7일 동안 가장 적게 한 과목이에요. 맞히면 별이 두 배! (보너스 ${all} / ${max})</span>
+    ${ss.map(s=>{ const g=x2Got(s), full=g>=X2_MAX; return `<div class="x2row"><span class="x2name">${SUBJ[s].ico} ${SUBJ[s].name}</span>
+      <span class="x2bar" aria-hidden="true"><i style="width:${Math.round(g/X2_MAX*100)}%"></i></span><span class="x2n">${full?'🎉 다 받았어요':`${g} / ${X2_MAX}`}</span>
+      ${full?'':`<button data-act="tab" data-v="${s}">도전 →</button>`}</div>`; }).join('')}</div>`;
 }
 function balanceHTML(){
   const L=getLog(), days=balDays(), on=Object.keys(SUBJ).filter(k=>admin.subj[k]), today=days[BAL_DAYS-1].k;
@@ -2628,7 +2644,7 @@ function balanceHTML(){
   return `<div class="card balcard"><div class="grass-head"><b>🍱 과목 골고루 (최근 7일)</b><span class="sub">🌈 모든 과목 한 날 ${full}일</span></div>
     <div class="bal-wrap"><table class="bal">
       <tr><th></th>${days.map((d,i)=>`<th class="${i===BAL_DAYS-1?'today':''}">${i===BAL_DAYS-1?'오늘':d.w}<small>${d.dd}일</small></th>`).join('')}<th>합</th></tr>
-      ${wk.map(([s,t])=>`<tr><th class="bal-s">${SUBJ[s].ico} ${SUBJ[s].name}${s===x2Subj()?' <small title="오늘의 도전 과목">⭐×2</small>':''}</th>${days.map(d=>{ const n=balN(L,d.k,s); return `<td><span class="l${balLv(n)}">${n||''}</span></td>`; }).join('')}<td class="bal-t">${t}</td></tr>`).join('')}
+      ${wk.map(([s,t])=>`<tr><th class="bal-s">${SUBJ[s].ico} ${SUBJ[s].name}${x2Subjs().includes(s)?' <small title="오늘의 도전 과목">⭐×2</small>':''}</th>${days.map(d=>{ const n=balN(L,d.k,s); return `<td><span class="l${balLv(n)}">${n||''}</span></td>`; }).join('')}<td class="bal-t">${t}</td></tr>`).join('')}
       <tr><th class="bal-s">골고루</th>${days.map(d=>{ const c=on.filter(s=>balN(L,d.k,s)>0).length; return `<td>${c===on.length?'🌈':c?`<small class="sub">${c}/${on.length}</small>`:''}</td>`; }).join('')}<td></td></tr>
     </table></div>
     <div class="sub" style="margin-top:8px;line-height:1.6">${tip}${lowTip}</div></div>`;
@@ -2649,7 +2665,7 @@ function renderHome(){
     </div>
     <div class="dayrule">📌 하루 약속 · 과목마다 <b>${SUBJ_DAY_MAX}문제</b>까지 풀 수 있어요 · 별은 <b>${STAR_DAY_MAX}개</b>, 스티커는 <b>${STICKER_DAY_MAX}장</b>까지 모을 수 있어요</div>
     <div class="subjects">
-      ${on.map(k=>`<button class="subj${k===x2Subj()?' x2':''}" data-act="tab" data-v="${k}">${k===x2Subj()?'<em class="x2tag">⭐×2 도전</em>':''}<span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small>${subjTodayHTML(k)}</button>`).join('')}
+      ${on.map(k=>`<button class="subj${x2Subjs().includes(k)?' x2':''}" data-act="tab" data-v="${k}">${x2Subjs().includes(k)?'<em class="x2tag">⭐×2 도전</em>':''}<span class="ico">${SUBJ[k].ico}</span><b>${SUBJ[k].name}</b><small>${SUBJ[k].desc}</small>${subjTodayHTML(k)}</button>`).join('')}
     </div>
     ${balanceHTML()}
     <div class="card grasscard">${grassHTML()}</div>
