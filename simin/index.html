@@ -388,19 +388,23 @@ function enterKid(kid, isNew){
   rememberKid(kid); S.kid=kid; S.form={name:'',age:null,pin:'',first:''};
   go('kidHome'); speak(`${josa(kid.name,'이','')} 반가워요!`); if(isNew) toast('🪷 공부방이 만들어졌어요!');
 }
+/* 나이별 공부방이 저장한 곳: simin_kids/{아이}/room/state (별) · room/state/daily/{날짜} (과목마다 {n, ok}, total) */
 async function kidStats(id){
-  try{ const d=await db(), qs=await d.collection(C_KIDS).doc(id).collection('daily').get(); let days=0,n=0,ok=0; const m=dayKey().slice(0,7); let month=0;
-    qs.forEach(x=>{ const v=x.data(); const t=v.total||0; if(t){ days++; if(x.id.startsWith(m)) month++; } n+=t; ok+=v.ok||0; }); return {days, n, ok, month}; }catch(e){ return null; }
+  try{ const d=await db(), ref=d.collection(C_KIDS).doc(id).collection('room').doc('state'), st=await ref.get(), qs=await ref.collection('daily').get();
+    let days=0,n=0,ok=0,month=0; const m=dayKey().slice(0,7);
+    qs.forEach(x=>{ const v=x.data(), t=v.total||0; let o=0; for(const k in v){ const e=v[k]; if(e && typeof e==='object' && 'ok' in e) o+=e.ok||0; }
+      if(t){ days++; if(x.id.startsWith(m)) month++; } n+=t; ok+=o; });
+    const s=st.exists?st.data():{}; return {days, n, ok, month, stars:(s.stars||0)+(s.estars||0)}; }catch(e){ return null; }
 }
 function kidHome(){
   const k=S.kid; if(!k){ go('phone'); return; }
   const a=ageOf(k.age);
   view.innerHTML = `<div class="hello"><span class="dongi">${a.ico}</span><div class="bub">${esc(josa(k.name,'아','야'))}, 반가워요! 오늘도 즐겁게 공부해요 🪷</div></div>
     <button class="room-card" data-act="openRoom"><span class="ico">📚</span><span><b>${a.n} 공부방 들어가기</b><span class="sub">한글 · 수 · 영어 · 이야기 … 나이에 맞게 준비했어요</span></span></button>
-    <div class="soon" id="roomSoon" hidden>🛠️ 나이별 공부방은 지금 옮기고 있어요 (2단계). 곧 이 단추로 바로 들어갈 수 있어요.</div>
+    <div class="soon" id="roomSoon" hidden>공부방을 여는 중이에요… 잠시 뒤 다시 눌러 주세요.</div>
     <div class="stats" id="kstats"><div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>–</b><small>📅 공부한 날</small></div><div class="stat"><b>–</b><small>✏️ 푼 문제</small></div></div>
     <div class="row-btns"><button class="pill" data-go="phone">👫 다른 친구로</button><button class="pill" data-act="logout">🚪 나가기</button></div>`;
-  kidStats(k.id).then(s=>{ if(!s || S.screen!=='kidHome') return; const b=$('kstats'); if(b) b.innerHTML=`<div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제</small></div>`; });
+  kidStats(k.id).then(s=>{ if(!s || S.screen!=='kidHome') return; const b=$('kstats'); if(b) b.innerHTML=`<div class="stat"><b>${s.stars}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제</small></div>`; });
 }
 
 /* ───── 👩 엄마아빠 모드 ───── */
@@ -426,7 +430,7 @@ async function parentHome(){
       <div class="stats" id="pstats"><div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>…</b><small>📅 공부한 날</small></div><div class="stat"><b>…</b><small>✏️ 푼 문제</small></div></div>
       <div id="pdays"></div>
       <div class="row-btns"><button class="pill" data-act="kidPinChange">🔑 아이 비밀번호 다시 정하기</button><button class="pill" data-act="parentPinChange">🔐 엄마아빠 비밀번호 바꾸기</button><button class="pill" data-act="parentOut">🚪 나가기</button></div></div>`;
-  const s=await kidStats(k.id); const b=$('pstats'); if(s && b) b.innerHTML=`<div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날 (이번 달 ${s.month})</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제 (맞힘 ${s.ok})</small></div>`;
+  const s=await kidStats(k.id); const b=$('pstats'); if(s && b) b.innerHTML=`<div class="stat"><b>${s.stars}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날 (이번 달 ${s.month})</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제 (맞힘 ${s.ok})</small></div>`;
 }
 /* 엄마아빠 모드 안에서 비밀번호 바꾸기 (두 번 입력) */
 function pinDialog(title, done){
