@@ -1095,13 +1095,13 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
   </div>
 </header>
 
-<aside class="dock" aria-label="시계, 도서관, 스티커, 날씨">
+<aside class="dock" aria-label="시계, 날씨, 도서관, 스티커">
   <button class="dock-t" data-act="clockTile" aria-label="지금 시각 듣기"><small id="dkDate"></small><i id="dkAp"></i><b id="dkTime"></b></button>
+  <button class="dock-t dk-wx" data-act="wxTile" aria-label="오늘 날씨 자세히 보기"><span class="dk-ico" id="dkWxIco">🌡️</span><b id="dkWxT">날씨</b><small id="dkWxS"></small></button>
   <button class="dock-t" data-act="libOpen" aria-label="명작 도서관"><span class="dk-ico">📚</span><small>도서관</small><b id="dkLib"></b></button>
   <button class="dock-t" data-act="tab" data-v="sticker" aria-label="스티커 보기"><span class="dk-ico">🏅</span><small>스티커</small><b id="dkStk"></b></button>
   <button class="dock-t" data-act="tab" data-v="myroom" aria-label="내 캐릭터 방"><span class="dk-ico" id="dkMe">🐶</span><small>내 방</small><b style="font-size:.9rem">꾸미기</b></button>
   <button class="dock-t" data-act="typingGame" aria-label="타자 게임"><span class="dk-ico">⌨️</span><small>타자</small><b style="font-size:.9rem">게임</b></button>
-  <button class="dock-t dk-wx" data-act="wxTile" aria-label="오늘 날씨 자세히 보기"><span class="dk-ico" id="dkWxIco">🌡️</span><b id="dkWxT">날씨</b><small id="dkWxS"></small></button>
 </aside>
 
 <main id="view"></main>
@@ -5399,6 +5399,28 @@ cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);
 evListen();
+
+/* ───── ◀ 뒤로 가기는 공부방 안에서만 (모든 방 공통) ─────
+   주소(jsun.site/방/)는 그대로 두고 화면을 바꿀 때마다 기록을 남겨요 → 뒤로 가면 이전 화면으로.
+   홈에서 뒤로 가도 다른 페이지로 나가지 않고 홈에 머물러요 (크롬은 손대기 전에 만든 기록을 건너뛰어서, 첫 손길에 지킴이를 놓아요) */
+(function(){
+  if(!window.history || !history.pushState) return;
+  const goRaw = go; let fromPop = false, armed = false;
+  const cur = () => (typeof App!=='undefined' && App.view) || 'home';
+  const arm = () => { if(armed) return; armed = true; history.replaceState({room:'guard'}, ''); history.pushState({room:cur()}, ''); };
+  addEventListener('pointerdown', arm, {capture:true}); addEventListener('keydown', arm, {capture:true});
+  go = function(v){ const before = cur(); goRaw.apply(this, arguments); if(!fromPop && armed && cur()!==before) history.pushState({room:cur()}, ''); };
+  addEventListener('popstate', e => {
+    const s = e.state;
+    if(!s || s.room==='guard'){   // 처음 들어온 자리보다 더 뒤로: 나가지 않고 홈으로
+      history.pushState({room:'home'}, '');
+      if(cur()!=='home'){ fromPop = true; try{ goRaw('home'); }catch(x){} finally{ fromPop = false; } }
+      else if(typeof toast==='function') toast('🏠 여기가 홈이에요');
+      return;
+    }
+    if(s.room!==cur()){ fromPop = true; try{ goRaw(s.room); }catch(x){} finally{ fromPop = false; } }
+  });
+})();
 </script>
 </body>
 </html>

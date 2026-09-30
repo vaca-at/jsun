@@ -1207,14 +1207,7 @@ function drawAdm(){
     rows.push(`<tr class="${i?'':'today'}"><th>${t.getMonth()+1}/${t.getDate()}(${'일월화수목금토'[t.getDay()]})</th>${cells}<td><b>${n?`${ok}/${n}`:'-'}</b></td></tr>`); }
   const cloudTxt = cloud.db ? '☁️ 온라인 저장 켜짐 (다율이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   b.innerHTML=`<div class="adm-top"><h3>${mom?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${mom?'':'<button class="pill on" data-act="admAll">📚 전체 관리자 ↗</button>'}</div>
-    ${mom?'':`<div class="evadm"><b>🎉 가족 이벤트 · 별 2배</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
-      ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`:'<button class="pill on" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>'}</div>
-    <div class="evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
-      ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
-              :'<button class="pill on" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div>
-    <div class="evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
-      ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
-              :'<button class="pill on" data-act="gameStart" data-v="10">🥚 10분 게임 열기</button>'}</div>`}
+    <!-- 가족 이벤트(별 2배 · 반값 세일 · 알 줍기)는 도윤 · 도진 · 윤아 · 지아 네 방에서만 켜요 -->
     <p class="sub">${cloudTxt}</p>
     <p class="lbl">📊 최근 7일 기록 <small>(맞은 문제 / 푼 문제)</small></p>
     <div class="scroll-x"><table class="atbl"><tr><th>날짜</th>${STUDY.map(k=>`<th>${SUBJ[k].n}</th>`).join('')}<th>합계</th></tr>${rows.join('')}</table></div>
@@ -1319,6 +1312,28 @@ document.addEventListener('click', e=>{ if(e.target.id==='modal'){ closeAdm(); r
 drawGate(); updateStars(); drawSnd(); render();
 cloudPull().then(ok=>{ if(ok && GUEST) render(); }); cloudPullSettings().then(ch=>{ if(ch && GUEST) render(); });   // 구경 모드도 온라인 기록으로
 evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
+
+/* ───── ◀ 뒤로 가기는 공부방 안에서만 (모든 방 공통) ─────
+   주소(jsun.site/방/)는 그대로 두고 화면을 바꿀 때마다 기록을 남겨요 → 뒤로 가면 이전 화면으로.
+   홈에서 뒤로 가도 다른 페이지로 나가지 않고 홈에 머물러요 (크롬은 손대기 전에 만든 기록을 건너뛰어서, 첫 손길에 지킴이를 놓아요) */
+(function(){
+  if(!window.history || !history.pushState) return;
+  const goRaw = go; let fromPop = false, armed = false;
+  const cur = () => (typeof App!=='undefined' && App.view) || 'home';
+  const arm = () => { if(armed) return; armed = true; history.replaceState({room:'guard'}, ''); history.pushState({room:cur()}, ''); };
+  addEventListener('pointerdown', arm, {capture:true}); addEventListener('keydown', arm, {capture:true});
+  go = function(v){ const before = cur(); goRaw.apply(this, arguments); if(!fromPop && armed && cur()!==before) history.pushState({room:cur()}, ''); };
+  addEventListener('popstate', e => {
+    const s = e.state;
+    if(!s || s.room==='guard'){   // 처음 들어온 자리보다 더 뒤로: 나가지 않고 홈으로
+      history.pushState({room:'home'}, '');
+      if(cur()!=='home'){ fromPop = true; try{ goRaw('home'); }catch(x){} finally{ fromPop = false; } }
+      else if(typeof toast==='function') toast('🏠 여기가 홈이에요');
+      return;
+    }
+    if(s.room!==cur()){ fromPop = true; try{ goRaw(s.room); }catch(x){} finally{ fromPop = false; } }
+  });
+})();
 </script>
 </body>
 </html>
