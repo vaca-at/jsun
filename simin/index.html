@@ -255,7 +255,7 @@ async function findKid(kind, name, age, pin){   // 열쇠로 아이 문서 찾�
 }
 
 /* ═════════ 화면 ═════════ */
-const S = { screen:'entry', grade:null, form:{name:'', age:null, pin:'', first:''}, kid:null, parent:null, admin:null };
+const S = { screen:'entry', grade:null, goal:20, form:{name:'', age:null, pin:'', first:''}, kid:null, parent:null, admin:null };
 function go(screen, patch={}){ Object.assign(S, {screen}, patch); render(); window.scrollTo(0,0); try{ history.pushState({s:screen},''); }catch(e){} }
 addEventListener('popstate', e=>{ const s=e.state&&e.state.s; if(s && s!==S.screen){ S.screen=s; render(); } else if(!s && S.screen!=='entry'){ S.screen='entry'; render(); } });
 function render(){
@@ -291,8 +291,11 @@ function board(){
 function boardPlay(){
   const a=ageOf(S.grade);
   view.innerHTML = `<div class="card center"><div style="font-size:4rem">${a.ico}</div><h2>${a.n} 자성동이 모여라!</h2>
-    <p>우리 모두 한 팀이 되어 문제를 풀어요.<br>맞힐 때마다 <b>🪷 연꽃 별</b>이 하나씩 피어나요.</p>
-    <div class="soon">🛠️ 전자칠판 협동 놀이는 지금 만들고 있어요 (3단계). 곧 이 화면에서 바로 시작할 수 있어요.</div>
+    <p>우리 모두 한 팀이 되어 문제를 풀어요.<br>한 명씩 앞에 나와 누르고, 맞힐 때마다 <b>🪷 연꽃 별</b>이 모두의 것으로 피어나요.<br><span class="sub">동생 · 형아 · 언니가 옆에서 도와줘도 좋아요!</span></p>
+    <h3 style="margin-top:16px">오늘 우리 팀 목표</h3>
+    <div class="row-btns">${[10,20,30].map(g=>`<button class="grade ${S.goal===g?'on':''}" style="min-width:110px;padding:14px 10px" data-goal="${g}">🪷 ${g}<small>연꽃 별</small></button>`).join('')}</div>
+    <button class="big-btn" data-act="boardStart">▶ 다 같이 시작!</button>
+    <p class="sub" style="margin-top:10px">전자칠판에서 한 공부는 저장하지 않아요.</p>
     <button class="big-btn ghost" data-go="board">◀ 학년 다시 고르기</button></div>`;
 }
 
@@ -495,13 +498,15 @@ function act(a, el){
   else if(a==='parentOut'){ S.parent=null; go('entry'); }
   else if(a==='kidPinChange'){ pinDialog('🔑 새 아이 비밀번호', pin=>setKidPin(S.parent, pin)); }
   else if(a==='parentPinChange'){ pinDialog('🔐 새 엄마아빠 비밀번호', pin=>setParentPin(S.parent, pin)); }
+  else if(a==='boardStart'){ const r=ROOM_OF[S.grade]; try{ sessionStorage.removeItem('simin:team:'+S.grade); }catch(e){} location.href=`${r}/?board=1&g=${S.grade}&goal=${S.goal||20}`; }
   else if(a==='adminGoogle') adminGoogle();
   else if(a==='adminFind') adminFind();
   else if(a==='adminOut'){ firebase.auth().signOut().catch(()=>{}); go('entry'); }
 }
 document.addEventListener('click', e=>{
   const g=e.target.closest('[data-go]'); if(g){ const s=g.dataset.go; if(s==='phone'||s==='parent'){ S.form={name:'',age:null,pin:'',first:''}; } if(s==='parentSetup'){ S.setupKid=null; S.form.pin=''; S.form.first=''; } go(s); return; }
-  const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade}); return; }
+  const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade, goal:S.goal||20}); return; }
+  const gl=e.target.closest('[data-goal]'); if(gl){ S.goal=+gl.dataset.goal; render(); return; }
   const ag=e.target.closest('[data-age]'); if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
   const q=e.target.closest('[data-quick]'); if(q){ const k=localKids().find(x=>x.id===q.dataset.quick); if(k){ S.form={name:k.name, age:k.age, pin:'', first:'', quick:k.id}; go('phonePin'); } return; }
   const fp=e.target.closest(".font-pick [data-font]"); if(fp){ const k=fp.dataset.font; LS.set("font",k); if(k) document.documentElement.dataset.font=k; else delete document.documentElement.dataset.font; render(); return; }

@@ -417,8 +417,11 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 
 /* ───── 🪷 행원심인당 자성동이 공부방: 입구(../)에서 로그인한 아이로 열어요 ─────
    이 방은 우리 가족 공부방을 옮겨 온 것이에요. 저장은 simin_kids/{아이 번호}/room/… 에만 해요 */
-const SIM = (()=>{ try{ const cur=JSON.parse(localStorage.getItem('simin:cur')||'null'), L=JSON.parse(localStorage.getItem('simin:kids')||'[]'); return L.find(k=>k.id===cur)||null; }catch(e){ return null; } })();
+/* 🖥️ 전자칠판 모드(?board=1): 모두 한 팀 '자성동이', 온라인에 저장하지 않아요 */
+const SIM_Q = new URLSearchParams(location.search), SIM_BOARD = SIM_Q.has('board');
+const SIM = SIM_BOARD ? {id:'board', name:'자성동이', age:SIM_Q.get('g')||''} : (()=>{ try{ const cur=JSON.parse(localStorage.getItem('simin:cur')||'null'), L=JSON.parse(localStorage.getItem('simin:kids')||'[]'); return L.find(k=>k.id===cur)||null; }catch(e){ return null; } })();
 if(!SIM){ location.replace('../'); throw new Error('입구에서 먼저 들어와요'); }
+if(SIM_BOARD) document.documentElement.classList.add('sim-board');
 const SIM_BAT = (c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)(SIM.name.charCodeAt(SIM.name.length-1));
 const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 민재야
 const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 민재의
@@ -565,6 +568,7 @@ const FIREBASE_CONFIG = {
 const GRADE_ID = 'simin_kids', KID_ID = SIM.id+'/room/state';
 const cloud = { ready:null, db:null };
 function cloudInit(){
+  if(typeof SIM_BOARD!=='undefined' && SIM_BOARD) return Promise.resolve(null);   // 🖥️ 전자칠판: 저장 안 함
   if(cloud.ready) return cloud.ready;
   const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
   const base='https://www.gstatic.com/firebasejs/10.12.2/';
@@ -1431,6 +1435,43 @@ evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 /* 🪷 심인당: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
 .sim-home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:inline-flex;align-items:center;gap:4px;padding:.45rem .85rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 10px rgba(221,101,144,.18)}
 [data-act="openAdmin"],[data-act="openMom"],.adm-links,[data-act="typingGame"],[data-act="openAllAdmin"]{display:none!important}
+/* 🖥️ 전자칠판: 모두 한 팀 막대 · 큰 화면 */
+.team-bar{display:none}
+html.sim-board .team-bar{display:flex;position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:60;align-items:center;gap:12px;padding:8px 18px;border-radius:999px;background:#FFF7F0;border:3px solid #F7C9D8;box-shadow:0 6px 18px rgba(221,101,144,.25);font-weight:700;color:#7A3A55;font-size:1.05rem;white-space:nowrap}
+.team-bar .tb-track{width:min(28vw,260px);height:14px;border-radius:99px;background:#F6E3EA;overflow:hidden}
+.team-bar .tb-track i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#F291B2,#E9B85A);transition:width .4s}
+.team-bar b{font-size:1.25rem;color:#DD6590}
+html.sim-board body{padding-top:62px}
+@media (min-width:1200px){ html.sim-board{zoom:1.22} }
+@media (min-width:1700px){ html.sim-board{zoom:1.45} }
+.team-win{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;background:rgba(255,247,240,.86)}
+.team-win .tw-card{text-align:center;background:#fff;border:4px solid #F7C9D8;border-radius:32px;padding:28px 34px;box-shadow:0 12px 40px rgba(221,101,144,.3);max-width:90vw}
+.team-win .tw-big{font-size:4.2rem;line-height:1.1}
+.team-win h2{font-size:2rem;margin:10px 0 6px;color:#B94873}
+.team-win button{margin-top:16px;padding:.8rem 1.6rem;border-radius:20px;border:0;background:#DD6590;color:#fff;font-size:1.3rem;font-weight:700;cursor:pointer;box-shadow:0 5px 0 #B94873}
 </style>
+<div class="team-bar" id="teamBar" aria-live="polite">🪷 우리 모두 한 팀 · 연꽃 별 <b id="teamN">0</b> / <b id="teamG">20</b><span class="tb-track"><i id="teamT"></i></span></div>
+<script>
+/* 🖥️ 전자칠판 모드: 누가 맞히든 모두의 별 · 목표를 채우면 다 같이 축하 (이 화면에만, 저장 안 함) */
+(function(){
+  if(typeof SIM_BOARD==='undefined' || !SIM_BOARD) return;
+  const home=document.querySelector('.sim-home'); if(home){ home.textContent='🪷 처음으로'; }
+  const K='simin:team:'+(SIM.age||''); let T={n:0, goal:Math.max(5, +SIM_Q.get('goal')||20), wins:0};
+  try{ const s=JSON.parse(sessionStorage.getItem(K)||'null'); if(s && s.goal) T=s; }catch(e){}
+  const save=()=>{ try{ sessionStorage.setItem(K, JSON.stringify(T)); }catch(e){} };
+  const say=t=>{ try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); u.lang='ko-KR'; u.rate=.9; speechSynthesis.speak(u); }catch(e){} };
+  function draw(){ const n=document.getElementById('teamN'), g=document.getElementById('teamG'), t=document.getElementById('teamT'); if(n) n.textContent=T.n; if(g) g.textContent=T.goal; if(t) t.style.width=Math.min(100,T.n/T.goal*100)+'%'; }
+  function win(){
+    T.wins++; save();
+    const w=document.createElement('div'); w.className='team-win';
+    w.innerHTML='<div class="tw-card"><div class="tw-big">🎉🪷🎉</div><h2>우리가 해냈어요!</h2><p style="font-size:1.25rem;margin:0">연꽃 별 <b>'+T.goal+'</b>송이를 모두 함께 피웠어요.<br>도와준 친구들, 모두 고마워요!</p><button type="button">🪷 다음 목표 +'+Math.max(5,+SIM_Q.get('goal')||20)+'</button></div>';
+    document.body.appendChild(w); say('우리가 해냈어요! 모두 함께 박수!');
+    try{ if(typeof celebrate==='function') celebrate(); else if(typeof burst==='function'){ burst(); setTimeout(burst,400); } }catch(e){}
+    w.querySelector('button').onclick=()=>{ T.goal+=Math.max(5,+SIM_Q.get('goal')||20); save(); draw(); w.remove(); };
+  }
+  if(typeof addStar==='function'){ const raw=addStar; addStar=function(n){ const r=raw.apply(this,arguments); const k=(+n||1); if(k>0){ const before=T.n; T.n+=k; save(); draw(); if(before<T.goal && T.n>=T.goal) setTimeout(win,900); } return r; }; }
+  draw();
+})();
+</script>
 </body>
 </html>
