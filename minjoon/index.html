@@ -60,6 +60,9 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .dots i.cur{background:var(--c)}
 .pic{font-size:88px;line-height:1.1;margin:6px 0}
 .prompt{font-size:1.6rem;margin:6px 0 14px}
+.qnav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.qn{min-width:110px;height:48px;padding:0 18px;border-radius:999px;background:#fff;border:2px solid #E6DCCB;color:#5A4B38;font-size:1.05rem;font-weight:700;cursor:pointer}
+.qn:disabled{opacity:.35;cursor:default}
 .listen{display:inline-flex;align-items:center;gap:10px;height:64px;padding:0 26px;border-radius:999px;background:var(--c);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 8px 18px color-mix(in srgb,var(--c) 30%,transparent);margin:4px 0 14px}
 .eq{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;font-size:3rem;font-weight:700;margin:6px 0 18px}
 .eq .op{color:var(--sub)}
@@ -671,7 +674,7 @@ function afterDrop(s, t, ok){
   const P=Q.list[Q.i];
   if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
   if(document.querySelectorAll('#qbox .slot:not(.filled)').length) { if(P.partSay) speak(t.textContent); return; }   // 칸이 더 남았어요
-  addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss;
+  if(Q.ok[Q.i]===undefined){ addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss; }   // 이전으로 돌아가 다시 맞혀도 별은 한 번만
   const msg=praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
   if(P.after && P.afterLang==='en') speak(msg, 'ko', ()=>speak(P.after, 'en'));   // 칭찬은 한국말, 영어 낱말은 영어 목소리로
   else speak(P.after ? `${msg} ${P.after}` : msg);
@@ -680,9 +683,9 @@ function afterDrop(s, t, ok){
 }
 function dotsHTML(){ return `<div class="dots">${Q.list.map((_,k)=>`<i class="${k<Q.i?'ok':k===Q.i?'cur':''}"></i>`).join('')}</div>`; }
 function setDone(title){
-  const n=Q.list.length;
+  const n=Q.list.length, ok=Q.ok.filter(x=>x!==undefined).length;   // 다음 ▶ 으로 넘어간 문제는 빼고 세요
   return `<div class="board"><div class="pic">🎉</div><div class="praise" style="font-size:2.6rem">다 했어요!</div>
-    <p style="font-size:1.3rem">${title} ${n}문제 · 별 ${n}개를 받았어요</p>
+    <p style="font-size:1.3rem">${title} ${ok===n?`${n}문제 모두 풀었어요`:`${n}문제 중 ${ok}문제 풀었어요`} · 별 ${ok}개를 받았어요</p>
     <button class="next" data-act="again">한 번 더 ▶</button> <button class="next" style="background:var(--room)" data-act="go" data-v="home">🏠 놀이 길로</button></div>`;
 }
 
@@ -807,7 +810,7 @@ const SOUNDLV = [
 const BABY=[['병아리','🐔','닭'],['강아지','🐕','개'],['송아지','🐄','소'],['망아지','🐎','말'],['올챙이','🐸','개구리'],['애벌레','🦋','나비'],['새끼 돼지','🐖','돼지'],['아기 펭귄','🐧','펭귄']];
 const PAIR=[['🔑','🔒'],['🧦','👟'],['✏️','📒'],['🥄','🍚'],['🪥','🦷'],['☂️','🌧️'],['🍼','👶'],['🖌️','🎨'],['⚽','🥅'],['🐝','🌸'],['🐰','🥕'],['🐵','🍌'],['🐶','🦴'],['🧤','⛄']];
 const HOME=[['🐟','🌊','물고기는 바다에 살아요'],['🐧','🧊','펭귄은 얼음나라에 살아요'],['🐫','🏜️','낙타는 사막에 살아요'],['🐿️','🌳','다람쥐는 나무에 살아요'],['🐦','🪺','새는 둥지에 살아요'],['🐄','🌾','소는 농장 풀밭에 살아요']];
-const GROUP=[['과일',['🍎','🍌','🍇','🍓','🍉','🍑']],['탈것',['🚗','🚌','🚲','✈️','🚂','🚀']],['동물',['🐶','🐱','🐰','🐻','🐼','🐯']],['옷',['👕','👖','👗','🧦','🧢','🧥']]];
+const GROUP=[['과일',['🍎','🍌','🍇','🍓','🍉','🍑']],['탈것',['🚗','🚌','🚲','✈️','🚂','🚀']],['동물',['🐶','🐱','🐰','🐻','🐼','🐯']],['옷',['👕','👖','👗','🧥','👚','🩳']]];
 const MOMLV = [
   {n:'아기의 엄마는?', g:()=>{ const [b,e,m]=BABY[rnd(0,BABY.length-1)]; return {say:`${b}의 엄마는 누구일까요?`, prompt:`<b>${b}</b>의 엄마는 누구일까요?`, slots:[e], tiles:shuffle([e,...others3(BABY.map(x=>x[1]),e)]), tcls:'pic-tile', after:`${b}의 엄마는 ${m}`}; }},
   {n:'짝꿍 찾기', g:()=>{ const [a,b]=PAIR[rnd(0,PAIR.length-1)]; return {say:'누구랑 짝일까요?', pic:a, prompt:'누구랑 짝일까요?', slots:[b], tiles:shuffle([b,...others3(PAIR.map(x=>x[1]),b)]), tcls:'pic-tile'}; }},
@@ -821,14 +824,14 @@ const MOMLV = [
 const SIZES=[['🐜',1,'개미'],['🐭',2,'쥐'],['🍓',2,'딸기'],['🐱',3,'고양이'],['🍎',3,'사과'],['🐶',4,'강아지'],['🍉',5,'수박'],['🐴',7,'말'],['🚗',7,'자동차'],['🐘',9,'코끼리'],['🏠',9,'집'],['🐳',10,'고래']];
 const POS=[['위','🐱<br>📦','고양이가 상자 위에 있어요'],['아래','📦<br>🐱','고양이가 상자 아래에 있어요'],['옆','🐱 📦','고양이가 상자 옆에 있어요']];
 const SEQ3=[[['🌱','🌿','🌻'],'씨앗, 싹, 꽃'],[['🥚','🐣','🐔'],'알, 병아리, 닭'],[['👶','🧒','🧑'],'아기, 어린이, 어른'],[['🌅','🪥','🍳'],'해가 뜨고, 이를 닦고, 아침을 먹어요'],[['🌑','🌓','🌕'],'달이 점점 차올라요'],[['🌸','☀️','🍂'],'봄, 여름, 가을']];
-const SEQ2=[[['🧼','🍽️'],'손을 씻고 밥을 먹어요'],[['🛁','😴'],'씻고 잠을 자요'],[['🧦','👟'],'양말을 신고 신발을 신어요'],[['🌱','🌻'],'싹이 나고 꽃이 펴요'],[['🥚','🐣'],'알에서 병아리가 나와요'],[['☁️','🌧️'],'구름이 끼고 비가 와요']];
+const SEQ2=[[['🧼','🍽️'],'밥 먹기 전에','손을 씻고 밥을 먹어요'],[['🛁','😴'],'잠자기 전에','씻고 잠을 자요'],[['🧦','👟'],'신발을 신을 때','양말을 먼저 신고, 신발을 신어요'],[['👟','🧦'],'신발을 벗을 때','신발을 먼저 벗고, 양말을 벗어요'],[['🧥','🎒'],'가방을 멜 때','겉옷을 먼저 입고, 가방을 메요'],[['🌱','🌻'],'꽃이 필 때','싹이 먼저 나고, 꽃이 펴요'],[['🥚','🐣'],'병아리가 태어날 때','알이 먼저, 그다음 병아리'],[['☁️','🌧️'],'비가 올 때','구름이 먼저 끼고, 비가 와요']];
 const SIZELV = [
   {n:'더 큰 것은?', g:()=>{ let [a,b]=shuffle(SIZES).slice(0,2); if(a[1]===b[1]) b=SIZES.find(x=>Math.abs(x[1]-a[1])>=2); const big=a[1]>b[1]?a:b;
     return {say:'어느 쪽이 더 클까요?', prompt:'어느 쪽이 더 클까요?', slots:[big[0]], tiles:shuffle([a[0],b[0]]), tcls:'pic-tile', after:`${josa(big[2],'이','가')} 더 커요`}; }},
   {n:'더 작은 것은?', g:()=>{ let [a,b]=shuffle(SIZES).slice(0,2); if(a[1]===b[1]) b=SIZES.find(x=>Math.abs(x[1]-a[1])>=2); const sm=a[1]<b[1]?a:b;
     return {say:'어느 쪽이 더 작을까요?', prompt:'어느 쪽이 더 작을까요?', slots:[sm[0]], tiles:shuffle([a[0],b[0]]), tcls:'pic-tile', after:`${josa(sm[2],'이','가')} 더 작아요`}; }},
   {n:'어디에 있을까?', g:()=>{ const [w,h,t]=POS[rnd(0,POS.length-1)]; return {say:'고양이는 상자 어디에 있을까요?', prompt:`<div class="count-pics pos-pic">${h}</div>고양이는 상자 어디에 있을까요?`, slots:[w], tiles:shuffle(POS.map(x=>x[0])), wide:true, after:t}; }},
-  {n:'무엇이 먼저?', g:()=>{ const [s,t]=SEQ2[rnd(0,SEQ2.length-1)]; return {say:'먼저 하는 것부터 차례로 놓아요', prompt:'먼저 → 나중, 차례로 놓아요', slots:s, tiles:shuffle(s), tcls:'pic-tile', after:t}; }},
+  {n:'무엇이 먼저?', g:()=>{ const [s,q,t]=SEQ2[rnd(0,SEQ2.length-1)]; return {say:q+', 무엇이 먼저일까요? 먼저 것부터 차례로 놓아요', prompt:'<b>'+q+'</b>, 무엇이 먼저일까요?<br>먼저 → 나중 차례로 놓아요', slots:s, tiles:shuffle(s), tcls:'pic-tile', after:t}; }},
   {n:'차례대로 놓기', g:()=>{ const [s,t]=SEQ3[rnd(0,SEQ3.length-1)]; return {say:'차례대로 놓아 볼까요?', prompt:'처음 → 다음 → 마지막, 차례로 놓아요', slots:s, tiles:shuffle(s), tcls:'pic-tile', after:t}; }}
 ];
 /* ───── 연산: 더하기 +1 ~ +9 · 빼기 −1 ~ −9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
@@ -932,7 +935,8 @@ function renderQuiz(area){
       ${P.prompt?`<div class="prompt">${P.prompt}</div>`:''}
       <div class="eq">${P.eq||''} ${slots}</div>
       <div class="tray">${P.tiles.map(v=>tileHTML(v,v,P.tcls||sm)).join('')}</div>
-      <div class="hint" id="hint"></div></div>`; }
+      <div class="hint" id="hint"></div>
+      <div class="qnav"><button class="qn" data-act="qPrev" ${Q.i===0?'disabled':''}>◀ 이전</button><button class="qn" data-act="qNext">${Q.i+1<Q.list.length?'다음 ▶':'끝내기 ▶'}</button></div></div>`; }
   view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}">${i+1}. ${l.n}</button>`).join('')}</div>${body}</div>`;
   if(!Q.done) sayQ();
 }
@@ -1385,6 +1389,9 @@ const ACT = {
   sayHome: ()=>speak('민준아, 오늘도 놀아 볼까? 마음 알기, 소리 친구, 엄마 찾아 주기, 크다 작다, 한글 글자와 낱말, 숫자와 모양, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
+  // ◀ 이전 · 다음 ▶ (넘어간 문제는 별 없이 지나가요)
+  qPrev: ()=>{ if(!Q||Q.done||Q.i<=0) return; Q.i--; Q.miss=false; render(); },
+  qNext: ()=>{ if(!Q||Q.done) return; Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); },
   again: ()=>{ Q=null; render(); },
   mathNext: ()=>{ const M=MATH[MS.area], n=MS.n, pg=MS.page; if(pg>=2){ App[M.key]=Math.min(8,App[M.key]+1); store.set(M.key,App[M.key]); MS=null; } else MS={area:MS.area, n, page:pg, rows:mathPage(n, M.op)}; render(); window.scrollTo(0,0); },
   openStory: v=>{ App.story=v; render(); window.scrollTo(0,0); },

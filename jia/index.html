@@ -60,6 +60,9 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .dots i.cur{background:var(--c)}
 .pic{font-size:88px;line-height:1.1;margin:6px 0}
 .prompt{font-size:1.6rem;margin:6px 0 14px}
+.qnav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.qn{min-width:110px;height:48px;padding:0 18px;border-radius:999px;background:#fff;border:2px solid #E6DCCB;color:#5A4B38;font-size:1.05rem;font-weight:700;cursor:pointer}
+.qn:disabled{opacity:.35;cursor:default}
 .listen{display:inline-flex;align-items:center;gap:10px;height:64px;padding:0 26px;border-radius:999px;background:var(--c);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 8px 18px color-mix(in srgb,var(--c) 30%,transparent);margin:4px 0 14px}
 .eq{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;font-size:3rem;font-weight:700;margin:6px 0 18px}
 .eq .op{color:var(--sub)}
@@ -663,7 +666,7 @@ function afterDrop(s, t, ok){
   const P=Q.list[Q.i];
   if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
   if(document.querySelectorAll('#qbox .slot:not(.filled)').length) { if(P.partSay) speak(t.textContent); return; }   // 칸이 더 남았어요
-  addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss;
+  if(Q.ok[Q.i]===undefined){ addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss; }   // 이전으로 돌아가 다시 맞혀도 별은 한 번만
   const msg=praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
   if(P.after && P.afterLang==='en') speak(msg, 'ko', ()=>speak(P.after, 'en'));   // 칭찬은 한국말, 영어 낱말은 영어 목소리로
   else speak(P.after ? `${msg} ${P.after}` : msg);
@@ -672,9 +675,9 @@ function afterDrop(s, t, ok){
 }
 function dotsHTML(){ return `<div class="dots">${Q.list.map((_,k)=>`<i class="${k<Q.i?'ok':k===Q.i?'cur':''}"></i>`).join('')}</div>`; }
 function setDone(title){
-  const n=Q.list.length;
+  const n=Q.list.length, ok=Q.ok.filter(x=>x!==undefined).length;   // 다음 ▶ 으로 넘어간 문제는 빼고 세요
   return `<div class="board"><div class="pic">🎉</div><div class="praise" style="font-size:2.6rem">다 했어요!</div>
-    <p style="font-size:1.3rem">${title} ${n}문제 · 별 ${n}개를 받았어요</p>
+    <p style="font-size:1.3rem">${title} ${ok===n?`${n}문제 모두 풀었어요`:`${n}문제 중 ${ok}문제 풀었어요`} · 별 ${ok}개를 받았어요</p>
     <button class="next" data-act="again">한 번 더 ▶</button> <button class="next" style="background:var(--room)" data-act="go" data-v="home">🏠 놀이 길로</button></div>`;
 }
 
@@ -832,7 +835,8 @@ function renderQuiz(area){
       ${P.prompt?`<div class="prompt">${P.prompt}</div>`:''}
       <div class="eq">${P.eq||''} ${slots}</div>
       <div class="tray">${P.tiles.map(v=>tileHTML(v,v,P.tcls||sm)).join('')}</div>
-      <div class="hint" id="hint"></div></div>`; }
+      <div class="hint" id="hint"></div>
+      <div class="qnav"><button class="qn" data-act="qPrev" ${Q.i===0?'disabled':''}>◀ 이전</button><button class="qn" data-act="qNext">${Q.i+1<Q.list.length?'다음 ▶':'끝내기 ▶'}</button></div></div>`; }
   view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}">${i+1}. ${l.n}</button>`).join('')}</div>${body}</div>`;
   if(!Q.done) sayQ();
 }
@@ -1293,6 +1297,9 @@ const ACT = {
   sayHome: ()=>speak('지아야, 오늘도 놀아 볼까? 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
+  // ◀ 이전 · 다음 ▶ (넘어간 문제는 별 없이 지나가요)
+  qPrev: ()=>{ if(!Q||Q.done||Q.i<=0) return; Q.i--; Q.miss=false; render(); },
+  qNext: ()=>{ if(!Q||Q.done) return; Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); },
   again: ()=>{ Q=null; render(); },
   mathNext: ()=>{ const M=MATH[MS.area], n=MS.n, pg=MS.page; if(pg>=2){ App[M.key]=Math.min(8,App[M.key]+1); store.set(M.key,App[M.key]); MS=null; } else MS={area:MS.area, n, page:pg, rows:mathPage(n, M.op)}; render(); window.scrollTo(0,0); },
   openStory: v=>{ App.story=v; render(); window.scrollTo(0,0); },
