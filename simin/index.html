@@ -158,7 +158,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
     <summary>🪷 이용 방법</summary>
     <div class="doc">
       <h4>🖥️ 전자칠판 (심인당에서 다 같이)</h4>
-      <ol><li>처음 화면에서 <b>전자칠판</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(연꽃 약 100송이를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100송이를 채우면 다음 차례) · 🏅 나만의 도전 중에서 골라요.</li><li><b>③ 순서</b>: 모둠마다 한 명씩 나와 카드를 한 장씩 뒤집어요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 정답은 차례인 친구만 누르고, 형 · 언니는 💡 힌트 카드로만 도와요. 스스로 맞히면 연꽃 두 송이!</li><li>🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 저장하지 않아요. <b>🏅 나만의 도전</b>은 별명 + 나이 + 비밀번호로 누구인지 확인하고 <b>내 공부방에 저장</b>돼요. 친구와 비교하지 않고 지난번의 나와만 비교해요.</li></ol>
+      <ol><li>처음 화면에서 <b>전자칠판</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(연꽃 약 100송이를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100송이를 채우면 다음 차례) · 🏅 나만의 도전 중에서 골라요.</li><li><b>③ 순서</b>: 🃏 카드 뒤집기 · 🎡 룰렛 · 🪜 사다리 중 하나로 정해요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 각자 자기 나이 문제를 스스로 풀고, 정답은 차례인 친구만 눌러요. 맞히면 연꽃 두 송이!</li><li>🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 저장하지 않아요. <b>🏅 나만의 도전</b>은 별명 + 나이 + 비밀번호로 누구인지 확인하고 <b>내 공부방에 저장</b>돼요. 친구와 비교하지 않고 지난번의 나와만 비교해요.</li></ol>
       <h4>📱 부모님 핸드폰 (집에서 한 명씩)</h4>
       <ol><li><b>부모님 핸드폰</b>을 누르고 아이 <b>이름</b>을 써요. 실명 대신 <b>별명</b>을 써도 돼요.</li><li><b>나이</b>를 누르고, 아이 <b>비밀번호 4자리</b>를 눌러요. 처음이면 같은 번호를 한 번 더 눌러 만들어요.</li><li>나이에 맞는 공부방이 열려요. 다음부터는 이 핸드폰에 이름이 남아 있어서 비밀번호만 누르면 돼요.</li></ol>
       <h4>👩 엄마아빠 모드</h4>
@@ -458,15 +458,34 @@ async function dialogPin(){
 
 /* ───── 🔒 관리자: 구글 로그인 · 숫자만 · 엄마아빠 비밀번호 초기화 ───── */
 const isAdminUser = async u => { const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
+/* 카카오톡 · 네이버 · 인스타그램 같은 앱 안 브라우저에서는 구글이 로그인을 막아요 (disallowed_useragent) → 기본 브라우저로 열기 안내 */
+const IN_APP = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent);
 function adminLogin(){
-  view.innerHTML = `<div class="card center"><h2>🔒 관리자</h2><p class="sub">기존 공부방과 같은 관리자 구글 계정으로 들어가요</p><button class="big-btn" data-act="adminGoogle">G 구글로 로그인</button><div class="msg" id="msg"></div></div>`;
-  cloudInit().then(ok=>{ if(!ok) return; const u=firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); }); });
+  const kakao=/KAKAOTALK/i.test(navigator.userAgent), url=location.href.split('#')[0];
+  view.innerHTML = `<div class="card center"><h2>🔒 관리자</h2><p class="sub">기존 공부방과 같은 관리자 구글 계정으로 들어가요</p>
+    ${IN_APP?`<div class="soon" style="text-align:left">⚠️ <b>카카오톡 · 네이버 같은 앱 안에서는 구글 로그인이 막혀 있어요.</b><br>${kakao?'아래 단추로 기본 브라우저(사파리 · 크롬)에서 열어 주세요.':'오른쪽 위 ⋮ 또는 ⋯ 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 주세요.'}</div>
+      <div class="row-btns">${kakao?`<a class="pill" href="kakaotalk://web/openExternal?url=${encodeURIComponent(url)}">🌐 기본 브라우저로 열기</a>`:''}<button class="pill" data-act="copyUrl">🔗 주소 복사</button></div>`:''}
+    <button class="big-btn" data-act="adminGoogle">G 구글로 로그인</button><div class="msg" id="msg"></div></div>`;
+  adminAuto();
+}
+/* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요) */
+function adminAuto(){
+  cloudInit().then(ok=>{ if(!ok) return; let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off()); if(u) isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); }); }); });
 }
 async function adminGoogle(){
+  const msg=()=>document.getElementById('msg');
   if(!await cloudInit()){ toast('인터넷 연결을 확인해 주세요'); return; }
   const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
-  try{ const r=await firebase.auth().signInWithPopup(p); if(await isAdminUser(r.user)) go('adminHome'); else { await firebase.auth().signOut(); toast('관리자 계정이 아니에요'); } }
-  catch(e){ if(e.code==='auth/popup-blocked'){ try{ await firebase.auth().signInWithRedirect(p); return; }catch(e2){} } if(e.code!=='auth/popup-closed-by-user' && e.code!=='auth/cancelled-popup-request') toast('로그인하지 못했어요'); }
+  try{
+    try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
+    const r=await firebase.auth().signInWithPopup(p);
+    if(await isAdminUser(r.user)) go('adminHome'); else { await firebase.auth().signOut(); if(msg()) msg().textContent='관리자 계정이 아니에요 ('+(r.user.email||'')+')'; }
+  }catch(e){
+    if(e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment'){ try{ LS.set('adminRedirect',1); await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
+    if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request') return;
+    const why={'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/internal-error':'로그인 창을 열지 못했어요. 앱 안 브라우저라면 사파리 · 크롬에서 열어 주세요'}[e.code];
+    if(msg()) msg().textContent=(why||'로그인하지 못했어요')+(e.code?' ('+e.code+')':''); else toast(why||'로그인하지 못했어요');
+  }
 }
 async function adminHome(){
   view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
@@ -508,6 +527,7 @@ function act(a, el){
   else if(a==='parentPinChange'){ pinDialog('🔐 새 엄마아빠 비밀번호', pin=>setParentPin(S.parent, pin)); }
   else if(a==='boardStart'){ const r=ROOM_OF[S.grade]; try{ sessionStorage.removeItem('simin:team:'+S.grade); }catch(e){} location.href=`${r}/?board=1&g=${S.grade}&goal=${S.goal||20}`; }
   else if(a==='adminGoogle') adminGoogle();
+  else if(a==='copyUrl'){ const u=location.href.split('#')[0]; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('주소를 복사했어요. 사파리 · 크롬에 붙여 넣어 주세요')).catch(()=>prompt('이 주소를 복사해 주세요',u)); }
   else if(a==='adminFind') adminFind();
   else if(a==='adminOut'){ firebase.auth().signOut().catch(()=>{}); go('entry'); }
 }
@@ -531,6 +551,7 @@ $('homeBtn').addEventListener('click', ()=>go('entry'));
 /* 이 핸드폰에서 방금까지 공부하던 친구가 있으면 비밀번호만 누르게 */
 try{ history.replaceState({s:'entry'},''); }catch(e){}
 render();
+if(LS.get('adminRedirect',0)){ LS.del('adminRedirect'); cloudInit().then(ok=>{ if(!ok) return; firebase.auth().getRedirectResult().then(r=>{ const u=r&&r.user||firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y) go('adminHome'); else toast('관리자 계정이 아니에요'); }); }).catch(e=>toast('로그인하지 못했어요 ('+(e.code||'')+')')); }); }
 </script>
 </body>
 </html>

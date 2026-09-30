@@ -105,7 +105,16 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qtools{position:absolute;right:16px;top:14px;display:flex;gap:8px}
 .tool{padding:8px 14px;border-radius:999px;background:var(--gold-s);border:3px solid #EED9A8;font-family:var(--font-t);font-size:18px}
 .tool:disabled{opacity:.4}
-.hintbox{margin-top:8px;padding:8px 14px;border-radius:16px;background:var(--gold-s);font-size:19px;text-align:center}
+/* 룰렛 · 사다리 */
+.wheel{position:relative;width:200px;height:200px;margin:4px auto 0}
+.wheel svg{width:200px;height:200px;display:block}
+.wheel .rot{transform-origin:100px 100px;transition:transform 3s cubic-bezier(.17,.67,.2,1)}
+.wheel .pin{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--lotus-d);filter:drop-shadow(0 2px 1px rgba(0,0,0,.2))}
+.spin-btn{display:block;margin:4px auto 0;padding:8px 22px;border-radius:999px;background:var(--lotus-d);color:#fff;font-family:var(--font-t);font-size:20px}
+.spin-btn:disabled{opacity:.45}
+.ladder svg{width:100%;display:block}
+.ladder .walk{stroke-dasharray:1;stroke-dashoffset:1;animation:walk 2.2s ease-in-out forwards}
+@keyframes walk{to{stroke-dashoffset:0}}
 .say-msg{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);padding:18px 30px;border-radius:26px;background:#fff;border:4px solid var(--leaf);font-family:var(--font-t);font-size:40px;box-shadow:0 10px 30px rgba(0,0,0,.12);pointer-events:none;animation:pop .25s ease-out}
 .say-msg.oops{border-color:var(--gold)}
 @keyframes pop{from{transform:translate(-50%,-50%) scale(.7);opacity:0}}
@@ -148,6 +157,91 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .msg{min-height:1.5em;text-align:center;color:var(--no);font-size:19px;margin-top:8px}
 .msg.ok{color:var(--leaf-d)}
 .timer{font-family:var(--font-t);font-size:44px;text-align:center;color:var(--lotus-d)}
+/* @@ROOM-CSS START — 나이별 공부방 문제 모양 (build: board-css.js) */
+.qbody{--accent:var(--lotus-d);--accent-ink:#fff;--ok:var(--leaf-d);--hi:#FFD84D;--soft:var(--lotus-s);--card:#fff;--muted:var(--sub)}
+.qbody h1,.qbody .big,.qbody .tab,.qbody .pill,.qbody .big-btn,.qbody .subj b,.qbody .sheet h3,.qbody .grass-head b,.qbody .bigtime,.qbody .hq,.qbody .qtop,.qbody .letters,.qbody .abc-word,.qbody .ww,.qbody .ph-eq{font-family:var(--font-t),var(--font),'Jua',sans-serif;font-weight:var(--tw)}
+.qbody .praise,.qbody .bn-p,.qbody .msg,.qbody .hj-mean,.qbody .hj-qm,.qbody .ph-ko,.qbody .toast,.qbody .hello .big{font-family:var(--font-p),var(--font),'Jua',sans-serif;font-weight:normal}
+.qbody .center{text-align:center}
+.qbody .sub{color:var(--sub)}
+.qbody .big{font-size:1.5rem}
+.qbody .clock{width:7.5rem;height:7.5rem;flex:none;display:block}
+.qbody .ck-face{fill:var(--paper);stroke:var(--ink);stroke-width:4}
+.qbody .ck-tick{stroke:var(--sub);stroke-width:1.5}
+.qbody .ck-tick.b{stroke:var(--ink);stroke-width:3}
+.qbody .ck-num{fill:var(--ink);font-size:17px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
+.qbody .ck-h{stroke:var(--ink);stroke-width:8;stroke-linecap:round}
+.qbody .ck-m{stroke:var(--accent);stroke-width:5;stroke-linecap:round}
+.qbody .ck-s{stroke:var(--no);stroke-width:2;stroke-linecap:round}
+.qbody .ck-c{fill:var(--ink)}
+.qbody .hello .big{margin-bottom:4px}
+.qbody .clocktile .clock{width:5rem;height:5rem}
+.qbody .dg.op{font-size:2.6rem}
+.qbody .sq .clock{width:11rem;height:11rem;margin:0 auto 8px}
+.qbody .sq .big{font-size:2.2rem}
+.qbody .box{display:inline-block;min-width:1.7em;border:3px dashed var(--sub);border-radius:8px;line-height:1.25}
+.qbody .tbl{border-collapse:collapse;margin:4px auto 12px;font-size:1rem;line-height:1.3}
+.qbody .tbl th,.qbody .tbl td{border:2px solid var(--line);padding:.3rem .5rem;text-align:center;font-weight:normal}
+.qbody .tbl th{color:var(--sub)}
+.qbody .gtbl td{width:3.4rem;height:1.9rem;padding:0 .3rem;color:var(--accent);font-size:1.4rem;line-height:1}
+.qbody .gtbl .ax{border:none;font-size:.85rem}
+.qbody .gcap{font-size:1rem;color:var(--sub)}
+.qbody .exam-info .tbl{margin:8px 0}
+.qbody .ls-big{text-align:center;font-size:1.5rem;line-height:1.6;margin:8px 0;padding:8px;border-radius:14px;background:var(--paper);border:2px dashed var(--line)}
+.qbody .ls-big u{color:var(--no);text-decoration:none;font-weight:bold}
+.qbody .ls-clock .clock{width:10rem;height:10rem;margin:0 auto}
+.qbody .lesson .tbl{margin:8px auto}
+.qbody .ko-para{text-align:left;font-size:1.1rem;line-height:1.7;background:var(--paper);border:2px dashed var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.qbody .frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.05;margin:0 .12em;font-size:.9em}
+.qbody .frac>i{font-style:normal;padding:0 .18em;min-width:1em;text-align:center}
+.qbody .frac>i:first-child{border-bottom:.12em solid currentColor}
+.qbody .frac .ansbox{min-width:1.3em;padding:0 .1em;border:2px dashed var(--accent);border-radius:6px;font-size:1em;line-height:1.2}
+.qbody .mixed{white-space:nowrap}
+.qbody .shape{display:block;width:100%;max-width:17rem;height:auto;margin:0 auto 6px;overflow:visible}
+.qbody .shape .sp{fill:color-mix(in srgb,var(--accent) 12%,var(--paper));stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
+.qbody .shape .sd{stroke:var(--no);stroke-width:2;stroke-dasharray:5 4}
+.qbody .shape text{fill:var(--ink);font-size:15px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
+.qbody .shape .sq-mark{fill:none;stroke:var(--ink);stroke-width:1.5}
+.qbody .shape .tk{stroke:var(--no);stroke-width:2.5}
+.qbody .lgraph{display:block;width:100%;max-width:24rem;height:auto;margin:0 auto 4px}
+.qbody .lgraph .gl{stroke:var(--line);stroke-width:1}
+.qbody .lgraph .ax{stroke:var(--ink);stroke-width:1.5}
+.qbody .lgraph .ln{fill:none;stroke:var(--accent);stroke-width:3;stroke-linejoin:round}
+.qbody .lgraph circle{fill:var(--paper);stroke:var(--accent);stroke-width:2.5}
+.qbody .lgraph text{fill:var(--sub);font-size:11px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
+.qbody .lgraph .wave{fill:none;stroke:var(--ink);stroke-width:1.5}
+.qbody .lgraph .bar{fill:color-mix(in srgb,var(--accent) 45%,var(--paper));stroke:var(--accent);stroke-width:1.5}
+.qbody .mv-orig .shape{max-width:7rem}
+.qbody .mv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.qbody .mv-grid>div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:12px;border:2px dashed var(--line)}
+.qbody .mv-grid b{font-weight:normal;font-size:.95rem}
+.qbody .mv-grid .shape{max-width:5.2rem;margin:0}
+.qbody .hello .big{font-size:1.6rem}
+.qbody .cx-sub{width:100%;font-size:.7em;color:var(--sub);margin-bottom:4px}
+.qbody .cx-fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.15;font-size:.85em;margin:0 .1em}
+.qbody .cx-fr>i{font-style:normal;padding:0 .2em;min-width:1em;text-align:center}
+.qbody .cx-fr>i:first-child{border-bottom:.1em solid currentColor;padding-bottom:.06em;margin-bottom:.06em}
+.qbody .cx-fr .cx-slot{min-width:1.9em;height:1.3em;font-size:.95em}
+.qbody .cx-mx{display:inline-flex;align-items:center;gap:.08em;white-space:nowrap}
+.qbody .cx-mx>.cx-sw .cx-slot{min-width:1.4em}
+.qbody .cx-groups{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:2px 0 10px}
+.qbody .cx-g{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:4.8rem;padding:8px 10px;border:2px solid color-mix(in srgb,#0FA3B1 45%,var(--line));border-radius:14px;background:color-mix(in srgb,#0FA3B1 7%,var(--paper))}
+.qbody .cx-g i{width:14px;height:14px;border-radius:50%;background:#0FA3B1}
+.qbody .me-head .sub{font-size:.85rem}
+.qbody .x2card .sub{flex:1 1 14em}
+.qbody .hello .sub{color:var(--sub);font-size:.95rem;margin-top:2px}
+.qbody .eq .op{color:var(--sub)}
+.qbody .read-s{font-size:1.9rem;font-weight:700;line-height:1.5}
+.qbody .bundle{letter-spacing:.02em}
+.qbody .slot-mark{display:inline-block;min-width:2.2em;border-bottom:3px solid currentColor;text-align:center}
+.qbody .row .cnt i.b{background:var(--c)}
+.qbody .sheet .sub{color:var(--sub);font-size:.9rem}
+.qbody .sheet .center{text-align:center}
+.qbody .pos-pic{line-height:1.05}
+.qbody .count-pics{font-size:2.6rem;line-height:1.25;letter-spacing:.06em;max-width:15em;margin:0 auto 6px}
+.qbody .two-sides{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:2.1rem;margin-bottom:6px}
+.qbody .two-sides div{padding:8px 12px;border-radius:16px;background:#fff;border:2px solid #EEE3D3}
+.qbody .two-sides b{display:block;font-size:1.1rem;color:#8A7A60}
+/* @@ROOM-CSS END */
 </style>
 </head>
 <body>
@@ -158,11 +252,10 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 const FIREBASE_CONFIG = { apiKey:"AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw", authDomain:"moon-15f88.firebaseapp.com", projectId:"moon-15f88", storageBucket:"moon-15f88.firebasestorage.app", messagingSenderId:"124372121061", appId:"1:124372121061:web:b1596628daae0bb08eab0c" };
 const AGES = [['k5','5세','🐣'],['k6','6세','🐥'],['k7','7세','🐤'],['e1','초1','🌱'],['e2','초2','🌿'],['e3','초3','🍀'],['e4','초4','🌳']];
 const ROOM_OF = {k5:'k5', k6:'k7', k7:'k7', e1:'e1', e2:'e2', e3:'e3', e4:'e4'};   // 6세는 7세 공부방 문제
-const HOWS = [['card','카드 뒤집기','🃏',''],['roulette','룰렛','🎡','곧 열려요'],['ladder','사다리','🪜','곧 열려요']];
+const HOWS = [['card','카드 뒤집기','🃏'],['roulette','룰렛','🎡'],['ladder','사다리','🪜']];
 const SOLO = [['time',3,'⏱ 3분 동안 몇 송이?'],['time',5,'⏱ 5분 동안 몇 송이?'],['count',10,'🪷 10송이까지 몇 분?'],['count',20,'🪷 20송이까지 몇 분?']];
 const ORD = ['첫 번째','두 번째','세 번째','네 번째','다섯 번째','여섯 번째','일곱 번째','여덟 번째','아홉 번째','열 번째'];
 const PROMISE = '🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기';
-const HINTS_PER_TURN = 2;
 
 /* ═════════ 도움 ═════════ */
 const $ = id => document.getElementById(id), stage = $('stage');
@@ -209,9 +302,70 @@ const keyOf = (name, age, pin) => sha256Hex(`simin-v1|k|${cleanName(name)}|${age
 const ST = { screen:'setup', ages:[], cnt:{}, mode:'all', how:'card', cards:null, solo:0, kid:null, form:{name:'',age:null,pin:'',first:''} };
 let G = null;   // 함께 풀기 · 나만의 도전 판
 const per = () => { const n=ST.ages.length||1; return Math.max(5, Math.round(100/n/5)*5); };
-function resetCards(){ const n=ST.ages.length; ST.cards = n ? {nums:shuffle([...Array(n)].map((_,i)=>i+1)), up:{}, pick:0} : null; }   // up: 카드 칸 → 연령대
-const orderDone = () => ST.ages.length===1 || (ST.cards && Object.keys(ST.cards.up).length===ST.ages.length);
-const orderList = () => { if(ST.ages.length===1) return ST.ages.slice(); if(!orderDone()) return []; return Object.entries(ST.cards.up).sort((a,b)=>ST.cards.nums[a[0]]-ST.cards.nums[b[0]]).map(x=>x[1]); };
+function resetCards(){   // 연령대가 바뀌거나 '다시' 누르면 세 가지 방법 모두 새로
+  const n=ST.ages.length; ST.tok=(ST.tok||0)+1;
+  ST.cards = n ? {nums:shuffle([...Array(n)].map((_,i)=>i+1)), up:{}, pick:0} : null;   // up: 카드 칸 → 연령대
+  ST.spin = {list:[], rot:0, busy:false};   // 룰렛: 뽑힌 차례대로
+  ST.ladder = n>1 ? makeLadder(n) : null;
+}
+/* 사다리: 칸마다 가로줄을 무작위로 (옆 가로줄과 붙지 않게, 이웃한 두 줄 사이엔 적어도 하나) */
+function makeLadder(n){
+  const L=8, rungs=[...Array(L)].map(()=>Array(n-1).fill(false));
+  for(let l=0;l<L;l++) for(let c=0;c<n-1;c++) if(!(c>0 && rungs[l][c-1]) && Math.random()<.42) rungs[l][c]=true;
+  for(let c=0;c<n-1;c++) if(!rungs.some(r=>r[c])){ let l=rungs.findIndex(r=>!r[c-1] && !r[c+1]); if(l<0){ l=0; rungs[0][c-1]=false; rungs[0][c+1]=false; } rungs[l][c]=true; }
+  const ends=[...Array(n)].map((_,s)=>{ let c=s; for(let l=0;l<L;l++){ if(c<n-1 && rungs[l][c]) c++; else if(c>0 && rungs[l][c-1]) c--; } return c; });
+  return {n, L, rungs, ends, run:false, done:false};
+}
+function ladderPath(s, lad, X, Y){   // 위 s번째 줄에서 내려가는 길
+  let c=s; const pts=[[X(c),Y(-0.5)]];
+  for(let l=0;l<lad.L;l++){ pts.push([X(c),Y(l)]); if(c<lad.n-1 && lad.rungs[l][c]) c++; else if(c>0 && lad.rungs[l][c-1]) c--; pts.push([X(c),Y(l)]); }
+  pts.push([X(c),Y(lad.L-0.5)]); return pts.map(p=>p.join(',')).join(' ');
+}
+const WHEEL_COL = ['#F7B6C8','#BFE3B4','#FFE08A','#B9D8F5','#E4C9F2','#FFC9A8','#CDEBE4'];
+const colOf = k => WHEEL_COL[ST.ages.indexOf(k)%WHEEL_COL.length];
+const orderDone = () => ST.ages.length===1 || (ST.ages.length>0 && orderList().length===ST.ages.length);
+function orderList(){
+  const n=ST.ages.length; if(n===1) return ST.ages.slice(); if(!n) return [];
+  if(ST.how==='roulette') return ST.spin.list.length===n ? ST.spin.list.slice() : [];
+  if(ST.how==='ladder') return ST.ladder && ST.ladder.done ? ST.ages.map((k,i)=>[k,ST.ladder.ends[i]]).sort((a,b)=>a[1]-b[1]).map(x=>x[0]) : [];
+  if(!ST.cards || Object.keys(ST.cards.up).length!==n) return [];
+  return Object.entries(ST.cards.up).sort((a,b)=>ST.cards.nums[a[0]]-ST.cards.nums[b[0]]).map(x=>x[1]);
+}
+function wheelHTML(){
+  const left=ST.ages.filter(k=>!ST.spin.list.includes(k)), s=360/Math.max(1,left.length), P=a=>[100+92*Math.sin(a*Math.PI/180), 100-92*Math.cos(a*Math.PI/180)].map(v=>v.toFixed(1)).join(',');
+  const seg=left.map((k,i)=>{ const a0=i*s, a1=(i+1)*s, m=(a0+a1)/2, tx=100+60*Math.sin(m*Math.PI/180), ty=100-60*Math.cos(m*Math.PI/180);
+    const shape = left.length===1 ? `<circle cx="100" cy="100" r="92" fill="${colOf(k)}"/>` : `<path d="M100,100 L${P(a0)} A92,92 0 ${s>180?1:0},1 ${P(a1)} Z" fill="${colOf(k)}" stroke="#fff" stroke-width="3"/>`;
+    return `${shape}<text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" transform="rotate(${m.toFixed(1)} ${tx.toFixed(1)} ${ty.toFixed(1)})" font-size="${left.length>5?15:18}" font-family="var(--font-t)" fill="#5B3A2E">${ageOf(k)[2]}${nameOf(k)}</text>`; }).join('');
+  const done = left.length===0 ? `<circle cx="100" cy="100" r="92" fill="var(--leaf-s)"/><text x="100" y="60" text-anchor="middle" font-size="22">🎉</text>` : '';
+  return `<div class="wheel"><svg viewBox="0 0 200 200" aria-label="룰렛"><g class="rot" style="transform:rotate(${ST.spin.rot}deg)">${seg}${done}</g><circle cx="100" cy="100" r="16" fill="#fff" stroke="var(--line)" stroke-width="3"/><text x="100" y="101" text-anchor="middle" dominant-baseline="middle" font-size="16">🪷</text></svg><i class="pin"></i></div>`;
+}
+function spinWheel(){
+  const left=ST.ages.filter(k=>!ST.spin.list.includes(k)); if(ST.spin.busy || left.length<2) return;
+  const j=Math.floor(Math.random()*left.length), s=360/left.length, pick=left[j], tok=ST.tok;
+  const to = 360*5 + (360 - (j+.5)*s) + (Math.random()-.5)*s*.6;   // 바늘(위)에 j칸 가운데쯤
+  ST.spin.busy=true; render();
+  const g=stage.querySelector('.wheel .rot'); requestAnimationFrame(()=>requestAnimationFrame(()=>{ if(g) g.style.transform=`rotate(${to}deg)`; }));
+  speak('빙글빙글');
+  setTimeout(()=>{ if(ST.tok!==tok || ST.screen!=='setup') return;
+    ST.spin.list.push(pick); const rest=ST.ages.filter(k=>!ST.spin.list.includes(k)); if(rest.length===1) ST.spin.list.push(rest[0]);
+    ST.spin.busy=false; ST.spin.rot=0; render();
+    speak(rest.length===1 ? `${nameOf(pick)}, 그다음은 ${nameOf(rest[0])}! 순서가 정해졌어요` : `${ORD[ST.spin.list.length-1]}는 ${nameOf(pick)}!`);
+  }, 3200);
+}
+function ladderHTML(){
+  const lad=ST.ladder, n=lad.n, W=230, top=34, H=170, X=c=>(14+c*(W-28)/(n-1)).toFixed(1), Y=l=>(top+(l+.5)*H/lad.L).toFixed(1), ord=orderList(), fs=n>5?11:13;
+  let g = ST.ages.map((k,c)=>`<text x="${X(c)}" y="14" text-anchor="middle" font-size="16">${ageOf(k)[2]}</text><text x="${X(c)}" y="29" text-anchor="middle" font-size="${fs}" font-family="var(--font-t)" fill="#5B3A2E">${nameOf(k)}</text>`).join('');
+  g += [...Array(n)].map((_,c)=>`<line x1="${X(c)}" y1="${top}" x2="${X(c)}" y2="${top+H}" stroke="#C9B8A6" stroke-width="4" stroke-linecap="round"/>`).join('');
+  lad.rungs.forEach((r,l)=>r.forEach((on,c)=>{ if(on) g+=`<line x1="${X(c)}" y1="${Y(l)}" x2="${X(c+1)}" y2="${Y(l)}" stroke="#C9B8A6" stroke-width="4" stroke-linecap="round"/>`; }));
+  if(lad.run || lad.done) g += ST.ages.map((k,s)=>`<polyline class="${lad.done?'':'walk'}" pathLength="1" points="${ladderPath(s,lad,c=>+X(c),l=>+Y(l))}" fill="none" stroke="${colOf(k)}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" style="animation-delay:${s*.12}s;mix-blend-mode:multiply"/>`).join('');
+  g += [...Array(n)].map((_,c)=>{ const k=lad.done?ord[c]:null; return `<circle cx="${X(c)}" cy="${top+H+16}" r="12" fill="${k?colOf(k):'#fff'}" stroke="var(--lotus-d)" stroke-width="2"/><text x="${X(c)}" y="${top+H+17}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-family="var(--font-t)" fill="var(--lotus-d)">${c+1}</text>`; }).join('');
+  return `<div class="ladder"><svg viewBox="0 0 ${W} ${top+H+32}" aria-label="사다리">${g}</svg></div>`;
+}
+function climbLadder(){
+  const lad=ST.ladder; if(!lad || lad.run || lad.done) return; const tok=ST.tok;
+  lad.run=true; render(); speak('사다리를 타요');
+  setTimeout(()=>{ if(ST.tok!==tok || ST.screen!=='setup') return; lad.run=false; lad.done=true; render(); speak('순서는 ' + orderList().map(nameOf).join(', ') + '!'); }, 2200 + lad.n*120 + 200);
+}
 
 /* ═════════ 화면 ═════════ */
 const barHTML = (title) => `<div class="bar"><span style="font-size:40px">🖥️</span><h1>${title}</h1><span class="mantra">옴마니반메훔</span><a class="home" href="../">🪷 처음으로</a></div>`;
@@ -232,21 +386,32 @@ function setup(){
   else {
     const c=ST.cards, n=ST.ages.length;
     let cards='';
-    if(n>1 && ST.how==='card'){
+    if(n>1 && ST.how==='roulette'){
+      const left=n-ST.spin.list.length;
+      cards = `<div class="picker">${left<1?'순서가 정해졌어요!':ST.spin.busy?'빙글빙글…':`${ORD[ST.spin.list.length]} 차례를 뽑아요`}</div>${wheelHTML()}
+        ${left>0?`<button class="spin-btn" data-act="spin" ${ST.spin.busy?'disabled':''}>🎡 돌리기</button>`:''}
+        <button class="small-link" data-act="reshuffle" ${ST.spin.busy?'disabled':''}>🔄 처음부터</button>`;
+    } else if(n>1 && ST.how==='ladder'){
+      const lad=ST.ladder;
+      cards = `<div class="picker">${lad.done?'순서가 정해졌어요!':lad.run?'내려가는 중…':'위에서 아래로 따라가요'}</div>${ladderHTML()}
+        ${lad.done||lad.run?'':`<button class="spin-btn" data-act="climb">🪜 사다리 타기</button>`}
+        <button class="small-link" data-act="reshuffle" ${lad.run?'disabled':''}>🔄 새 사다리</button>`;
+    } else if(n>1 && ST.how==='card'){
       const picker = !orderDone() ? ST.ages.filter(k=>!Object.values(c.up).includes(k))[0] : null;
       cards = `${picker?`<div class="picker">${ageOf(picker)[2]} ${nameOf(picker)} 모둠 친구가<br>카드를 한 장 골라요</div>`:'<div class="picker">순서가 정해졌어요!</div>'}
         <div class="cards">${c.nums.map((num,i)=>c.up[i]?`<div class="cardf up"><span><b>${num}</b>${nameOf(c.up[i])}</span></div>`:`<button class="cardf" data-card="${i}" aria-label="카드 뒤집기" ${picker?'':'disabled'}>?</button>`).join('')}</div>
         <button class="small-link" data-act="reshuffle">🔄 다시 섞기</button>`;
     } else if(n===1) cards='<div class="picker">한 연령대라 바로 시작해요</div>';
     else cards='<p class="note">먼저 ① 연령대를 골라요</p>';
-    m3 = `${HOWS.map(([k,nm,e,soon])=>`<button class="how ${ST.how===k?'on':''}" data-how="${k}" ${soon?'disabled':''}><i>${e}</i><b>${nm}</b>${soon?`<em>${soon}</em>`:''}</button>`).join('')}${cards}`;
+    const busy=(ST.spin&&ST.spin.busy) || (ST.ladder&&ST.ladder.run);
+    m3 = `${HOWS.map(([k,nm,e])=>`<button class="how ${ST.how===k?'on':''}" data-how="${k}" ${busy?'disabled':''} ${n>1&&ST.how!==k?'style="padding:3px 12px"':''}><i>${e}</i><b>${nm}</b></button>`).join('')}${cards}`;
   }
   const ready = solo || (ST.ages.length && orderDone());
   const goalTxt = solo ? SOLO[ST.solo][2] : ST.mode==='all' ? `🪷 ${per()*(ST.ages.length||1)}송이 (연령대마다 ${per()})` : '🪷 연령대마다 100송이';
   const m4 = `<span class="lbl">${solo?'오늘의 도전':'순서'}</span>
     ${solo?'':`<div class="order">${ord.length?ord.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join(''):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
     <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
-    <div class="promise">${solo?'🙂 친구가 도전할 때는<br>조용히 응원해 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>💡 형 · 언니는 힌트로만 도와요'}</div>
+    <div class="promise">${solo?'🙂 친구가 도전할 때는<br>조용히 응원해 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>🙂 틀려도 괜찮다고 말해 주기'}</div>
     <button class="go" data-act="start" ${ready?'':'disabled'}>${solo?'나 확인하기':'시작하기'}</button>
     <p class="note" style="margin:0">${solo?'🏅 나만의 도전은 내 공부방에 저장돼요':'다 같이 · 학년별은 저장하지 않아요'}</p>`;
   stage.innerHTML = barHTML('다 같이 연꽃 피우기') + `<div class="marks">
@@ -259,14 +424,14 @@ function setup(){
 /* ── 함께 풀기 ── */
 function startTeam(){
   const ord=orderList(), goal = ST.mode==='all' ? per() : 100;
-  G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal})), pos:0, q:null, hints:0, used:false, lock:false, loading:false };
+  G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal})), pos:0, q:null, lock:false, loading:false };
   ord.forEach(k=>bankOf(ROOM_OF[k]));   // 미리 열어 둬요
   ST.screen='play'; newTurn(true);
 }
 const curGroup = () => G.groups[G.pos];
 function turnLabel(g){ const a=ageOf(g.k); return `${a[2]} ${a[1]} ${g.cnt>1?`모둠 · ${ORD[g.friend%g.cnt]||`${g.friend%g.cnt+1}번째`} 친구 차례`:'친구 차례'}`; }
 async function newTurn(first){
-  const g=curGroup(), g0=G; G.q=null; G.hints=0; G.used=false; G.lock=false; G.hintText=''; G.off=new Set(); G.loading=true; render();
+  const g=curGroup(), g0=G; G.q=null; G.lock=false; G.off=new Set(); G.loading=true; render();
   let q=null; try{ q=await nextQ(g.k); }catch(e){ g0.err=e.message; }
   if(G!==g0 || ST.screen!=='play') return;   // 기다리는 동안 그만했으면 그대로
   G.q=q; G.loading=false; render(); showBanner(first?`${turnLabel(g)} · ${PROMISE}`:PROMISE);
@@ -278,21 +443,21 @@ function play(){
   const g=curGroup(), total=G.groups.reduce((a,x)=>a+x.got,0), goalAll=G.groups.reduce((a,x)=>a+x.goal,0);
   const body = G.loading ? '<div class="qbody"><div style="font-size:60px">🪷</div><p>문제를 준비하고 있어요…</p></div>'
     : !G.q ? `<div class="qbody"><p>${esc(G.err||'문제를 불러오지 못했어요')}</p><button class="btn2" data-act="retryQ">다시 불러오기</button></div>`
-    : `<div class="qbody">${G.q.html}</div>${G.hintText?`<div class="hintbox">💡 ${esc(G.hintText)}</div>`:''}${choicesHTML(G.q)}`;
+    : `<div class="qbody">${G.q.html}</div>${choicesHTML(G.q)}`;
   stage.innerHTML = barHTML(G.mode==='all'?'🤝 다 같이 협동':'🎓 학년별 협동') + `<div class="play">
     <div style="min-height:0"><div class="turn"><span class="ico">${ageOf(g.k)[2]}</span><span>${turnLabel(g).replace(/^\S+ /,'')}</span></div>
-      <div class="qcard">${G.q?`<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button>${G.kind==='team'?`<button class="tool" data-act="hint" ${G.hints>=HINTS_PER_TURN||G.lock?'disabled':''}>💡 힌트 카드 ${HINTS_PER_TURN-G.hints}</button>`:''}</div>`:''}${body}</div></div>
+      <div class="qcard">${G.q?`<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button></div>`:''}${body}</div></div>
     <div class="side">
       <div class="panel total">🪷 우리가 피운 연꽃<b>${total}</b><span style="font-size:18px;color:var(--sub)">목표 ${goalAll}송이</span></div>
       <div class="panel" style="flex:1"><h3>${G.mode==='all'?'모둠마다 연꽃':'연령대 차례'}</h3>${G.groups.map((x,i)=>`<div class="grp ${i===G.pos?'cur':''} ${x.got>=x.goal?'done':''}"><div class="gh"><span>${ageOf(x.k)[2]} ${nameOf(x.k)}${x.cnt>1?` <small style="font-size:14px;color:var(--sub)">${x.cnt}명</small>`:''}</span><span>${x.got>=x.goal?'🌸 활짝!':`${x.got} / ${x.goal}`}</span></div><div class="gbar"><i style="width:${Math.min(100,x.got/x.goal*100)}%"></i></div></div>`).join('')}</div>
-      <div class="panel rules">✋ 정답은 <b>차례인 친구만</b> 눌러요<br>💡 형 · 언니는 <b>힌트 카드</b>로만 도와요 (한 차례 2번)<br>🪷 스스로 맞히면 <b>두 송이</b>, 힌트로 맞히면 한 송이<br><button class="small-link" data-act="stop">그만하고 처음 화면으로</button></div>
+      <div class="panel rules">✋ 정답은 <b>차례인 친구만</b> 눌러요<br>📚 각자 <b>자기 나이 문제</b>를 스스로 풀어요<br>🪷 맞히면 <b>두 송이</b><br><button class="small-link" data-act="stop">그만하고 처음 화면으로</button></div>
     </div></div>`;
 }
 function flash(text, oops){ const m=document.createElement('div'); m.className='say-msg'+(oops?' oops':''); m.textContent=text; stage.appendChild(m); setTimeout(()=>m.remove(), oops?1300:1200); }
 function answer(i){
   if(!G.q || G.lock) return; const c=G.q.choices[i];
   if(String(c)===String(G.q.ans)){
-    G.lock=true; const add = G.kind==='solo' ? 2 : (G.used ? 1 : 2);
+    G.lock=true; const add = 2;
     if(G.kind==='team'){ curGroup().got += add; } else { G.got += add; G.solved++; }
     render(); const btn=stage.querySelector(`[data-ch="${i}"]`); if(btn) btn.classList.add('yes');
     flash(`딩동댕! 🪷 +${add}`); speak(G.q.after ? `딩동댕! ${G.q.after}` : '딩동댕! 잘했어요!');
@@ -300,12 +465,6 @@ function answer(i){
   } else {
     G.off.add(c); render(); flash('괜찮아요, 다시 해 봐요!', true); speak('괜찮아요, 다시 해 봐요!');
   }
-}
-function useHint(){
-  if(!G.q || G.hints>=HINTS_PER_TURN) return; G.hints++; G.used=true;
-  if(G.hints===1 && G.q.hint) G.hintText=G.q.hint;
-  const wrong=G.q.choices.filter(c=>String(c)!==String(G.q.ans) && !G.off.has(c)); if(wrong.length>1 || (wrong.length===1 && G.q.choices.length-G.off.size>2)) G.off.add(shuffle(wrong)[0]);
-  render(); speak('힌트 카드를 썼어요');
 }
 function afterTeam(){
   const g=curGroup(); g.friend++;
@@ -425,9 +584,10 @@ stage.addEventListener('click', e=>{
     stage.querySelectorAll('.pinrow i').forEach((x,i)=>x.classList.toggle('f', i<f.pin.length)); if(f.pin.length===4) setTimeout(soloPin,120); return; }
   const a=d.act;
   if(a==='reshuffle'){ resetCards(); render(); }
+  else if(a==='spin') spinWheel();
+  else if(a==='climb') climbLadder();
   else if(a==='start'){ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:null,pin:'',first:''}; render(); } else startTeam(); }
   else if(a==='sayQ'){ if(G&&G.q) speak(G.q.say); }
-  else if(a==='hint') useHint();
   else if(a==='retryQ') newTurn(false);
   else if(a==='stop'){ if(confirm('그만하고 처음 화면으로 갈까요?')){ G=null; ST.screen='setup'; render(); } }
   else if(a==='again'){ resetCards(); G=null; ST.screen='setup'; render(); }
