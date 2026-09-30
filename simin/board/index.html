@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>전자칠판 · 행원심인당 자성동이 공부방</title>
+<meta name="theme-color" content="#FFF7F0">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<style>
+/* ───── 🖥️ 전자칠판 (jsun.site/simin/board/) ─────
+   가로 전자칠판 한 화면(1280×720)을 화면 크기에 맞춰 늘이고 줄여요. 색은 입구와 같아요 (연분홍 · 연두 · 금빛) */
+@font-face{font-family:"OwnglyphYuntaeng";src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"OngleipUnz";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2406-1@1.0/Ownglyph_UNZ-Rg.woff2") format("woff2");font-weight:normal;font-display:swap}
+:root{
+  --bg:#FFF7F0; --paper:#FFFFFF; --ink:#4A3B36; --sub:#8C7A72; --line:#F1DED3;
+  --lotus:#F291B2; --lotus-d:#DD6590; --lotus-s:#FDE3EC; --leaf:#7FC39A; --leaf-d:#4E9E70; --leaf-s:#E3F4E8;
+  --gold:#D4A24C; --gold-s:#FBF0D9; --no:#E35D5D;
+  --font:'Gowun Dodum',system-ui,sans-serif; --font-t:'Jua','Gowun Dodum',sans-serif;
+}
+:root[data-font="yuntaeng"]{--font:"OwnglyphYuntaeng","Gowun Dodum",sans-serif;--font-t:"OwnglyphYuntaeng","Jua",sans-serif}
+:root[data-font="unz"]{--font:"OngleipUnz","Gowun Dodum",sans-serif;--font-t:"OngleipUnz","Jua",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#3B3431}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:disabled{cursor:default}
+button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+.stage{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:20px;overflow:hidden}
+.t{font-family:var(--font-t);font-weight:normal}
+.lbl{font-family:var(--font-t);font-size:18px;color:var(--sub);letter-spacing:.04em}
+/* 윗줄 */
+.bar{display:flex;align-items:center;gap:14px;height:64px;padding:0 30px}
+.bar h1{margin:0;font-family:var(--font-t);font-weight:normal;font-size:32px;flex:1}
+.bar .mantra{font-family:var(--font-t);color:var(--gold);letter-spacing:.3em;font-size:15px}
+.home{padding:8px 16px;border-radius:999px;background:var(--paper);border:3px solid var(--line);font-family:var(--font-t);font-size:18px}
+/* ── 1. 책갈피 네 장 (시작 화면) ── */
+.marks{display:grid;grid-template-columns:1.25fr 1.1fr 1fr .95fr;gap:16px;height:636px;padding:0 30px 20px}
+.mark{position:relative;padding:58px 14px 50px;background:var(--paper);border:3px solid var(--line);border-top:0;display:flex;flex-direction:column;gap:10px;clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 26px),0 100%);min-height:0}
+.mark::before{content:"";position:absolute;left:0;right:0;top:0;height:44px;background:var(--c)}
+.mark h4{position:absolute;left:16px;top:6px;margin:0;font-family:var(--font-t);font-weight:normal;font-size:24px;color:#fff}
+.m1{--c:var(--lotus)} .m2{--c:var(--leaf)} .m3{--c:var(--gold)} .m4{--c:var(--lotus-d)}
+.m4{align-items:center;text-align:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--font-t);font-size:21px;padding:7px 12px;border-radius:18px;background:var(--paper);border:3px solid var(--line);display:inline-flex;align-items:center;gap:6px}
+.chip.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.cnt{display:flex;flex-direction:column;gap:4px;overflow:auto;min-height:0}
+.cnt div{display:flex;align-items:center;gap:6px;font-size:17px;background:var(--lotus-s);border-radius:12px;padding:3px 8px}
+.cnt div span{flex:1}
+.cnt button{width:30px;height:30px;border-radius:50%;background:#fff;border:2px solid #F7C9D8;font-family:var(--font-t);font-size:18px;line-height:1}
+.cnt b{min-width:1.6em;text-align:center;font-family:var(--font-t)}
+.mode{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:20px;background:var(--paper);border:3px solid var(--line)}
+.mode.on{border-color:var(--leaf-d);background:var(--leaf-s)}
+.mode b{font-family:var(--font-t);font-weight:normal;font-size:23px;display:block}
+.mode small{font-size:15px;color:var(--sub);line-height:1.45;display:block}
+.mode .n{font-family:var(--font-t);color:var(--leaf-d);font-size:17px}
+.how{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:18px;background:var(--paper);border:3px solid var(--line);text-align:left}
+.how.on{border-color:var(--gold);background:var(--gold-s)}
+.how b{font-family:var(--font-t);font-weight:normal;font-size:21px}
+.how i{font-style:normal;font-size:28px}
+.how em{font-style:normal;margin-left:auto;font-size:14px;color:var(--sub)}
+.how:disabled{opacity:.5}
+.cards{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.cardf{width:50px;height:68px;border-radius:10px;display:grid;place-items:center;font-family:var(--font-t);font-size:15px;border:2px solid var(--lotus);background:repeating-linear-gradient(45deg,var(--lotus-s) 0 8px,#fff 8px 16px);line-height:1.1;text-align:center;transition:transform .25s}
+.cardf.up{background:var(--paper);border-color:var(--lotus-d);color:var(--lotus-d);cursor:default}
+.cardf.up b{display:block;font-size:22px}
+.picker{font-family:var(--font-t);font-size:18px;color:var(--lotus-d);text-align:center;background:var(--lotus-s);border-radius:14px;padding:6px 8px}
+.order{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;font-family:var(--font-t);font-size:19px}
+.order span{padding:2px 8px;border-radius:14px;background:var(--lotus-s)}
+.order i{font-style:normal;color:var(--sub);font-size:16px}
+.promise{font-size:15px;background:var(--gold-s);border-radius:16px;padding:6px 10px;line-height:1.5}
+.go{font-family:var(--font-t);font-size:28px;border-radius:26px;background:var(--lotus-d);color:#fff;padding:10px 26px;box-shadow:0 6px 0 #B94873}
+.go:disabled{background:#E7C2D0;box-shadow:0 6px 0 #D8A9BA}
+.go:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 #B94873}
+.small-link{font-size:15px;color:var(--lotus-d);text-decoration:underline}
+.note{font-size:15px;color:var(--sub);line-height:1.45}
+/* ── 2. 함께 풀기 ── */
+.play{display:grid;grid-template-columns:1fr 330px;gap:18px;height:636px;padding:0 30px 20px}
+.turn{display:flex;align-items:center;gap:12px;font-family:var(--font-t);font-size:30px;padding:10px 18px;border-radius:22px;background:var(--lotus-s);border:3px solid #F7C9D8}
+.turn .ico{font-size:40px}
+.qcard{position:relative;background:var(--paper);border:3px solid var(--line);border-radius:26px;padding:18px 22px;margin-top:12px;height:calc(100% - 78px);display:flex;flex-direction:column}
+.qbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;font-size:30px;min-height:0;overflow:hidden}
+.qbody .q-pic{font-size:88px;line-height:1.1}
+.qbody .q-pic svg{width:190px;height:190px}
+.qbody .q-bigl{font-size:78px;font-family:var(--font-t)}
+.qbody .q-eq{font-family:var(--font-t);font-size:46px}
+.qbody .q-mark{color:var(--lotus-d);border-bottom:4px solid var(--lotus-d);padding:0 .3em}
+.qbody .q-p{line-height:1.45}
+.qbody .count-pics{font-size:46px;line-height:1.2}
+.qbody .two-sides{display:flex;gap:18px;justify-content:center;font-size:40px}
+.qbody .two-sides div{padding:6px 14px;border-radius:16px;border:2px solid var(--line)}
+.qbody .big{font-size:48px;font-family:var(--font-t)}
+.qbody .box,.qbody .blank,.qbody .slot-mark{display:inline-block;min-width:2em;border-bottom:4px solid var(--lotus-d);color:var(--lotus-d)}
+.qbody table{border-collapse:collapse;margin:0 auto;font-size:22px}
+.qbody td,.qbody th{border:1.5px solid var(--line);padding:4px 10px}
+.qbody small{font-size:22px;color:var(--sub)}
+.qbody svg{max-height:230px}
+.choices{display:grid;grid-template-columns:repeat(var(--n,4),minmax(0,1fr));gap:12px;margin-top:12px}
+.choice{min-height:86px;padding:8px 10px;border-radius:22px;background:#fff;border:4px solid var(--line);font-family:var(--font-t);font-size:30px;line-height:1.2;box-shadow:0 5px 0 var(--line)}
+.choice.pic{font-size:56px}
+.choice.long{font-size:21px;font-family:var(--font)}
+.choice:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.choice.no{opacity:.35;text-decoration:line-through}
+.choice.yes{border-color:var(--leaf-d);background:var(--leaf-s)}
+.qtools{position:absolute;right:16px;top:14px;display:flex;gap:8px}
+.tool{padding:8px 14px;border-radius:999px;background:var(--gold-s);border:3px solid #EED9A8;font-family:var(--font-t);font-size:18px}
+.tool:disabled{opacity:.4}
+.hintbox{margin-top:8px;padding:8px 14px;border-radius:16px;background:var(--gold-s);font-size:19px;text-align:center}
+.say-msg{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);padding:18px 30px;border-radius:26px;background:#fff;border:4px solid var(--leaf);font-family:var(--font-t);font-size:40px;box-shadow:0 10px 30px rgba(0,0,0,.12);pointer-events:none;animation:pop .25s ease-out}
+.say-msg.oops{border-color:var(--gold)}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.7);opacity:0}}
+.side{display:flex;flex-direction:column;gap:10px;min-height:0}
+.panel{background:var(--paper);border:3px solid var(--line);border-radius:22px;padding:12px 14px;overflow:auto;min-height:0}
+.panel h3{margin:0 0 6px;font-family:var(--font-t);font-weight:normal;font-size:22px}
+.grp{padding:6px 8px;border-radius:14px;margin-bottom:6px}
+.grp.cur{background:var(--lotus-s);outline:3px solid #F7C9D8}
+.grp.done{opacity:.7}
+.grp .gh{display:flex;justify-content:space-between;font-family:var(--font-t);font-size:20px}
+.gbar{height:14px;border-radius:99px;background:#F6E3EA;overflow:hidden;margin-top:4px}
+.gbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--lotus),var(--gold));transition:width .4s}
+.total{font-family:var(--font-t);font-size:24px;text-align:center}
+.total b{font-size:40px;color:var(--lotus-d);display:block;line-height:1.1}
+.rules{font-size:16px;line-height:1.55}
+.banner{position:absolute;left:50%;top:78px;transform:translateX(-50%);z-index:20;padding:12px 26px;border-radius:999px;background:var(--gold-s);border:3px solid #EED9A8;font-family:var(--font-t);font-size:26px;white-space:nowrap;animation:drop .3s ease-out;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+@keyframes drop{from{transform:translate(-50%,-20px);opacity:0}}
+/* ── 3. 축하 · 결과 ── */
+.full{height:656px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:0 40px}
+.bloom{font-size:120px;line-height:1;animation:bloom 1.4s ease-in-out infinite alternate}
+@keyframes bloom{to{transform:scale(1.12) rotate(4deg)}}
+.full h2{margin:0;font-family:var(--font-t);font-weight:normal;font-size:52px;color:var(--lotus-d)}
+.full p{margin:0;font-size:26px;line-height:1.5}
+.btns{display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.btn2{font-family:var(--font-t);font-size:24px;padding:10px 22px;border-radius:22px;background:#fff;border:3px solid var(--line)}
+.rain{position:absolute;top:-60px;font-size:40px;animation:fall linear forwards;pointer-events:none}
+@keyframes fall{to{transform:translateY(820px) rotate(200deg)}}
+/* ── 4. 나만의 도전: 나 확인 ── */
+.login{display:grid;grid-template-columns:1fr 1fr;gap:24px;height:636px;padding:0 60px 20px;align-items:start}
+.lcard{background:var(--paper);border:3px solid var(--line);border-radius:26px;padding:18px 22px}
+.lcard h3{margin:0 0 8px;font-family:var(--font-t);font-weight:normal;font-size:26px}
+.field{display:block;width:100%;padding:12px 16px;border-radius:18px;border:3px solid var(--line);font:inherit;font-size:28px;text-align:center;background:#FFFDFB;color:var(--ink)}
+.field:focus{outline:none;border-color:var(--lotus)}
+.pinrow{display:flex;justify-content:center;gap:16px;margin:12px 0}
+.pinrow i{width:26px;height:26px;border-radius:50%;border:3px solid var(--lotus);background:#fff}
+.pinrow i.f{background:var(--lotus)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:340px;margin:0 auto}
+.key{height:64px;border-radius:20px;background:#fff;border:3px solid var(--line);font-family:var(--font-t);font-size:30px;box-shadow:0 4px 0 var(--line)}
+.key.fn{font-size:18px;font-family:var(--font)}
+.msg{min-height:1.5em;text-align:center;color:var(--no);font-size:19px;margin-top:8px}
+.msg.ok{color:var(--leaf-d)}
+.timer{font-family:var(--font-t);font-size:44px;text-align:center;color:var(--lotus-d)}
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<div id="banks" hidden></div>
+<script>
+/* ═════════ 설정 ═════════ */
+const FIREBASE_CONFIG = { apiKey:"AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw", authDomain:"moon-15f88.firebaseapp.com", projectId:"moon-15f88", storageBucket:"moon-15f88.firebasestorage.app", messagingSenderId:"124372121061", appId:"1:124372121061:web:b1596628daae0bb08eab0c" };
+const AGES = [['k5','5세','🐣'],['k6','6세','🐥'],['k7','7세','🐤'],['e1','초1','🌱'],['e2','초2','🌿'],['e3','초3','🍀'],['e4','초4','🌳']];
+const ROOM_OF = {k5:'k5', k6:'k7', k7:'k7', e1:'e1', e2:'e2', e3:'e3', e4:'e4'};   // 6세는 7세 공부방 문제
+const HOWS = [['card','카드 뒤집기','🃏',''],['roulette','룰렛','🎡','곧 열려요'],['ladder','사다리','🪜','곧 열려요']];
+const SOLO = [['time',3,'⏱ 3분 동안 몇 송이?'],['time',5,'⏱ 5분 동안 몇 송이?'],['count',10,'🪷 10송이까지 몇 분?'],['count',20,'🪷 20송이까지 몇 분?']];
+const ORD = ['첫 번째','두 번째','세 번째','네 번째','다섯 번째','여섯 번째','일곱 번째','여덟 번째','아홉 번째','열 번째'];
+const PROMISE = '🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기';
+const HINTS_PER_TURN = 2;
+
+/* ═════════ 도움 ═════════ */
+const $ = id => document.getElementById(id), stage = $('stage');
+const ageOf = k => AGES.find(a=>a[0]===k);
+const nameOf = k => ageOf(k)[1];
+const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const josa = (w,a,b) => { const c=w.charCodeAt(w.length-1); return w + (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? a : b); };
+const LS = { get(k,d){ try{ const v=localStorage.getItem('simin:'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } } };
+const cleanName = s => String(s||'').replace(/\s+/g,' ').trim().slice(0,12);
+async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const dayKey = (t=new Date()) => `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+const mmss = s => `${Math.floor(s/60)}분 ${String(Math.floor(s%60)).padStart(2,'0')}초`;
+function speak(text){ try{ if(!text || !('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(text).replace(/<[^>]+>/g,' ')); u.lang='ko-KR'; u.rate=.88; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.replace('_','-').startsWith('ko')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
+(()=>{ const f=LS.get('font',''); if(f) document.documentElement.dataset.font=f; })();   // 입구에서 고른 글씨체
+/* 1280×720 칠판을 화면에 맞게 */
+function fit(){ const s=Math.min(innerWidth/1280, innerHeight/720); stage.style.transform=`translate(${(innerWidth-1280*s)/2}px,${(innerHeight-720*s)/2}px) scale(${s})`; }
+addEventListener('resize', fit); fit();
+
+/* ═════════ 문제 은행: 나이별 공부방을 보이지 않는 틀로 열어 SIM_QGEN() 으로 한 문제씩 ═════════ */
+const BANK = {};
+function bankOf(room){
+  if(BANK[room]) return BANK[room];
+  const f=document.createElement('iframe'); f.src=`../${room}/?board=1&bank=1&g=${room}`; f.title='문제 은행'; f.tabIndex=-1; f.setAttribute('aria-hidden','true');
+  f.style.cssText='position:absolute;width:10px;height:10px;opacity:0;pointer-events:none'; $('banks').appendChild(f);
+  BANK[room]=new Promise((res,rej)=>{ let n=0; const t=setInterval(()=>{ try{ if(f.contentWindow && typeof f.contentWindow.SIM_QGEN==='function'){ clearInterval(t); res(f.contentWindow); return; } }catch(e){} if(++n>150){ clearInterval(t); rej(new Error('문제를 불러오지 못했어요')); } },100); });
+  return BANK[room];
+}
+async function nextQ(ageK){ const w=await bankOf(ROOM_OF[ageK]); for(let i=0;i<5;i++){ const q=w.SIM_QGEN(); if(q) return q; } throw new Error('문제를 만들지 못했어요'); }
+
+/* ═════════ 온라인 (나만의 도전만 저장) ═════════ */
+const cloud = { ready:null, db:null };
+function cloudInit(){
+  if(cloud.ready) return cloud.ready;
+  const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{ firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); return cloud.db; }).catch(()=>null);
+  return cloud.ready;
+}
+async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터넷 연결을 확인해 주세요'); return d; }
+const keyOf = (name, age, pin) => sha256Hex(`simin-v1|k|${cleanName(name)}|${age}|${pin}`);   // 입구 · 집 공부방과 같은 열쇠
+
+/* ═════════ 상태 ═════════ */
+const ST = { screen:'setup', ages:[], cnt:{}, mode:'all', how:'card', cards:null, solo:0, kid:null, form:{name:'',age:null,pin:'',first:''} };
+let G = null;   // 함께 풀기 · 나만의 도전 판
+const per = () => { const n=ST.ages.length||1; return Math.max(5, Math.round(100/n/5)*5); };
+function resetCards(){ const n=ST.ages.length; ST.cards = n ? {nums:shuffle([...Array(n)].map((_,i)=>i+1)), up:{}, pick:0} : null; }   // up: 카드 칸 → 연령대
+const orderDone = () => ST.ages.length===1 || (ST.cards && Object.keys(ST.cards.up).length===ST.ages.length);
+const orderList = () => { if(ST.ages.length===1) return ST.ages.slice(); if(!orderDone()) return []; return Object.entries(ST.cards.up).sort((a,b)=>ST.cards.nums[a[0]]-ST.cards.nums[b[0]]).map(x=>x[1]); };
+
+/* ═════════ 화면 ═════════ */
+const barHTML = (title) => `<div class="bar"><span style="font-size:40px">🖥️</span><h1>${title}</h1><span class="mantra">옴마니반메훔</span><a class="home" href="../">🪷 처음으로</a></div>`;
+function render(){ ({setup, play, win, soloLogin, soloPlay, soloDone})[ST.screen](); }
+
+/* ── 시작: 책갈피 네 장 ── */
+function setup(){
+  const solo=ST.mode==='solo', ord=orderList();
+  const m1 = solo
+    ? `<span class="lbl">한 명씩 앞에 나와요</span><p class="note" style="margin:0">🏅 <b>나만의 도전</b>은 한 명씩 <b>자기 나이 문제</b>로 해요.<br>시작하면 별명 · 나이 · 비밀번호로 누구인지 확인해요.<br>친구와 비교하거나 순위를 매기지 않아요. <b>지난번의 나</b>와만 비교해요.</p>`
+    : `<span class="lbl">오늘 온 연령대를 모두 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.ages.includes(k)?'on':''}" data-age="${k}" aria-pressed="${ST.ages.includes(k)}">${e} ${n}</button>`).join('')}</div>
+      ${ST.ages.length?`<span class="lbl">연령대마다 친구 몇 명?</span><div class="cnt">${ST.ages.map(k=>`<div><span>${ageOf(k)[2]} ${nameOf(k)}</span><button data-cnt="${k}" data-d="-1" aria-label="${nameOf(k)} 친구 한 명 빼기">−</button><b>${ST.cnt[k]||1}</b><button data-cnt="${k}" data-d="1" aria-label="${nameOf(k)} 친구 한 명 더하기">＋</button>명</div>`).join('')}</div>`:''}`;
+  const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 차례대로 돌아가며</small><span class="n">${ST.ages.length||'?'} 연령대 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
+    <button class="mode ${ST.mode==='grade'?'on':''}" data-mode="grade"><b>🎓 학년별 협동</b><small>한 연령대가 100송이를 채우면 다음 차례</small><span class="n">연령대마다 100송이</span></button>
+    <button class="mode ${ST.mode==='solo'?'on':''}" data-mode="solo"><b>🏅 나만의 도전</b><small>한 명씩 · 순위 없이 · 내 공부방에 기록</small><span class="n">지난번의 나와 비교해요</span></button>`;
+  let m3;
+  if(solo) m3 = `<span class="lbl">어떤 도전을 할까요?</span>${SOLO.map(([t,v,n],i)=>`<button class="how ${ST.solo===i?'on':''}" data-solo="${i}"><b>${n}</b></button>`).join('')}`;
+  else {
+    const c=ST.cards, n=ST.ages.length;
+    let cards='';
+    if(n>1 && ST.how==='card'){
+      const picker = !orderDone() ? ST.ages.filter(k=>!Object.values(c.up).includes(k))[0] : null;
+      cards = `${picker?`<div class="picker">${ageOf(picker)[2]} ${nameOf(picker)} 모둠 친구가<br>카드를 한 장 골라요</div>`:'<div class="picker">순서가 정해졌어요!</div>'}
+        <div class="cards">${c.nums.map((num,i)=>c.up[i]?`<div class="cardf up"><span><b>${num}</b>${nameOf(c.up[i])}</span></div>`:`<button class="cardf" data-card="${i}" aria-label="카드 뒤집기" ${picker?'':'disabled'}>?</button>`).join('')}</div>
+        <button class="small-link" data-act="reshuffle">🔄 다시 섞기</button>`;
+    } else if(n===1) cards='<div class="picker">한 연령대라 바로 시작해요</div>';
+    else cards='<p class="note">먼저 ① 연령대를 골라요</p>';
+    m3 = `${HOWS.map(([k,nm,e,soon])=>`<button class="how ${ST.how===k?'on':''}" data-how="${k}" ${soon?'disabled':''}><i>${e}</i><b>${nm}</b>${soon?`<em>${soon}</em>`:''}</button>`).join('')}${cards}`;
+  }
+  const ready = solo || (ST.ages.length && orderDone());
+  const goalTxt = solo ? SOLO[ST.solo][2] : ST.mode==='all' ? `🪷 ${per()*(ST.ages.length||1)}송이 (연령대마다 ${per()})` : '🪷 연령대마다 100송이';
+  const m4 = `<span class="lbl">${solo?'오늘의 도전':'순서'}</span>
+    ${solo?'':`<div class="order">${ord.length?ord.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join(''):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
+    <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
+    <div class="promise">${solo?'🙂 친구가 도전할 때는<br>조용히 응원해 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>💡 형 · 언니는 힌트로만 도와요'}</div>
+    <button class="go" data-act="start" ${ready?'':'disabled'}>${solo?'나 확인하기':'시작하기'}</button>
+    <p class="note" style="margin:0">${solo?'🏅 나만의 도전은 내 공부방에 저장돼요':'다 같이 · 학년별은 저장하지 않아요'}</p>`;
+  stage.innerHTML = barHTML('다 같이 연꽃 피우기') + `<div class="marks">
+    <div class="mark m1"><h4>① 누가 할까요?</h4>${m1}</div>
+    <div class="mark m2"><h4>② 어떻게 할까요?</h4>${m2}</div>
+    <div class="mark m3"><h4>③ ${solo?'도전 고르기':'순서 정하기'}</h4>${m3}</div>
+    <div class="mark m4"><h4>④ 시작!</h4>${m4}</div></div>`;
+}
+
+/* ── 함께 풀기 ── */
+function startTeam(){
+  const ord=orderList(), goal = ST.mode==='all' ? per() : 100;
+  G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal})), pos:0, q:null, hints:0, used:false, lock:false, loading:false };
+  ord.forEach(k=>bankOf(ROOM_OF[k]));   // 미리 열어 둬요
+  ST.screen='play'; newTurn(true);
+}
+const curGroup = () => G.groups[G.pos];
+function turnLabel(g){ const a=ageOf(g.k); return `${a[2]} ${a[1]} ${g.cnt>1?`모둠 · ${ORD[g.friend%g.cnt]||`${g.friend%g.cnt+1}번째`} 친구 차례`:'친구 차례'}`; }
+async function newTurn(first){
+  const g=curGroup(), g0=G; G.q=null; G.hints=0; G.used=false; G.lock=false; G.hintText=''; G.off=new Set(); G.loading=true; render();
+  let q=null; try{ q=await nextQ(g.k); }catch(e){ g0.err=e.message; }
+  if(G!==g0 || ST.screen!=='play') return;   // 기다리는 동안 그만했으면 그대로
+  G.q=q; G.loading=false; render(); showBanner(first?`${turnLabel(g)} · ${PROMISE}`:PROMISE);
+  if(G.q){ const s=G.q.say; setTimeout(()=>{ if(G===g0) speak(s); },600); }
+}
+function showBanner(text){ const old=stage.querySelector('.banner'); if(old) old.remove(); const b=document.createElement('div'); b.className='banner'; b.textContent=text; stage.appendChild(b); setTimeout(()=>b.remove(),2600); }
+function choicesHTML(q){ const long=q.choices.some(c=>String(c).length>7); return `<div class="choices" style="--n:${Math.min(4,q.choices.length)}">${q.choices.map((c,i)=>`<button class="choice ${q.pic?'pic':''} ${long?'long':''} ${G.off.has(c)?'no':''}" data-ch="${i}" ${G.off.has(c)||G.lock?'disabled':''}>${esc(c)}</button>`).join('')}</div>`; }
+function play(){
+  const g=curGroup(), total=G.groups.reduce((a,x)=>a+x.got,0), goalAll=G.groups.reduce((a,x)=>a+x.goal,0);
+  const body = G.loading ? '<div class="qbody"><div style="font-size:60px">🪷</div><p>문제를 준비하고 있어요…</p></div>'
+    : !G.q ? `<div class="qbody"><p>${esc(G.err||'문제를 불러오지 못했어요')}</p><button class="btn2" data-act="retryQ">다시 불러오기</button></div>`
+    : `<div class="qbody">${G.q.html}</div>${G.hintText?`<div class="hintbox">💡 ${esc(G.hintText)}</div>`:''}${choicesHTML(G.q)}`;
+  stage.innerHTML = barHTML(G.mode==='all'?'🤝 다 같이 협동':'🎓 학년별 협동') + `<div class="play">
+    <div style="min-height:0"><div class="turn"><span class="ico">${ageOf(g.k)[2]}</span><span>${turnLabel(g).replace(/^\S+ /,'')}</span></div>
+      <div class="qcard">${G.q?`<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button>${G.kind==='team'?`<button class="tool" data-act="hint" ${G.hints>=HINTS_PER_TURN||G.lock?'disabled':''}>💡 힌트 카드 ${HINTS_PER_TURN-G.hints}</button>`:''}</div>`:''}${body}</div></div>
+    <div class="side">
+      <div class="panel total">🪷 우리가 피운 연꽃<b>${total}</b><span style="font-size:18px;color:var(--sub)">목표 ${goalAll}송이</span></div>
+      <div class="panel" style="flex:1"><h3>${G.mode==='all'?'모둠마다 연꽃':'연령대 차례'}</h3>${G.groups.map((x,i)=>`<div class="grp ${i===G.pos?'cur':''} ${x.got>=x.goal?'done':''}"><div class="gh"><span>${ageOf(x.k)[2]} ${nameOf(x.k)}${x.cnt>1?` <small style="font-size:14px;color:var(--sub)">${x.cnt}명</small>`:''}</span><span>${x.got>=x.goal?'🌸 활짝!':`${x.got} / ${x.goal}`}</span></div><div class="gbar"><i style="width:${Math.min(100,x.got/x.goal*100)}%"></i></div></div>`).join('')}</div>
+      <div class="panel rules">✋ 정답은 <b>차례인 친구만</b> 눌러요<br>💡 형 · 언니는 <b>힌트 카드</b>로만 도와요 (한 차례 2번)<br>🪷 스스로 맞히면 <b>두 송이</b>, 힌트로 맞히면 한 송이<br><button class="small-link" data-act="stop">그만하고 처음 화면으로</button></div>
+    </div></div>`;
+}
+function flash(text, oops){ const m=document.createElement('div'); m.className='say-msg'+(oops?' oops':''); m.textContent=text; stage.appendChild(m); setTimeout(()=>m.remove(), oops?1300:1200); }
+function answer(i){
+  if(!G.q || G.lock) return; const c=G.q.choices[i];
+  if(String(c)===String(G.q.ans)){
+    G.lock=true; const add = G.kind==='solo' ? 2 : (G.used ? 1 : 2);
+    if(G.kind==='team'){ curGroup().got += add; } else { G.got += add; G.solved++; }
+    render(); const btn=stage.querySelector(`[data-ch="${i}"]`); if(btn) btn.classList.add('yes');
+    flash(`딩동댕! 🪷 +${add}`); speak(G.q.after ? `딩동댕! ${G.q.after}` : '딩동댕! 잘했어요!');
+    const g0=G; setTimeout(()=>{ if(G!==g0) return; G.kind==='team'?afterTeam():afterSolo(); }, 1500);
+  } else {
+    G.off.add(c); render(); flash('괜찮아요, 다시 해 봐요!', true); speak('괜찮아요, 다시 해 봐요!');
+  }
+}
+function useHint(){
+  if(!G.q || G.hints>=HINTS_PER_TURN) return; G.hints++; G.used=true;
+  if(G.hints===1 && G.q.hint) G.hintText=G.q.hint;
+  const wrong=G.q.choices.filter(c=>String(c)!==String(G.q.ans) && !G.off.has(c)); if(wrong.length>1 || (wrong.length===1 && G.q.choices.length-G.off.size>2)) G.off.add(shuffle(wrong)[0]);
+  render(); speak('힌트 카드를 썼어요');
+}
+function afterTeam(){
+  const g=curGroup(); g.friend++;
+  if(G.groups.every(x=>x.got>=x.goal)){ ST.screen='win'; render(); return; }
+  if(G.mode==='all'){ let p=G.pos; do{ p=(p+1)%G.groups.length; }while(G.groups[p].got>=G.groups[p].goal); G.pos=p; }
+  else if(g.got>=g.goal){ const nx=G.groups.findIndex(x=>x.got<x.goal); showBanner(`🎉 ${nameOf(g.k)} 100송이! 다음은 ${nameOf(G.groups[nx].k)} 차례`); G.pos=nx; }
+  newTurn(false);
+}
+function rain(){ for(let i=0;i<34;i++){ const s=document.createElement('span'); s.className='rain'; s.textContent=['🪷','🌸','✨','🎉'][i%4]; s.style.left=Math.random()*1240+'px'; s.style.animationDuration=(2.2+Math.random()*2)+'s'; s.style.animationDelay=(Math.random()*1.2)+'s'; stage.appendChild(s); setTimeout(()=>s.remove(),5000); } }
+function win(){
+  const total=G.groups.reduce((a,x)=>a+x.got,0);
+  stage.innerHTML = barHTML('연꽃 활짝!') + `<div class="full"><div class="bloom">🪷</div><h2>연꽃이 활짝 피었어요!</h2>
+    <p>${G.groups.map(x=>nameOf(x.k)).join(' · ')} 친구들이 함께 <b>${total}송이</b>를 피웠어요.<br>도와준 형 · 언니 · 동생 모두 고마워요! 모두 함께 박수 👏</p>
+    <div class="btns"><button class="go" data-act="again">🔁 한 번 더</button><button class="btn2" data-act="toSetup">처음 화면</button></div></div>`;
+  rain(); speak('연꽃이 활짝 피었어요! 모두 함께 박수!');
+}
+
+/* ── 🏅 나만의 도전: 나 확인 → 도전 → 결과 (내 공부방에 저장) ── */
+function soloLogin(){
+  const f=ST.form;
+  stage.innerHTML = barHTML('🏅 나만의 도전 · 나 확인하기') + `<div class="login">
+    <div class="lcard"><h3>① 내 별명</h3><input class="field" id="nameIn" maxlength="12" autocomplete="off" placeholder="집 공부방과 같은 별명" value="${esc(f.name)}">
+      <h3 style="margin-top:14px">② 내 나이</h3><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${f.age===k?'on':''}" data-lage="${k}">${e} ${n}</button>`).join('')}</div>
+      <p class="note">집의 ‘부모님 핸드폰’ 공부방과 같은 별명 · 나이 · 비밀번호예요. 기록은 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p></div>
+    <div class="lcard"><h3>③ ${f.first?'한 번 더 눌러요':'내 비밀번호 4자리'}</h3>
+      <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<f.pin.length?'f':''}"></i>`).join('')}</div>
+      <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 처음 화면</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
+      <div class="msg" id="msg">${esc(f.msg||'')}</div></div></div>`;
+  const inp=$('nameIn'); inp.addEventListener('input', ()=>{ f.name=inp.value; });
+}
+async function soloPin(){
+  const f=ST.form; f.name=cleanName(($('nameIn')||{}).value||f.name);
+  if(!f.name || !f.age){ f.pin=''; f.msg='별명과 나이를 먼저 골라요'; render(); return; }
+  try{
+    const d=await db(), k=await keyOf(f.name,f.age,f.pin);
+    if(f.first){   // 처음 만들기: 두 번째 입력
+      if(f.pin!==f.first){ f.pin=''; f.first=''; f.msg='두 번이 달라요. 처음부터 다시 눌러요'; render(); return; }
+      const id=[...crypto.getRandomValues(new Uint8Array(15))].map(x=>x.toString(36).padStart(2,'0')).join('').slice(0,24), now=Date.now();
+      await d.collection('simin_kids').doc(id).set({name:f.name, age:f.age, keyId:k, pkeyId:null, ppinSet:false, stars:0, createdAt:now, updatedAt:now});
+      await d.collection('simin_key').doc(k).set({kid:id});
+      ST.kid={id, name:f.name, age:f.age}; return startSolo();
+    }
+    const s=await d.collection('simin_key').doc(k).get();
+    if(s.exists){ ST.kid={id:s.data().kid, name:f.name, age:f.age}; return startSolo(); }
+    f.first=f.pin; f.pin=''; f.msg='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (집에서 만든 적 있으면 별명 · 나이 · 번호를 다시 봐요)'; render();
+  }catch(e){ f.pin=''; f.msg=e.message||'확인하지 못했어요'; render(); }
+}
+function startSolo(){
+  const [type,val]=SOLO[ST.solo];
+  G = { kind:'solo', type, val, got:0, solved:0, t0:0, sec:0, q:null, off:new Set(), lock:false, loading:false, timer:null };
+  bankOf(ROOM_OF[ST.kid.age]); ST.screen='soloPlay'; ST.form={name:'',age:null,pin:'',first:''};
+  speak(`${josa(ST.kid.name,'이의','의')} 도전을 시작해요!`); soloNext(true);
+}
+async function soloNext(first){
+  const g0=G; G.q=null; G.off=new Set(); G.lock=false; G.loading=true; render();
+  let q=null; try{ q=await nextQ(ST.kid.age); }catch(e){ g0.err=e.message; }
+  if(G!==g0 || ST.screen!=='soloPlay') return;
+  G.q=q; G.loading=false;
+  if(first){ G.t0=Date.now(); G.timer=setInterval(tickSolo, 250); }
+  render(); if(G.q){ const s=G.q.say; setTimeout(()=>{ if(G===g0) speak(s); },300); }
+}
+function tickSolo(){ if(!G || G.kind!=='solo' || ST.screen!=='soloPlay') return; G.sec=(Date.now()-G.t0)/1000; const el=$('soloTimer'); if(el) el.textContent = G.type==='time' ? `⏱ ${mmss(Math.max(0,G.val*60-G.sec))} 남았어요` : `⏱ ${mmss(G.sec)}`; if(G.type==='time' && G.sec>=G.val*60) endSolo(); }
+function afterSolo(){ if(G.type==='count' && G.got>=G.val){ endSolo(); return; } soloNext(false); }
+function soloPlay(){
+  const body = G.loading ? '<div class="qbody"><div style="font-size:60px">🪷</div><p>문제를 준비하고 있어요…</p></div>'
+    : !G.q ? `<div class="qbody"><p>${esc(G.err||'문제를 불러오지 못했어요')}</p></div>` : `<div class="qbody">${G.q.html}</div>${choicesHTML(G.q)}`;
+  stage.innerHTML = barHTML(`🏅 ${esc(ST.kid.name)}의 도전`) + `<div class="play">
+    <div style="min-height:0"><div class="turn"><span class="ico">🏅</span><span>${esc(ST.kid.name)} · ${nameOf(ST.kid.age)} · ${SOLO[ST.solo][2]}</span></div>
+      <div class="qcard">${G.q?'<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button></div>':''}${body}</div></div>
+    <div class="side"><div class="panel timer" id="soloTimer">⏱</div><div class="panel total">🪷 내가 피운 연꽃<b>${G.got}</b>${G.type==='count'?`<span style="font-size:18px;color:var(--sub)">목표 ${G.val}송이</span>`:''}</div>
+      <div class="panel rules">🙂 틀려도 괜찮아요. 다시 눌러 보면 돼요.<br>🪷 한 문제 맞힐 때마다 두 송이<br><button class="small-link" data-act="soloQuit">도전 그만하기</button></div></div></div>`;
+  tickSolo();
+}
+async function endSolo(){
+  if(G.ended) return; G.ended=true; clearInterval(G.timer); const sec=Math.round((Date.now()-G.t0)/1000);
+  ST.screen='soloDone'; G.result={sec, got:G.got, solved:G.solved, prev:null, saved:false}; render();
+  try{
+    const d=await db(), FV=firebase.firestore.FieldValue, room=d.collection('simin_kids').doc(ST.kid.id).collection('room');
+    const chRef=room.doc('challenge'), ch=await chRef.get(), runs=(ch.exists && Array.isArray(ch.data().runs)) ? ch.data().runs : [];
+    G.result.prev = runs.filter(r=>r.type===G.type && r.val===G.val).slice(-1)[0] || null;
+    runs.push({at:Date.now(), type:G.type, val:G.val, got:G.got, sec, solved:G.solved});
+    await chRef.set({runs:runs.slice(-60)}, {merge:true});
+    if(G.got) await room.doc('state').set({stars:FV.increment(G.got), starsAt:Date.now()}, {merge:true});
+    if(G.solved) await room.doc('state').collection('daily').doc(dayKey()).set({board_n:FV.increment(G.solved), board_ok:FV.increment(G.solved), visited:true}, {merge:true});
+    G.result.saved=true;
+  }catch(e){ G.result.err=e.message; }
+  render();
+}
+function soloDone(){
+  const R=G.result, nm=esc(ST.kid.name), p=R.prev;
+  const main = G.type==='time' ? `⏱ ${G.val}분 동안 🪷 <b>${R.got}송이</b>를 피웠어요!` : (R.got>=G.val ? `🪷 ${G.val}송이까지 <b>${mmss(R.sec)}</b> 걸렸어요!` : `🪷 ${R.got}송이 · ${mmss(R.sec)} 동안 도전했어요!`);
+  let cmp='첫 도전 기록이에요! 다음에 오늘의 나와 비교해 봐요 🌱';
+  if(p){
+    if(G.type==='time') cmp = R.got>p.got ? `지난번 ${p.got}송이 → 오늘 <b>${R.got}송이</b>! 더 많이 피웠어요 🎉` : R.got===p.got ? `지난번과 똑같이 ${R.got}송이! 꾸준해요 👍` : `지난번 ${p.got}송이 · 오늘 ${R.got}송이. 괜찮아요, 오늘도 끝까지 해냈어요 🌸`;
+    else if(R.got>=G.val && p.got>=p.val) cmp = R.sec<p.sec ? `지난번 ${mmss(p.sec)} → 오늘 <b>${mmss(R.sec)}</b>! 더 빨라졌어요 🎉` : `지난번 ${mmss(p.sec)} · 오늘 ${mmss(R.sec)}. 차근차근 푼 것도 멋져요 🌸`;
+    else cmp='지난번의 나와 비교했어요. 오늘도 끝까지 해냈어요 🌸';
+  }
+  stage.innerHTML = barHTML(`🏅 ${nm}의 도전 끝!`) + `<div class="full"><div class="bloom">🏅</div><h2>${nm}, 멋지게 해냈어요!</h2><p>${main}</p><p style="font-size:24px">${cmp}</p>
+    <p class="note" style="font-size:18px">${R.saved?'✅ 내 공부방에 기록했어요 · 부모님도 볼 수 있어요':R.err?'⚠️ 기록하지 못했어요: '+esc(R.err):'기록하는 중…'}</p>
+    <div class="btns"><button class="go" data-act="nextKid">🙋 다음 친구 도전</button><button class="btn2" data-act="toSetup">처음 화면</button></div></div>`;
+  if(R.saved) { rain(); speak(`${josa(ST.kid.name,'이','')} 멋지게 해냈어요!`); }
+}
+
+/* ═════════ 누르기 ═════════ */
+stage.addEventListener('click', e=>{
+  const t=e.target.closest('button,[data-card]'); if(!t || t.disabled) return; const d=t.dataset;
+  if(d.age){ const k=d.age; ST.ages=ST.ages.includes(k)?ST.ages.filter(x=>x!==k):[...ST.ages,k]; ST.ages.sort((x,y)=>AGES.findIndex(q=>q[0]===x)-AGES.findIndex(q=>q[0]===y)); resetCards(); render(); return; }
+  if(d.cnt){ const k=d.cnt; ST.cnt[k]=Math.min(10,Math.max(1,(ST.cnt[k]||1)+ +d.d)); render(); return; }
+  if(d.mode){ ST.mode=d.mode; render(); return; }
+  if(d.how){ ST.how=d.how; render(); return; }
+  if(d.solo){ ST.solo=+d.solo; render(); return; }
+  if(d.card!==undefined){ const c=ST.cards, picker=ST.ages.filter(k=>!Object.values(c.up).includes(k))[0]; if(!picker) return; c.up[d.card]=picker; render(); speak(`${nameOf(picker)}, ${c.nums[d.card]}번!`); return; }
+  if(d.ch!==undefined){ answer(+d.ch); return; }
+  if(d.lage){ ST.form.age=d.lage; ST.form.name=cleanName(($('nameIn')||{}).value||ST.form.name); render(); return; }
+  if(d.pin){ const f=ST.form, v=d.pin; if(v==='back'){ ST.screen='setup'; ST.form={name:'',age:null,pin:'',first:''}; render(); return; }
+    f.name=cleanName(($('nameIn')||{}).value||f.name); if(v==='del') f.pin=f.pin.slice(0,-1); else if(f.pin.length<4) f.pin+=v; f.msg='';
+    stage.querySelectorAll('.pinrow i').forEach((x,i)=>x.classList.toggle('f', i<f.pin.length)); if(f.pin.length===4) setTimeout(soloPin,120); return; }
+  const a=d.act;
+  if(a==='reshuffle'){ resetCards(); render(); }
+  else if(a==='start'){ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:null,pin:'',first:''}; render(); } else startTeam(); }
+  else if(a==='sayQ'){ if(G&&G.q) speak(G.q.say); }
+  else if(a==='hint') useHint();
+  else if(a==='retryQ') newTurn(false);
+  else if(a==='stop'){ if(confirm('그만하고 처음 화면으로 갈까요?')){ G=null; ST.screen='setup'; render(); } }
+  else if(a==='again'){ resetCards(); G=null; ST.screen='setup'; render(); }
+  else if(a==='toSetup'){ if(G&&G.timer) clearInterval(G.timer); G=null; ST.kid=null; ST.screen='setup'; render(); }
+  else if(a==='soloQuit'){ if(confirm('도전을 그만할까요? 지금까지 피운 연꽃은 기록해요.')) endSolo(); }
+  else if(a==='nextKid'){ G=null; ST.kid=null; ST.screen='soloLogin'; ST.form={name:'',age:null,pin:'',first:''}; render(); }
+});
+render();
+</script>
+</body>
+</html>

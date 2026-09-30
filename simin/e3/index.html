@@ -5850,6 +5850,45 @@ html.sim-board body{padding-top:62px}
 .team-win h2{font-size:2rem;margin:10px 0 6px;color:#B94873}
 .team-win button{margin-top:16px;padding:.8rem 1.6rem;border-radius:20px;border:0;background:#DD6590;color:#fff;font-size:1.3rem;font-weight:700;cursor:pointer;box-shadow:0 5px 0 #B94873}
 </style>
+<script>
+/* 🖥️ 전자칠판(board/)이 이 방의 문제 은행을 빌려 써요: 보이지 않는 틀에서 SIM_QGEN() 으로 한 문제씩
+   돌려주는 모양 { html, say, choices[], ans, pic, hint } — 방마다 문제 만드는 함수가 달라서 여기서 맞춰요 */
+(function(){
+  const pickOne = a => a[Math.floor(Math.random()*a.length)];
+  const mix = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  const plain = h => String(h||'').replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/&nbsp;|&[a-z]+;/g,' ').replace(/□/g,' 무엇 ').replace(/\s+/g,' ').trim();
+  function numChoices(ans){ const a=Number(ans); if(!isFinite(a)) return null; const s=new Set([String(ans)]);
+    for(const d of mix([1,-1,2,-2,10,-10,3,5])){ if(s.size>=4) break; const v=a+d; if(v>=0 && Number.isInteger(v)===Number.isInteger(a)) s.add(String(v)); }
+    return s.size>=3 ? mix([...s]) : null; }
+  function fromQuiz(){   // 유아 방: 놀이 단계 (칸 하나짜리만)
+    const L=Object.values(QUIZ), lv=pickOne(pickOne(L).LV), q=lv.g(); if(!q || q.slots.length!==1 || q.parts) return null;
+    return { say:q.say||plain(q.prompt), pic:q.tcls==='pic-tile', choices:mix(q.tiles.slice()), ans:String(q.slots[0]), after:q.after||'',
+      html:(q.pic?`<div class="q-pic">${q.pic}</div>`:'')+(q.big?`<div class="q-bigl">${q.big}</div>`:'')+(q.prompt?`<div class="q-p">${q.prompt}</div>`:'')+(q.eq?`<div class="q-eq">${q.eq} <b class="q-mark">?</b></div>`:'') }; }
+  function fromCalc(){   // 초등 방: 연산 단계
+    const P=pickOne(CALC_LEVELS).g('mix');
+    if(P.v){ const {a,b,op}=P.v, ans=op==='-'?a-b:a+b; return { html:`<div class="q-eq">${a} ${op==='-'?'−':'+'} ${b} = <b class="q-mark">?</b></div>`, say:`${a} ${op==='-'?'빼기':'더하기'} ${b}는?`, ans:String(ans), choices:numChoices(ans) }; }
+    if(P.h && P.ans && P.ans.length===1){ const h=P.h.replace('{0}','<b class="q-mark">?</b>'); return { html:(P.fig||'')+`<div class="q-eq">${h}</div>`, say:plain(h), ans:String(P.ans[0]), choices:numChoices(P.ans[0]), hint:P.hint?plain(P.hint):'' }; }
+    return null; }
+  function fromUnit(){   // 초등 방: 학교수학 단원
+    const keys=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), q=UNITS[pickOne(keys)].gen(); if(!q) return null;
+    const html=`<div class="q-p">${q.html}</div>`;
+    if(q.type==='choice' && q.choices && q.choices.length>1) return { html, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') };
+    return { html, say:plain(q.html), ans:String(q.ans), choices:numChoices(q.ans), hint:plain(q.explain||'') }; }
+  function fromKo(){   // 초등 방: 국어
+    const q=KO_GEN[pickOne(Object.keys(KO_GEN))](); if(!q || !q.choices || q.choices.length<2) return null;
+    return { html:`<div class="q-p">${q.html}</div>`, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') }; }
+  window.SIM_QGEN = function(){
+    const src=[];
+    if(typeof QUIZ!=='undefined') src.push(fromQuiz,fromQuiz,fromQuiz);
+    if(typeof CALC_LEVELS!=='undefined') src.push(fromCalc,fromCalc);
+    if(typeof UNITS!=='undefined') src.push(fromUnit,fromUnit);
+    if(typeof KO_GEN!=='undefined') src.push(fromKo);
+    for(let t=0;t<40;t++){ try{ const q=pickOne(src)(); if(q && q.choices && q.choices.length>=2 && q.choices.includes(q.ans)) return q; }catch(e){} }
+    return null;
+  };
+})();
+
+</script>
 <div class="team-bar" id="teamBar" aria-live="polite">🪷 우리 모두 한 팀 · 연꽃 별 <b id="teamN">0</b> / <b id="teamG">20</b><span class="tb-track"><i id="teamT"></i></span></div>
 <script>
 /* 🖥️ 전자칠판 모드: 누가 맞히든 모두의 별 · 목표를 채우면 다 같이 축하 (이 화면에만, 저장 안 함) */
