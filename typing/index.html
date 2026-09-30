@@ -66,6 +66,19 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hi);outline-off
 .timebar{height:8px;border-radius:99px;background:var(--line);overflow:hidden;margin:6px 0 2px}
 .timebar i{display:block;height:100%;background:var(--ok);border-radius:99px}
 @media (max-width:520px){ #app{padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px))} .top h1{font-size:1.15rem} .hud{font-size:.82rem} .hud b{font-size:1.05rem} }
+/* 아이패드 · 휴대폰 화면 키보드가 떠 있을 때: 게임 판을 키보드 위 보이는 곳에만, 위쪽 줄은 얇게 */
+#app{position:fixed;top:0;left:0;right:0}
+body.kb #app{padding-top:6px;padding-bottom:6px}
+body.kb .top h1{display:none}
+body.kb .top{justify-content:flex-end}
+body.kb .top .pill{padding:.2rem .7rem;font-size:.82rem}
+body.kb .hud{margin:4px 0;font-size:.8rem}
+body.kb .hud b{font-size:1rem}
+body.kb .field{min-height:120px}
+body.kb .bar{margin-top:6px}
+body.kb .bar input{padding:.45rem .8rem;font-size:1.15rem}
+body.kb .btn{padding:.45rem .9rem}
+.tip{font-size:.85rem;color:var(--sub);background:var(--bg);border-radius:12px;padding:8px 10px;margin:8px 0;text-align:left}
 </style>
 </head>
 <body>
@@ -79,7 +92,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--hi);outline-off
 /* ───── 설정 ───── */
 const DAY_LIMIT = 30 * 60 * 1000;   // 하루 30분
 const HEARTS = 5;
-const ROOMS = { doyun:3, dojin:2, yuna:2, jia:1, dayul:1, seojin:3, seohee:3, ryu:3 };   // 방마다 처음 난도
+const ROOMS = { doyun:3, dojin:2, yuna:2, seojin:3, seohee:3, ryu:3, minjung:3, minjae:1 };   // 방마다 처음 난도 (5~7세 방 지아 · 다율 · 민준은 타자 게임을 안 해요)
 /* 낱말: 1 받침 없는 쉬운 말 → 2 받침 있는 말 → 3 겹받침 · 긴 말 → 4 속담 */
 const WORDS = {
   1: '아이 아니 어머니 아기 어디 미나리 말 나무 바다 나비 모자 오리 우유 사자 기차 포도 구두 다리 머리 하마 이마 바지 치마 두부 가지 오이 거미 새우 사과 노래 비누 코 소 개 해 배 무 파 너구리 도토리 고구마 허수아비 자두 호두 여우 나라 누나 오빠 아빠 이모 고모 토끼 코끼리 타조 기러기 부츠 바나나 피아노 라디오 가위 시소 소라 조개 나사 우주 아기새 하루 구름 너무 마루 부리 수저 의자 휴지 차표'.split(' '),
@@ -214,6 +227,7 @@ function drawStart() {
   field.insertAdjacentHTML('beforeend', `<div class="over"><div class="card">
     <h2>⌨️ 낱말 비</h2><p>${NAME ? `${esc(NAME)}, ` : ''}하늘에서 낱말이 떨어져요!</p>
     <ul class="rules"><li>떨어지는 낱말을 똑같이 쓰고 <b>Enter</b> (⏎) 를 누르면 사라져요</li><li>바닥에 닿으면 하트 ❤️ 가 하나 줄어요 (${HEARTS}개)</li><li>낱말 10개마다 단계가 올라가고 조금씩 빨라져요</li><li>하루에 <b>30분</b>까지 놀 수 있어요</li></ul>
+    ${TOUCH ? '<p class="tip">📱 <b>아이패드</b>: 화면 키보드를 <b>두 손가락으로 오므리면</b> 작은 키보드가 돼요. 원하는 곳으로 끌어 놓고, 다시 벌리면 원래 크기로 돌아와요. 블루투스 키보드가 있으면 더 편해요.</p>' : ''}
     <p class="sub">🏆 최고 점수 ${best.score || 0}점${best.level ? ` (${best.level}단계)` : ''} · ⚡ 최고 타수 ${best.speed || 0}타</p>
     <div class="timebar"><i style="width:${left / DAY_LIMIT * 100}%"></i></div><p class="sub">오늘 남은 시간 ${mmss(left)}</p>
     ${left > 0 ? '<button class="btn" data-act="start">▶ 시작하기</button>' : '<p><b>오늘 30분을 다 놀았어요. 내일 또 만나요 👋</b></p>'}</div></div>`);
@@ -230,6 +244,25 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-act]
 field.addEventListener('click', () => { if (G && G.run) inp.focus(); });
 document.addEventListener('visibilitychange', () => { if (G && G.run && !document.hidden) G.last = performance.now(); });
 window.addEventListener('pagehide', () => { if (G && G.saved) { addUsed(G.saved); G.saved = 0; } });
+
+/* ───── 아이패드 · 휴대폰 화면 키보드 ─────
+   사파리는 키보드가 올라와도 페이지 높이를 줄이지 않고 아래를 덮어요 → 보이는 부분(visualViewport)에 게임 판을 맞춰요.
+   판 높이가 바뀌면 떨어지던 낱말도 같은 비율로 옮겨서, 키보드가 올라오는 순간 바닥에 닿지 않게 해요 */
+const VV = window.visualViewport;
+let fieldH = 0;
+function fitView() {
+  const app = $('app'), h = VV ? VV.height : window.innerHeight, top = VV ? VV.offsetTop : 0;
+  document.body.classList.toggle('kb', !!VV && window.innerHeight - VV.height > 150);
+  app.style.height = h + 'px'; app.style.top = top + 'px';
+  const nh = field.clientHeight;
+  if (G && fieldH && nh && nh !== fieldH) { const r = nh / fieldH; for (const w of G.words) { w.y *= r; w.v *= r; } }
+  fieldH = nh;
+}
+if (VV) { VV.addEventListener('resize', fitView); VV.addEventListener('scroll', fitView); }
+window.addEventListener('resize', fitView);
+fitView();
+// 터치 화면(아이패드 · 휴대폰)이면 시작 화면에 작은 키보드 쓰는 법을 알려 줘요
+const TOUCH = matchMedia('(pointer:coarse)').matches;
 drawStart();
 </script>
 </body>

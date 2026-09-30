@@ -791,7 +791,7 @@ function renderHome(){
   const me=store.get('gate','🐬');
   view.innerHTML=`${admin.msg?`<div class="kid-msg">💌 ${admin.msg.replace(/[<>&]/g,'')}</div>`:''}<div class="hello"><span class="me">${me}</span><div><div class="hand">다율아, 오늘도 놀아 볼까?</div><div class="sub">징검다리를 차례로 건너 봐요</div></div><button class="say" data-act="sayHome" aria-label="들려주기">🔊</button></div>
     <div class="road">${Object.entries(AREAS).map(([k,a])=>{ const n=k==='room'?0:k==='story'?todayN('story'):todaySub(k);
-      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}<button class="stop" style="--c:#7C5CFF" data-act="typingGame"><span class="ball">⌨️</span><b>타자 게임</b><small>하루 30분</small></button></div>
+      return `<button class="stop" style="--c:${a.c}" data-act="go" data-v="${k}"><span class="ball">${a.ico}</span>${n>=5?'<span class="done">✅</span>':''}<b>${a.n}</b><small>${k==='room'?a.d:n?`오늘 ${n}개`:a.d}</small></button>`; }).join('')}</div>
     ${progressHTML()}
     <div class="adm-links" style="margin-top:26px"><button data-act="openMom">👩 엄마 모드</button> · <button data-act="openAdmin">🔒 관리자 모드</button></div>`;
 }
@@ -1263,7 +1263,7 @@ const ACT = {
   gate: v=>{ GUEST=false; const f=GATE.find(x=>x[0]===v)||GATE[0]; store.set('gate',f[0]); $('login').hidden=true; render(); speak(`${josa(f[1],'이랑','랑')} 같이 들어가요! 다율아, 안녕!`); cloudPull().then(ok=>{ if(ok) render(); }); cloudPullSettings().then(ch=>{ if(ch) render(); });  const n=guestNext; guestNext=null; if(n && ACT[n.a]){ const el=document.createElement('button'); el.dataset.act=n.a; if(n.v!=null) el.dataset.v=n.v; setTimeout(()=>ACT[n.a](n.v, el), 60); } },
   go: v=>go(v),
   starInfo: ()=>{ App.roomv='spent'; go('room'); },   // 맨 위 별: 캐릭터 방 '🧾 쓴 별' + 별 · 스티커 약속
-  typingGame: ()=>{ location.href='/typing/?room=dayul&lv=1&n='+encodeURIComponent(who||''); },   // ⌨️ 낱말 비 타자 게임 (하루 30분)
+  // ⌨️ 타자 게임은 5~7세 방에서는 빼요 (초등 방에서만)
   snd: ()=>{ muted=!muted; store.set('mute',muted); drawSnd(); if(muted){ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); toast('🔇 소리를 껐어요'); } else { toast('🔊 소리를 켰어요'); speak('소리를 켰어요'); } },
   openMom: ()=>openAdmModal('mom'),
   openAdmin: ()=>openAdmModal('admin'),
