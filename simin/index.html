@@ -275,8 +275,8 @@ const fontPick = () => { const cur=LS.get("font",""); return `<div class="font-p
 function entry(){
   view.innerHTML = `<div class="hello"><span class="dongi">🪷</span><div class="bub">반가워요, 자성동이! 오늘은 어디에서 공부할까요?</div></div>
     <div class="doors">
-      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>심인당에서~</small><span class="door-note">다 같이 · 학년별 협동은 저장하지 않아요<br>🏅 나만의 도전은 별명 + 비밀번호로 내 공부방에 저장돼요</span></div></a>
-      <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>집에서~</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
+      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>🪷 심인당에서</small><span class="door-note">다 같이 · 학년별 협동은 저장하지 않아요<br>🏅 나만의 도전은 별명 + 비밀번호로 내 공부방에 저장돼요</span></div></a>
+      <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>🏠 집에서</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
     </div>
     ${fontPick()}
     <div class="side-links"><button data-go="parent">👩 엄마아빠 모드</button><button data-go="adminLogin">🔒 관리자</button></div>`;
