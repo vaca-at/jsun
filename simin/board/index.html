@@ -374,7 +374,7 @@ function render(){ ({setup, play, win, soloLogin, soloPlay, soloDone})[ST.screen
 function setup(){
   const solo=ST.mode==='solo', ord=orderList();
   const m1 = solo
-    ? `<span class="lbl">한 명씩 앞에 나와요</span><p class="note" style="margin:0">🏅 <b>나만의 도전</b>은 한 명씩 <b>자기 나이 문제</b>로 해요.<br>시작하면 별명 · 나이 · 비밀번호로 누구인지 확인해요.<br>친구와 비교하거나 순위를 매기지 않아요. <b>지난번의 나</b>와만 비교해요.</p>`
+    ? `<span class="lbl">한 명씩 앞에 나와요</span><p class="note" style="margin:0">🏅 <b>나만의 도전</b>은 한 명씩 <b>자기 나이 문제</b>로 해요.<br>시작하면 이름 두 글자 · 나이 · 비밀번호로 누구인지 확인해요.<br>친구와 비교하거나 순위를 매기지 않아요. <b>지난번의 나</b>와만 비교해요.</p>`
     : `<span class="lbl">오늘 온 연령대를 모두 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.ages.includes(k)?'on':''}" data-age="${k}" aria-pressed="${ST.ages.includes(k)}">${e} ${n}</button>`).join('')}</div>
       ${ST.ages.length?`<span class="lbl">연령대마다 친구 몇 명?</span><div class="cnt">${ST.ages.map(k=>`<div><span>${ageOf(k)[2]} ${nameOf(k)}</span><button data-cnt="${k}" data-d="-1" aria-label="${nameOf(k)} 친구 한 명 빼기">−</button><b>${ST.cnt[k]||1}</b><button data-cnt="${k}" data-d="1" aria-label="${nameOf(k)} 친구 한 명 더하기">＋</button>명</div>`).join('')}</div>`:''}`;
   const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 한 연령대씩 이어서</small><span class="n">연령별 · 학년별 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
@@ -486,9 +486,9 @@ function win(){
 function soloLogin(){
   const f=ST.form;
   stage.innerHTML = barHTML('🏅 나만의 도전 · 나 확인하기') + `<div class="login">
-    <div class="lcard"><h3>① 내 별명</h3><input class="field" id="nameIn" maxlength="12" autocomplete="off" placeholder="집 공부방과 같은 별명" value="${esc(f.name)}">
+    <div class="lcard"><h3>① 내 이름 두 글자</h3><input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="예: 도윤" value="${esc(f.name)}">
       <h3 style="margin-top:14px">② 내 나이</h3><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${f.age===k?'on':''}" data-lage="${k}">${e} ${n}</button>`).join('')}</div>
-      <p class="note">집의 ‘부모님 핸드폰’ 공부방과 같은 별명 · 나이 · 비밀번호예요. 기록은 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p></div>
+      <p class="note">집의 ‘부모님 핸드폰’ 공부방과 같은 이름 · 나이 · 비밀번호예요. 기록은 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p></div>
     <div class="lcard"><h3>③ ${f.first?'한 번 더 눌러요':'내 비밀번호 4자리'}</h3>
       <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<f.pin.length?'f':''}"></i>`).join('')}</div>
       <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 처음 화면</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
@@ -497,7 +497,7 @@ function soloLogin(){
 }
 async function soloPin(){
   const f=ST.form; f.name=cleanName(($('nameIn')||{}).value||f.name);
-  if(!f.name || !f.age){ f.pin=''; f.msg='별명과 나이를 먼저 골라요'; render(); return; }
+  if(!/^[가-힣]{2}$/.test(f.name) || !f.age){ f.pin=''; f.msg='이름 두 글자(한글)와 나이를 먼저 골라요'; render(); return; }
   try{
     const d=await db(), k=await keyOf(f.name,f.age,f.pin);
     if(f.first){   // 처음 만들기: 두 번째 입력
@@ -509,7 +509,7 @@ async function soloPin(){
     }
     const s=await d.collection('simin_key').doc(k).get();
     if(s.exists){ ST.kid={id:s.data().kid, name:f.name, age:f.age}; return startSolo(); }
-    f.first=f.pin; f.pin=''; f.msg='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (집에서 만든 적 있으면 별명 · 나이 · 번호를 다시 봐요)'; render();
+    f.first=f.pin; f.pin=''; f.msg='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (집에서 만든 적 있으면 이름 · 나이 · 번호를 다시 봐요)'; render();
   }catch(e){ f.pin=''; f.msg=e.message||'확인하지 못했어요'; render(); }
 }
 function startSolo(){
