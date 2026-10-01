@@ -486,7 +486,7 @@ function win(){
 function soloLogin(){
   const f=ST.form;
   stage.innerHTML = barHTML('🏅 나만의 도전 · 나 확인하기') + `<div class="login">
-    <div class="lcard"><h3>① 내 이름 두 글자</h3><input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="예: 도윤" value="${esc(f.name)}">
+    <div class="lcard"><h3>① 내 이름 두 글자</h3><input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자" value="${esc(f.name)}">
       <h3 style="margin-top:14px">② 내 나이</h3><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${f.age===k?'on':''}" data-lage="${k}">${e} ${n}</button>`).join('')}</div>
       <p class="note">집의 ‘부모님 핸드폰’ 공부방과 같은 이름 · 나이 · 비밀번호예요. 기록은 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p></div>
     <div class="lcard"><h3>③ ${f.first?'한 번 더 눌러요':'내 비밀번호 4자리'}</h3>

@@ -160,7 +160,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
       <h4>🖥️ 전자칠판 (심인당에서 다 같이)</h4>
       <ol><li>처음 화면에서 <b>전자칠판</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(연꽃 약 100송이를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100송이를 채우면 다음 차례) · 🏅 나만의 도전 중에서 골라요.</li><li><b>③ 순서</b>: 🃏 카드 뒤집기 · 🎡 룰렛 · 🪜 사다리 중 하나로 정해요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 각자 자기 나이 문제를 스스로 풀고, 정답은 차례인 친구만 눌러요. 맞히면 연꽃 두 송이!</li><li>🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 저장하지 않아요. <b>🏅 나만의 도전</b>은 이름 두 글자 + 나이 + 비밀번호로 누구인지 확인하고 <b>내 공부방에 저장</b>돼요. 친구와 비교하지 않고 지난번의 나와만 비교해요.</li></ol>
       <h4>📱 부모님 핸드폰 (집에서 한 명씩)</h4>
-      <ol><li><b>부모님 핸드폰</b>을 누르고 아이 <b>이름 두 글자</b>를 써요. (예: 도윤)</li><li><b>나이</b>를 누르고, 아이 <b>비밀번호 4자리</b>를 눌러요. 처음이면 같은 번호를 한 번 더 눌러 만들어요.</li><li>나이에 맞는 공부방이 열려요. 다음부터는 이 핸드폰에 이름이 남아 있어서 비밀번호만 누르면 돼요.</li></ol>
+      <ol><li><b>부모님 핸드폰</b>을 누르고 아이 <b>이름 두 글자</b>를 써요.</li><li><b>나이</b>를 누르고, 아이 <b>비밀번호 4자리</b>를 눌러요. 처음이면 같은 번호를 한 번 더 눌러 만들어요.</li><li>나이에 맞는 공부방이 열려요. 다음부터는 이 핸드폰에 이름이 남아 있어서 비밀번호만 누르면 돼요.</li></ol>
       <h4>👩 엄마아빠 모드</h4>
       <ol><li>아이 이름 · 나이를 넣고 <b>엄마아빠 비밀번호</b>를 눌러요.</li><li>처음이면 <b>아이 비밀번호</b>로 우리 아이인지 확인한 뒤, 엄마아빠 비밀번호를 두 번 눌러 정해요.</li><li>우리 아이의 공부한 날 · 푼 문제 · 별을 볼 수 있어요.</li></ol>
       <h4>🔑 비밀번호를 잊었을 때</h4>
@@ -305,8 +305,8 @@ function phone(){
   view.innerHTML = `${L.length?`<div class="card center" style="margin-bottom:14px"><h3>이 핸드폰에서 공부한 친구</h3><p class="sub">이름을 누르고 비밀번호만 누르면 돼요</p>
       <div class="kids">${L.map(k=>`<button class="kid" data-quick="${esc(k.id)}">${ageOf(k.age).ico} ${esc(k.name)} <small>${ageOf(k.age).n}</small></button>`).join('')}</div>
       <button class="link" data-act="forgetLocal">이 기기에서 목록 지우기</button></div>`:''}
-    <div class="card center">${steps(3,0)}<h2>아이 이름 두 글자를 써 주세요</h2><p class="sub">성은 빼고 이름만 두 글자 (예: 김도윤 → 도윤)</p>
-      <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="예: 도윤" value="${esc(S.form.name)}">
+    <div class="card center">${steps(3,0)}<h2>아이 이름 두 글자를 써 주세요</h2><p class="sub">성은 빼고 이름만 두 글자 써요</p>
+      <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자" value="${esc(S.form.name)}">
       <button class="big-btn leaf" data-act="nameNext">다음 ▶</button><div class="msg" id="msg"></div></div>`;
   $('nameIn').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); act('nameNext'); } });
 }
@@ -413,7 +413,7 @@ function kidHome(){
 /* ───── 👩 엄마아빠 모드 ───── */
 function parent(){
   view.innerHTML = `<div class="card center">${steps(3,0)}<h2>👩 엄마아빠 모드</h2><p class="sub">우리 아이 이름 두 글자를 써 주세요 (성은 빼고)</p>
-    <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="예: 도윤" value="${esc(S.form.name)}">
+    <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자" value="${esc(S.form.name)}">
     <button class="big-btn" data-act="pNameNext">다음 ▶</button><div class="msg" id="msg"></div></div>`;
   $('nameIn').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); act('pNameNext'); } });
 }
@@ -518,7 +518,7 @@ async function adminReset(id){
 /* ═════════ 누르기 ═════════ */
 function act(a, el){
   const f=S.form;
-  if(a==='nameNext'||a==='pNameNext'){ const n=cleanName($('nameIn').value); if(!/^[가-힣]{2}$/.test(n)){ $('msg').textContent='이름 두 글자를 한글로 써 주세요 (예: 도윤)'; return; } f.name=n; f.age=null; go(a==='nameNext'?'phoneAge':'parentAge'); }
+  if(a==='nameNext'||a==='pNameNext'){ const n=cleanName($('nameIn').value); if(!/^[가-힣]{2}$/.test(n)){ $('msg').textContent='이름 두 글자를 한글로 써 주세요'; return; } f.name=n; f.age=null; go(a==='nameNext'?'phoneAge':'parentAge'); }
   else if(a==='openRoom'){ const r=ROOM_OF[S.kid.age]; fetch(`${r}/`,{method:'HEAD'}).then(x=>{ if(x.ok) location.href=`${r}/`; else $('roomSoon').hidden=false; }).catch(()=>{ $('roomSoon').hidden=false; }); }
   else if(a==='logout'){ LS.del('cur'); S.kid=null; go('entry'); }
   else if(a==='forgetLocal'){ if(confirm('이 핸드폰에 남은 친구 목록을 지울까요? (공부 기록은 지워지지 않아요)')){ LS.del('kids'); LS.del('cur'); render(); } }
