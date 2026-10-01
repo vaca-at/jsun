@@ -1185,7 +1185,7 @@ const SICO = {
   social: sicoSvg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3Z"/>')
 };
 const SUBJ = {
-  math:{name:'연산', ico:SICO.math, desc:'세 자리 × 두 자리 · 나눗셈 · 분수 · 소수 (9단계)'},
+  math:{name:'연산', ico:SICO.math, desc:'분수 · 대분수 · 소수 · 나눗셈 · 세 자리 × 두 자리 · 분수 · 소수 곱하기 (11단계, 쉬운 것부터)'},
   korean:{name:'국어', ico:SICO.korean, desc:'긴 글 읽고 4문제 · 관용 표현 · 헷갈리는 말'},
   school:{name:'학교수학', ico:SICO.school, desc:'4학년 2학기 · 설명, 퀴즈, 60초 게임'},
   eng:{name:'영어', ico:SICO.eng, desc:'기초(초2) · 초4 단어와 문장'},
@@ -4223,7 +4223,9 @@ function cxPad(P){
     ${ex.map(([v,l])=>`<button class="key fn ${ex.length===1?'wide':''}" data-act="cxKey" data-v="${v}">${l}</button>`).join('')}</div>`;
 }
 let CX=null;
-function cxLv(){ if(App.clv===undefined) App.clv=store.get('clv',0); if(!CALC_LEVELS[App.clv]) App.clv=0; return CALC_LEVELS[App.clv]; }
+/* 2026-10-02 단계 순서를 쉬운 것부터 바꿨어요: 지난 기록(단계별 맞힌 수)을 새 번호로 옮기고, 처음 단계(분수)로 돌아가요 */
+function cxReorder(){ if(store.get('cxord3',false)) return; const NEW=[4,5,6,7,8,1,0,2,3], ok=store.get('cxok',{}), n={}; NEW.forEach((o,i)=>{ if(ok[o]) n[i]=ok[o]; }); store.set('cxok',n); store.set('clv',0); store.set('cxord3',true); }
+function cxLv(){ if(App.clv===undefined){ cxReorder(); App.clv=store.get('clv',0); } if(!CALC_LEVELS[App.clv]) App.clv=0; return CALC_LEVELS[App.clv]; }
 function cxNew(){
   const lv=cxLv(), P=lv.g(App.cdan||'mix');
   if(P.v){ const {a,b,op}=P.v, ans=op==='-'?a-b:a+b; P.n=Math.max(String(a).length,String(b).length,String(ans).length); P.cells=Array(P.n).fill(''); }
@@ -4285,21 +4287,8 @@ function cxCheck(ok){
 }
 /* 연산 단계표 (초4) */
 const cxHund = () => cxR(10,89)*10+cxR(1,9);   // 소수 둘째 자리까지 (100배 정수, 끝자리 0 아님)
+/* 쉬운 것부터: 분수 → 대분수 → 소수 → 나눗셈 기초 → 세 자리 × 두 자리 → 세 자리 ÷ 두 자리 → 검산 → 분수 · 소수 곱하기 (2026-10-02 순서 바꿈) */
 const CALC_LEVELS = [
-  {n:'세 자리 × 두 자리', d:'세 자리 × 두 자리 · 예: 426 × 37', g:()=>{ const a=cxR(101,999), b=cxR(11,99), o=b%10, t=b-o;
-    return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${a} × ${o} = ${a*o}, ${a} × ${t} = ${a*t} → ${a*o} + ${a*t} = <b>${a*b}</b>`}); }},
-  {n:'나눗셈 기초', d:'나누는 수가 두 자리 · 예: 240 ÷ 30, 87 ÷ 21 (나머지 있는 것 포함)', g:()=>{ let a,d,q;
-    if(Math.random()<.5){ d=cxR(2,9)*10; q=cxR(2,9); a=d*q; }
-    else { q=cxR(1,4); d=cxR(11,Math.max(11,Math.floor(100/(q+1)))); a=Math.min(99,d*q+cxR(0,d-1)); }
-    const r=a-d*q; return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} → 몫 ${q}, 나머지 ${r}`}); }},
-  {n:'세 자리 ÷ 두 자리', d:'세 자리 ÷ 두 자리 · 예: 745 ÷ 32 (몫이 한 자리 → 두 자리 순서로)', subs:{'1':'몫이 한 자리','2':'몫이 두 자리','mix':'섞어서'}, g:s=>{
-    const two = s==='2' || (s!=='1' && Math.random()<.5); let d,q;
-    if(two){ d=cxR(12,45); q=cxR(10,Math.floor(999/d)-1); } else { d=cxR(21,95); q=cxR(2,9); while(d*q<100) q++; }
-    const a=d*q+cxR(0,d-1), r=a-d*q;
-    return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} → 몫 ${q}, 나머지 ${r}`}); }},
-  {n:'곱셈 · 나눗셈 검산', d:'예: 32 × 23 + 9 = 745 처럼 확인하는 습관', g:()=>{ const d=cxR(12,45), q=cxR(10,Math.floor(999/d)-1), r=cxR(1,d-1), a=d*q+r;
-    const top=`<div class="cx-sub">${a} ÷ ${d} = ${q} … ${r}</div>`, hint=`나누는 수 × 몫 + 나머지 = 나누어지는 수 → ${d} × ${q} = ${d*q}, ${d*q} + ${r} = <b>${a}</b>`;
-    return Math.random()<.6 ? cxH(`${top}검산: ${d} × ${q} + ${r} = {0}`,[a],{hint}) : cxH(`${top}검산: ${d} × {0} + ${r} = ${a}`,[q],{hint:`검산식에는 몫이 들어가요 → ${d} × <b>${q}</b> + ${r} = ${a}`}); }},
   {n:'분수의 덧셈 · 뺄셈', d:'분모가 같은 분수 (진분수) · 예: 2/7 + 3/7, 6/9 − 2/9', g:()=>{ const d=cxR(3,12), o={lab:['분자','분모'],hideLab:true};
     if(Math.random()<.5){ const n1=cxR(1,d-2), n2=cxR(1,d-1-n1);
       return cxH(`${cxF(n1,d)} + ${cxF(n2,d)} = ${cxF('{0}','{1}')}`,[n1+n2,d],{...o,hint:`분모는 그대로 ${d}, 분자끼리 더해요: ${n1} + ${n2} = <b>${n1+n2}</b>`}); }
@@ -4320,7 +4309,28 @@ const CALC_LEVELS = [
     if(Math.random()<.5){ const W=cxR(2,9), b=cxR(10,W*10-1)*10+cxR(1,9), ans=cxTrim(cxD(W*100-b,2));
       return cxH(`${W} − ${cxD(b,2)} = {0}`,[ans],{dec:true,hint:`${W}을(를) ${W}.00으로 자리를 맞춰요: ${W}.00 − ${cxD(b,2)} = <b>${ans}</b>`}); }
     let a=cxR(21,99); if(a%10===0) a++; const b=cxR(10,a-1)*10+cxR(1,9), ans=cxTrim(cxD(a*10-b,2));
-    return cxH(`${(a/10).toFixed(1)} − ${cxD(b,2)} = {0}`,[ans],{dec:true,hint:`${(a/10).toFixed(1)}을(를) ${cxD(a*10,2)}으로 자리를 맞춰요: ${cxD(a*10,2)} − ${cxD(b,2)} = <b>${ans}</b>`}); }}
+    return cxH(`${(a/10).toFixed(1)} − ${cxD(b,2)} = {0}`,[ans],{dec:true,hint:`${(a/10).toFixed(1)}을(를) ${cxD(a*10,2)}으로 자리를 맞춰요: ${cxD(a*10,2)} − ${cxD(b,2)} = <b>${ans}</b>`}); }},
+  {n:'나눗셈 기초', d:'나누는 수가 두 자리 · 예: 240 ÷ 30, 87 ÷ 21 (나머지 있는 것 포함)', g:()=>{ let a,d,q;
+    if(Math.random()<.5){ d=cxR(2,9)*10; q=cxR(2,9); a=d*q; }
+    else { q=cxR(1,4); d=cxR(11,Math.max(11,Math.floor(100/(q+1)))); a=Math.min(99,d*q+cxR(0,d-1)); }
+    const r=a-d*q; return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} → 몫 ${q}, 나머지 ${r}`}); }},
+  {n:'세 자리 × 두 자리', d:'세 자리 × 두 자리 · 예: 426 × 37', g:()=>{ const a=cxR(101,999), b=cxR(11,99), o=b%10, t=b-o;
+    return cxH(`${a} × ${b} = {0}`,[a*b],{hint:`${a} × ${o} = ${a*o}, ${a} × ${t} = ${a*t} → ${a*o} + ${a*t} = <b>${a*b}</b>`}); }},
+  {n:'세 자리 ÷ 두 자리', d:'세 자리 ÷ 두 자리 · 예: 745 ÷ 32 (몫이 한 자리 → 두 자리 순서로)', subs:{'1':'몫이 한 자리','2':'몫이 두 자리','mix':'섞어서'}, g:s=>{
+    const two = s==='2' || (s!=='1' && Math.random()<.5); let d,q;
+    if(two){ d=cxR(12,45); q=cxR(10,Math.floor(999/d)-1); } else { d=cxR(21,95); q=cxR(2,9); while(d*q<100) q++; }
+    const a=d*q+cxR(0,d-1), r=a-d*q;
+    return cxH(`${a} ÷ ${d} = {0} … {1}`,[q,r],{lab:['몫','나머지'],hint:`${d} × ${q} = ${d*q}, ${a} − ${d*q} = ${r} → 몫 ${q}, 나머지 ${r}`}); }},
+  {n:'곱셈 · 나눗셈 검산', d:'예: 32 × 23 + 9 = 745 처럼 확인하는 습관', g:()=>{ const d=cxR(12,45), q=cxR(10,Math.floor(999/d)-1), r=cxR(1,d-1), a=d*q+r;
+    const top=`<div class="cx-sub">${a} ÷ ${d} = ${q} … ${r}</div>`, hint=`나누는 수 × 몫 + 나머지 = 나누어지는 수 → ${d} × ${q} = ${d*q}, ${d*q} + ${r} = <b>${a}</b>`;
+    return Math.random()<.6 ? cxH(`${top}검산: ${d} × ${q} + ${r} = {0}`,[a],{hint}) : cxH(`${top}검산: ${d} × {0} + ${r} = ${a}`,[q],{hint:`검산식에는 몫이 들어가요 → ${d} × <b>${q}</b> + ${r} = ${a}`}); }},
+  /* 5학년 미리 보기: 맨 뒤에 붙여요 (앞 단계 번호는 그대로) */
+  {n:'분수 곱하기', d:'5학년 미리 보기 · 분수 × 자연수 · 예: 2/7 × 3 (약분하지 않고 분모는 그대로 써요)', g:()=>{ const d=cxR(3,12), n=cxR(1,d-1), k=cxR(2,5), o={lab:['분자','분모'],hideLab:true};
+    const q = Math.random()<.5 ? `${cxF(n,d)} × ${k}` : `${k} × ${cxF(n,d)}`;
+    return cxH(`${q} = ${cxF('{0}','{1}')}`,[n*k,d],{...o,hint:`분모는 그대로 ${d}, 분자에 자연수를 곱해요: ${n} × ${k} = <b>${n*k}</b> → ${n*k}/${d}`}); }},
+  {n:'소수 곱하기', d:'5학년 미리 보기 · 소수 × 자연수 · 예: 1.2 × 3', g:()=>{ let a=cxR(11,59); if(a%10===0) a++; const k=cxR(2,9), ans=cxTrim((a*k/10).toFixed(1));
+    const q = Math.random()<.5 ? `${(a/10).toFixed(1)} × ${k}` : `${k} × ${(a/10).toFixed(1)}`;
+    return cxH(`${q} = {0}`,[ans],{dec:true,hint:`소수점을 떼고 ${a} × ${k} = ${a*k} → 소수 한 자리라서 소수점을 한 칸 앞에 찍어요: <b>${ans}</b>`}); }}
 ];
 
 /* ───── 내 캐릭터 방: 모은 별로 캐릭터 · 모자 · 소품 · 친구 · 배경을 사서 꾸며요 (다섯 방 공통) ─────
