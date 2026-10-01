@@ -76,15 +76,20 @@ button{ cursor:pointer; }
 header{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:10px; margin-bottom:14px; }
 h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .today{ color:var(--ink-soft); font-size:.9em; }
-.switch{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+/* 디자인 3개 · 글씨 3개: 같은 폭 3칸 격자라 위아래 줄이 딱 맞아요 (공책 아래 윤탱체) */
+.sw-box{ width:min(100%, 330px); }
+.switch{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:4px; }
 .switch button{
   border:1.5px solid var(--edge); background:var(--paper); border-radius:999px;
-  padding:2px 10px; font-size:.78em;
+  padding:2px 6px; font-size:.78em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .switch button.on{ border-color:var(--ink); background:var(--ink); color:var(--paper); }
 
 /* ---------- 이름표 ---------- */
-.who-row{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+/* 이메일 · iinote · 로그아웃을 한 줄에: 좁으면 이메일 끝을 … 으로 줄여요 */
+.who-row{ display:flex; gap:10px; flex-wrap:nowrap; align-items:center; white-space:nowrap; margin-bottom:12px; }
+.who-row .who-mail{ min-width:0; overflow:hidden; text-overflow:ellipsis; }
+@media (max-width:520px){ .who-row{ gap:8px; font-size:.86em; } }
 .logout{ margin-left:auto; background:none; border:none; color:var(--ink-soft); text-decoration:underline; font-size:.85em; }
 
 /* ---------- 공책 + 인덱스 탭 ---------- */
@@ -117,7 +122,8 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .btn:disabled{ opacity:.5; cursor:wait; }
 .soft{ color:var(--ink-soft); font-size:.88em; }
 .ii-note{ font-size:.82em; color:var(--ink-soft); background:color-mix(in srgb, var(--edge) 35%, transparent); border-radius:10px; padding:5px 10px; margin:6px 0; }
-#iiBar{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; }
+#iiBar{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; flex:none; }
+#iiBar + .logout{ flex:none; }
 #iiBar + .logout{ margin-left:10px; }
 
 /* ---------- 월 머리 ---------- */
@@ -377,7 +383,7 @@ mark{
       <h1>우리 가족 일기장</h1>
       <div class="today" id="todayLabel"></div>
     </div>
-    <div>
+    <div class="sw-box">
       <div class="switch" id="themeSw" style="margin-bottom:4px">
         <button data-act="theme" data-v="note">📒 공책</button>
         <button data-act="theme" data-v="crayon">🖍 크레파스</button>
@@ -510,7 +516,7 @@ const wroteOn = (date, w) => !!S.entries[keyOf(date, w)];
 onAuthStateChanged(auth, user => {
   if (user && user.email === ADMIN_EMAIL){
     S.ok = true;
-    $("#authBar").innerHTML = `<span class="soft">🌷 ${esc(user.email)}</span><span id="iiBar"></span><button class="logout" data-act="logout">로그아웃</button>`;
+    $("#authBar").innerHTML = `<span class="soft who-mail" title="${esc(user.email)}">🌷 ${esc(user.email)}</span><span id="iiBar"></span><button class="logout" data-act="logout">로그아웃</button>`;
     startData(); renderIiBar();
     renderTabs(); goTab(S.tab); renderLinks();
   } else {
@@ -678,7 +684,7 @@ function renderIiBar(){
     ? (n ? `<span class="soft" title="전에 가져온 iinote 일기예요. 새 일기는 [새로 가져오기]를 누르면 들어와요">🌐 iinote 일기 ${n}편</span> <button class="logout" data-act="ii-login">새로 가져오기</button>`
          : `<button class="logout" data-act="ii-login" title="iinote.co.kr 에 쓴 우리 가족 일기도 여기서 같이 봐요">🌐 iinote 일기 같이 보기</button>`)
     : ii.err ? `<span class="soft" style="color:var(--red)">🌐 ${esc(ii.err)}</span> <button class="logout" data-act="ii-logout">iinote 끊기</button>`
-    : `<span class="soft" title="iinote 일기는 읽기만 해요. 쓰기 · 도장 · 댓글은 iinote 에서">🌐 iinote 연결됨${n ? ` · ${n}편` : ""}</span> <button class="logout" data-act="ii-logout">끊기</button>`;
+    : `<span class="soft" title="iinote 연결됨 · 일기는 읽기만 해요. 쓰기 · 도장 · 댓글은 iinote 에서">🌐 iinote${n ? ` ${n}편` : " 연결됨"}</span> <button class="logout" data-act="ii-logout">끊기</button>`;
 }
 function ensureRange(){
   const t = today();
