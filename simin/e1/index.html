@@ -1013,10 +1013,23 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
+/* ───── 🪷 연꽃 테마 (기본): 전자칠판 · 입구와 같은 연분홍 · 연두 · 금빛, 어린 아이를 위한 부드럽고 둥근 모양 ───── */
+body[data-theme="lotus"]{--bg:#FFF7F0;--paper:#FFFFFF;--card:#FFFFFF;--ink:#4A3B36;--sub:#8C7A72;--line:#F1DED3;--accent:#DD6590;--accent-ink:#FFFFFF;--soft:#FDE3EC;--hi:#F2C35B;--ok:#4E9E70;--no:#E35D5D;--carry:#E35D5D;--shadow:0 5px 0 #F6E6DC;--rad:24px;
+  background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171px),radial-gradient(circle at 97% 30%,#E3F4E8 0 150px,transparent 151px),radial-gradient(circle at 92% 98%,#FBF0D9 0 190px,transparent 191px),#FFF7F0;background-attachment:fixed}
+body[data-theme="lotus"] header{background:rgba(255,247,240,.92);backdrop-filter:blur(6px);border-bottom:3px solid var(--line)}
+body[data-theme="lotus"] .logo-m{background:#FDE3EC;border-radius:50%;font-size:0}
+body[data-theme="lotus"] .logo-m .sico{display:none}
+body[data-theme="lotus"] .logo-m::after{content:"🪷";font-size:20px}
+body[data-theme="lotus"] :is(.card,.subj,.dock-t,.wcard,.lvtab,.book,.lib-book,.sent-card,.hs-tile){border:3px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+body[data-theme="lotus"] .hello{background:linear-gradient(120deg,#FDE3EC,#FFF7F0 55%,#E3F4E8);border-color:#F7D3DF}
+body[data-theme="lotus"] .big-btn{border-radius:26px;box-shadow:0 6px 0 #B94873}
+body[data-theme="lotus"] .big-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #B94873}
+body[data-theme="lotus"] .starbox{background:#FDE3EC;color:#DD6590}
+body[data-theme="lotus"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:#6B5433}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
-<body data-theme="clean">
+<body data-theme="lotus">
 <header>
   <div class="toprow">
     <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">민재의 공부방</button></h1>
@@ -1746,7 +1759,7 @@ const WD = ['일','월','화','수','목','금','토'];
 const App = { view:'home', roomv:'room', lockPick:null, mmode:'vertical', op:'add', level: store.get('level',1), emode:'story', est:null, epg:0, eko:false, krid:null, cat:'animal', qcat:'all', letter:'A',
   unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', klv:1, kact:'spell', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: 0, provOpen:false };
-let settings = Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
+let settings = Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,korean:true,eng:true,hanja:true,history:false,social:false,science:false}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
@@ -2280,11 +2293,11 @@ function loadProfile(name, guest){
   GUEST=!!guest;
   who=name; if(!guest) store.set('lastWho',name);
   App.level=store.get('level',1); App.op=store.get('op','add'); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
-  settings=Object.assign({theme:'clean',font:'f1',size:1,sound:true}, store.get('settings',{}));
+  settings=Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
-  if(settings.fontV!==3){ settings.theme='clean'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 깔끔 · 또박으로
+  if(settings.fontV!==3){ settings.theme='lotus'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 연꽃 · 또박으로
   if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='f1';
-  if(!['clean','bright'].includes(settings.theme)) settings.theme='clean';
+  if(!['lotus','clean','bright'].includes(settings.theme)) settings.theme='lotus';
   stars=store.get('stars',0);
   V=C=Q=S=H=HQ=K=null; App.view='home'; lastDay=dayKey();
   if(!guest) markVisit(); applySettings(); updateStars();
@@ -2447,7 +2460,7 @@ function drawDockExtra(){
   if(Date.now()-wxTry>60000){ wxTry=Date.now(); loadWeather(); }
 }
 setInterval(drawDockExtra, 5000); setTimeout(drawDockExtra, 300);
-const DECO_THEME = {clean:'깔끔', bright:'산뜻'};
+const DECO_THEME = {lotus:'연꽃', clean:'깔끔', bright:'산뜻'};
 const DECO_FONT = {f1:'또박', f2:'산들'};
 /* 상단: 디자인 2개 · 글씨 2개 고르는 단추 */
 function drawDecoBar(){

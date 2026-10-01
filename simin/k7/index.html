@@ -390,6 +390,21 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today i{display:block;height:7px;border-radius:99px;background:rgba(127,127,127,.2);overflow:hidden;margin-top:4px}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
+/* ───── 🪷 연꽃: 전자칠판 · 입구와 같은 연분홍 · 연두 · 금빛, 어린 아이를 위한 부드럽고 둥근 모양 ───── */
+:root{--bg:#FFF7F0;--line:#F1DED3;--ink:#4A3B36;--sub:#8C7A72;--accent:#DD6590;--soft:#FDE3EC;--hi:#F2C35B;--ok:#4E9E70;--no:#E35D5D;--shadow:0 5px 0 #F6E6DC;
+  --kor:#E57A6E;--kor2:#EE9B4B;--math:#3FB3B5;--math2:#6F8FE6;--eng:#9B7BEA;--eng2:#D57BC6;--story:#DDA23A;--room:#45B38F;
+  --mind:#E97A9E;--sound:#EE9A57;--mom:#6DB685;--size:#6E9BE6;--clock:#DDA23A;--count:#3FB3B5;--read:#E57A6E;--school:#7C8CEA}
+body{background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171px),radial-gradient(circle at 97% 30%,#E3F4E8 0 150px,transparent 151px),radial-gradient(circle at 92% 98%,#FBF0D9 0 190px,transparent 191px),var(--bg);background-attachment:fixed}
+.bar{background:rgba(255,247,240,.92);border-bottom:3px solid var(--line)}
+.logo i{background:#FDE3EC;border-radius:50%}
+.hello{background:linear-gradient(120deg,#FDE3EC,#FFF7F0 55%,#E3F4E8);border:3px solid #F7D3DF}
+.stop .ball{border-width:7px}
+.card,.prog-card{border:3px solid var(--line);box-shadow:var(--shadow)}
+.home-btn{border:3px solid var(--line);border-radius:50%}
+.star{background:#FDE3EC;color:#DD6590}
+.next{background:#DD6590;box-shadow:0 6px 0 #B94873}
+.next:active{transform:translateY(3px);box-shadow:0 3px 0 #B94873}
+.kid-msg{background:#E3F4E8;color:#2F6E4B}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
@@ -406,7 +421,7 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="bar"><div class="bar-in">
-  <div class="logo" data-act="go" data-v="home" role="button" title="홈으로" style="cursor:pointer"><i>🌱</i><span id="simLogo">자성동이 공부방</span></div>
+  <div class="logo" data-act="go" data-v="home" role="button" title="홈으로" style="cursor:pointer"><i>🪷</i><span id="simLogo">자성동이 공부방</span></div>
   <button class="star" data-act="starInfo" title="별 · 스티커 약속 보기" aria-label="모은 별 · 별과 스티커 약속 보기">⭐ <span id="starCount">0</span> <span class="stk-n">· 🏅 <span id="stkCount">0</span></span></button>
   <button class="home-btn" id="sndBtn" data-act="snd" aria-label="소리 끄기">🔊</button>
   <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
