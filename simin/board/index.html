@@ -53,7 +53,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .mode.on{border-color:var(--leaf-d);background:var(--leaf-s)}
 .mode b{font-family:var(--font-t);font-weight:normal;font-size:23px;display:block}
 .mode small{font-size:15px;color:var(--sub);line-height:1.45;display:block}
-.mode .n{font-family:var(--font-t);color:var(--leaf-d);font-size:17px}
+.mode .n{font-family:var(--font-t);color:var(--leaf-d);font-size:16px;white-space:nowrap;letter-spacing:-.3px}
 .how{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:18px;background:var(--paper);border:3px solid var(--line);text-align:left}
 .how.on{border-color:var(--gold);background:var(--gold-s)}
 .how b{font-family:var(--font-t);font-weight:normal;font-size:21px}
@@ -67,8 +67,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .picker{font-family:var(--font-t);font-size:18px;color:var(--lotus-d);text-align:center;background:var(--lotus-s);border-radius:14px;padding:6px 8px}
 .order{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;font-family:var(--font-t);font-size:19px}
 .order span{padding:2px 8px;border-radius:14px;background:var(--lotus-s)}
-.order i{font-style:normal;color:var(--sub);font-size:16px}
-.promise{font-size:15px;background:var(--gold-s);border-radius:16px;padding:6px 10px;line-height:1.5}
+.order i{font-style:normal;color:var(--sub);font-size:16px}.promise{font-size:15px;background:var(--gold-s);border-radius:16px;padding:6px 10px;line-height:1.5}
 .go{font-family:var(--font-t);font-size:28px;border-radius:26px;background:var(--lotus-d);color:#fff;padding:10px 26px;box-shadow:0 6px 0 #B94873}
 .go:disabled{background:#E7C2D0;box-shadow:0 6px 0 #D8A9BA}
 .go:active:not(:disabled){transform:translateY(3px);box-shadow:0 3px 0 #B94873}
@@ -106,8 +105,8 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .tool{padding:8px 14px;border-radius:999px;background:var(--gold-s);border:3px solid #EED9A8;font-family:var(--font-t);font-size:18px}
 .tool:disabled{opacity:.4}
 /* 룰렛 · 사다리 */
-.wheel{position:relative;width:200px;height:200px;margin:4px auto 0}
-.wheel svg{width:200px;height:200px;display:block}
+.wheel{position:relative;width:176px;height:176px;margin:4px auto 0}
+.wheel svg{width:176px;height:176px;display:block}
 .wheel .rot{transform-origin:100px 100px;transition:transform 3s cubic-bezier(.17,.67,.2,1)}
 .wheel .pin{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:24px solid var(--lotus-d);filter:drop-shadow(0 2px 1px rgba(0,0,0,.2))}
 .spin-btn{display:block;margin:4px auto 0;padding:8px 22px;border-radius:999px;background:var(--lotus-d);color:#fff;font-family:var(--font-t);font-size:20px}
@@ -387,8 +386,9 @@ function setup(){
     const c=ST.cards, n=ST.ages.length;
     let cards='';
     if(n>1 && ST.how==='roulette'){
-      const left=n-ST.spin.list.length;
-      cards = `<div class="picker">${left<1?'순서가 정해졌어요!':ST.spin.busy?'빙글빙글…':`${ORD[ST.spin.list.length]} 차례를 뽑아요`}</div>${wheelHTML()}
+      const L=ST.spin.list, left=n-L.length, last=L.length&&left>0 ? `🎉 ${ORD[L.length-1]}는 <b>${ageOf(L[L.length-1])[2]}${nameOf(L[L.length-1])}</b>!<br>` : '';
+      cards = `<div class="picker">${left<1?'순서가 정해졌어요!':ST.spin.busy?'빙글빙글…':`${last}${ORD[L.length]} 차례를 뽑아요`}</div>
+${wheelHTML()}
         ${left>0?`<button class="spin-btn" data-act="spin" ${ST.spin.busy?'disabled':''}>🎡 돌리기</button>`:''}
         <button class="small-link" data-act="reshuffle" ${ST.spin.busy?'disabled':''}>🔄 처음부터</button>`;
     } else if(n>1 && ST.how==='ladder'){
@@ -407,9 +407,10 @@ function setup(){
     m3 = `${HOWS.map(([k,nm,e])=>`<button class="how ${ST.how===k?'on':''}" data-how="${k}" ${busy?'disabled':''} ${n>1&&ST.how!==k?'style="padding:3px 12px"':''}><i>${e}</i><b>${nm}</b></button>`).join('')}${cards}`;
   }
   const ready = solo || (ST.ages.length && orderDone());
+  const ordPart = ord.length ? ord : ST.how==='roulette' && ST.spin ? ST.spin.list : [];   // 룰렛은 뽑는 대로 바로 보여요
   const goalTxt = solo ? SOLO[ST.solo][2] : ST.mode==='all' ? `🪷 ${per()*(ST.ages.length||1)}송이 (연령대마다 ${per()})` : '🪷 연령대마다 100송이';
   const m4 = `<span class="lbl">${solo?'오늘의 도전':'순서'}</span>
-    ${solo?'':`<div class="order">${ord.length?ord.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join(''):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
+    ${solo?'':`<div class="order">${ordPart.length?ordPart.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join('')+'<i>→</i><span>?</span>'.repeat(ord.length?0:ST.ages.length-ordPart.length):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
     <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
     <div class="promise">${solo?'🙂 친구가 도전할 때는<br>조용히 응원해 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>🙂 틀려도 괜찮다고 말해 주기'}</div>
     <button class="go" data-act="start" ${ready?'':'disabled'}>${solo?'나 확인하기':'시작하기'}</button>
