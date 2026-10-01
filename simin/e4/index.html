@@ -1205,7 +1205,7 @@ const SICO = {
 const SUBJ = {
   math:{name:'연산', ico:SICO.math, desc:'분수 · 대분수 · 소수 · 나눗셈 · 세 자리 × 두 자리 · 분수 · 소수 곱하기 (11단계, 쉬운 것부터)'},
   korean:{name:'국어', ico:SICO.korean, desc:'긴 글 읽고 4문제 · 관용 표현 · 헷갈리는 말'},
-  school:{name:'학교수학', ico:SICO.school, desc:'4학년 2학기 · 설명, 퀴즈, 60초 게임'},
+  school:{name:'학교수학', ico:SICO.school, desc:'4학년 2학기 · 설명, 퀴즈'},
   eng:{name:'영어', ico:SICO.eng, desc:'기초(초2) · 초4 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'동화처럼 읽는 이야기책 · 9급 · 8급'},
@@ -3097,11 +3097,12 @@ function renderSchool(){
   view.innerHTML=`
     <div class="unitrow navy">${Object.keys(UNITS).map(k=>pill('unit',k,UNITS[k].name+(k!=='mix'?weakTag('school',UNITS[k].short):''),App.unit)).join('')}</div>
     <div class="seg" style="display:grid;grid-template-columns:repeat(3,1fr)">
-      ${App.unit==='mix'?'':pill('smode','learn','📖 설명',App.smode)}${pill('smode','quiz','✏️ 퀴즈 10문제',App.smode)}${pill('smode','game','⚡ 60초 게임',App.smode)}
+      ${App.unit==='mix'?'':pill('smode','learn','📖 설명',App.smode)}${pill('smode','quiz','✏️ 퀴즈 10문제',App.smode)}
     </div>
     <p class="desc">${UNITS[App.unit].desc}${App.smode==='game'?` · 🏆 최고 ${best||0}점`:''}</p>
     <div id="sbody"></div>`;
-  App.smode==='learn' ? drawLesson() : App.smode==='game' ? drawGame() : drawS();
+  if(App.smode==='game') App.smode='quiz';   // 60초 게임은 뺐어요 (2026-10-02)
+  App.smode==='learn' ? drawLesson() : drawS();
 }
 
 /* 설명: 단원마다 카드 몇 장. 🔊 누르면 읽어 줘요 */
@@ -3109,7 +3110,7 @@ const lcard = (t,body) => `<div class="card lesson"><div class="ls-top"><b>${t}<
 const ltable = (rows) => `<table class="tbl">${rows.map(r=>`<tr>${r.map((x,i)=>i===0?`<th>${x}</th>`:`<td>${x}</td>`).join('')}</tr>`).join('')}</table>`;
 const LESSONS = {
   frac: ()=>[
-    lcard('분모가 같은 분수의 덧셈', `<p>분모는 <b>그대로</b> 두고, 분자끼리 더해요.</p><div class="ls-big">${fbar(2,7,3)}<br>${fr(2,7)} + ${fr(3,7)} = ${fr(5,7)}</div><p class="sub">1/7 이 2개와 3개 → 1/7 이 5개</p>`),
+    lcard('분모가 같은 분수의 덧셈', `<p>분모는 <b>그대로</b> 두고, 분자끼리 더해요.</p><div class="ls-big">${fr(2,7)} + ${fr(3,7)} = ${fr(5,7)}</div><p class="sub">1/7 이 2개와 3개 → 1/7 이 5개</p>`),
     lcard('합이 1보다 크면?', `<p>분자끼리 더했더니 분모보다 커지면 <b>대분수</b>로 바꿔요.</p><div class="ls-big">${fr(4,5)} + ${fr(3,5)} = ${fr(7,5)} = ${fr(2,5,1)}</div><p class="sub">5/5 가 1이니까, 7/5 는 1과 2/5 예요.</p>`),
     lcard('분수의 뺄셈', `<p>뺄셈도 분모는 그대로, <b>분자끼리</b> 빼요.</p><div class="ls-big">${fr(6,8)} − ${fr(2,8)} = ${fr(4,8)}</div><p><b>1 − 분수</b>는 1을 분모가 같은 분수로 바꿔요.</p><div class="ls-big">1 − ${fr(2,5)} = ${fr(5,5)} − ${fr(2,5)} = ${fr(3,5)}</div>`),
     lcard('대분수의 덧셈과 뺄셈', `<p><b>자연수는 자연수끼리, 분수는 분수끼리</b> 계산해요.</p><div class="ls-big">${fr(1,5,2)} + ${fr(3,5,1)} = ${fr(4,5,3)}</div><p>분수끼리 뺄 수 없으면 자연수에서 1을 빌려 와요.</p><div class="ls-big">${fr(1,4,3)} − ${fr(3,4,1)}<br>= ${fr(5,4,2)} − ${fr(3,4,1)} = ${fr(2,4,1)}</div>`),
@@ -3171,7 +3172,7 @@ function drawS(){
       <p class="big">${S.correct===10?'🏆 10문제 모두 정답!':`10문제 중 ${S.correct}개 맞았어요!`}</p>
       <p>받은 별: ⭐ ${S.earned}개</p>
       <button class="big-btn" data-act="startS">다시 하기</button>
-      <div class="center"><button class="linkbtn" data-act="smode" data-v="game">⚡ 60초 게임 하러 가기</button></div></div>`;
+</div>`;
     return;
   }
   const q=S.list[S.i];

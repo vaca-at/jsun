@@ -347,6 +347,11 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .ls-spk{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--hi);font-size:1.1rem}
 .ls-big{text-align:center;font-size:1.5rem;line-height:1.6;margin:8px 0;padding:8px;border-radius:14px;background:var(--paper);border:2px dashed var(--line)}
 .ls-big u{color:var(--no);text-decoration:none;font-weight:bold}
+/* 분수 막대: 칸을 똑같이 나눠 칠해요 */
+.fbar{display:inline-flex;gap:3px;vertical-align:middle;margin:4px 0}
+.fbar i{width:30px;height:30px;border:2px solid var(--ink);border-radius:4px;background:#fff}
+.fbar i.on{background:var(--accent)}
+.fbar i.on2{background:var(--line)}
 .ls-clock .clock{width:10rem;height:10rem;margin:0 auto}
 .dan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0;text-align:center;font-size:1.15rem}
 .dan span{padding:6px;border-radius:10px;background:var(--paper);border:2px solid var(--line)}
@@ -3478,7 +3483,7 @@ const LESSONS = {
     lcard('계산식의 규칙', `<div class="ls-big" style="font-family:monospace;font-size:1.1rem">11 × 11 = 121<br>111 × 111 = 12321<br>1111 × 1111 = 1234321</div><p>곱하는 수의 1이 하나씩 늘면 가운데 숫자가 1씩 커져요.</p>`)
   ],
   frac: ()=>[
-    lcard('분모가 같은 분수의 덧셈', `<p>분모는 <b>그대로</b> 두고, 분자끼리 더해요.</p><div class="ls-big">${fbar(2,7,3)}<br>${fr(2,7)} + ${fr(3,7)} = ${fr(5,7)}</div><p class="sub">1/7 이 2개와 3개 → 1/7 이 5개</p>`),
+    lcard('분모가 같은 분수의 덧셈', `<p>분모는 <b>그대로</b> 두고, 분자끼리 더해요.</p><div class="ls-big">${fr(2,7)} + ${fr(3,7)} = ${fr(5,7)}</div><p class="sub">1/7 이 2개와 3개 → 1/7 이 5개</p>`),
     lcard('합이 1보다 크면?', `<p>분자끼리 더했더니 분모보다 커지면 <b>대분수</b>로 바꿔요.</p><div class="ls-big">${fr(4,5)} + ${fr(3,5)} = ${fr(7,5)} = ${fr(2,5,1)}</div><p class="sub">5/5 가 1이니까, 7/5 는 1과 2/5 예요.</p>`),
     lcard('분수의 뺄셈', `<p>뺄셈도 분모는 그대로, <b>분자끼리</b> 빼요.</p><div class="ls-big">${fr(6,8)} − ${fr(2,8)} = ${fr(4,8)}</div><p><b>1 − 분수</b>는 1을 분모가 같은 분수로 바꿔요.</p><div class="ls-big">1 − ${fr(2,5)} = ${fr(5,5)} − ${fr(2,5)} = ${fr(3,5)}</div>`),
     lcard('대분수의 덧셈과 뺄셈', `<p><b>자연수는 자연수끼리, 분수는 분수끼리</b> 계산해요.</p><div class="ls-big">${fr(1,5,2)} + ${fr(3,5,1)} = ${fr(4,5,3)}</div><p>분수끼리 뺄 수 없으면 자연수에서 1을 빌려 와요.</p><div class="ls-big">${fr(1,4,3)} − ${fr(3,4,1)}<br>= ${fr(5,4,2)} − ${fr(3,4,1)} = ${fr(2,4,1)}</div>`),
