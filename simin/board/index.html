@@ -378,7 +378,7 @@ function setup(){
     ? `<span class="lbl">한 명씩 앞에 나와요</span><p class="note" style="margin:0">🏅 <b>나만의 도전</b>은 한 명씩 <b>자기 나이 문제</b>로 해요.<br>시작하면 별명 · 나이 · 비밀번호로 누구인지 확인해요.<br>친구와 비교하거나 순위를 매기지 않아요. <b>지난번의 나</b>와만 비교해요.</p>`
     : `<span class="lbl">오늘 온 연령대를 모두 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.ages.includes(k)?'on':''}" data-age="${k}" aria-pressed="${ST.ages.includes(k)}">${e} ${n}</button>`).join('')}</div>
       ${ST.ages.length?`<span class="lbl">연령대마다 친구 몇 명?</span><div class="cnt">${ST.ages.map(k=>`<div><span>${ageOf(k)[2]} ${nameOf(k)}</span><button data-cnt="${k}" data-d="-1" aria-label="${nameOf(k)} 친구 한 명 빼기">−</button><b>${ST.cnt[k]||1}</b><button data-cnt="${k}" data-d="1" aria-label="${nameOf(k)} 친구 한 명 더하기">＋</button>명</div>`).join('')}</div>`:''}`;
-  const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 차례대로 돌아가며</small><span class="n">${ST.ages.length||'?'} 연령대 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
+  const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 한 연령대씩 이어서</small><span class="n">연령별 · 학년별 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
     <button class="mode ${ST.mode==='grade'?'on':''}" data-mode="grade"><b>🎓 학년별 협동</b><small>한 연령대가 100송이를 채우면 다음 차례</small><span class="n">연령대마다 100송이</span></button>
     <button class="mode ${ST.mode==='solo'?'on':''}" data-mode="solo"><b>🏅 나만의 도전</b><small>한 명씩 · 순위 없이 · 내 공부방에 기록</small><span class="n">지난번의 나와 비교해요</span></button>`;
   let m3;
@@ -450,14 +450,14 @@ function play(){
     <div class="side">
       <div class="panel total">🪷 우리가 피운 연꽃<b>${total}</b><span style="font-size:18px;color:var(--sub)">목표 ${goalAll}송이</span></div>
       <div class="panel" style="flex:1"><h3>${G.mode==='all'?'모둠마다 연꽃':'연령대 차례'}</h3>${G.groups.map((x,i)=>`<div class="grp ${i===G.pos?'cur':''} ${x.got>=x.goal?'done':''}"><div class="gh"><span>${ageOf(x.k)[2]} ${nameOf(x.k)}${x.cnt>1?` <small style="font-size:14px;color:var(--sub)">${x.cnt}명</small>`:''}</span><span>${x.got>=x.goal?'🌸 활짝!':`${x.got} / ${x.goal}`}</span></div><div class="gbar"><i style="width:${Math.min(100,x.got/x.goal*100)}%"></i></div></div>`).join('')}</div>
-      <div class="panel rules">✋ 정답은 <b>차례인 친구만</b> 눌러요<br>📚 각자 <b>자기 나이 문제</b>를 스스로 풀어요<br>🪷 맞히면 <b>두 송이</b><br><button class="small-link" data-act="stop">그만하고 처음 화면으로</button></div>
+      <div class="panel rules">✋ 정답은 <b>차례인 친구만</b> 눌러요<br>📚 각자 <b>자기 나이 문제</b>를 스스로 풀어요<br>🪷 맞히면 <b>한 송이</b><br><button class="small-link" data-act="stop">그만하고 처음 화면으로</button></div>
     </div></div>`;
 }
 function flash(text, oops){ const m=document.createElement('div'); m.className='say-msg'+(oops?' oops':''); m.textContent=text; stage.appendChild(m); setTimeout(()=>m.remove(), oops?1300:1200); }
 function answer(i){
   if(!G.q || G.lock) return; const c=G.q.choices[i];
   if(String(c)===String(G.q.ans)){
-    G.lock=true; const add = 2;
+    G.lock=true; const add = 1;
     if(G.kind==='team'){ curGroup().got += add; } else { G.got += add; G.solved++; }
     render(); const btn=stage.querySelector(`[data-ch="${i}"]`); if(btn) btn.classList.add('yes');
     flash(`딩동댕! 🪷 +${add}`); speak(G.q.after ? `딩동댕! ${G.q.after}` : '딩동댕! 잘했어요!');
@@ -469,8 +469,7 @@ function answer(i){
 function afterTeam(){
   const g=curGroup(); g.friend++;
   if(G.groups.every(x=>x.got>=x.goal)){ ST.screen='win'; render(); return; }
-  if(G.mode==='all'){ let p=G.pos; do{ p=(p+1)%G.groups.length; }while(G.groups[p].got>=G.groups[p].goal); G.pos=p; }
-  else if(g.got>=g.goal){ const nx=G.groups.findIndex(x=>x.got<x.goal); showBanner(`🎉 ${nameOf(g.k)} 100송이! 다음은 ${nameOf(G.groups[nx].k)} 차례`); G.pos=nx; }
+  if(g.got>=g.goal){ const nx=G.groups.findIndex(x=>x.got<x.goal); showBanner(`🎉 ${nameOf(g.k)} ${g.goal}송이! 다음은 ${nameOf(G.groups[nx].k)} 차례`); G.pos=nx; }   // 한 연령대가 다 채우면 다음 차례
   newTurn(false);
 }
 function rain(){ for(let i=0;i<34;i++){ const s=document.createElement('span'); s.className='rain'; s.textContent=['🪷','🌸','✨','🎉'][i%4]; s.style.left=Math.random()*1240+'px'; s.style.animationDuration=(2.2+Math.random()*2)+'s'; s.style.animationDelay=(Math.random()*1.2)+'s'; stage.appendChild(s); setTimeout(()=>s.remove(),5000); } }
@@ -535,7 +534,7 @@ function soloPlay(){
     <div style="min-height:0"><div class="turn"><span class="ico">🏅</span><span>${esc(ST.kid.name)} · ${nameOf(ST.kid.age)} · ${SOLO[ST.solo][2]}</span></div>
       <div class="qcard">${G.q?'<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button></div>':''}${body}</div></div>
     <div class="side"><div class="panel timer" id="soloTimer">⏱</div><div class="panel total">🪷 내가 피운 연꽃<b>${G.got}</b>${G.type==='count'?`<span style="font-size:18px;color:var(--sub)">목표 ${G.val}송이</span>`:''}</div>
-      <div class="panel rules">🙂 틀려도 괜찮아요. 다시 눌러 보면 돼요.<br>🪷 한 문제 맞힐 때마다 두 송이<br><button class="small-link" data-act="soloQuit">도전 그만하기</button></div></div></div>`;
+      <div class="panel rules">🙂 틀려도 괜찮아요. 다시 눌러 보면 돼요.<br>🪷 한 문제 맞힐 때마다 한 송이<br><button class="small-link" data-act="soloQuit">도전 그만하기</button></div></div></div>`;
   tickSolo();
 }
 async function endSolo(){
