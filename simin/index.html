@@ -72,7 +72,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .side-links{display:flex;justify-content:center;gap:10px;margin:18px 0 0;flex-wrap:wrap}
 .side-links button{padding:.5rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.95rem}
 /* 학년 고르기 */
-.grades{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}   /* 5세 ~ 초6 아홉 칸: 3줄 3칸 */
 .grade{padding:18px 6px;border-radius:24px;background:var(--paper);border:3px solid var(--line);font-family:var(--font-t);font-size:1.4rem;box-shadow:var(--shadow)}
 .grade small{display:block;font-family:var(--font);font-size:.78rem;color:var(--sub)}
 .grade.on{border-color:var(--lotus-d);background:var(--lotus-s)}
@@ -185,7 +185,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
       <ul><li>기록은 Google Firebase(클라우드 데이터베이스)에 저장돼요.</li>
         <li>보호자가 지워 달라고 하거나 공부방을 더 쓰지 않게 되면 기록을 지워요. 1년 동안 한 번도 들어오지 않은 아이의 기록도 지울 수 있어요.</li></ul>
       <h4>4. 만 14세 미만 아동</h4>
-      <p>공부방은 5세부터 초등 4학년까지의 아이를 위한 곳이에요. 아이의 공부방은 보호자가 직접 이름과 나이를 넣어 만들고, 보호자는 엄마아빠 모드에서 기록을 확인하고 지워 달라고 요청할 수 있어요.</p>
+      <p>공부방은 5세부터 초등 6학년까지의 아이를 위한 곳이에요. 아이의 공부방은 보호자가 직접 이름과 나이를 넣어 만들고, 보호자는 엄마아빠 모드에서 기록을 확인하고 지워 달라고 요청할 수 있어요.</p>
       <h4>5. 문의 · 지워 달라는 요청</h4>
       <p>운영자 <a href="mailto:202609vibe@gmail.com">202609vibe@gmail.com</a> · 방침이 바뀌면 이곳에 먼저 알리고 시행일을 고쳐 적어요.</p>
       <p class="sub">시행일 2026년 9월 30일</p>
@@ -210,9 +210,10 @@ const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b2
 /* 나이 · 학년 → 공부방 (2단계에서 나이별 공부방을 붙여요) */
 const AGES = [
   {k:'k5', n:'5세', s:'유아', ico:'🐣'}, {k:'k6', n:'6세', s:'유아', ico:'🐥'}, {k:'k7', n:'7세', s:'유아', ico:'🐤'},
-  {k:'e1', n:'초1', s:'1학년', ico:'🌱'}, {k:'e2', n:'초2', s:'2학년', ico:'🌿'}, {k:'e3', n:'초3', s:'3학년', ico:'🍀'}, {k:'e4', n:'초4', s:'4학년', ico:'🌳'}
+  {k:'e1', n:'초1', s:'1학년', ico:'🌱'}, {k:'e2', n:'초2', s:'2학년', ico:'🌿'}, {k:'e3', n:'초3', s:'3학년', ico:'🍀'}, {k:'e4', n:'초4', s:'4학년', ico:'🌳'},
+  {k:'e5', n:'초5', s:'5학년', ico:'🌲'}, {k:'e6', n:'초6', s:'6학년', ico:'🎋'}
 ];
-const ROOM_OF = {k5:'k5', k6:'k7', k7:'k7', e1:'e1', e2:'e2', e3:'e3', e4:'e4'};   // 6세는 7세 공부방을 같이 써요
+const ROOM_OF = {k5:'k5', k6:'k7', k7:'k7', e1:'e1', e2:'e2', e3:'e3', e4:'e4', e5:'e5', e6:'e6'};   // 6세는 7세 공부방을 같이 써요
 const ageOf = k => AGES.find(a=>a.k===k) || AGES[0];
 /* 저장 자리 (우리 가족 공부방과 따로): 아이 문서 · 아이 열쇠 · 엄마아빠 열쇠 */
 const C_KIDS='simin_kids', C_KEY='simin_key', C_PKEY='simin_pkey';
