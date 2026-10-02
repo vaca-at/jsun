@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+<defs>
+<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFA08A"/><stop offset=".55" stop-color="#F0607A"/><stop offset="1" stop-color="#C43868"/></linearGradient>
+<radialGradient id="glow" cx=".3" cy=".2" r=".7"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+<linearGradient id="cov" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9C2A50"/><stop offset=".6" stop-color="#761C3E"/><stop offset="1" stop-color="#55102C"/></linearGradient>
+<linearGradient id="spine" x1="0" x2="1"><stop offset="0" stop-color="#4A0C26"/><stop offset=".6" stop-color="#6E1A3A"/><stop offset="1" stop-color="#5A1230"/></linearGradient>
+<linearGradient id="pg" x1="0" x2="1"><stop offset="0" stop-color="#E9D6C4"/><stop offset="1" stop-color="#FFF6EC"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF0B8"/><stop offset=".45" stop-color="#F2C46A"/><stop offset="1" stop-color="#B9802E"/></linearGradient>
+<linearGradient id="rib" x1="0" x2="1"><stop offset="0" stop-color="#E9B04E"/><stop offset=".5" stop-color="#FFE29A"/><stop offset="1" stop-color="#C98D33"/></linearGradient>
+<linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".4" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#5A0A2A" flood-opacity=".45"/></filter>
+<filter id="sh2" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#2A0010" flood-opacity=".5"/></filter>
+<path id="H" d="M0 11C-3 8.5-13 2.5-13-4.5C-13-9.5-9.5-12.5-5.8-12.5C-3-12.5-1-11 0-8.8C1-11 3-12.5 5.8-12.5C9.5-12.5 13-9.5 13-4.5C13 2.5 3 8.5 0 11Z"/>
+</defs>
+<rect width="180" height="180" fill="url(#bg)"/><rect width="180" height="180" fill="url(#glow)"/>
+<g filter="url(#sh)">
+<rect x="46" y="32" width="96" height="120" rx="10" fill="url(#pg)"/>
+<path d="M134 38v108M137 40v104" stroke="#D9C2AE" stroke-width="1.2"/>
+<path d="M108 150 v20 l7 -6 l7 6 v-20z" fill="url(#rib)"/>
+<rect x="38" y="26" width="96" height="128" rx="12" fill="url(#cov)"/>
+<path d="M38 38a12 12 0 0 1 12-12h4v128h-4a12 12 0 0 1-12-12z" fill="url(#spine)"/>
+<rect x="38" y="26" width="96" height="128" rx="12" fill="url(#sheen)"/>
+<rect x="60" y="34" width="66" height="112" rx="7" fill="none" stroke="#F2C46A" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="4 3"/>
+<path d="M56 26v128" stroke="#2E0516" stroke-opacity=".35" stroke-width="2"/>
+<g transform="translate(93 88) scale(1.9)" filter="url(#sh2)"><use href="#H" fill="url(#gold)"/><path d="M-6-9C-10-9-11-4-8 0" stroke="#fff" stroke-opacity=".7" stroke-width="1.4" fill="none" stroke-linecap="round"/></g>
+<rect x="116" y="76" width="32" height="24" rx="6" fill="#4A0C26"/>
+<rect x="116" y="76" width="32" height="24" rx="6" fill="url(#sheen)"/>
+<g transform="translate(140 88)" filter="url(#sh2)"><circle r="11" fill="url(#gold)"/><circle r="8" fill="#B9802E" opacity=".35"/><use href="#H" transform="scale(.55)" fill="#7A1E40"/></g>
+</g>
+</svg>
