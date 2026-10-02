@@ -172,6 +172,8 @@ h1{ margin:0; font-size:2.1em; line-height:1.1; letter-spacing:-.01em; }
 .plan-list{ list-style:none; margin:0 0 8px; padding:0; }
 .plan-list li{ display:flex; align-items:center; gap:4px; padding:4px 8px; margin-bottom:4px; border-radius:8px; background:color-mix(in srgb, var(--yellow) 30%, var(--card)); }
 .plan-list li span{ flex:1; }
+.plan-list li.ii-plan{ background:color-mix(in srgb, var(--yellow) 14%, var(--card)); }
+.plan-list li.ii-plan .soft{ flex:none; font-size:.8em; }
 .plan-in{ display:flex; gap:6px; }
 .plan-in input{ flex:1; min-width:0; border:none; border-bottom:2px solid var(--line); background:transparent; padding:4px 2px; }
 .bigcal .top{ display:flex; justify-content:space-between; align-items:center; font-size:.8em; }
@@ -505,6 +507,8 @@ const S = {
 S.oldEntries = {};
 // 한 번 가져온 iinote 일기는 이 기기에 남겨 두고 들어오자마자 보여 줘요 (엄마만 들어오는 일기장이에요)
 S.iiEntries = (() => { try { return JSON.parse(store.get("ii_cache") || "{}") || {}; } catch { return {}; } })();
+// iinote 일정도 같이: { "YYYY-MM-DD": [{ t, at, ii:true }] } (가족 일정 + 엄마의 '나만' 일정, 읽기만)
+S.iiPlans = (() => { try { return JSON.parse(store.get("ii_plans") || "{}") || {}; } catch { return {}; } })();
 // 이 일기장 + iinote 일기를 합쳐요. 같은 날 같은 사람이면 이 일기장 것이 먼저예요
 const mergeEntries = () => { S.entries = { ...S.iiEntries, ...S.oldEntries }; };
 const keyOf = (date, w) => `${date}_${w}`;
@@ -599,7 +603,7 @@ const IINOTE_CONFIG = {
 const II_WEATHER = { sunny:"☀️", partly:"⛅", cloudy:"☁️", rain:"🌧️", storm:"⛈️", snow:"❄️", rainbow:"🌈" };
 const II_MOOD = { good:"😊", great:"😆", love:"🥰", calm:"😐", sad:"😢", angry:"😠", tired:"😴" };
 const iiApp = initializeApp(IINOTE_CONFIG, "iinote"), iiAuth = getAuth(iiApp), iiDb = getFirestore(iiApp);
-const ii = { user: null, gid: null, map: {}, names: {}, diaries: [], comments: [], unsubD: null, unsubC: null, from: null, err: "" };
+const ii = { user: null, gid: null, map: {}, names: {}, diaries: [], comments: [], unsubD: null, unsubC: null, unsubS: null, from: null, err: "" };
 onAuthStateChanged(iiAuth, u => {
   if (u && u.email !== ADMIN_EMAIL){ signOut(iiAuth); u = null; }
   ii.user = u || null;
@@ -638,13 +642,17 @@ async function iiWatch(){
   ii.unsubD = onSnapshot(query(collection(iiDb, "groups", ii.gid, "diaries"), where("date", ">=", S.range.from)), snap => {
     ii.diaries = snap.docs.map(d => ({ id: d.id, ...d.data() })); iiMerge();
   }, err => { ii.err = "일기를 읽지 못했어요 (" + err.code + ")"; renderIiBar(); });
+  ii.unsubS && ii.unsubS();
+  ii.unsubS = onSnapshot(query(collection(iiDb, "groups", ii.gid, "schedules"), where("date", ">=", S.range.from)), snap => {
+    iiPlansMerge(snap.docs.map(d => d.data()));
+  }, () => {});
   if (!ii.unsubC) ii.unsubC = onSnapshot(collection(iiDb, "groups", ii.gid, "comments"), snap => {
     ii.comments = snap.docs.map(d => ({ id: d.id, ...d.data() })); iiMerge();
   }, () => {});
   renderIiBar();
 }
 function iiStop(){
-  ii.unsubD && ii.unsubD(); ii.unsubC && ii.unsubC(); ii.unsubD = ii.unsubC = null; ii.from = null;
+  ii.unsubD && ii.unsubD(); ii.unsubC && ii.unsubC(); ii.unsubS && ii.unsubS(); ii.unsubD = ii.unsubC = ii.unsubS = null; ii.from = null;
   ii.diaries = []; ii.comments = [];   // 가져온 일기(S.iiEntries)는 연결이 끊겨도 그대로 둬요
 }
 const iiWho = pid => ii.map[pid] || ii.names[pid] || "가족";
@@ -676,6 +684,17 @@ function iiMerge(){
   const kept = Object.fromEntries(Object.entries(S.iiEntries).filter(([, e]) => ii.from && e.date < ii.from));
   S.iiEntries = { ...kept, ...out }; store.set("ii_cache", JSON.stringify(S.iiEntries));
   mergeEntries(); refresh(); renderIiBar();
+}
+// iinote 일정 → 이 달력 모양으로. iinote 에서 엄마에게 보이는 것만 (가족 일정 + 엄마가 '나만'으로 적은 것), iinote 와 같은 순서(order ?? createdAt)
+function iiPlansMerge(list){
+  const out = {};
+  list.filter(s => s.date && s.title && (s.scope === "family" || ii.map[s.profileId] === ME))
+    .sort((a, b) => (a.order ?? a.createdAt ?? 0) - (b.order ?? b.createdAt ?? 0))
+    .forEach(s => (out[s.date] = out[s.date] || []).push({ t: (s.time ? s.time + " " : "") + s.title, at: s.order ?? s.createdAt ?? 0, ii: true }));
+  // 지금 보는 기간(ii.from 부터)은 새로 받은 것으로, 그보다 옛날 것은 전에 가져온 것 그대로
+  const kept = Object.fromEntries(Object.entries(S.iiPlans).filter(([d]) => ii.from && d < ii.from));
+  S.iiPlans = { ...kept, ...out }; store.set("ii_plans", JSON.stringify(S.iiPlans));
+  refresh(); if (S.tab === "month") renderPlans();
 }
 function renderIiBar(){
   const box = $("#iiBar"); if (!box) return;
@@ -900,19 +919,23 @@ const HOLIDAYS = {
 };
 /* ---------- 달력 일정: diaryMonth/{YYYY-MM}.plans["YYYY-MM-DD"] = [{ t, at }] ---------- */
 let planDraft = "";
-const plansOf = ds => S.months[ds.slice(0, 7)]?.plans?.[ds] || [];
+// myPlansOf = 이 일기장에 적은 일정(고치기 · 지우기 가능), plansOf = 여기에 iinote 일정(🌐, 읽기만)까지 합친 것
+const myPlansOf = ds => S.months[ds.slice(0, 7)]?.plans?.[ds] || [];
+const plansOf = ds => { const ii = S.iiPlans[ds]; return ii?.length ? [...myPlansOf(ds), ...ii].sort((a, b) => a.at - b.at) : myPlansOf(ds); };
 function renderPlans(){
   const box = $("#planBox"); if (!box) return;
   const ds = S.writeDate, list = plansOf(ds), focused = document.activeElement?.id === "planIn";
   box.innerHTML = `<h3>📌 ${fmtDate(ds)} 일정</h3>
-    ${list.length ? `<ul class="plan-list">${list.map(p => `<li><span>${esc(p.t)}</span>
+    ${list.length ? `<ul class="plan-list">${list.map(p => p.ii
+      ? `<li class="ii-plan" title="iinote에서 가져온 일정이에요. 고치기 · 지우기는 iinote에서"><span>${esc(p.t)}</span><span class="soft">🌐 iinote</span></li>`
+      : `<li><span>${esc(p.t)}</span>
       <button class="cmt-tool" data-act="plan-edit" data-v="${p.at}" aria-label="고치기">✏️</button><button class="cmt-tool" data-act="plan-del" data-v="${p.at}" aria-label="지우기">🗑</button></li>`).join("")}</ul>`
       : `<p class="soft">아직 일정이 없어요.</p>`}
     <div class="plan-in"><input id="planIn" maxlength="40" placeholder="예: 3시 치과 · 도윤 태권도 발표" value="${esc(planDraft)}"><button class="btn" data-act="plan-add">추가</button></div>`;
   if (focused){ const i = $("#planIn"); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 async function savePlans(ds, fn){
-  const list = fn(plansOf(ds).slice());
+  const list = fn(myPlansOf(ds).slice());
   try {
     await setDoc(doc(db, "diaryMonth", ds.slice(0, 7)), { plans: { [ds]: list }, updatedAt: serverTimestamp() }, { merge: true });
     return true;
@@ -1397,7 +1420,7 @@ document.addEventListener("click", e => {
       break;
     }
     case "plan-edit": {
-      const p = plansOf(S.writeDate).find(p => String(p.at) === v); if (!p) break;
+      const p = myPlansOf(S.writeDate).find(p => String(p.at) === v); if (!p) break;
       const t = prompt("일정 고치기", p.t); if (t === null || !t.trim()) break;
       savePlans(S.writeDate, l => l.map(x => x.at === p.at ? { ...x, t: t.trim().slice(0, 40) } : x));
       break;
