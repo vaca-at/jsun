@@ -1,8 +1,8 @@
 /* ============================================================
    공부방 영어 — 영국 · 미국 초등 저학년 순서를 따라가는 3단계
-   🌱 1단계 (7살): 알파벳 소리 (Jolly Phonics 순서 s a t p i n …)
-   🌿 2단계 (8살): 단어 읽기 (짧은 모음 CVC · sh ch th · 사이트워드 · 짧은 문장)
-   🌳 3단계 (9살): 짧은 이야기 (긴 모음 · 문법 기초 · 문장 만들기 · 이야기 읽고 답하기)
+   🌱 1단계: 알파벳 소리 (Jolly Phonics 순서 s a t p i n …)
+   🌿 2단계: 단어 읽기 (짧은 모음 CVC · sh ch th · 사이트워드 · 짧은 문장)
+   🌳 3단계: 짧은 이야기 (긴 모음 · 문법 기초 · 문장 만들기 · 이야기 읽고 답하기)
 
    공부방에서 이렇게 불러요:
    import('/english/english.js').then(m => m.mountEnglish({
@@ -116,7 +116,7 @@ const STORIES = [
 /* ---------- 커리큘럼: 3단계 × 8단원 ---------- */
 const U = (id, title, sub, kind, data, extra = {}) => ({ id, title, sub, kind, data, ...extra });
 const CUR = [
-  { lv: 1, icon: "🌱", name: "1단계", age: "7살", goal: "알파벳 소리", tip: "영어 글자는 이름보다 '소리'가 먼저예요. s는 '에스'가 아니라 '스~' 소리!",
+  { lv: 1, icon: "🌱", name: "1단계", goal: "알파벳 소리", tip: "영어 글자는 이름보다 '소리'가 먼저예요. s는 '에스'가 아니라 '스~' 소리!",
     units: [
       U("1-1", "s a t p i n", "첫 번째 소리 6개", "letters", LETTERS.g1),
       U("1-2", "c k e h r m d", "두 번째 소리 7개", "letters", LETTERS.g2),
@@ -127,7 +127,7 @@ const CUR = [
       U("1-7", "첫소리 찾기", "26개 소리 모두 복습", "letters", ALL_LETTERS),
       U("1-8", "첫 단어 읽기", "소리를 이어 붙여 c-a-t → cat!", "words", WORDS.cvc0, { blend: true })
     ] },
-  { lv: 2, icon: "🌿", name: "2단계", age: "8살", goal: "단어 읽기", tip: "소리를 하나씩 읽고 이어 붙이면 단어가 돼요. c · a · t → cat!",
+  { lv: 2, icon: "🌿", name: "2단계", goal: "단어 읽기", tip: "소리를 하나씩 읽고 이어 붙이면 단어가 돼요. c · a · t → cat!",
     units: [
       U("2-1", "짧은 a", "cat · hat · map", "words", WORDS.a, { blend: true, pat: /a/g }),
       U("2-2", "짧은 e · i", "bed · pen · pig", "words", WORDS.ei, { blend: true, pat: /[ei]/g }),
@@ -138,7 +138,7 @@ const CUR = [
       U("2-7", "사이트워드 2", "was · they · have … 20개", "sight", SIGHT.s2),
       U("2-8", "짧은 문장", "I see a cat.", "sentences", SENT2)
     ] },
-  { lv: 3, icon: "🌳", name: "3단계", age: "9살", goal: "짧은 이야기", tip: "모음이 길게 나는 소리를 배우고, 문장과 이야기를 읽어요.",
+  { lv: 3, icon: "🌳", name: "3단계", goal: "짧은 이야기", tip: "모음이 길게 나는 소리를 배우고, 문장과 이야기를 읽어요.",
     units: [
       U("3-1", "마법의 e", "cake · bike · home", "words", WORDS.mage, { pat: /[aeiou](?=[a-z]e$)|e$/g }),
       U("3-2", "ai · ay · ee · ea", "rain · tree · sea", "words", WORDS.aiee, { pat: /ai|ay|ee|ea/g }),
@@ -336,7 +336,7 @@ export function mountEnglish({ el, kidId, grade, firebaseConfig, name = "", host
   }
   function levelBar(){
     return `<div class="en-lv">${CUR.map(c => `<button class="${c.lv === P.lv ? "on" : ""}" data-en="lv" data-v="${c.lv}">
-      <b>${c.icon} ${c.name}</b><small>${c.age} · ${c.goal}</small></button>`).join("")}</div>`;
+      <b>${c.icon} ${c.name}</b><small>${c.goal}</small></button>`).join("")}</div>`;
   }
   function drawMap(){
     const lv = level(), us = lv.units;

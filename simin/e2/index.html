@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>윤아의 공부방</title>
+<title>행원심인당 자성동이 AI 공부방</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Jua&display=swap" rel="stylesheet">
@@ -1035,7 +1035,7 @@ body[data-theme="lotus"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:
 <body data-theme="lotus">
 <header>
   <div class="toprow">
-    <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">윤아의 공부방</button></h1>
+    <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">소라의 공부방</button></h1>
     <div class="decobar" id="decobar"></div>
     <button class="starbox" data-act="starInfo" title="별 · 스티커 약속 보기" aria-label="모은 별 · 별과 스티커 약속 보기"><svg class="sico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9Z"/></svg> <span id="starCount">0</span></button>
     <button class="iconbtn" data-act="reloadApp" aria-label="새로고침" title="새로고침"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg></button>
@@ -1091,8 +1091,8 @@ const SIM = SIM_BOARD ? {id:'board', name:'자성동이', age:SIM_Q.get('g')||''
 if(!SIM){ location.replace('../'); throw new Error('입구에서 먼저 들어와요'); }
 if(SIM_BOARD) document.documentElement.classList.add('sim-board');
 const SIM_BAT = (c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)(SIM.name.charCodeAt(SIM.name.length-1));
-const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 민재야
-const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 민재의
+const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 예나야
+const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 예나의
 
 /* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
    비워 두면(null) 이 기기에만 저장돼요. 규칙: e2/{dojin|yuna}, e2/{아이}/daily/{YYYY-MM-DD} */
@@ -1521,7 +1521,7 @@ koAdd(KO_MAIN, [['봄이 오면 여러 가지 꽃이 피어요.',['개나리가 
   ['물은 우리에게 꼭 필요해요.',['목이 마를 때 마셔요.','몸을 씻을 때 써요.','식물을 키울 때 써요.']],['나무는 우리에게 많은 것을 줘요.',['시원한 그늘을 만들어 줘요.','맛있는 열매를 줘요.','맑은 공기를 만들어 줘요.']],
   ['동물들은 저마다 사는 곳이 달라요.',['물고기는 물속에 살아요.','새는 나무 위에 살아요.','두더지는 땅속에 살아요.']],['탈것에는 여러 가지가 있어요.',['땅에서는 자동차를 타요.','하늘에서는 비행기를 타요.','바다에서는 배를 타요.']],
   ['교실을 깨끗하게 해야 해요.',['쓰레기를 주워요.','책상을 정리해요.','바닥을 쓸어요.']],['손을 자주 씻어야 해요.',['병균이 없어져요.','감기에 덜 걸려요.','음식을 깨끗하게 먹을 수 있어요.']],
-  ['우리 반 친구들은 좋아하는 운동이 달라요.',['민수는 축구를 좋아해요.','지아는 줄넘기를 좋아해요.','현우는 수영을 좋아해요.']],['시장에는 여러 가게가 있어요.',['생선 가게가 있어요.','과일 가게가 있어요.','떡집이 있어요.']],
+  ['우리 반 친구들은 좋아하는 운동이 달라요.',['민수는 축구를 좋아해요.','나래는 줄넘기를 좋아해요.','현우는 수영을 좋아해요.']],['시장에는 여러 가게가 있어요.',['생선 가게가 있어요.','과일 가게가 있어요.','떡집이 있어요.']],
   ['겨울잠을 자는 동물이 있어요.',['곰이 겨울잠을 자요.','개구리가 겨울잠을 자요.','뱀이 겨울잠을 자요.']],['전기를 아껴 써야 해요.',['빈방의 불을 꺼요.','텔레비전을 오래 켜 두지 않아요.','안 쓰는 플러그를 뽑아요.']],
   ['음식을 골고루 먹어야 해요.',['고기는 힘을 줘요.','채소는 몸을 튼튼하게 해요.','우유는 뼈를 튼튼하게 해요.']],['공원에서는 여러 가지 일을 할 수 있어요.',['산책을 해요.','자전거를 타요.','도시락을 먹어요.']],
   ['개미는 서로 도우며 살아요.',['먹이를 함께 날라요.','집을 함께 지어요.','여왕개미를 돌봐요.']],['새는 여러 방법으로 먹이를 구해요.',['딱따구리는 나무를 쪼아요.','독수리는 사냥을 해요.','벌새는 꽃꿀을 먹어요.']],
@@ -1680,7 +1680,7 @@ const PROVERB_EX = [
   "자전거를 밖에 두고 자물쇠를 안 채웠다가 잃어버린 뒤에야 자물쇠를 샀어요.",
   "2학년이 된 형이 1학년 동생에게 \"그것도 못 해?\" 하고 놀렸어요. 형도 작년엔 못 했는데!",
   "줄넘기 100번이 목표라면, 오늘은 10번부터 시작해요.",
-  "\"도진이는 언제 오지?\" 하고 말하는데 바로 그때 도진이가 교실로 들어왔어요.",
+  "\"하람이는 언제 오지?\" 하고 말하는데 바로 그때 하람이가 교실로 들어왔어요.",
   "우리 동네 놀이터가 제일 크다고 생각했는데, 다른 동네에 가 보니 훨씬 큰 놀이터가 있었어요.",
   "매일 책을 읽은 친구는 글쓰기를 잘하게 되었어요. 한 만큼 돌아와요.",
   "1 + 1은 나한테 누워서 떡 먹기처럼 쉬워요!",
@@ -1798,7 +1798,7 @@ const EN_TRAVEL = [
 const todayIdx = n => Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%n;
 App.bnTab='prov'; App.ja=0; App.en=0; // 쉬어가는 코너는 늘 1번부터
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
-/* 관리자(사이트 주인)와 엄마(윤아 엄마)는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디만 바꿀 수 있어요 */
+/* 관리자(사이트 주인)와 엄마(소라 엄마)는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디만 바꿀 수 있어요 */
 let admRole = 'admin';
 const isMom = () => admRole==='mom';
 const momPinH = () => admin.momH || '';
@@ -1906,7 +1906,7 @@ const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(who?stkCount():0,STICKERS.length)}장`; }
-/* ───── 가족 이벤트: 관리자가 켜면 네 방(도윤 · 도진 · 지아 · 윤아)에서 동시에 별이 2배로 모여요 ─────
+/* ───── 가족 이벤트: 관리자가 켜면 모든 공부방에서 동시에 별이 2배로 모여요 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요 (스티커는 평소 별로만 모아요).
    온라인 문서: family/event = {until(끝나는 시각), mult(배수), rooms:[방 id…], at} */
 const EVENT_ROOMS = ['doyun','dojin','jia','yuna'];
@@ -2218,7 +2218,7 @@ async function cloudPushSettings(){
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 /* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
-/* 이 공부방은 윤아가 혼자 써요. 들어올 때마다 좋아하는 고양이 그림을 골라 누르고 들어와요 */
+/* 이 공부방은 소라가 혼자 써요. 들어올 때마다 좋아하는 고양이 그림을 골라 누르고 들어와요 */
 const KID = SIM.name;
 const CHARS = [{"e":"🐱","cls":"ct1","t":"흰 고양이"},{"e":"🐱","cls":"ct2","t":"러시안 블루"},{"e":"🐱","cls":"ct3","t":"검은 고양이"},{"e":"🐱","cls":"ct4","t":"갈색 고양이"},{"e":"🐱","cls":"","t":"치즈 고양이"},{"e":"😻","cls":"","t":"하트 눈 고양이"},{"e":"🐈","cls":"","t":"걷는 고양이"},{"e":"🐈‍⬛","cls":"","t":"걷는 검은 고양이"}];
 /* 오늘 고른 그림 (날짜가 바뀌면 다시 골라요) */
@@ -2326,8 +2326,8 @@ function addWho(){
   loginPin(n);
 }
 
-/* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 도진 공부방과 같은 파일) ───── */
-/* ───── 💯 받아쓰기 (/dictation/dictation.js · 도진 · 윤아 방이 같이 써요) ─────
+/* ───── 🔤 영어 (3단계 새 영어: /english/english.js — 하람 공부방과 같은 파일) ───── */
+/* ───── 💯 받아쓰기 (/dictation/dictation.js · 하람 · 소라 방이 같이 써요) ─────
    학교 급수표를 원고지 칸에 맞춰: 문장 보기 · 따라 쓰기 · 받아쓰기 시험 · 띄어쓰기 · 헷갈리는 말 · 문장부호 · 비슷한 문장 · 오답 노트 */
 let dictBox=null;
 function renderDict(){
@@ -4822,7 +4822,7 @@ function admAuto(){
 }
 function pinHTML(){
   if(FIREBASE_CONFIG && !isMom()) return admEmailHTML();
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (이 공부방 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   if(isMom() && !momPinH()) return `<h3>👩 엄마 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <p class="center">아직 엄마 비밀번호가 없어요.<br><span class="sub">관리자에게 엄마 비밀번호를 받아 주세요.</span></p>
@@ -4872,13 +4872,13 @@ function adminHTML(){
     rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${cells}<td>${n?`${ok}/${n}`:'-'}</td></tr>`;
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (윤아 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (이 공부방 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>${isMom()?'':'<button class="adm-all" data-act="openAllAdmin">📚 전체 관리자 ↗</button>'}</div>
     ${isMom()?'':`<div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
-      <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
+      <p class="sub">모든 공부방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
-    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
+    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">모든 공부방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
               :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
       ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`

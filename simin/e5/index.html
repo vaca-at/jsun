@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>초5 공부방</title>
+<title>행원심인당 자성동이 AI 공부방</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Jua&display=swap" rel="stylesheet">
@@ -1158,12 +1158,12 @@ const SIM = SIM_BOARD ? {id:'board', name:'자성동이', age:SIM_Q.get('g')||''
 if(!SIM){ location.replace('../'); throw new Error('입구에서 먼저 들어와요'); }
 if(SIM_BOARD) document.documentElement.classList.add('sim-board');
 const SIM_BAT = (c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)(SIM.name.charCodeAt(SIM.name.length-1));
-const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 민재야
-const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 민재의
+const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 예나야
+const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 예나의
 
 /* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
    비워 두면(null) 이 기기에만 저장돼요. 규칙: e4/{doyun}, e4/{아이}/daily/{YYYY-MM-DD}, e4/settings
-   (도진이 공부방은 e2 를 써요. Firestore 규칙에서 e4 도 읽고 쓸 수 있게 열어 주세요) */
+   (하람이 공부방은 e2 를 써요. Firestore 규칙에서 e4 도 읽고 쓸 수 있게 열어 주세요) */
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
   authDomain: "moon-15f88.firebaseapp.com",
@@ -1183,7 +1183,7 @@ const KID_IDS = { [SIM.name]: SIM.id+'/room/state' };
 let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
 const PROFILE_KEYS = ['starsPend','estarsPend','spentPend','buys','buysPend','estars','estarsAt','stk','stkDay','deco','csbest','lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
-/* 도진이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
+/* 하람이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
 const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'sim_'+SIM.id+'_'+k : 'sim_'+SIM.id+'_p_'+k;   // 심인당: 아이마다 따로
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
@@ -1638,16 +1638,16 @@ const PASSAGES = [
       ['③문단의 ‘얼얼했다’는 어떤 느낌일까요?','맵거나 차가워서 아리고 따끔한 느낌',['보들보들 부드러운 느낌','따뜻하고 포근한 느낌','간지러운 느낌'],'‘얼얼하다’는 맵거나 차거나 맞아서 아린 느낌이에요.',3],
       ['이 글은 어떤 종류의 글인가요?','겪은 일과 느낌을 쓴 일기',['물건을 파는 광고','주장하는 글','설명서'],'날짜와 날씨, 겪은 일과 생각이 들어 있어요.',0],
       ['글쓴이가 마지막에 느낀 마음으로 알맞은 것은?','가족과 함께해서 뿌듯하고 따뜻한 마음',['힘들어서 다시는 하기 싫은 마음','김치가 싫어진 마음','혼나서 속상한 마음'],'⑤문단: 내년에도 꼭 돕고 싶다고 했어요.',5]]},
-  {id:'firefighter', g:'letter', e:'🚒', t:'소방관 아저씨께', by:'20○○년 ○월 ○일 · 행복초등학교 4학년 김민재 올림', paras:[
-    '소방관 아저씨께. 안녕하세요? 저는 행복초등학교 4학년 김민재예요. 지난주 우리 아파트에 불이 났을 때 달려와 주신 소방관 아저씨께 꼭 감사 인사를 드리고 싶어서 편지를 써요.',
+  {id:'firefighter', g:'letter', e:'🚒', t:'소방관 아저씨께', by:'20○○년 ○월 ○일 · 행복초등학교 4학년 김예나 올림', paras:[
+    '소방관 아저씨께. 안녕하세요? 저는 행복초등학교 4학년 김예나예요. 지난주 우리 아파트에 불이 났을 때 달려와 주신 소방관 아저씨께 꼭 감사 인사를 드리고 싶어서 편지를 써요.',
     '그날 밤, 아래층에서 매캐한 연기가 올라와서 우리 가족은 너무 무서웠어요. 엄마가 젖은 수건으로 제 코와 입을 막아 주셨고, 우리는 몸을 낮추고 계단으로 내려갔어요.',
     '밖에 나와 보니 소방차 여러 대가 벌써 와 있었어요. 아저씨들은 무거운 장비를 메고 연기 속으로 [[망설임]] 없이 들어가셨어요. 그 모습을 보니 무서운 마음이 조금씩 사라졌어요.',
     '다행히 다친 사람 없이 불이 꺼졌어요. 뜨거운 불 앞에서 얼마나 힘드셨을까 생각하니 마음이 뭉클했어요. 저도 커서 아저씨들처럼 다른 사람을 돕는 사람이 되고 싶어요.',
     '늘 건강하시고 다치지 마세요. 정말 고맙습니다!'],
-    qs:[['민재가 편지를 쓴 까닭은?','불을 꺼 준 소방관께 감사하려고',['소방관이 되는 방법을 물으려고','아파트 이사를 알리려고','불조심 포스터를 부탁하려고'],'①문단에 편지를 쓴 까닭이 나와요.',1],
-      ['불이 났을 때 민재네 가족이 한 일로 알맞은 것은?','젖은 수건으로 코와 입을 막고 몸을 낮춰 계단으로 내려갔다.',['엘리베이터를 타고 내려갔다.','창문을 열고 기다렸다.','불을 직접 끄려고 물을 뿌렸다.'],'②문단: 불이 나면 엘리베이터 대신 계단으로 가요.',2],
+    qs:[['예나가 편지를 쓴 까닭은?','불을 꺼 준 소방관께 감사하려고',['소방관이 되는 방법을 물으려고','아파트 이사를 알리려고','불조심 포스터를 부탁하려고'],'①문단에 편지를 쓴 까닭이 나와요.',1],
+      ['불이 났을 때 예나네 가족이 한 일로 알맞은 것은?','젖은 수건으로 코와 입을 막고 몸을 낮춰 계단으로 내려갔다.',['엘리베이터를 타고 내려갔다.','창문을 열고 기다렸다.','불을 직접 끄려고 물을 뿌렸다.'],'②문단: 불이 나면 엘리베이터 대신 계단으로 가요.',2],
       ['③문단의 ‘망설임 없이’와 뜻이 가장 비슷한 것은?','머뭇거리지 않고',['천천히 쉬면서','무서워하며','몰래 숨어서'],'망설이다 = 이리저리 생각만 하고 머뭇거리다',3],
-      ['편지의 짜임에서 ‘20○○년 ○월 ○일, 김민재 올림’은 무엇에 해당할까요?','쓴 날짜와 쓴 사람',['받을 사람','첫인사','끝인사'],'편지 끝에는 쓴 날짜와 쓴 사람을 써요.',0]]},
+      ['편지의 짜임에서 ‘20○○년 ○월 ○일, 김예나 올림’은 무엇에 해당할까요?','쓴 날짜와 쓴 사람',['받을 사람','첫인사','끝인사'],'편지 끝에는 쓴 날짜와 쓴 사람을 써요.',0]]},
   {id:'camel', g:'info', e:'🐫', t:'사막의 배, 낙타', paras:[
     '낮에는 뜨겁고 밤에는 추운 사막. 모래바람이 불고 물도 거의 없는 곳이에요. 이런 사막에서 무거운 짐을 지고 먼 길을 가는 동물이 있어요. 바로 ‘사막의 배’라고 불리는 낙타예요.',
     '낙타의 등에 있는 혹에는 물이 아니라 지방이 들어 있어요. 먹이를 구하기 어려울 때 이 지방을 에너지로 써요. 그래서 오랫동안 먹지 못해도 [[견딜]] 수 있어요.',
@@ -1718,15 +1718,15 @@ const PASSAGES = [
       ['‘재활용’의 뜻으로 알맞은 것은?','버린 물건을 다시 쓸 수 있게 만드는 것',['물건을 아주 많이 사는 것','쓰레기를 태우는 것','물건을 새로 만드는 것'],'④문단에 뜻이 나와요.',4],
       ['④문단의 ‘아낄’과 바꾸어 쓸 수 있는 말은?','절약할',['낭비할','버릴','잃어버릴'],'아끼다 = 함부로 쓰지 않다 = 절약하다',4]]},
   {id:'grandpa', g:'story', e:'🧓', t:'할아버지의 느린 시계', paras:[
-    '할아버지 방에는 오래된 괘종시계가 있어요. 이 시계는 늘 5분씩 늦게 가요. “할아버지, 시계가 또 늦어요. 고쳐야겠어요.” 도윤이가 말하자 할아버지는 허허 웃으셨어요. “이 시계는 일부러 천천히 가는 거란다.”',
+    '할아버지 방에는 오래된 괘종시계가 있어요. 이 시계는 늘 5분씩 늦게 가요. “할아버지, 시계가 또 늦어요. 고쳐야겠어요.” 하늘이가 말하자 할아버지는 허허 웃으셨어요. “이 시계는 일부러 천천히 가는 거란다.”',
     '“일부러요? 왜요?” 할아버지는 시계를 쓰다듬으며 옛이야기를 들려주셨어요. 할아버지가 어릴 때, 늘 급하게 서두르다 넘어지고 물건을 잃어버리기 일쑤였대요.',
     '그런 할아버지에게 증조할아버지께서 이 시계를 주시며 말씀하셨대요. “바쁠수록 돌아가라. 조금 늦더라도 차근차근 하는 게 더 빠른 법이다.”',
-    '그날 저녁, 도윤이는 수학 숙제를 서둘러 끝내려다 계산을 여러 번 틀렸어요. 짜증이 나려던 순간, 똑딱똑딱 느린 시계 소리가 들렸어요. 도윤이는 숨을 크게 한 번 쉬고, 처음부터 [[차근차근]] 다시 풀었어요.',
-    '이번에는 한 문제도 틀리지 않았어요. 도윤이는 할아버지 방을 향해 씩 웃었어요. “느린 시계가 정말 빠른 시계였네.”'],
+    '그날 저녁, 하늘이는 수학 숙제를 서둘러 끝내려다 계산을 여러 번 틀렸어요. 짜증이 나려던 순간, 똑딱똑딱 느린 시계 소리가 들렸어요. 하늘이는 숨을 크게 한 번 쉬고, 처음부터 [[차근차근]] 다시 풀었어요.',
+    '이번에는 한 문제도 틀리지 않았어요. 하늘이는 할아버지 방을 향해 씩 웃었어요. “느린 시계가 정말 빠른 시계였네.”'],
     qs:[['할아버지 방 시계의 특징은?','늘 5분씩 늦게 간다.',['늘 5분씩 빨리 간다.','소리가 나지 않는다.','바늘이 없다.'],'①문단을 보세요.',1],
       ['증조할아버지께서 하신 말씀 ‘바쁠수록 돌아가라’의 뜻은?','급할수록 서두르지 말고 차근차근 하라.',['바쁘면 먼 길로 가라.','바쁠 때는 집에 돌아가라.','시계를 자주 돌려라.'],'③문단의 뒷말이 뜻을 풀어 줘요.',3],
       ['④문단의 ‘차근차근’과 뜻이 반대인 말은?','허둥지둥',['천천히','꼼꼼히','찬찬히'],'‘허둥지둥’은 정신없이 서두르는 모양이에요.',4],
-      ['“느린 시계가 정말 빠른 시계였네.”에 담긴 도윤이의 깨달음은?','차근차근 하는 것이 결국 더 빠르다.',['시계를 고쳐야 한다.','수학 숙제는 어렵다.','할아버지 시계가 고장 났다.'],'서둘렀을 땐 틀리고, 차근차근 하니 다 맞혔어요.',5]]}
+      ['“느린 시계가 정말 빠른 시계였네.”에 담긴 하늘이의 깨달음은?','차근차근 하는 것이 결국 더 빠르다.',['시계를 고쳐야 한다.','수학 숙제는 어렵다.','할아버지 시계가 고장 났다.'],'서둘렀을 땐 틀리고, 차근차근 하니 다 맞혔어요.',5]]}
 ];
 const PASSAGE_BY_ID = Object.fromEntries(PASSAGES.map(p=>[p.id,p]));
 
@@ -1809,7 +1809,7 @@ const PROVERB_EX = [
   "자전거를 밖에 두고 자물쇠를 안 채웠다가 잃어버린 뒤에야 자물쇠를 샀어요.",
   "4학년이 된 형이 3학년 동생에게 \"그것도 못 해?\" 하고 놀렸어요. 형도 작년엔 못 했는데!",
   "줄넘기 100번이 목표라면, 오늘은 10번부터 시작해요.",
-  "\"민준이는 언제 오지?\" 하고 말하는데 바로 그때 민준이가 교실로 들어왔어요.",
+  "\"다온이는 언제 오지?\" 하고 말하는데 바로 그때 다온이가 교실로 들어왔어요.",
   "우리 동네 놀이터가 제일 크다고 생각했는데, 다른 동네에 가 보니 훨씬 큰 놀이터가 있었어요.",
   "매일 책을 읽은 친구는 글쓰기를 잘하게 되었어요. 한 만큼 돌아와요.",
   "1 + 1은 나한테 누워서 떡 먹기처럼 쉬워요!",
@@ -1908,7 +1908,7 @@ const E4_WORDS = {
 Object.values(E4_WORDS).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); });
 /* 영어 초4: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
 const E4_SENT = {
-  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Doyun.','내 이름은 도윤이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
+  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Haneul.','내 이름은 하늘이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
   can:{name:'🏊 할 수 있니?', e:'🏊', qa:[['Can you swim?','너는 수영할 수 있니?','Yes, I can.','응, 할 수 있어.'],['Can you skate?','너는 스케이트 탈 수 있니?','No, I can\'t.','아니, 못 해.'],['Can you help me?','나 좀 도와줄래?','Sure.','물론이지.']]},
   weather:{name:'☀️ 날씨', e:'☀️', qa:[['How\'s the weather?','날씨가 어때?','It\'s sunny.','날씨가 맑아.'],['Is it raining?','비가 오니?','Yes, it is.','응, 비가 와.'],['Is it cold outside?','밖이 춥니?','No, it\'s warm.','아니, 따뜻해.']]},
   time:{name:'⏰ 시각', e:'⏰', qa:[['What time is it?','몇 시니?','It\'s seven o\'clock.','7시야.'],['What time do you get up?','너는 몇 시에 일어나니?','I get up at seven.','나는 7시에 일어나.'],['Is it time for lunch?','점심 먹을 시간이니?','Yes, let\'s eat!','응, 먹자!']]},
@@ -1962,7 +1962,7 @@ const EN_TRAVEL = [
 const todayIdx = n => Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/864e5)%n;
 App.bnTab='prov'; App.ja=0; App.en=0; // 쉬어가는 코너는 늘 1번부터
 let setMode = 'deco', pinBuf = '', admView = null, fromLogin = false;
-/* 도윤이 방: 관리자(사이트 주인)와 엄마는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디 · 엄마 비밀번호만 바꿀 수 있어요 */
+/* 하늘이 방: 관리자(사이트 주인)와 엄마는 따로 들어와요. 엄마 모드는 기록 보기 · 목표 · 과목 · 한마디 · 엄마 비밀번호만 바꿀 수 있어요 */
 let admRole = 'admin';
 const isMom = () => admRole==='mom';
 const momPinH = () => admin.momH || '';
@@ -2070,7 +2070,7 @@ const skipBtn = (act, v='') => `<button class="skipbtn" data-act="${act}" data-v
 function shake(id){ const el=document.getElementById(id); if(!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
 
 function updateStars(){ try{ drawMeTile(); }catch(e){} document.getElementById('starCount').textContent=stars; document.getElementById('dkStk').textContent=`${Math.min(who?stkCount():0,STICKERS.length)}장`; }
-/* ───── 가족 이벤트: 관리자가 켜면 네 방(도윤 · 도진 · 지아 · 윤아)에서 동시에 별이 2배로 모여요 ─────
+/* ───── 가족 이벤트: 관리자가 켜면 모든 공부방에서 동시에 별이 2배로 모여요 ─────
    이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고 캐릭터 방에서 쓸 수 있어요 (스티커는 평소 별로만 모아요).
    온라인 문서: family/event = {until(끝나는 시각), mult(배수), rooms:[방 id…], at} */
 const EVENT_ROOMS = ['doyun','dojin','jia','yuna'];
@@ -2430,12 +2430,12 @@ async function cloudPushSettings(){
 /* ───── 이름 고르기 (프로필) ───── */
 const AVATARS = ['🦁','🐰','🐻','🐱','🐶','🐼','🦊','🐧'];
 /* 이름별로 정해 둔 얼굴 (cls: 색을 바꿀 때) */
-/* 이 공부방은 도윤이 혼자 써요. 들어올 때마다 좋아하는 바다 친구 그림을 골라 누르고 들어와요 (상어 포함) */
+/* 이 공부방은 하늘이 혼자 써요. 들어올 때마다 좋아하는 바다 친구 그림을 골라 누르고 들어와요 (상어 포함) */
 const KID = SIM.name;
 const SEA_FRIENDS = ['🦈','🐋','🐳','🐬','🐠','🐟','🐡','🦑','🐙','🦀','🦞','🐢','🪼','🦭','🐊','🦐'];
 /* 오늘 고른 그림 (날짜가 바뀌면 다시 골라요) */
 const todaySea = () => { const p=store.get('seaPick',null); return p && p.d===dayKey() ? p.e : '🦈'; };
-const AVATAR_BY_NAME = { '도윤':{daily:true} };
+const AVATAR_BY_NAME = { '하늘':{daily:true} };
 const avatarHTML = (n,i) => { const a=AVATAR_BY_NAME[n]; return a ? `<span class="who-ico ${a.cls||""}">${a.daily?todaySea():a.e}</span>` : `<span class="who-ico">${AVATARS[i%AVATARS.length]}</span>`; };
 const getProfiles = () => [KID];
 /* 아이마다 나만의 비밀번호 (서로의 별 · 기록을 볼 수 없게) */
@@ -2745,7 +2745,7 @@ function subjTodayHTML(s){
   const L=getLog(), days=balDays(), n=balN(L,days[BAL_DAYS-1].k,s);
   return `<span class="subj-today">${n?`오늘 <b>${n}</b>문제`:'오늘 아직 안 했어요'}<span class="bal-dots" aria-hidden="true">${days.map((d,i)=>`<i class="l${balLv(balN(L,d.k,s))}${i===BAL_DAYS-1?' today':''}"></i>`).join('')}</span></span>`;
 }
-/* ───── ⭐×2 오늘의 도전 과목 두 개 (2026-09-30, 도윤 · 도진 방만) ─────
+/* ───── ⭐×2 오늘의 도전 과목 두 개 (2026-09-30, 하늘 · 하람 방만) ─────
    어제까지 최근 7일 동안 가장 적게 한 두 과목을 하루에 한 번 정해요 (오늘 풀어도 하루 내내 그대로).
    그 과목 문제를 맞히면 별을 한 개 더 줘요. 과목마다 하루 X2_MAX개까지 (25 + 25). 하루 별 상한(STAR_DAY_MAX) 안에서만 쌓여요 */
 const X2_MAX = 25, X2_N = 2;
@@ -3130,7 +3130,7 @@ function genCuboid5(){
 }
 /* 6. 평균과 가능성 */
 const AVG5 = [
-  {t:'줄넘기 기록', u:'번', who:['도윤','유나','시민','도진','하린'], m:[40,90]},
+  {t:'줄넘기 기록', u:'번', who:['하늘','유나','시민','하람','하린'], m:[40,90]},
   {t:'수학 점수', u:'점', who:['국어','수학','사회','과학','영어'], m:[70,92], subj:true},
   {t:'읽은 책 수', u:'권', who:['1주','2주','3주','4주','5주'], m:[4,12]},
   {t:'하루 운동 시간', u:'분', who:['월','화','수','목','금'], m:[25,60]}
@@ -3369,7 +3369,7 @@ function vis(w){
   if(w.n!==undefined) return `<span class="num en">${w.n}</span>`;
   return `<span class="emo">${w.e}</span>`;
 }
-/* 영어는 두 단계: 🌱 기초 다지기(동생 도진이와 같은 초2 내용) · 🚀 초4 교과서 */
+/* 영어는 두 단계: 🌱 기초 다지기(동생 하람이와 같은 초2 내용) · 🚀 초4 교과서 */
 const E4_MODES = {
   word:{wcard:'📚 단어 카드', wlisten:'👂 듣고 고르기', wmean:'👀 뜻 고르기', spell:'✏️ 철자 맞추기'},
   sent:{scard:'💬 표현 카드', slisten:'👂 듣고 뜻 고르기', sreply:'💭 알맞은 대답', sbuild:'🧩 문장 만들기'}
@@ -5269,7 +5269,7 @@ function admAuto(){
 }
 function pinHTML(){
   if(FIREBASE_CONFIG && !isMom()) return admEmailHTML();
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도윤이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (이 공부방 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   if(isMom() && !momPinH()) return `<h3>👩 엄마 모드</h3>
     <p class="sub" style="margin:0 0 10px;font-size:.9rem">${cloudTxt}</p>
     <p class="center">아직 엄마 비밀번호가 없어요.<br><span class="sub">관리자에게 엄마 비밀번호를 받아 주세요.</span></p>
@@ -5320,15 +5320,15 @@ function adminHTML(){
     rows+=`<tr class="${i===0?'today':''}"><th>${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]})</th>${cells}<td>${n?`${ok}/${n}`:'-'}</td><td>${mins?mins+'분':'-'}</td></tr>`;
   }
   const tg=(k,v,label,on)=>`<button class="pill ${on?'on':''}" data-act="adm" data-k="${k}" data-v="${v}">${label}</button>`;
-  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (도윤이 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
+  const cloudTxt = !FIREBASE_CONFIG ? '💾 이 기기에만 저장 중 (온라인 저장 꺼짐)' : cloud.ok ? '☁️ 온라인 저장 켜짐 (이 공부방 기록을 다른 기기에서도 볼 수 있어요)' : '☁️ 온라인 저장 연결 중…';
   const stats=statRows(admView);
   const wn=store.get('wrongs',[],admView).length, bn=store.get('books',[],admView).length, kr=Object.keys(store.get('kread',{},admView)).length, hs=Object.keys(store.get('hstory',{},admView)).length;
   return `<div class="adm-head"><h3>${isMom()?'👩 엄마 모드':'🔒 관리자 모드'}</h3>
     ${isMom()?'':`<div class="card evadm"><b>🎉 가족 이벤트 · 별 2배</b>
-      <p class="sub">도윤 · 도진 · 지아 · 윤아 방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
+      <p class="sub">모든 공부방에서 동시에 별이 2배로 모여요. 이벤트 별(🌈)은 하루 제한과 상관없이 쌓이고, 캐릭터 방에서 쓸 수 있어요.</p>
       ${evOn()?`<p>🌈 진행 중이에요 · ${Math.ceil((EV.until-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="evStop">이벤트 끝내기</button>`
               :`<button class="big-btn" data-act="evStart" data-v="10">🎉 10분 이벤트 시작</button>`}
-    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">도윤 · 도진 · 지아 · 윤아 방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
+    </div><div class="card evadm"><b>🛍️ 상점 반값 세일</b><p class="sub">모든 공부방의 캐릭터 가게에서 모든 물건을 반값(홀수는 올림)으로 살 수 있어요.</p>
       ${saleOn()?`<p>🛍️ 세일 중이에요 · ${Math.ceil((EV.saleUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="saleStop">세일 끝내기</button>`
               :'<button class="big-btn" data-act="saleStart" data-v="10">🛍️ 10분 반값 세일 시작</button>'}</div><div class="card evadm"><b>🥚 알 줍기 대작전 (10분 게임)</b><p class="sub">네 방 아이들이 한 마당에 모여 알을 줍고 뺏어요. 둥지에 넣은 알 1개마다 🌈 이벤트 별 2개(+참가 3개)를 받아요.</p>
       ${gameOn()?`<p>🥚 게임 중이에요 · ${Math.ceil((EV.gameUntil-Date.now())/60000)}분쯤 남았어요</p><button class="pill" data-act="gameStop">게임 끝내기</button> <button class="pill" data-act="gameOpen">나도 들어가기</button>`
