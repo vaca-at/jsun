@@ -5595,7 +5595,7 @@ html.sim-board body{padding-top:62px}
     if(typeof CALC_LEVELS!=='undefined') src.push(fromCalc,fromCalc);
     if(typeof UNITS!=='undefined') src.push(fromUnit,fromUnit);
     if(typeof KO_GEN!=='undefined') src.push(fromKo);
-    for(let t=0;t<40;t++){ try{ const q=pickOne(src)(); if(q && q.choices && q.choices.length>=2 && q.choices.includes(q.ans) && !hardMul(q.html)){ q.tag=TAG; return q; } }catch(e){} }
+    for(let t=0;t<40;t++){ try{ const q=pickOne(src)(); if(q && q.choices && q.choices.length>=2 && q.choices.includes(q.ans) && !hardMul(q.html) && !/들리는|듣고|잘 들어|소리를 듣/.test(plain(q.html))){ q.tag=TAG; return q; } }catch(e){} }
     return null;
   };
 })();

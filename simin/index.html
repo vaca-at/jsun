@@ -432,7 +432,9 @@ async function setKidPin(kid, pin){
 }
 function enterKid(kid, isNew){
   rememberKid(kid); S.kid=kid; S.form={name:'',age:null,pin:'',first:''};
-  go('kidHome'); speak(`${josa(kid.name,'이','')} 반가워요!`); if(isNew) toast('🪷 공부방이 만들어졌어요!');
+  // 들어가기 단추 없이 바로 내 나이 공부방 홈으로 (방이 아직 없으면 예전처럼 안내 화면)
+  const r=ROOM_OF[kid.age]; busy(true, isNew?'🪷 공부방이 만들어졌어요! 들어가는 중…':`${esc(kid.name)}의 공부방으로 가는 중…`); speak(`${josa(kid.name,'이','')} 반가워요!`);
+  fetch(`${r}/`,{method:'HEAD'}).then(x=>{ if(x.ok) location.href=`${r}/`; else throw 0; }).catch(()=>{ busy(false); go('kidHome'); const s=$('roomSoon'); if(s) s.hidden=false; });
 }
 /* 나이별 공부방이 저장한 곳: simin_kids/{아이}/room/state (별) · room/state/daily/{날짜} (과목마다 {n, ok}, total) */
 async function kidStats(id){
