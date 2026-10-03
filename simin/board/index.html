@@ -306,8 +306,12 @@ const keyOf = (name, age, pin) => sha256Hex(`simin-v1|k|${cleanName(name)}|${age
 /* ═════════ 상태 ═════════ */
 const ST = { screen:'setup', ages:[], cnt:{}, soloAge:null, lastAge:null, mode:'all', how:'card', cards:null, form:{name:'',age:null,pin:'',first:''} };
 let G = null;   // 함께 풀기 판
-// 연령대마다 몇 송이(문제): ②에서 10 · 20 · 30 · 40 · 50 중에 골라요 (이 기기에 기억)
+// 학년별 협동: 연령대마다 몇 송이(문제)를 ②에서 10 · 20 · 30 · 40 · 50 중에 골라요 (이 기기에 기억)
 const GOALS = [10,20,30,40,50];
+/* 다 같이 협동: 모두 합쳐 약 100송이를 친구 수에 맞춰 연령대마다 나눠요 (5송이 단위, 적어도 5) */
+const TEAM_TOTAL = 100;
+const allGoal = k => { const tot=ST.ages.reduce((a,x)=>a+(ST.cnt[x]||1),0)||1; return Math.max(5, Math.round(TEAM_TOTAL*(ST.cnt[k]||1)/tot/5)*5); };
+const allSum = () => ST.ages.reduce((a,k)=>a+allGoal(k),0);
 const per = () => { if(!ST.goal){ let g=20; try{ g=+localStorage.getItem('simin:boardGoal')||20; }catch(e){} ST.goal=GOALS.includes(g)?g:20; } return ST.goal; };
 function resetCards(){   // 연령대가 바뀌거나 '다시' 누르면 세 가지 방법 모두 새로
   const n=ST.ages.length; ST.tok=(ST.tok||0)+1;
@@ -388,10 +392,10 @@ function setup(){
       <p class="note" style="margin:0">🔑 <b>내 공부방</b>은 집에서 부모님 핸드폰으로 들어가는 것처럼 <b>내 계정</b>으로 들어가요.<br>들어가면 <b>내 나이 공부방</b>에서 혼자 공부해요.<br>공부한 날 · 푼 문제 · 별이 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p>`
     : `<span class="lbl">오늘 온 연령대를 모두 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.ages.includes(k)?'on':''}" data-age="${k}" aria-pressed="${ST.ages.includes(k)}">${e} ${n}</button>`).join('')}</div>
       ${ST.ages.length?`<span class="lbl">연령대마다 친구 몇 명?</span><div class="cnt">${ST.ages.map(k=>`<div><span>${ageOf(k)[2]} ${nameOf(k)}</span><button data-cnt="${k}" data-d="-1" aria-label="${nameOf(k)} 친구 한 명 빼기">−</button><b>${ST.cnt[k]||1}</b><button data-cnt="${k}" data-d="1" aria-label="${nameOf(k)} 친구 한 명 더하기">＋</button>명</div>`).join('')}</div>`:''}`;
-  const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 한 연령대씩 이어서</small><span class="n">연령별 · 학년별 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
+  const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 한 연령대씩 이어서</small><span class="n">${ST.ages.length?`모두 합쳐 ${allSum()}송이 · 친구 수에 맞춰 나눠요 (${ST.ages.map(k=>nameOf(k)+' '+allGoal(k)).join(' · ')})`:'모두 합쳐 약 100송이 · 친구 수에 맞춰 나눠요'}</span></button>
     <button class="mode ${ST.mode==='grade'?'on':''}" data-mode="grade"><b>🎓 학년별 협동</b><small>한 연령대가 ${per()}송이를 채우면 다음 차례</small><span class="n">연령대마다 ${per()}송이</span></button>
     <button class="mode ${ST.mode==='solo'?'on':''}" data-mode="solo"><b>🔑 내 공부방</b><small>한 명씩 · 내 계정으로 들어가요</small><span class="n">집 공부방과 같은 방이에요</span></button>
-    ${ST.mode==='solo'?'':`<span class="lbl" style="margin-top:6px">연령대마다 몇 송이?</span><div class="chips">${GOALS.map(n=>`<button class="chip ${per()===n?'on':''}" data-goal="${n}" aria-pressed="${per()===n}">🪷 ${n}</button>`).join('')}</div>`}`;
+    ${ST.mode!=='grade'?'':`<span class="lbl" style="margin-top:6px">연령대마다 몇 송이?</span><div class="chips">${GOALS.map(n=>`<button class="chip ${per()===n?'on':''}" data-goal="${n}" aria-pressed="${per()===n}">🪷 ${n}</button>`).join('')}</div>`}`;
   let m3;
   if(solo) m3 = `<span class="lbl">이렇게 들어가요</span>${[['✏️','이름 두 글자'],['🎂','나이 · 학년'],['🔢','비밀번호 4자리']].map(([e,n])=>`<div class="how"><i>${e}</i><b>${n}</b></div>`).join('')}<p class="note" style="margin:0">처음이면 같은 비밀번호를 한 번 더 눌러 만들어요</p>`;
   else {
@@ -425,7 +429,7 @@ ${wheelHTML()}
   const ordPart = ord.length ? ord : ST.how==='roulette' && ST.spin ? ST.spin.list : [];   // 룰렛은 뽑는 대로 바로 보여요
   // 카드는 뒤집는 대로 숫자 자리에 바로 (모르는 자리는 ?)
   const cardSeq = !ord.length && ST.how==='card' && ST.cards && Object.keys(ST.cards.up).length ? (()=>{ const s=Array(ST.ages.length).fill(null); Object.entries(ST.cards.up).forEach(([i,k])=>{ s[ST.cards.nums[i]-1]=k; }); return s; })() : null;
-  const goalTxt = solo ? '📚 내 나이 공부방' : ST.mode==='all' ? `🪷 ${per()*(ST.ages.length||1)}송이 (연령대마다 ${per()})` : `🪷 연령대마다 ${per()}송이`;
+  const goalTxt = solo ? '📚 내 나이 공부방' : ST.mode==='all' ? `🪷 모두 합쳐 ${allSum()}송이` : `🪷 연령대마다 ${per()}송이`;
   const m4 = `<span class="lbl">${solo?'들어갈 곳':'순서'}</span>
     ${solo?'':`<div class="order">${cardSeq?cardSeq.map((k,i)=>`${i?'<i>→</i>':''}<span>${k?nameOf(k):'?'}</span>`).join(''):ordPart.length?ordPart.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join('')+'<i>→</i><span>?</span>'.repeat(ord.length?0:ST.ages.length-ordPart.length):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
     <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
@@ -441,8 +445,8 @@ ${wheelHTML()}
 
 /* ── 함께 풀기 ── */
 function startTeam(){
-  const ord=orderList(), goal = per();
-  G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal})), pos:0, q:null, lock:false, loading:false };
+  const ord=orderList();
+  G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal: ST.mode==='all' ? allGoal(k) : per()})), pos:0, q:null, lock:false, loading:false };
   ord.forEach(k=>bankOf(ROOM_OF[k]));   // 미리 열어 둬요
   ST.screen='play'; newTurn(true);
 }
