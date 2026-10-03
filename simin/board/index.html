@@ -301,7 +301,7 @@ async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터�
 const keyOf = (name, age, pin) => sha256Hex(`simin-v1|k|${cleanName(name)}|${age}|${pin}`);   // 입구 · 집 공부방과 같은 열쇠
 
 /* ═════════ 상태 ═════════ */
-const ST = { screen:'setup', ages:[], cnt:{}, mode:'all', how:'card', cards:null, form:{name:'',age:null,pin:'',first:''} };
+const ST = { screen:'setup', ages:[], cnt:{}, soloAge:null, lastAge:null, mode:'all', how:'card', cards:null, form:{name:'',age:null,pin:'',first:''} };
 let G = null;   // 함께 풀기 판
 const per = () => { const n=ST.ages.length||1; return Math.max(5, Math.round(100/n/5)*5); };
 function resetCards(){   // 연령대가 바뀌거나 '다시' 누르면 세 가지 방법 모두 새로
@@ -376,8 +376,9 @@ function render(){ ({setup, play, win, soloLogin})[ST.screen](); }
 /* ── 시작: 책갈피 네 장 ── */
 function setup(){
   const solo=ST.mode==='solo', ord=orderList();
-  const m1 = solo
-    ? `<span class="lbl">한 명씩 앞에 나와요</span><p class="note" style="margin:0">🔑 <b>내 공부방</b>은 집에서 부모님 핸드폰으로 들어가는 것처럼 <b>내 계정</b>으로 들어가요.<br>들어가면 <b>내 나이 공부방</b>에서 혼자 공부해요.<br>공부한 날 · 푼 문제 · 별이 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p>`
+  const m1 = solo   // 내 공부방: 연령대 칩은 그대로 두고 한 개만 골라요 (ST.soloAge → 들어가기 화면의 ② 내 나이에 미리 눌려 있어요)
+    ? `<span class="lbl">한 명씩 앞에 나와요 · 내 나이를 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.soloAge===k?'on':''}" data-sage="${k}" aria-pressed="${ST.soloAge===k}">${e} ${n}</button>`).join('')}</div>
+      <p class="note" style="margin:0">🔑 <b>내 공부방</b>은 집에서 부모님 핸드폰으로 들어가는 것처럼 <b>내 계정</b>으로 들어가요.<br>들어가면 <b>내 나이 공부방</b>에서 혼자 공부해요.<br>공부한 날 · 푼 문제 · 별이 내 공부방에 쌓이고 부모님도 볼 수 있어요.</p>`
     : `<span class="lbl">오늘 온 연령대를 모두 눌러요</span><div class="chips">${AGES.map(([k,n,e])=>`<button class="chip ${ST.ages.includes(k)?'on':''}" data-age="${k}" aria-pressed="${ST.ages.includes(k)}">${e} ${n}</button>`).join('')}</div>
       ${ST.ages.length?`<span class="lbl">연령대마다 친구 몇 명?</span><div class="cnt">${ST.ages.map(k=>`<div><span>${ageOf(k)[2]} ${nameOf(k)}</span><button data-cnt="${k}" data-d="-1" aria-label="${nameOf(k)} 친구 한 명 빼기">−</button><b>${ST.cnt[k]||1}</b><button data-cnt="${k}" data-d="1" aria-label="${nameOf(k)} 친구 한 명 더하기">＋</button>명</div>`).join('')}</div>`:''}`;
   const m2 = `<button class="mode ${ST.mode==='all'?'on':''}" data-mode="all"><b>🤝 다 같이 협동</b><small>모두 합쳐 연꽃 모으기 · 한 연령대씩 이어서</small><span class="n">연령별 · 학년별 × ${per()}송이 = ${per()*(ST.ages.length||1)}송이</span></button>
@@ -528,9 +529,13 @@ function enterRoom(kid){
 /* ═════════ 누르기 ═════════ */
 stage.addEventListener('click', e=>{
   const t=e.target.closest('button,[data-card]'); if(!t || t.disabled) return; const d=t.dataset;
-  if(d.age){ const k=d.age; ST.ages=ST.ages.includes(k)?ST.ages.filter(x=>x!==k):[...ST.ages,k]; ST.ages.sort((x,y)=>AGES.findIndex(q=>q[0]===x)-AGES.findIndex(q=>q[0]===y)); resetCards(); render(); return; }
+  if(d.sage){ ST.soloAge = ST.soloAge===d.sage ? null : d.sage; render(); return; }
+  if(d.age){ const k=d.age; if(!ST.ages.includes(k)) ST.lastAge=k; ST.ages=ST.ages.includes(k)?ST.ages.filter(x=>x!==k):[...ST.ages,k]; ST.ages.sort((x,y)=>AGES.findIndex(q=>q[0]===x)-AGES.findIndex(q=>q[0]===y)); resetCards(); render(); return; }
   if(d.cnt){ const k=d.cnt; ST.cnt[k]=Math.min(10,Math.max(1,(ST.cnt[k]||1)+ +d.d)); render(); return; }
-  if(d.mode){ ST.mode=d.mode; render(); return; }
+  if(d.mode){ ST.mode=d.mode;
+    // 내 공부방으로 바꾸면 ①에서 마지막으로 누른 연령대(하나만 골랐으면 그것)를 내 나이로
+    if(d.mode==='solo' && !ST.soloAge) ST.soloAge = ST.ages.length===1 ? ST.ages[0] : ST.ages.includes(ST.lastAge) ? ST.lastAge : null;
+    render(); return; }
   if(d.how){ ST.how=d.how; render(); return; }
   if(d.card!==undefined){ const c=ST.cards, picker=ST.ages.filter(k=>!Object.values(c.up).includes(k))[0]; if(!picker) return; c.up[d.card]=picker; render(); speak(`${nameOf(picker)}, ${c.nums[d.card]}번!`); return; }
   if(d.ch!==undefined){ answer(+d.ch); return; }
@@ -542,7 +547,7 @@ stage.addEventListener('click', e=>{
   if(a==='reshuffle'){ resetCards(); render(); }
   else if(a==='spin') spinWheel();
   else if(a==='climb') climbLadder();
-  else if(a==='start'){ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:null,pin:'',first:''}; render(); } else startTeam(); }
+  else if(a==='start'){ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:ST.soloAge||null,pin:'',first:''}; render(); $('nameIn')?.focus(); } else startTeam(); }
   else if(a==='sayQ'){ if(G&&G.q) speak(G.q.say); }
   else if(a==='retryQ') newTurn(false);
   else if(a==='stop'){ if(confirm('그만하고 처음 화면으로 갈까요?')){ G=null; ST.screen='setup'; render(); } }
