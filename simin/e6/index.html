@@ -1207,7 +1207,7 @@ const SUBJ = {
   math:{name:'연산', ico:SICO.math, desc:'분수 · 대분수 · 소수 · 나눗셈 · 세 자리 × 두 자리 · 분수 · 소수 곱하기 (11단계, 쉬운 것부터)'},
   korean:{name:'국어', ico:SICO.korean, desc:'긴 글 읽고 4문제 · 관용 표현 · 헷갈리는 말'},
   school:{name:'학교수학', ico:SICO.school, desc:'6학년 2학기 · 설명, 퀴즈'},
-  eng:{name:'영어', ico:SICO.eng, desc:'기초(초2) · 초4 단어와 문장'},
+  eng:{name:'영어', ico:SICO.eng, desc:'초4 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'동화처럼 읽는 이야기책 · 9급 · 8급'},
   social:{name:'사회·과학', ico:SICO.social, desc:'초6 사회 · 과학 단원 설명과 퀴즈'}
@@ -3391,7 +3391,7 @@ const E4_MODES = {
 };
 const E4_MODE_NAME = Object.assign({}, E4_MODES.word, E4_MODES.sent);
 function renderEng(){
-  const lv=lvPick('elv', App.elv, [{v:'basic', name:'🌱 기초', sub:'알파벳 · 소리 · 쉬운 단어 (초2 내용)'}, {v:'e4', name:'🚀 초4', sub:'4학년 교과서 단어와 문장'}]);
+  App.elv='e4'; const lv='';   // 🌱 기초(초2 내용)는 뺐어요 (2026-10-03)
   if(App.elv==='basic'){
     view.innerHTML=`${lv}
       <div class="seg">${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','phonics','🧩 소리 합치기',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
