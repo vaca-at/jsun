@@ -367,6 +367,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .ls-top b{font-family:var(--font-t),var(--font),'Jua',sans-serif;font-weight:var(--tw);font-size:1.3rem}
 .ls-spk{width:2.4rem;height:2.4rem;border-radius:50%;background:var(--hi);font-size:1.1rem}
 .ls-big{text-align:center;font-size:1.5rem;line-height:1.6;margin:8px 0;padding:8px;border-radius:14px;background:var(--paper);border:2px dashed var(--line)}
+.ls-grp{display:inline-block;margin:3px 4px;padding:2px 10px;border-radius:999px;border:2px solid color-mix(in srgb,#E5484D 40%,var(--line));background:color-mix(in srgb,#E5484D 8%,var(--paper));letter-spacing:1px}   /* 묶음 칩: 3개씩 한 묶음 */
 .ls-big u{color:var(--no);text-decoration:none;font-weight:bold}
 .ls-clock .clock{width:10rem;height:10rem;margin:0 auto}
 .dan{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0;text-align:center;font-size:1.15rem}
@@ -3039,7 +3040,7 @@ const LESSONS = {
     lcard('어느 수가 더 클까?', `<p><b>천의 자리</b>부터 비교해요. 같으면 백의 자리, 그다음 십의 자리를 봐요.</p><div class="ls-big">4<u>7</u>12 > 4<u>3</u>98</div><p class="sub">천의 자리가 4로 같으니까 백의 자리 7과 3을 비교해요.</p>`)
   ],
   mul: ()=>[
-    lcard('곱셈은 여러 번 더하기', `<p>같은 수를 여러 번 더할 때 곱셈으로 써요.</p><div class="ls-big">🍎🍎🍎 🍎🍎🍎 🍎🍎🍎 🍎🍎🍎</div><div class="ls-big">3 + 3 + 3 + 3 = <b>3 × 4</b> = 12</div>`),
+    lcard('곱셈은 여러 번 더하기', `<p>같은 수를 여러 번 더할 때 곱셈으로 써요.</p><div class="ls-big"><span class="ls-grp">🍎🍎🍎</span><span class="ls-grp">🍎🍎🍎</span><span class="ls-grp">🍎🍎🍎</span><span class="ls-grp">🍎🍎🍎</span></div><div class="ls-big">3 + 3 + 3 + 3 = <b>3 × 4</b> = 12</div>`),
     lcard('곱셈구구 표 보기', `<div class="seg small">${[2,3,4,5,6,7,8,9].map(d=>pill('ldan',d,d+'단',App.ldan)).join('')}</div>
       <div class="dan">${[1,2,3,4,5,6,7,8,9].map(b=>`<span>${App.ldan} × ${b} = <b>${App.ldan*b}</b></span>`).join('')}</div><p class="sub">${App.ldan}단은 곱이 ${App.ldan}씩 커져요.</p>`),
     lcard('1과 0의 곱', `<p>1과 어떤 수를 곱하면 <b>어떤 수 그대로</b>예요.</p><div class="ls-big">1 × 7 = 7</div><p>0과 어떤 수를 곱하면 언제나 <b>0</b>이에요.</p><div class="ls-big">0 × 7 = 0</div>`),
