@@ -107,6 +107,16 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .side-links{display:flex;justify-content:center;gap:10px;margin:18px 0 0;flex-wrap:wrap}
 .side-links button{padding:.5rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.95rem}
 /* 학년 고르기 */
+.login2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}   /* 왼쪽 이름 · 나이, 오른쪽 비밀번호 (두 칸 높이 같게) */
+.login2>.card{margin:0}
+.login2 h3{margin:0 0 10px;font-size:1.1rem;display:flex;align-items:center;gap:8px}
+.login2 h3 .no{display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;border:2px solid var(--ink);font-size:.95rem;flex:none}
+.login2 .field{margin:0 0 16px;width:100%;max-width:none;box-sizing:border-box}
+.login2 .grades.sm{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.login2 .grades.sm .grade{padding:9px 4px;font-size:1.05rem;border-radius:16px;border-width:2px;box-shadow:none}
+.login2 .grades.sm .grade small{display:none}
+.login2 .note{margin:12px 0 0;font-size:.82rem;color:var(--sub);line-height:1.5}
+@media (max-width:720px){ .login2{grid-template-columns:1fr} }
 .grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}   /* 5세 ~ 초6 아홉 칸: 3줄 3칸 */
 .grade{padding:18px 6px;border-radius:24px;background:var(--paper);border:3px solid var(--line);font-family:var(--font-t);font-size:1.4rem;box-shadow:var(--shadow)}
 .grade small{display:block;font-family:var(--font);font-size:.78rem;color:var(--sub)}
@@ -387,14 +397,25 @@ function boardPlay(){
 
 /* ───── 📱 부모님 핸드폰: 이름 → 나이 → 아이 비밀번호 ───── */
 function phone(){
-  const L=localKids();
+  const L=localKids(), f=S.form, again=!!f.first;
   view.innerHTML = `${L.length?`<div class="card center" style="margin-bottom:14px"><h3>이 핸드폰에서 공부한 친구</h3><p class="sub">이름을 누르고 비밀번호만 누르면 돼요</p>
-      <div class="kids">${L.map(k=>`<button class="kid" data-quick="${esc(k.id)}">${ageOf(k.age).ico} ${esc(k.name)} <small>${ageOf(k.age).n}</small></button>`).join('')}</div>
+      <div class="kids">${L.map(k=>`<button class="kid ${f.quick===k.id?'on':''}" data-quick="${esc(k.id)}">${ageOf(k.age).ico} ${esc(k.name)} <small>${ageOf(k.age).n}</small></button>`).join('')}</div>
       <button class="link" data-act="forgetLocal">이 기기에서 목록 지우기</button></div>`:''}
-    <div class="card center">${steps(3,0)}<h2>아이 이름 두 글자를 써 주세요</h2><p class="sub">성은 빼고 이름만 두 글자 써요</p>
-      <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자" value="${esc(S.form.name)}">
-      <button class="big-btn leaf" data-act="nameNext">다음 ▶</button><div class="msg" id="msg"></div></div>`;
-  $('nameIn').addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); act('nameNext'); } });
+    <div class="login2">
+      <div class="card"><h3><span class="no">1</span>아이 이름 두 글자</h3>
+        <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자 (성은 빼고)" value="${esc(f.name)}">
+        <h3><span class="no">2</span>몇 살 · 몇 학년이에요?</h3>
+        <div class="grades sm">${AGES.map(a=>`<button class="grade ${f.age===a.k?'on':''}" data-age="${a.k}">${a.ico} ${a.n}<small>${a.s}</small></button>`).join('')}</div>
+        <p class="note">처음이면 이름 · 나이 · 비밀번호로 공부방이 새로 만들어져요. 전자칠판의 ‘내 공부방’과 같은 번호예요.</p></div>
+      <div class="card center"><h3 style="justify-content:center"><span class="no">3</span>${again?'같은 번호를 한 번 더 눌러요':'비밀번호 4자리'}</h3>
+        <p class="sub" style="margin:0">${again?'처음이라 한 번 더 눌러서 만들어요':'처음이면 새로 만들어요'}</p>
+        <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<f.pin.length?'f':''}"></i>`).join('')}</div>
+        <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 처음 화면</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
+        <div class="msg" id="msg"></div></div>
+    </div>`;
+  const inp=$('nameIn');
+  inp.addEventListener('input', ()=>{ const n=cleanName(inp.value); if(n!==f.name){ f.name=n; f.quick=null; if(f.first){ f.first=''; f.pin=''; render(); $('nameIn').focus(); } } });
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); inp.blur(); } });
 }
 function ageGrid(){ return `<div class="grades">${AGES.map(a=>`<button class="grade ${S.form.age===a.k?'on':''}" data-age="${a.k}">${a.ico}<br>${a.n}<small>${a.s}</small></button>`).join('')}</div>`; }
 function phoneAge(){ view.innerHTML = `<div class="card center">${steps(3,1)}<h2>${esc(josa(S.form.name,'이는','는'))} 몇 살 · 몇 학년이에요?</h2><p class="sub">눌러서 골라요</p></div><div style="margin-top:14px">${ageGrid()}</div>
@@ -405,7 +426,12 @@ function phonePin(){
 }
 async function pinDone(){
   const f=S.form, msg=$('msg');
-  if(S.screen==='phonePin'){
+  if(S.screen==='phone'){
+    const n=$('nameIn'); if(n) f.name=cleanName(n.value);
+    if(!/^[가-힣]{2}$/.test(f.name||'')){ f.pin=''; render(); $('msg').textContent='① 이름 두 글자를 한글로 먼저 써 주세요'; $('nameIn').focus(); return; }
+    if(!f.age){ f.pin=''; render(); $('msg').textContent='② 몇 살 · 몇 학년인지 먼저 눌러 주세요'; return; }
+  }
+  if(S.screen==='phonePin' || S.screen==='phone'){
     if(f.first){   // 새로 만들기: 두 번째 입력
       if(f.pin!==f.first){ f.pin=''; f.first=''; render(); $('msg').textContent='두 번이 달라요. 처음부터 다시 눌러 주세요'; return; }
       busy(true,'공부방을 만들고 있어요…');
@@ -420,7 +446,7 @@ async function pinDone(){
       if(f.quick){ f.pin=''; render(); $('msg').innerHTML='비밀번호가 달라요. 다시 눌러 주세요.<br><span class="sub">잊었으면 엄마아빠 모드에서 다시 정할 수 있어요</span>'; return; }
       // 없으면: 처음 온 친구 → 한 번 더 눌러 만들기
       f.first=f.pin; f.pin=''; render();
-      $('msg').className='msg'; $('msg').textContent='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (전에 만든 적 있으면 ◀ 뒤로 가서 이름 · 나이 · 번호를 다시 확인해 주세요)';
+      $('msg').className='msg'; $('msg').textContent='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (전에 만든 적 있으면 이름 · 나이 · 번호를 다시 확인해 주세요)';
     }catch(e){ busy(false); f.pin=''; render(); $('msg').textContent=e.message||'찾지 못했어요'; }
     return;
   }
@@ -679,12 +705,13 @@ document.addEventListener('click', e=>{
   const ps=e.target.closest('[data-pdspan]'); if(ps){ if(S.pd){ S.pd.span=ps.dataset.pdspan; drawParentDetail(); } return; }
   const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade, goal:S.goal||20}); return; }
   const gl=e.target.closest('[data-goal]'); if(gl){ S.goal=+gl.dataset.goal; render(); return; }
-  const ag=e.target.closest('[data-age]'); if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
-  const q=e.target.closest('[data-quick]'); if(q){ const k=localKids().find(x=>x.id===q.dataset.quick); if(k){ S.form={name:k.name, age:k.age, pin:'', first:'', quick:k.id}; go('phonePin'); } return; }
+  const ag=e.target.closest('[data-age]'); if(ag && S.screen==='phone'){ const f=S.form, n=$('nameIn'); if(n) f.name=cleanName(n.value); if(f.age!==ag.dataset.age){ f.age=ag.dataset.age; f.quick=null; f.first=''; f.pin=''; } render(); return; }
+  if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
+  const q=e.target.closest('[data-quick]'); if(q){ const k=localKids().find(x=>x.id===q.dataset.quick); if(k){ S.form={name:k.name, age:k.age, pin:'', first:'', quick:k.id}; S.screen==='phone' ? render() : go('phone'); } return; }
   const fp=e.target.closest(".font-pick [data-font]"); if(fp){ const k=fp.dataset.font; LS.set("font",k); if(k) document.documentElement.dataset.font=k; else delete document.documentElement.dataset.font; render(); return; }
   const rs=e.target.closest('[data-reset]'); if(rs){ adminReset(rs.dataset.reset); return; }
   const p=e.target.closest('[data-pin]'); if(p){ const v=p.dataset.pin, f=S.form;
-    if(v==='back'){ if(S.dialog){ S.dialog=null; parentHome(); return; } go({phonePin:'phoneAge', parentPin:'parentAge', parentSetup:'parentPin'}[S.screen]||'entry'); return; }
+    if(v==='back'){ if(S.dialog){ S.dialog=null; parentHome(); return; } go({phonePin:'phone', parentPin:'parentAge', parentSetup:'parentPin'}[S.screen]||'entry'); return; }
     if(v==='del'){ f.pin=f.pin.slice(0,-1); } else if(f.pin.length<4) f.pin+=v;
     document.querySelectorAll('.pinrow i').forEach((d,i)=>d.classList.toggle('f', i<f.pin.length));
     if(f.pin.length===4) setTimeout(()=>{ S.dialog ? dialogPin() : pinDone(); }, 120);
