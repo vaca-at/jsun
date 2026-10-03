@@ -441,10 +441,10 @@ const SIM = SIM_BOARD ? {id:'board', name:'자성동이', age:SIM_Q.get('g')||''
 if(!SIM){ location.replace('../'); throw new Error('입구에서 먼저 들어와요'); }
 if(SIM_BOARD) document.documentElement.classList.add('sim-board');
 const SIM_BAT = (c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)(SIM.name.charCodeAt(SIM.name.length-1));
-/* 5 · 7세 방은 누가 들어와도 별이 모여요 (방 꾸미기에 써요). 초등 방만 아래 학년이면 별이 안 모여요 */
+/* 자기보다 낮은 연령 · 학년 방에서는 별이 모이지 않아요 (6세는 7세 방을 같이 써서 별이 모여요). 방 꾸미기는 자기 방에서 모은 별로 해요 */
 const SIM_ROOM = location.pathname.split('/').filter(x=>x && !/\.html?$/.test(x)).pop() || '';
 const SIM_RANK = k => ['k5','k6','k7','e1','e2','e3','e4','e5','e6'].indexOf(k);
-const SIM_LOW = false && !SIM_BOARD && SIM_RANK(SIM.age)>=0 && SIM_RANK(SIM_ROOM)>=0 && SIM_RANK(SIM.age) > SIM_RANK(SIM_ROOM);
+const SIM_LOW = !SIM_BOARD && SIM_RANK(SIM.age)>=0 && SIM_RANK(SIM_ROOM)>=0 && SIM_RANK(SIM.age) > SIM_RANK(SIM_ROOM);
 let simLowSaid = false;
 function lowStarNote(){ if(simLowSaid) return; simLowSaid=true; try{ toast('📚 여기는 아래 학년 방이라 별이 모이지 않아요. 복습은 얼마든지 좋아요!'); }catch(e){} }
 if(SIM_LOW) setTimeout(()=>{ simLowSaid=false; lowStarNote(); }, 1800);
