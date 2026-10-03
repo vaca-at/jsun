@@ -472,6 +472,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .shape text{fill:var(--ink);font-size:15px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
 .shape .sq-mark{fill:none;stroke:var(--ink);stroke-width:1.5}
 .shape .tk{stroke:var(--no);stroke-width:2.5}
+.shape .am{fill:none;stroke:var(--ink);stroke-width:1.6}
 .lgraph{display:block;width:100%;max-width:24rem;height:auto;margin:0 auto 4px}
 .lgraph .gl{stroke:var(--line);stroke-width:1}
 .lgraph .ax{stroke:var(--ink);stroke-width:1.5}
@@ -2868,7 +2869,11 @@ function polySVG(pts, o={}){
   (o.ra||[]).forEach(i=>{ const v=q[i], a=q[(i+n-1)%n], b=q[(i+1)%n], u1=unit(a[0]-v[0],a[1]-v[1]), u2=unit(b[0]-v[0],b[1]-v[1]), k=11;
     s+=`<path class="sq-mark" d="M${f(v[0]+u1[0]*k)},${f(v[1]+u1[1]*k)} L${f(v[0]+u1[0]*k+u2[0]*k)},${f(v[1]+u1[1]*k+u2[1]*k)} L${f(v[0]+u2[0]*k)},${f(v[1]+u2[1]*k)}"/>`; });
   (o.tk||[]).forEach((c,i)=>{ if(!c) return; const a=q[i], b=q[(i+1)%n], m=[(a[0]+b[0])/2,(a[1]+b[1])/2], d=unit(b[0]-a[0],b[1]-a[1]), nn=[-d[1],d[0]];
-    for(let t=0;t<c;t++){ const off=(t-(c-1)/2)*6, x=m[0]+d[0]*off, y=m[1]+d[1]*off; s+=`<line class="tk" x1="${f(x-nn[0]*7)}" y1="${f(y-nn[1]*7)}" x2="${f(x+nn[0]*7)}" y2="${f(y+nn[1]*7)}"/>`; } });
+    if(c===1) c=2;   // 같은 길이 표시는 교과서처럼 두 줄(∥)
+    for(let t=0;t<c;t++){ const off=(t-(c-1)/2)*5, x=m[0]+d[0]*off, y=m[1]+d[1]*off; s+=`<line class="tk" x1="${f(x-nn[0]*7)}" y1="${f(y-nn[1]*7)}" x2="${f(x+nn[0]*7)}" y2="${f(y+nn[1]*7)}"/>`; } });
+  // 각 표시: 각도를 쓰거나 묻는 꼭짓점에 호(곡선)를 그려요
+  (o.al||[]).forEach((t,i)=>{ if(!t || (o.ra||[]).includes(i)) return; const v=q[i], a=q[(i+n-1)%n], b=q[(i+1)%n], u1=unit(a[0]-v[0],a[1]-v[1]), u2=unit(b[0]-v[0],b[1]-v[1]), r=17, sw=(u1[0]*u2[1]-u1[1]*u2[0])>0?1:0;
+    s+=`<path class="am" d="M${f(v[0]+u1[0]*r)},${f(v[1]+u1[1]*r)} A${r},${r} 0 0 ${sw} ${f(v[0]+u2[0]*r)},${f(v[1]+u2[1]*r)}"/>`; });
   (o.al||[]).forEach((t,i)=>{ if(!t) return; const v=q[i], u=unit(cx-v[0],cy-v[1]); s+=`<text x="${f(v[0]+u[0]*30)}" y="${f(v[1]+u[1]*30)}">${t}</text>`; });
   (o.sl||[]).forEach((t,i)=>{ if(!t) return; const a=q[i], b=q[(i+1)%n], m=[(a[0]+b[0])/2,(a[1]+b[1])/2], u=unit(m[0]-cx,m[1]-cy); s+=`<text x="${f(m[0]+u[0]*16)}" y="${f(m[1]+u[1]*16)}">${t}</text>`; });
   return `<svg class="shape" viewBox="0 0 ${f(W)} ${f(H)}" role="img" aria-label="도형">${s}</svg>`;

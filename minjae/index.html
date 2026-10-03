@@ -2841,7 +2841,14 @@ function genN100(){
   if(t===1){ const a=rnd(1,9), b=rnd(0,9); return numQ(`10개씩 묶음 ${a}개와<br>낱개 ${b}개인 수는?<br>□`, a*10+b, `10개씩 묶음 ${a}개는 ${a*10}, 낱개 ${b}개를 더하면 ${a*10+b}`); }
   if(t===2){ const n=rnd(11,99); return numQ(`<span class="big">${koNative(n)}</span><br>숫자로 쓰면?<br>□`, n, `${koNative(n)}(${koSino(n)}) = ${n}`); }
   if(t===3){ const n=rnd(11,99); let r=n%10 ? (n%10)*10+Math.floor(n/10) : n+1; if(r===n) r=n+2;
-    return choQ(`<span class="big">${n}</span><br>바르게 읽은 것은?`, koSino(n), [koSino(r), koSino(n<90?n+10:n-10), koSino(n<99?n+1:n-1)], `${n}은(는) ${koSino(n)} 또는 ${koNative(n)}(이)라고 읽어요.`, 'short'); }
+    // 교과서 · 문제집처럼 여러 표현으로 (수 읽기 두 가지: 팔십일 · 여든하나)
+    const near=[r, n<90?n+10:n-10, n<99?n+1:n-1].filter(x=>x!==n&&x>=10&&x<=99), ex=`${n}은(는) ${koSino(n)} 또는 ${koNative(n)}(이)라고 읽어요.`, v=rnd(1,5), uniq=a=>[...new Set(a)];
+    const things=[['구슬','개'],['색종이','장'],['연필','자루'],['사탕','개'],['동화책','권']], [th,un]=things[rnd(0,things.length-1)];
+    if(v===1) return choQ(`<span class="big">${n}</span><br>수를 바르게 읽은 것은 어느 것인가요?`, koSino(n), uniq(near.map(koSino)), ex, 'short');
+    if(v===2) return choQ(`<span class="big">${n}</span><br>우리말로 바르게 읽은 것을 골라 보세요.`, koNative(n), uniq(near.map(koNative)), ex, 'short');
+    if(v===3) return choQ(`${th}이(가) ${n}${un} 있어요.<br>${n}을(를) 바르게 읽은 것은?`, koSino(n), uniq([...near.map(koSino), koNative(r)]).slice(0,3), ex, 'short');
+    if(v===4) return choQ(`<span class="big">${n}</span><br>두 가지로 바르게 읽은 것은?`, `${koSino(n)} · ${koNative(n)}`, uniq(near.map(x=>`${koSino(n)} · ${koNative(x)}`)), ex, 'words');
+    return choQ(`'${koSino(n)}'을(를) 수로 나타내면?`, n, uniq(near), ex, 'short'); }
   if(t===4){ let a=rnd(10,99), b=rnd(10,99); if(a===b) b=a<99?a+1:a-1;
     return choQ(`<span class="big">${a} &nbsp; ${b}</span><br>더 큰 수는?`, Math.max(a,b), [Math.min(a,b)], '10개씩 묶음의 수를 먼저 비교하고, 같으면 낱개를 비교해요.', 'short'); }
   if(t===5){ const n=rnd(11,98), k=rnd(0,2);
@@ -2883,7 +2890,7 @@ function genPat1(){
   const t=rnd(1,3);
   if(t<=2){ const pool=t===1?['🔺','🟦','🟡','⭐','❤️']:['🍎','🍌','🍇','🐶','🐱'], [A,B,C]=shuffle(pool), kind=rnd(0,2);
     const unit=kind===0?[A,B]:kind===1?[A,A,B]:[A,B,C], seq=Array.from({length:unit.length*2+1},(_,i)=>unit[i%unit.length]), ans=unit[seq.length%unit.length];
-    return choQ(`<span class="big">${seq.join(' ')} □</span><br>□에 올 것은?`, ans, pool.filter(x=>x!==ans).slice(0,2), `${unit.join(' ')} 이(가) 되풀이돼요.`, 'short'); }
+    return choQ(`<span class="big">${seq.join(' ')} □</span><br>□에 올 것은?`, ans, [...new Set([...unit.filter(x=>x!==ans), ...shuffle(pool).filter(x=>x!==ans)])].slice(0,2), `${unit.join(' ')} 이(가) 되풀이돼요.`, 'short'); }   // 보기: 규칙 안의 다른 모양(헷갈리는 답)을 먼저
   const s=one([2,5,10]), a=s===10?rnd(1,9):s*rnd(0,4)+(s===2?rnd(0,1):0), k=rnd(2,4), seq=[0,1,2,3,4].map(i=>i===k?'□':a+i*s);
   return numQ(`<span class="big">${seq.join(', ')}</span><br>□에 알맞은 수는?`, a+k*s, `${s}씩 커지는 규칙이에요.`);
 }

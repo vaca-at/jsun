@@ -476,6 +476,7 @@ body[data-theme="chalk"] .c-con{color:#9FD3FF}
 .shape text{fill:var(--ink);font-size:15px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
 .shape .sq-mark{fill:none;stroke:var(--ink);stroke-width:1.5}
 .shape .tk{stroke:var(--no);stroke-width:2.5}
+.shape .am{fill:none;stroke:var(--ink);stroke-width:1.6}
 .lgraph{display:block;width:100%;max-width:24rem;height:auto;margin:0 auto 4px}
 .lgraph .gl{stroke:var(--line);stroke-width:1}
 .lgraph .ax{stroke:var(--ink);stroke-width:1.5}
@@ -2893,7 +2894,11 @@ function polySVG(pts, o={}){
   (o.ra||[]).forEach(i=>{ const v=q[i], a=q[(i+n-1)%n], b=q[(i+1)%n], u1=unit(a[0]-v[0],a[1]-v[1]), u2=unit(b[0]-v[0],b[1]-v[1]), k=11;
     s+=`<path class="sq-mark" d="M${f(v[0]+u1[0]*k)},${f(v[1]+u1[1]*k)} L${f(v[0]+u1[0]*k+u2[0]*k)},${f(v[1]+u1[1]*k+u2[1]*k)} L${f(v[0]+u2[0]*k)},${f(v[1]+u2[1]*k)}"/>`; });
   (o.tk||[]).forEach((c,i)=>{ if(!c) return; const a=q[i], b=q[(i+1)%n], m=[(a[0]+b[0])/2,(a[1]+b[1])/2], d=unit(b[0]-a[0],b[1]-a[1]), nn=[-d[1],d[0]];
-    for(let t=0;t<c;t++){ const off=(t-(c-1)/2)*6, x=m[0]+d[0]*off, y=m[1]+d[1]*off; s+=`<line class="tk" x1="${f(x-nn[0]*7)}" y1="${f(y-nn[1]*7)}" x2="${f(x+nn[0]*7)}" y2="${f(y+nn[1]*7)}"/>`; } });
+    if(c===1) c=2;   // 같은 길이 표시는 교과서처럼 두 줄(∥)
+    for(let t=0;t<c;t++){ const off=(t-(c-1)/2)*5, x=m[0]+d[0]*off, y=m[1]+d[1]*off; s+=`<line class="tk" x1="${f(x-nn[0]*7)}" y1="${f(y-nn[1]*7)}" x2="${f(x+nn[0]*7)}" y2="${f(y+nn[1]*7)}"/>`; } });
+  // 각 표시: 각도를 쓰거나 묻는 꼭짓점에 호(곡선)를 그려요
+  (o.al||[]).forEach((t,i)=>{ if(!t || (o.ra||[]).includes(i)) return; const v=q[i], a=q[(i+n-1)%n], b=q[(i+1)%n], u1=unit(a[0]-v[0],a[1]-v[1]), u2=unit(b[0]-v[0],b[1]-v[1]), r=17, sw=(u1[0]*u2[1]-u1[1]*u2[0])>0?1:0;
+    s+=`<path class="am" d="M${f(v[0]+u1[0]*r)},${f(v[1]+u1[1]*r)} A${r},${r} 0 0 ${sw} ${f(v[0]+u2[0]*r)},${f(v[1]+u2[1]*r)}"/>`; });
   (o.al||[]).forEach((t,i)=>{ if(!t) return; const v=q[i], u=unit(cx-v[0],cy-v[1]); s+=`<text x="${f(v[0]+u[0]*30)}" y="${f(v[1]+u[1]*30)}">${t}</text>`; });
   (o.sl||[]).forEach((t,i)=>{ if(!t) return; const a=q[i], b=q[(i+1)%n], m=[(a[0]+b[0])/2,(a[1]+b[1])/2], u=unit(m[0]-cx,m[1]-cy); s+=`<text x="${f(m[0]+u[0]*16)}" y="${f(m[1]+u[1]*16)}">${t}</text>`; });
   return `<svg class="shape" viewBox="0 0 ${f(W)} ${f(H)}" role="img" aria-label="도형">${s}</svg>`;
@@ -5880,27 +5885,34 @@ html.sim-board body{padding-top:62px}
    돌려주는 모양 { html, say, choices[], ans, pic, hint } — 방마다 문제 만드는 함수가 달라서 여기서 맞춰요 */
 (function(){
   const pickOne = a => a[Math.floor(Math.random()*a.length)];
+  // 칠판 왼쪽 위에 보일 '영역 - 단원' (TAG)
+  // 눈으로 풀기 어려운 곱셈 · 나눗셈(세 자리 × 두 자리, 세 자리 ÷ 두 자리 등)은 칠판 협동에서 빼요
+  const hardMul = h => { const t=plain(h); const m=t.match(/(\d[\d,]*)\s*([×÷])\s*(\d[\d,]*)/); if(!m) return false; const x=+m[1].replace(/,/g,''), y=+m[3].replace(/,/g,''); return (x>=100&&y>=10)||(x>=10&&y>=100); };
+  let TAG=''; const QNAME={kor:'한글', word:'낱말', eng:'영어', engw:'영어 낱말', clock:'시계', count:'수 세기', read:'글 읽기', school:'학교 가요'};
   const mix = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
   const plain = h => String(h||'').replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/&nbsp;|&[a-z]+;/g,' ').replace(/□/g,' 무엇 ').replace(/\s+/g,' ').trim();
-  function numChoices(ans){ const a=Number(ans); if(!isFinite(a)) return null; const s=new Set([String(ans)]);
-    for(const d of mix([1,-1,2,-2,10,-10,3,5])){ if(s.size>=4) break; const v=a+d; if(v>=0 && Number.isInteger(v)===Number.isInteger(a)) s.add(String(v)); }
+  // 보기 숫자: 소수는 정답과 같은 자리까지 (컴퓨터 계산 오차 1.3199999… 없애기), 오답은 자리를 헷갈렸을 때 나오는 값으로
+  const dpOf = x => { const t=String(+(+x).toFixed(10)); return t.includes('.') ? t.split('.')[1].length : 0; };
+  function numChoices(ans){ const a=+(+ans).toFixed(10); if(!isFinite(a)) return null; const dp=dpOf(a), s=new Set([String(a)]);
+    const ds = dp>=2 ? [0.1,-0.1,0.01,-0.01,1,-1,0.2,-0.2,0.02] : dp===1 ? [0.1,-0.1,1,-1,0.2,-0.2,0.3] : [1,-1,2,-2,10,-10,3,5];
+    for(const d of mix(ds)){ if(s.size>=4) break; const v=+(a+d).toFixed(dp); if(v>=0) s.add(String(v)); }
     return s.size>=3 ? mix([...s]) : null; }
   function fromQuiz(){   // 유아 방: 놀이 단계 (칸 하나짜리만)
-    const L=Object.values(QUIZ), lv=pickOne(pickOne(L).LV), q=lv.g(); if(!q || q.slots.length!==1 || q.parts) return null;
+    const QK=pickOne(Object.keys(QUIZ)), lv=pickOne(QUIZ[QK].LV), q=lv.g(); TAG=(QNAME[QK]||'놀이')+(lv.n?' - '+lv.n:''); if(!q || q.slots.length!==1 || q.parts) return null;
     return { say:q.say||plain(q.prompt), pic:q.tcls==='pic-tile', choices:mix(q.tiles.slice()), ans:String(q.slots[0]), after:q.after||'',
       html:(q.pic?`<div class="q-pic">${q.pic}</div>`:'')+(q.big?`<div class="q-bigl">${q.big}</div>`:'')+(q.prompt?`<div class="q-p">${q.prompt}</div>`:'')+(q.eq?`<div class="q-eq">${q.eq} <b class="q-mark">?</b></div>`:'') }; }
   function fromCalc(){   // 초등 방: 연산 단계
-    const P=pickOne(CALC_LEVELS).g('mix');
-    if(P.v){ const {a,b,op}=P.v, ans=op==='-'?a-b:a+b; return { html:`<div class="q-eq">${a} ${op==='-'?'−':'+'} ${b} = <b class="q-mark">?</b></div>`, say:`${a} ${op==='-'?'빼기':'더하기'} ${b}는?`, ans:String(ans), choices:numChoices(ans) }; }
-    if(P.h && P.ans && P.ans.length===1){ const h=P.h.replace('{0}','<b class="q-mark">?</b>'); return { html:(P.fig||'')+`<div class="q-eq">${h}</div>`, say:plain(h), ans:String(P.ans[0]), choices:numChoices(P.ans[0]), hint:P.hint?plain(P.hint):'' }; }
+    const LV0=pickOne(CALC_LEVELS), P=LV0.g('mix'); TAG='연산 - '+LV0.n;
+    if(P.v){ const {a,b,op}=P.v, ans=+(op==='-'?a-b:a+b).toFixed(10); return { html:`<div class="q-eq">${a} ${op==='-'?'−':'+'} ${b} = <b class="q-mark">?</b></div>`, say:`${a} ${op==='-'?'빼기':'더하기'} ${b}는?`, ans:String(ans), choices:numChoices(ans) }; }
+    if(P.h && P.ans && P.ans.length===1){ const h=P.h.replace('{0}','<b class="q-mark">?</b>'); return { html:(P.fig||'')+`<div class="q-eq">${h}</div>`, say:plain(h), ans:String(isFinite(+P.ans[0])?+(+P.ans[0]).toFixed(10):P.ans[0]), choices:numChoices(P.ans[0]), hint:P.hint?plain(P.hint):'' }; }
     return null; }
   function fromUnit(){   // 초등 방: 학교수학 단원
-    const keys=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), q=UNITS[pickOne(keys)].gen(); if(!q) return null;
+    const keys=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), UK=pickOne(keys), q=UNITS[UK].gen(); TAG='학교수학 - '+String(UNITS[UK].name||'').replace(/^\d+\.\s*/,''); if(!q) return null;
     const html=`<div class="q-p">${q.html}</div>`;
     if(q.type==='choice' && q.choices && q.choices.length>1) return { html, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') };
-    return { html, say:plain(q.html), ans:String(q.ans), choices:numChoices(q.ans), hint:plain(q.explain||'') }; }
+    return { html, say:plain(q.html), ans:String(isFinite(+q.ans)?+(+q.ans).toFixed(10):q.ans), choices:numChoices(q.ans), hint:plain(q.explain||'') }; }
   function fromKo(){   // 초등 방: 국어
-    const q=KO_GEN[pickOne(Object.keys(KO_GEN))](); if(!q || !q.choices || q.choices.length<2) return null;
+    const q=KO_GEN[pickOne(Object.keys(KO_GEN))](); TAG='국어'; if(!q || !q.choices || q.choices.length<2) return null;
     return { html:`<div class="q-p">${q.html}</div>`, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') }; }
   window.SIM_QGEN = function(){
     const src=[];
@@ -5908,7 +5920,7 @@ html.sim-board body{padding-top:62px}
     if(typeof CALC_LEVELS!=='undefined') src.push(fromCalc,fromCalc);
     if(typeof UNITS!=='undefined') src.push(fromUnit,fromUnit);
     if(typeof KO_GEN!=='undefined') src.push(fromKo);
-    for(let t=0;t<40;t++){ try{ const q=pickOne(src)(); if(q && q.choices && q.choices.length>=2 && q.choices.includes(q.ans)) return q; }catch(e){} }
+    for(let t=0;t<40;t++){ try{ const q=pickOne(src)(); if(q && q.choices && q.choices.length>=2 && q.choices.includes(q.ans) && !hardMul(q.html)){ q.tag=TAG; return q; } }catch(e){} }
     return null;
   };
 })();

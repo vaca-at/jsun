@@ -84,6 +84,8 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qbody .q-bigl{font-size:78px;font-family:var(--font-t)}
 .qbody .q-eq{font-family:var(--font-t);font-size:46px}
 .qbody .q-mark{color:var(--lotus-d);border-bottom:4px solid var(--lotus-d);padding:0 .3em}
+/* 문제 왼쪽 위: 영역 - 단원 (예: 연산 - 세 수의 덧셈) */
+.q-tag{position:absolute;left:18px;top:16px;z-index:2;padding:4px 14px;border-radius:999px;background:var(--lotus-s);color:var(--lotus-d);font-size:17px;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qbody .q-p{line-height:1.45}
 .qbody .count-pics{font-size:46px;line-height:1.2}
 .qbody .two-sides{display:flex;gap:18px;justify-content:center;font-size:40px}
@@ -201,6 +203,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qbody .shape text{fill:var(--ink);font-size:15px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
 .qbody .shape .sq-mark{fill:none;stroke:var(--ink);stroke-width:1.5}
 .qbody .shape .tk{stroke:var(--no);stroke-width:2.5}
+.qbody .shape .am{fill:none;stroke:var(--ink);stroke-width:1.6}
 .qbody .lgraph{display:block;width:100%;max-width:24rem;height:auto;margin:0 auto 4px}
 .qbody .lgraph .gl{stroke:var(--line);stroke-width:1}
 .qbody .lgraph .ax{stroke:var(--ink);stroke-width:1.5}
@@ -453,7 +456,7 @@ function play(){
   const g=curGroup(), total=G.groups.reduce((a,x)=>a+x.got,0), goalAll=G.groups.reduce((a,x)=>a+x.goal,0);
   const body = G.loading ? '<div class="qbody"><div style="font-size:60px">🪷</div><p>문제를 준비하고 있어요…</p></div>'
     : !G.q ? `<div class="qbody"><p>${esc(G.err||'문제를 불러오지 못했어요')}</p><button class="btn2" data-act="retryQ">다시 불러오기</button></div>`
-    : `<div class="qbody">${G.q.html}</div>${choicesHTML(G.q)}`;
+    : `${G.q.tag?`<div class="q-tag">${esc(G.q.tag)}</div>`:''}<div class="qbody">${String(G.q.html).replace(/□/g,'<b class="q-mark">?</b>')}</div>${choicesHTML(G.q)}`;   // □는 분홍 물음표로
   stage.innerHTML = barHTML(G.mode==='all'?'🤝 다 같이 협동':'🎓 학년별 협동') + `<div class="play">
     <div style="min-height:0"><div class="turn"><span class="ico">${ageOf(g.k)[2]}</span><span>${turnLabel(g).replace(/^\S+ /,'')}</span></div>
       <div class="qcard">${G.q?`<div class="qtools"><button class="tool" data-act="sayQ">🔊 다시 듣기</button></div>`:''}${body}</div></div>
