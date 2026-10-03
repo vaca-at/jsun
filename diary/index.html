@@ -347,7 +347,7 @@ mark{
 .shelf-list h4{ margin:4px 0; }
 .shelf-list .body{ white-space:pre-wrap; }
 
-/* ---------- 모달·토스트 ---------- */
+/* ---------- 모달 · 토스트 ---------- */
 .toast{ position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:8px 18px; border-radius:999px; z-index:60; max-width:90vw; text-align:center; }
 .welcome{ text-align:center; padding:50px 10px; }
 .welcome p{ font-size:1.2em; }
@@ -767,7 +767,7 @@ function kidState(w){
   if (n) return [`✍️ 지금 일기 쓰는 중 (${n}자, 아직 저장 전)`, left <= 0 ? "warn" : ""];
   if (left <= 0) return [s ? `🚨 공부 ${s.total}문제 했는데 8시가 지나도록 일기 없음` : "🚨 8시가 지났는데 일기가 없어요", "warn"];
   if (s) return [`📝 공부 ${s.total}문제 · 일기는 아직 (8시 마감)`, "warn"];
-  return ["아직 오늘 공부·일기 전", ""];
+  return ["아직 오늘 공부 · 일기 전", ""];
 }
 function streak(w){
   let d = today(); if (!wroteOn(d, w)) d = addDays(d, -1);
@@ -1250,7 +1250,7 @@ async function makeReport(w){
   finally { reportBusy[w] = false; if (S.tab === "report") renderReport(); }
 }
 
-// 한마디를 쓰는 중에 도장·하트로 화면이 새로 그려져도, 쓰던 글과 커서 자리를 그대로 지켜요.
+// 한마디를 쓰는 중에 도장 · 하트로 화면이 새로 그려져도, 쓰던 글과 커서 자리를 그대로 지켜요.
 const cmt = { draft: {}, edit: null, emoji: null, caret: null };   // draft[일기id] · edit {id, at, text} · emoji: 이모지 판 열린 일기id · caret: 마지막 커서 자리
 const EMOJIS = ["💖","❤️","🥰","😍","😊","😆","🤗","👍","👏","💪","🌟","⭐","✨","🎉","🏆","💯","🌈","🌷","🍀","🔥"];
 // 한마디 칸의 커서 자리를 계속 기억해요 → 도장 · 하트 · 이모지를 눌러 화면이 새로 그려져도 쓰던 칸 · 쓰던 자리로 돌아와요
@@ -1557,7 +1557,7 @@ document.addEventListener("keydown", e => {
 window.addEventListener("beforeunload", e => { if (S.formDirty){ e.preventDefault(); e.returnValue = ""; } });
 
 /* ============================================================
-   ⑫ 디자인·폰트 전환, 시작
+   ⑫ 디자인 · 폰트 전환, 시작
    ============================================================ */
 function setTheme(v){
   document.documentElement.dataset.theme = v; store.set("fd_theme", v);

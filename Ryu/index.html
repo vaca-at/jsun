@@ -1040,7 +1040,7 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
     <button class="tab" data-act="tab" data-v="eng">영어</button>
     <button class="tab" data-act="tab" data-v="hanja">한자</button>
     <button class="tab" data-act="tab" data-v="history">한국사</button>
-    <button class="tab" data-act="tab" data-v="social">사회·과학</button>
+    <button class="tab" data-act="tab" data-v="social">사회 · 과학</button>
   </div>
 </header>
 
@@ -1121,7 +1121,7 @@ const SUBJ = {
   eng:{name:'영어', ico:SICO.eng, desc:'1단계 · 2단계 · 3단계 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'동화처럼 읽는 이야기책 · 9급 · 8급'},
-  social:{name:'사회·과학', ico:SICO.social, desc:'초6 ~ 중1 사회 · 과학 단원 설명과 퀴즈'}
+  social:{name:'사회 · 과학', ico:SICO.social, desc:'초6 ~ 중1 사회 · 과학 단원 설명과 퀴즈'}
 };
 const ABC = [
   {l:'A',w:'apple',e:'🍎'},{l:'B',w:'bear',e:'🐻'},{l:'C',w:'cat',e:'🐱'},{l:'D',w:'dog',e:'🐶'},
@@ -1939,7 +1939,7 @@ const one = arr => arr[Math.floor(Math.random()*arr.length)];
 const shuffle = arr => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const praise = ()=> one(PRAISE);
 /* 과목 맨 위 단계 고르기 (모든 과목 공통): 3개 이상이면 작은 드롭다운 ▾, 2개면 [A | B] 스위치.
-   items: [{v, name, sub}], opt.k: data-k (사회·과학처럼 과목 이름이 더 필요할 때). 고른 항목의 설명은 옆에 회색 한 줄 */
+   items: [{v, name, sub}], opt.k: data-k (사회 · 과학처럼 과목 이름이 더 필요할 때). 고른 항목의 설명은 옆에 회색 한 줄 */
 function lvPick(act, cur, items, opt={}){
   const on=items.find(x=>String(x.v)===String(cur))||items[0], k=opt.k!=null?` data-k="${opt.k}"`:'';
   const ctl = items.length<=2

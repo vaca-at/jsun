@@ -122,8 +122,8 @@ const CUR = [
       U("1-2", "c k e h r m d", "두 번째 소리 7개", "letters", LETTERS.g2),
       U("1-3", "g o u l f b", "세 번째 소리 6개", "letters", LETTERS.g3),
       U("1-4", "j z w v y x q", "마지막 소리 7개", "letters", LETTERS.g4),
-      U("1-5", "A~M 대문자·소문자", "큰 글자와 작은 글자 짝꿍", "case", "abcdefghijklm".split("")),
-      U("1-6", "N~Z 대문자·소문자", "큰 글자와 작은 글자 짝꿍", "case", "nopqrstuvwxyz".split("")),
+      U("1-5", "A~M 대문자 · 소문자", "큰 글자와 작은 글자 짝꿍", "case", "abcdefghijklm".split("")),
+      U("1-6", "N~Z 대문자 · 소문자", "큰 글자와 작은 글자 짝꿍", "case", "nopqrstuvwxyz".split("")),
       U("1-7", "첫소리 찾기", "26개 소리 모두 복습", "letters", ALL_LETTERS),
       U("1-8", "첫 단어 읽기", "소리를 이어 붙여 c-a-t → cat!", "words", WORDS.cvc0, { blend: true })
     ] },
