@@ -537,7 +537,8 @@ stage.addEventListener('click', e=>{
   if(d.sage){ ST.soloAge = ST.soloAge===d.sage ? null : d.sage; render(); return; }
   if(d.age){ const k=d.age; if(!ST.ages.includes(k)) ST.lastAge=k; ST.ages=ST.ages.includes(k)?ST.ages.filter(x=>x!==k):[...ST.ages,k]; ST.ages.sort((x,y)=>AGES.findIndex(q=>q[0]===x)-AGES.findIndex(q=>q[0]===y)); resetCards(); render(); return; }
   if(d.cnt){ const k=d.cnt; ST.cnt[k]=Math.min(10,Math.max(1,(ST.cnt[k]||1)+ +d.d)); render(); return; }
-  if(d.mode){ ST.mode=d.mode;
+  if(d.mode){ if(ST.mode!==d.mode) resetCards();   // 방법을 바꾸면 ③ 순서 정하기도 처음부터
+    ST.mode=d.mode;
     // 내 공부방으로 바꾸면 ①에서 마지막으로 누른 연령대(하나만 골랐으면 그것)를 내 나이로
     if(d.mode==='solo' && !ST.soloAge) ST.soloAge = ST.ages.length===1 ? ST.ages[0] : ST.ages.includes(ST.lastAge) ? ST.lastAge : null;
     render(); return; }
