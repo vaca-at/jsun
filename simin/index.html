@@ -536,7 +536,7 @@ async function dialogPin(){
 /* ───── 🔒 관리자: 구글 로그인 · 숫자만 · 엄마아빠 비밀번호 초기화 ───── */
 const isAdminUser = async u => { const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
 /* 💬 카카오톡 공유: 카카오 앱(행원심인당자성동이공부방, ID 1596029)의 JavaScript 키(공개용). 미리보기는 위의 og 태그를 그대로 써요 */
-const KAKAO_JS_KEY = "";
+const KAKAO_JS_KEY = "e0cc2f73f1885e173b1eabc15d610612";
 const SHARE_URL = "https://jsun.site/simin/";
 function kakaoShare(){
   const K=window.Kakao;
