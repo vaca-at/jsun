@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
-<style>
+<style>/* cmix-fb */
 /* ───── 🖥️ 전자칠판 (jsun.site/simin/board/) ─────
    가로 전자칠판 한 화면(1280×720)을 화면 크기에 맞춰 늘이고 줄여요. 색은 입구와 같아요 (연분홍 · 연두 · 금빛) */
 @font-face{font-family:"OwnglyphYuntaeng";src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2") format("woff2");font-weight:400;font-display:swap}
@@ -198,7 +198,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qbody .frac .ansbox{min-width:1.3em;padding:0 .1em;border:2px dashed var(--accent);border-radius:6px;font-size:1em;line-height:1.2}
 .qbody .mixed{white-space:nowrap}
 .qbody .shape{display:block;width:100%;max-width:17rem;height:auto;margin:0 auto 6px;overflow:visible}
-.qbody .shape .sp{fill:color-mix(in srgb,var(--accent) 12%,var(--paper));stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
+.qbody .shape .sp{fill:var(--paper);fill:color-mix(in srgb,var(--accent) 12%,var(--paper));stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
 .qbody .shape .sd{stroke:var(--no);stroke-width:2;stroke-dasharray:5 4}
 .qbody .shape text{fill:var(--ink);font-size:15px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
 .qbody .shape .sq-mark{fill:none;stroke:var(--ink);stroke-width:1.5}
@@ -211,7 +211,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qbody .lgraph circle{fill:var(--paper);stroke:var(--accent);stroke-width:2.5}
 .qbody .lgraph text{fill:var(--sub);font-size:11px;text-anchor:middle;dominant-baseline:central;font-family:'Jua',sans-serif}
 .qbody .lgraph .wave{fill:none;stroke:var(--ink);stroke-width:1.5}
-.qbody .lgraph .bar{fill:color-mix(in srgb,var(--accent) 45%,var(--paper));stroke:var(--accent);stroke-width:1.5}
+.qbody .lgraph .bar{fill:var(--paper);fill:color-mix(in srgb,var(--accent) 45%,var(--paper));stroke:var(--accent);stroke-width:1.5}
 .qbody .mv-orig .shape{max-width:7rem}
 .qbody .mv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .qbody .mv-grid>div{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;border-radius:12px;border:2px dashed var(--line)}
@@ -226,7 +226,7 @@ button:focus-visible,input:focus-visible{outline:4px solid var(--gold);outline-o
 .qbody .cx-mx{display:inline-flex;align-items:center;gap:.08em;white-space:nowrap}
 .qbody .cx-mx>.cx-sw .cx-slot{min-width:1.4em}
 .qbody .cx-groups{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:2px 0 10px}
-.qbody .cx-g{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:4.8rem;padding:8px 10px;border:2px solid color-mix(in srgb,#0FA3B1 45%,var(--line));border-radius:14px;background:color-mix(in srgb,#0FA3B1 7%,var(--paper))}
+.qbody .cx-g{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:5px;max-width:4.8rem;padding:8px 10px;border:2px solid var(--line);border:2px solid color-mix(in srgb,#0FA3B1 45%,var(--line));border-radius:14px;background:var(--paper);background:color-mix(in srgb,#0FA3B1 7%,var(--paper))}
 .qbody .cx-g i{width:14px;height:14px;border-radius:50%;background:#0FA3B1}
 .qbody .me-head .sub{font-size:.85rem}
 .qbody .x2card .sub{flex:1 1 14em}
@@ -562,7 +562,7 @@ stage.addEventListener('click', e=>{
   if(a==='reshuffle'){ resetCards(); render(); }
   else if(a==='spin') spinWheel();
   else if(a==='climb') climbLadder();
-  else if(a==='start'){ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:ST.soloAge||null,pin:'',first:''}; render(); $('nameIn')?.focus(); } else startTeam(); }
+  else if(a==='start'){ try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){}   /* 아이패드 소리 열기 */ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:ST.soloAge||null,pin:'',first:''}; render(); $('nameIn')?.focus(); } else startTeam(); }
   else if(a==='sayQ'){ if(G&&G.q) speak(G.q.say); }
   else if(a==='retryQ') newTurn(false);
   else if(a==='stop'){ if(confirm('그만하고 처음 화면으로 갈까요?')){ G=null; ST.screen='setup'; render(); } }

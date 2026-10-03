@@ -3,9 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="apple-touch-icon" href="../icon.png">
+<meta name="apple-mobile-web-app-title" content="심인당 공부방">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>행원심인당 자성동이 AI 공부방</title>
-<style>
+<style>/* cmix-fb */
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
 @font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap}
@@ -37,7 +40,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .road{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:14px 14px;padding:10px 0 4px}
 .road::before{content:"";position:absolute;left:10%;right:10%;top:78px;height:10px;border-radius:10px;background:repeating-linear-gradient(90deg,#F2D7C4 0 22px,transparent 22px 36px)}
 .stop{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0}
-.stop .ball{width:150px;max-width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-weight:700;font-size:2.6rem;box-shadow:0 12px 24px color-mix(in srgb,var(--c) 32%,transparent);border:6px solid #fff}
+.stop .ball{width:150px;max-width:100%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:var(--c);color:#fff;font-weight:700;font-size:2.6rem;box-shadow:0 12px 24px var(--c);box-shadow:0 12px 24px color-mix(in srgb,var(--c) 32%,transparent);border:6px solid #fff}
 .stop b{font-size:1.25rem}
 .stop small{color:var(--sub);font-size:.85rem}
 .stop .done{position:absolute;top:4px;right:calc(50% - 76px);width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:22px;box-shadow:var(--shadow)}
@@ -63,18 +66,18 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .qnav{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
 .qn{min-width:110px;height:48px;padding:0 18px;border-radius:999px;background:#fff;border:2px solid #E6DCCB;color:#5A4B38;font-size:1.05rem;font-weight:700;cursor:pointer}
 .qn:disabled{opacity:.35;cursor:default}
-.listen{display:inline-flex;align-items:center;gap:10px;height:64px;padding:0 26px;border-radius:999px;background:var(--c);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 8px 18px color-mix(in srgb,var(--c) 30%,transparent);margin:4px 0 14px}
+.listen{display:inline-flex;align-items:center;gap:10px;height:64px;padding:0 26px;border-radius:999px;background:var(--c);color:#fff;font-size:1.3rem;font-weight:700;box-shadow:0 8px 18px var(--c);box-shadow:0 8px 18px color-mix(in srgb,var(--c) 30%,transparent);margin:4px 0 14px}
 .eq{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;font-size:3rem;font-weight:700;margin:6px 0 18px}
 .eq .op{color:var(--sub)}
 .big-letter{font-size:6rem;font-weight:700;line-height:1;margin:4px 0}
 
 /* 끌어다 놓기 */
-.slot{display:inline-grid;place-items:center;min-width:110px;height:110px;padding:0 10px;border-radius:26px;border:5px dashed color-mix(in srgb,var(--c) 55%,#fff);background:color-mix(in srgb,var(--c) 7%,#fff);font-size:3.4rem;font-weight:700;vertical-align:middle;transition:transform .12s,background .12s}
-.slot.hover{transform:scale(1.07);background:color-mix(in srgb,var(--c) 18%,#fff)}
+.slot{display:inline-grid;place-items:center;min-width:110px;height:110px;padding:0 10px;border-radius:26px;border:5px dashed var(--c);border:5px dashed color-mix(in srgb,var(--c) 55%,#fff);background:#fff;background:color-mix(in srgb,var(--c) 7%,#fff);font-size:3.4rem;font-weight:700;vertical-align:middle;transition:transform .12s,background .12s}
+.slot.hover{transform:scale(1.07);background:#fff;background:color-mix(in srgb,var(--c) 18%,#fff)}
 .slot.filled{border-style:solid;border-color:var(--ok);background:#E9F8F1;color:#0B6B4F}
 .slot.small{min-width:78px;height:78px;border-radius:20px;border-width:4px;font-size:2.2rem}
-.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:22px;padding:18px;border-radius:22px;background:color-mix(in srgb,var(--c) 6%,var(--bg))}
-.tile{touch-action:none;min-width:110px;height:110px;padding:0 14px;border-radius:26px;background:#fff;border:3px solid color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,var(--line));font-size:3.4rem;font-weight:700;display:grid;place-items:center;cursor:grab}
+.tray{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-top:22px;padding:18px;border-radius:22px;background:var(--bg);background:color-mix(in srgb,var(--c) 6%,var(--bg))}
+.tile{touch-action:none;min-width:110px;height:110px;padding:0 14px;border-radius:26px;background:#fff;border:3px solid var(--line);border:3px solid color-mix(in srgb,var(--c) 40%,var(--line));box-shadow:0 6px 0 var(--line);box-shadow:0 6px 0 color-mix(in srgb,var(--c) 30%,var(--line));font-size:3.4rem;font-weight:700;display:grid;place-items:center;cursor:grab}
 .tile.small{min-width:78px;height:78px;border-radius:20px;font-size:2.2rem}
 .tile.pic-tile{font-size:3.6rem}
 :root{--mind:#E2558A;--sound:#E8883A;--mom:#5DAE3E;--size:#3F7FE8}
@@ -101,7 +104,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .sheet-h b{font-size:1.35rem}
 .row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:10px;padding:12px 0;border-bottom:2px dashed var(--line)}
 .row:last-child{border-bottom:0}
-.row .no{width:40px;height:40px;border-radius:50%;background:color-mix(in srgb,var(--c) 12%,#fff);color:var(--c);display:grid;place-items:center;font-weight:700}
+.row .no{width:40px;height:40px;border-radius:50%;background:#fff;background:color-mix(in srgb,var(--c) 12%,#fff);color:var(--c);display:grid;place-items:center;font-weight:700}
 .row .ex{display:flex;align-items:center;gap:12px;font-size:2.4rem;font-weight:700}
 .row .cnt{display:flex;flex-wrap:wrap;gap:4px;max-width:180px}
 .row .cnt i{width:15px;height:15px;border-radius:50%;background:#F59E0B}
@@ -126,7 +129,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .sec{padding:10px 8px;border-radius:16px;text-align:center}
 .sec .e{font-size:64px;line-height:1.1}
 .sec p{font-family:var(--hand),var(--font),sans-serif;font-size:2rem;line-height:1.5;margin:6px 0}
-.reading{background:color-mix(in srgb,var(--hi) 30%,transparent)}
+.reading{background:var(--hi);background:color-mix(in srgb,var(--hi) 30%,transparent)}
 .rd-row{display:flex;justify-content:center;gap:10px;margin:6px 0 10px}
 .pill{min-height:52px;padding:0 22px;border-radius:999px;background:#fff;border:2px solid var(--line);font-weight:700;font-size:1.05rem}
 .pill.on{background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:#fff}
@@ -193,7 +196,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .lk-shelf{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 8px 6px;background:#F3DDBA;border-bottom:9px solid #7A4E2A;border-radius:6px 6px 2px 2px;margin-bottom:10px}
 .lk-cell{position:relative;min-height:5.2rem;border-radius:12px;background:#FFF8EC;border:2px solid #E2C597;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:#4A3420}
 .lk-cell.empty{background:repeating-linear-gradient(45deg,#EFD7B2,#EFD7B2 6px,#F3DDBA 6px,#F3DDBA 12px);border-style:dashed}
-.lk-cell.on{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.lk-cell.on{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
 .lk-e{font-size:2.1rem;line-height:1.1}
 .lk-cell small{font-size:.72rem}
 .worn{position:absolute;top:-8px;right:-6px;font-style:normal;font-size:1rem;background:#fff;border-radius:50%;width:1.6rem;height:1.6rem;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.25)}
@@ -228,7 +231,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .me-item small .no{opacity:.55}
 .me-item.own small{color:var(--ok)}
 .me-item.on{border-color:var(--accent);background:var(--soft)}
-.me-item.pick{border-color:var(--hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--hi) 45%,transparent)}
+.me-item.pick{border-color:var(--hi);box-shadow:0 0 0 3px var(--hi);box-shadow:0 0 0 3px color-mix(in srgb,var(--hi) 45%,transparent)}
 /* 다온 방에 없던 공통 모양 (방 꾸미기에서 써요) */
 .card{background:#fff;border-radius:var(--rad);box-shadow:var(--shadow);border:1px solid var(--line);padding:14px}
 .big-btn{height:54px;padding:0 24px;border-radius:999px;background:var(--room);color:#fff;font-weight:700;font-size:1.1rem}
@@ -248,7 +251,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .big-n{font-size:2.6rem;font-weight:700;color:var(--accent);line-height:1}
 .big-n small{font-size:1.1rem;margin-left:2px;color:var(--sub)}
 .prog-bars{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-.pb{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;padding:12px 14px;border-radius:18px;background:color-mix(in srgb,var(--c) 10%,#fff)}
+.pb{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;padding:12px 14px;border-radius:18px;background:#fff;background:color-mix(in srgb,var(--c) 10%,#fff)}
 .pb-ico{grid-row:span 2;width:52px;height:52px;border-radius:16px;background:var(--c);color:#fff;display:grid;place-items:center;font-weight:700;font-size:1.1rem}
 .pb-n{font-size:2.2rem;font-weight:700;line-height:1;color:var(--c)}
 .pb-l{font-size:.95rem;color:var(--sub)}
@@ -349,7 +352,7 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
   .wsheet .row .ex{font-size:1.45rem;gap:6px}
   .wsheet .slot.small{min-width:50px;height:50px;font-size:1.6rem;border-radius:14px;border-width:3px}
   .wsheet .tray{gap:8px;padding:8px;margin-top:8px;bottom:6px}
-  .wsheet .tile.small{min-width:52px;height:52px;font-size:1.7rem;border-radius:14px;box-shadow:0 4px 0 color-mix(in srgb,var(--c) 30%,var(--line))}
+  .wsheet .tile.small{min-width:52px;height:52px;font-size:1.7rem;border-radius:14px;box-shadow:0 4px 0 var(--line);box-shadow:0 4px 0 color-mix(in srgb,var(--c) 30%,var(--line))}
   .wsheet .hint{margin-top:6px;font-size:1.05rem;min-height:1.3em}
   .wsheet .next{height:54px;margin-top:4px;font-size:1.15rem}
 }
@@ -442,6 +445,13 @@ const SIM = SIM_BOARD ? {id:'board', name:'자성동이', age:SIM_Q.get('g')||''
 if(!SIM){ location.replace('../'); throw new Error('입구에서 먼저 들어와요'); }
 if(SIM_BOARD) document.documentElement.classList.add('sim-board');
 const SIM_BAT = (c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28)(SIM.name.charCodeAt(SIM.name.length-1));
+/* 아래 학년 방에서 쉬운 문제를 풀면 별은 모이지 않아요 (복습은 얼마든지). 위 학년 방은 별이 그대로 쌓여요 */
+const SIM_ROOM = location.pathname.split('/').filter(x=>x && !/\.html?$/.test(x)).pop() || '';
+const SIM_RANK = k => ['k5','k6','k7','e1','e2','e3','e4','e5','e6'].indexOf(k);
+const SIM_LOW = !SIM_BOARD && SIM_RANK(SIM.age)>=0 && SIM_RANK(SIM_ROOM)>=0 && SIM_RANK(SIM.age) > SIM_RANK(SIM_ROOM);
+let simLowSaid = false;
+function lowStarNote(){ if(simLowSaid) return; simLowSaid=true; try{ toast('📚 여기는 아래 학년 방이라 별이 모이지 않아요. 복습은 얼마든지 좋아요!'); }catch(e){} }
+if(SIM_LOW) setTimeout(()=>{ simLowSaid=false; lowStarNote(); }, 1800);
 const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 예나야
 const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 예나의
 try{ document.title=SIM_UI+' 공부방 · 행원심인당'; const h=document.getElementById('simHello'); if(h) h.textContent=SIM_A+', 안녕!'; const g=document.getElementById('simLogo'); if(g) g.textContent=SIM_UI+' 공부방'; }catch(e){}
@@ -553,6 +563,7 @@ function eggCollect(){ if(!who) return; eggLate(); let L=[]; try{ L=JSON.parse(l
 window.addEventListener('storage', e=>{ if(e.key==='eggRewards') eggCollect(); });
 setInterval(eggCollect, 3000);
 function addStar(n=1){
+  if(n>0 && SIM_LOW){ lowStarNote(); return; }   // 아래 학년 방: 별 없음
   if(n>0 && evOn()){ ledgerAdd('estars',n*(EV.mult||2)); store.set('estars',eStars()+n*(EV.mult||2)); store.set('estarsAt',Date.now()); updateStars(); drawEvent(); cloudPush(); return; }
   if(n<=0) return;
   const k=dayKey(), sd=store.get('starDay',{}), got=sd.d===k ? sd.n : 0;
@@ -1470,7 +1481,7 @@ evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 })();
 </script>
 
-<a class="sim-home" href="../" aria-label="행원심인당 자성동이 공부방 처음 화면으로">🪷 심인당 공부방 처음으로</a>
+<a class="sim-home" href="../" aria-label="행원심인당 자성동이 공부방 처음 화면으로">🪷 <span class="sh-l">심인당 공부방 </span>처음으로</a>
 <script>/* 처음 화면 단추: 화면 위 방 이름 바로 옆으로 (잘 보이게) */ (function(){ const b=document.querySelector('.sim-home'), t=document.querySelector('header .tabs'), h=document.querySelector('.bar .logo'); if(b&&t){ t.appendChild(b); b.classList.add('in-top','in-tabs'); } else if(b&&h){ h.insertAdjacentElement('afterend', b); b.classList.add('in-top'); } })();</script>
 <button class="sim-adm" data-act="openAdmin" aria-label="관리자 모드">🔒 관리자</button>
 <style>
@@ -1480,7 +1491,9 @@ evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 /* 처음 화면 단추가 위쪽 방 이름 옆에 있을 때 */
 .tabs .sim-home.in-tabs{margin:0 0 0 auto}   /* 과목 탭 줄 빈 곳의 오른쪽 끝 */
 .sim-home.in-top{position:static;flex:none;align-self:center;margin:0 6px;box-shadow:none;padding:.35rem .8rem;font-size:.85rem;white-space:nowrap}
-@media (max-width:640px){ .sim-home.in-top{font-size:.78rem;padding:.3rem .6rem} }
+@media (max-width:440px){ .bar-in>.home-btn[data-v=home]{display:none} }   /* 좁은 폰: 🏠는 방 이름을 눌러도 돼요 */
+body{word-break:keep-all;overflow-wrap:break-word}
+@media (max-width:640px){ .sim-home.in-top{font-size:.78rem;padding:.3rem .6rem} .sim-home.in-top .sh-l{display:none} .bar .logo{min-width:0} .bar .logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0} }
 /* 모든 화면 오른쪽 아래: 살짝 투명한 관리자 단추 (위의 숨김 규칙에서 이것만 빼요) */
 .sim-adm[data-act="openAdmin"]{display:inline-flex!important;position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;align-items:center;gap:4px;padding:.4rem .8rem;border-radius:999px;background:#FFF7F0;border:2px solid #F1DED3;color:#8C7A72;font-weight:700;font-size:.85rem;opacity:.5;cursor:pointer;transition:opacity .2s}
 .sim-adm[data-act="openAdmin"]:hover,.sim-adm[data-act="openAdmin"]:focus-visible{opacity:1}
@@ -1498,6 +1511,13 @@ html.sim-board body{padding-top:62px}
 .team-win .tw-big{font-size:4.2rem;line-height:1.1}
 .team-win h2{font-size:2rem;margin:10px 0 6px;color:#B94873}
 .team-win button{margin-top:16px;padding:.8rem 1.6rem;border-radius:20px;border:0;background:#DD6590;color:#fff;font-size:1.3rem;font-weight:700;cursor:pointer;box-shadow:0 5px 0 #B94873}
+
+/* 📱 아이폰 · 아이패드: 알림 글은 줄바꿈 · 입력 칸 16px(누를 때 화면 확대 막기) · 가로 화면 노치 피하기 · 바깥 눌러 닫기 */
+.toast{white-space:normal;max-width:calc(100vw - 32px);width:max-content;text-align:center;box-sizing:border-box}
+@media (max-width:820px){ input:not([type=checkbox]):not([type=radio]):not([type=range]),textarea,select{font-size:max(16px,1em)} }
+.sim-home:not(.in-top){left:max(12px,env(safe-area-inset-left))}
+.sim-adm{right:max(12px,env(safe-area-inset-right))}
+.modal,#settings{cursor:pointer} .modal>*,#settings>*{cursor:auto}
 </style>
 <script>
 /* 🖥️ 전자칠판(board/)이 이 방의 문제 은행을 빌려 써요: 보이지 않는 틀에서 SIM_QGEN() 으로 한 문제씩
