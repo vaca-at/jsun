@@ -311,9 +311,11 @@ const GOALS = [10,20,30,40,50];
 const per = () => { if(!ST.goal){ let g=20; try{ g=+localStorage.getItem('simin:boardGoal')||20; }catch(e){} ST.goal=GOALS.includes(g)?g:20; } return ST.goal; };
 function resetCards(){   // 연령대가 바뀌거나 '다시' 누르면 세 가지 방법 모두 새로
   const n=ST.ages.length; ST.tok=(ST.tok||0)+1;
-  ST.cards = n ? {nums:shuffle([...Array(n)].map((_,i)=>i+1)), up:{}, pick:0} : null;   // up: 카드 칸 → 연령대
+  const old=ST.cards&&ST.cards.nums.join(), oldL=ST.ladder&&JSON.stringify(ST.ladder.rungs);
+  let nums; for(let t=0;t<20;t++){ nums=shuffle([...Array(n)].map((_,i)=>i+1)); if(n<2 || nums.join()!==old) break; }   // 앞과 다른 순서로
+  ST.cards = n ? {nums, up:{}, pick:0} : null;   // up: 카드 칸 → 연령대
   ST.spin = {list:[], rot:0, busy:false};   // 룰렛: 뽑힌 차례대로
-  ST.ladder = n>1 ? makeLadder(n) : null;
+  ST.ladder = null; if(n>1){ for(let t=0;t<20;t++){ ST.ladder=makeLadder(n); if(JSON.stringify(ST.ladder.rungs)!==oldL) break; } }   // 앞과 다른 모양으로
 }
 /* 사다리: 칸마다 가로줄을 무작위로 (옆 가로줄과 붙지 않게, 이웃한 두 줄 사이엔 적어도 하나) */
 function makeLadder(n){
@@ -549,7 +551,7 @@ stage.addEventListener('click', e=>{
     // 내 공부방으로 바꾸면 ①에서 마지막으로 누른 연령대(하나만 골랐으면 그것)를 내 나이로
     if(d.mode==='solo' && !ST.soloAge) ST.soloAge = ST.ages.length===1 ? ST.ages[0] : ST.ages.includes(ST.lastAge) ? ST.lastAge : null;
     render(); return; }
-  if(d.how){ ST.how=d.how; render(); return; }
+  if(d.how){ if(ST.how!==d.how) resetCards(); ST.how=d.how; render(); return; }   // 순서 정하는 방법을 바꿀 때마다 카드 · 룰렛 · 사다리를 새로
   if(d.card!==undefined){ const c=ST.cards, picker=ST.ages.filter(k=>!Object.values(c.up).includes(k))[0]; if(!picker) return; c.up[d.card]=picker; render(); speak(`${nameOf(picker)}, ${c.nums[d.card]}번!`); return; }
   if(d.ch!==undefined){ answer(+d.ch); return; }
   if(d.lage){ ST.form.age=d.lage; ST.form.name=cleanName(($('nameIn')||{}).value||ST.form.name); render(); return; }
