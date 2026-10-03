@@ -1957,7 +1957,7 @@ function rowArrows(){
       ['l','r'].forEach(d=>{ const b=document.createElement('button'); b.type='button'; b.className='rowarr '+d; b.textContent=d==='l'?'‹':'›'; b.setAttribute('aria-label',d==='l'?'앞쪽 보기':'더 보기');
         b.onclick=()=>{ r.scrollBy({left:(d==='l'?-1:1)*Math.max(120,r.clientWidth*.7)}); setTimeout(()=>rowArrowSet(w,r),450); }; w.append(b); });
       r.addEventListener('scroll',()=>rowArrowSet(w,r),{passive:true});
-      const on=r.querySelector('.on'); if(on && on.offsetLeft+on.offsetWidth>r.clientWidth) r.style.scrollBehavior='auto', r.scrollLeft=on.offsetLeft-40, r.style.scrollBehavior='';
+      /* 단원 줄은 언제나 맨 앞(1번)부터 보여요 (고른 단원 쪽으로 넘기지 않아요) */
     }
     rowArrowSet(w,r);
   });
