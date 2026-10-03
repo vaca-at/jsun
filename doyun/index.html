@@ -648,12 +648,13 @@ input[type=email]:-webkit-autofill,input[type=password]:-webkit-autofill{-webkit
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 /* ═════════ 새 디자인 (다섯 방 공통 · 이 블록은 다섯 방에 똑같이) ═════════
    디자인 2개: clean(깔끔 · 흰 카드) · bright(산뜻 · 과목 색 카드)
-   글씨 2개: f1 또박(G마켓 산스 + 온글잎 윤탱체) · f2 산들(G마켓 산스 제목 + 카페24 아네모네 에어 본문 + 오뮤 다예쁨체) */
+   글씨 3개: f1 또박(G마켓 산스 + 온글잎 윤탱체) · f2 산들(G마켓 산스 제목 + 카페24 아네모네 에어 본문 + 오뮤 다예쁨체) · f3 언즈(모두 온글잎 언즈체) */
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansLight.woff') format('woff');font-weight:300;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
 @font-face{font-family:'OwnglyphYuntaeng';src:url('https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'OmuDaye';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-01@1.0/omyu_pretty.woff2') format('woff2');font-weight:normal;font-display:swap}
+@font-face{font-family:'OngleipUnz';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2406-1@1.0/Ownglyph_UNZ-Rg.woff2') format('woff2');font-weight:normal;font-display:swap}
 /* 아네모네 에어에는 · × ÷ ° ① → 같은 기호가 비어 있어요: 한글 · 영문 · 숫자만 쓰고 나머지는 G마켓 산스로 */
 @font-face{font-family:'Cafe24AnemoneAir';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202@1.0/Cafe24Ohsquareair.woff') format('woff');font-weight:normal;font-display:swap;unicode-range:U+0020-007E,U+2018-201D,U+2026,U+3131-318E,U+AC00-D7A3}
 
@@ -2693,7 +2694,7 @@ function drawDockExtra(){
 }
 setInterval(drawDockExtra, 5000); setTimeout(drawDockExtra, 300);
 const DECO_THEME = {clean:'깔끔', bright:'산뜻'};
-const DECO_FONT = {f1:'또박', f2:'산들'};
+const DECO_FONT = {f1:'또박', f2:'산들', f3:'언즈'};
 /* 상단: 디자인 2개 · 글씨 2개 고르는 단추 */
 function drawDecoBar(){
   const b=document.getElementById('decobar'); if(!b) return;
@@ -5045,6 +5046,7 @@ function renderSticker(){
 const FONTS = {
   f1:{name:'또박', combo:true, t:"'GMarketSans'", css:"'GMarketSans'", p:"'OwnglyphYuntaeng'", tw:700, scale:1},
   f2:{name:'산들', combo:true, t:"'GMarketSans'", css:"'Cafe24AnemoneAir','GMarketSans'", p:"'OmuDaye'", tw:700, scale:1},
+  f3:{name:'언즈', combo:true, t:"'OngleipUnz','GMarketSans'", css:"'OngleipUnz','GMarketSans'", p:"'OngleipUnz'", tw:'normal', scale:1.1},   // 모든 글씨가 언즈체
   jua:{name:'주아체', css:"'Jua'", scale:1}   // 글꼴을 못 불러올 때만 쓰는 기본값
 };
 function applySettings(){
