@@ -4573,7 +4573,7 @@ function drawDecoLocker(d){
       <div class="cm-grid small">${mine.map(id=>`<button class="cm ${cur===id?'on':''}" data-act="decoGive" data-v="${id}">${decoMini(Object.assign({},d,{wear:Object.assign({},d.wear,{[id]:Object.assign({hat:null,acc:null},d.wear[id]||{},{[P.k]:P.id})})}),id)}<b>${decoItem(id).n}</b></button>`).join('')}</div>
       ${cur?'<button class="linkbtn" data-act="decoGive" data-v="">🗄️ 사물함에 다시 넣기</button>':''}</div>`;
   }
-  b.innerHTML=`<div class="locker"><div class="lk-top">🗄️ ${esc(who||'')}의 사물함 <small>모자 · 소품 · 친구 ${items.length}개</small></div>${shelves}</div>
+  b.innerHTML=`<div class="locker"><div class="lk-top">🗄️ ${esc(who||'')}${(c=>c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28?'이':'')(String(who||'').charCodeAt(String(who||'').length-1))}의 사물함 <small>모자 · 소품 · 친구 ${items.length}개</small></div>${shelves}</div>
     ${items.length?'<p class="sub center" style="font-size:.85rem">물건을 누르면 누구에게 줄지 고를 수 있어요.</p>':'<p class="sub center">아직 비어 있어요. 가게에서 모자나 소품을 사면 여기에 들어와요.</p>'}${give}`;
 }
 function decoTap(id){
