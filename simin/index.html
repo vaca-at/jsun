@@ -59,7 +59,6 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .a2hs ol{margin:10px 0 0;padding-left:1.3rem;line-height:1.75;font-size:.95rem}
 .a2hs ol b{color:#B94873}
 .a2hs .ios-share{display:inline-block;vertical-align:-3px;width:18px;height:18px}
-.a2hs-x{display:block;margin:6px 0 0 auto;background:none;border:0;color:var(--sub);font-size:.8rem;text-decoration:underline}
 .pguide{margin-top:14px}
 .pguide h3{margin:0 0 8px;font-size:1.05rem}
 .pguide ul{margin:0;padding-left:1.2rem;line-height:1.8}
@@ -366,7 +365,7 @@ function a2hsCard(){
   return `<div class="a2hs"><div class="a2hs-top"><img src="icon.png" alt=""><div><b>📲 홈 화면에 공부방 아이콘 만들기</b><small>한 번 만들어 두면 아이가 아이콘만 눌러 바로 들어와요</small></div>
     <button data-act="a2hs">${installEvt ? '바로 추가' : open ? '접기' : '방법 보기'}</button></div>
     ${open && !installEvt ? `<ol>${a2hsSteps()}</ol><p class="sub" style="margin:6px 0 0;font-size:.85rem">아이콘으로 처음 열 때는 이름 · 나이 · 비밀번호를 한 번 더 넣어요</p>` : ''}
-    <button class="a2hs-x" data-act="a2hsHide">이미 만들었어요 · 그만 보기</button></div>`;
+    </div>`;
 }
 
 /* ───── 🖥️ 전자칠판: 학년 고르기 → 협동 놀이 (3단계에서 채워요) ───── */
