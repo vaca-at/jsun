@@ -1762,7 +1762,7 @@ const WD = ['일','월','화','수','목','금','토'];
 const App = { view:'home', roomv:'room', lockPick:null, mmode:'vertical', op:'add', level: store.get('level',1), emode:'story', est:null, epg:0, eko:false, krid:null, cat:'animal', qcat:'all', letter:'A',
   unit: store.get('unit','n4'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'study', klv:1, kact:'spell', phv:'a', smode:'learn', ldan:2, lmin:205, hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: 0, provOpen:false };
-let settings = Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
+let settings = Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
 const ADMIN_DEF = {pin:'0000', goal:20, subj:{math:true,school:true,korean:true,eng:true,hanja:true,history:true,social:true,science:true}, dans:[2,3,4,5,6,7,8,9], msg:''};
 const savedAdmin = store.get('admin',{});
 let admin = Object.assign({}, ADMIN_DEF, savedAdmin, {subj:Object.assign({}, ADMIN_DEF.subj, savedAdmin.subj||{})});
@@ -2296,11 +2296,12 @@ function loadProfile(name, guest){
   GUEST=!!guest;
   who=name; if(!guest) store.set('lastWho',name);
   App.level=store.get('level',1); App.op=store.get('op','add'); App.unit=store.get('unit','n4'); App.hlv=store.get('hlv',9);
-  settings=Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
+  settings=Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
   if(settings.fontV!==3){ settings.theme='lotus'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 연꽃 · 또박으로
   if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='f1';
   if(!['lotus','clean','bright'].includes(settings.theme)) settings.theme='lotus';
+  if(!settings.unz1){ settings.theme='lotus'; settings.font='f3'; settings.unz1=1; }   // 🪷 연꽃 + 언즈체가 기본이에요 (2026-10-03, 한 번만 맞춰요)
   stars=store.get('stars',0);
   V=C=Q=S=H=HQ=K=null; App.view='home'; lastDay=dayKey();
   if(!guest) markVisit(); applySettings(); updateStars();

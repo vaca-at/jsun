@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icon.png"><!-- 아이폰 홈 화면 아이콘(180×180): 🪷 이모지를 보고 그린 연꽃 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
-<script>/* 고른 글씨체를 화면이 그려지기 전에 먼저 (깜빡임 없게) */ try{ const f=JSON.parse(localStorage.getItem("simin:font")||"\"\""); if(f) document.documentElement.dataset.font=f; }catch(e){}</script>
+<script>/* 고른 글씨체를 화면이 그려지기 전에 먼저 (깜빡임 없게) */ try{ const f=JSON.parse(localStorage.getItem("simin:font")||"\"unz\""); if(f) document.documentElement.dataset.font=f; }catch(e){}</script>
 <style>
 /* ───── 행원심인당 자성동이 AI 공부방 (jsun.site/simin) ─────
    연꽃 · 연분홍 · 연두 · 금빛, 둥글고 귀엽게. 진각종 상징(육자진언 옴마니반메훔 · 연꽃)은 작게만 */
@@ -284,7 +284,7 @@ const pinPad = (label, sub='') => `<div class="card center">${label}${sub?`<p cl
 
 /* 처음 화면 */
 const FONTS = [["","기본","'Jua',sans-serif"],["yuntaeng","윤탱체","'OwnglyphYuntaeng',sans-serif"],["unz","언즈체","'OngleipUnz',sans-serif"]];
-const fontPick = () => { const cur=LS.get("font",""); return `<div class="font-pick" role="group" aria-label="글씨체 고르기"><span>✏️ 글씨체</span>${FONTS.map(([k,n,ff])=>`<button class="${cur===k?"on":""}" data-font="${k}" aria-pressed="${cur===k}" style="font-family:${ff}">${n}</button>`).join("")}</div>`; };
+const fontPick = () => { const cur=LS.get("font","unz"); return `<div class="font-pick" role="group" aria-label="글씨체 고르기"><span>✏️ 글씨체</span>${FONTS.map(([k,n,ff])=>`<button class="${cur===k?"on":""}" data-font="${k}" aria-pressed="${cur===k}" style="font-family:${ff}">${n}</button>`).join("")}</div>`; };
 function entry(){
   view.innerHTML = `<div class="hello"><span class="dongi">🪷</span><div class="bub">반가워요, 자성동이! 오늘은 어디에서 공부할까요?</div></div>
     <div class="doors">

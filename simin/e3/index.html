@@ -2107,7 +2107,7 @@ const engLv = () => ENG_LV[App.elv] || ENG_LV[1];
 const App = { view:'home', roomv:'room', lockPick:null, emode:'abc', cat:'animal', qcat:'all', letter:'A', elv: '1', e4type:'word', e4mode:'wcard', e4cat:'school', e4qcat:'all', e4top:'all',
   unit: 'add3', mlv: 'e3a', klv: 1, hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'story', hslv: store.get('hslv',9), story:null, spage:0, kact:'read', kgenre:'all', pid:null, phv:'a', smode:'learn', hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: 0, provOpen:false };
-let settings = Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
+let settings = Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
 /* 공부는 아이가 하고 싶은 과목을 골라서 해요. goal: 하루 목표 문제 수 (홈 막대 · 공부 잔디 색) */
 const ADMIN_DEF = {pin:'0000', goal:25, subj:{math:true,korean:true,school:true,eng:true,hanja:true,history:true,social:true,science:true}, msg:''};
 const savedAdmin = store.get('admin',{});
@@ -2581,11 +2581,12 @@ function showLogin(){
 function loadProfile(name){
   who=name; store.set('lastWho',name);
   App.unit=store.get('unit','add3'); App.mlv=store.get('mlv','e3a'); App.klv=KO_LV[store.get('klv',1)]?+store.get('klv',1):1; App.hlv=store.get('hlv',9); App.hslv=store.get('hslv',9); App.elv=ENG_LV[store.get('elv','1')]?String(store.get('elv','1')):'1'; App.e4cat=engLv().first;
-  settings=Object.assign({theme:'lotus',font:'f1',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
+  settings=Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
   if(settings.fontV!==3){ settings.theme='lotus'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 연꽃 · 또박으로
   if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='f1';
   if(!['lotus','clean','bright'].includes(settings.theme)) settings.theme='lotus';
+  if(!settings.unz1){ settings.theme='lotus'; settings.font='f3'; settings.unz1=1; }   // 🪷 연꽃 + 언즈체가 기본이에요 (2026-10-03, 한 번만 맞춰요)
   stars=store.get('stars',0);
   Q=S=H=HQ=K=R=G=E=SQ=null; App.view='home'; lastDay=dayKey();
   markVisit(); applySettings(); updateStars();
