@@ -4963,8 +4963,8 @@ function adminHTML(){
     <div class="seg small">${[1,2,3,4,5,6,7,8,9].map(d=>tg('dan',d,d+'단',admin.dans.includes(d))).join('')}</div>
     <p class="lbl">💌 아이에게 한마디 (홈 화면에 보여요)</p>
     <div class="inrow"><input id="admMsg" type="text" name="kid-note" autocomplete="off" data-lpignore="true" maxlength="60" placeholder="예: 오늘도 화이팅! 20문제 풀면 아이스크림 🍦" value="${esc(admin.msg)}"><button class="pill" data-act="admMsg">저장</button></div>
-    <p class="lbl">👩 엄마 비밀번호 ${isMom()?'바꾸기':`<small>(${momPinH()?'정해져 있어요':'아직 없어요'} · 정해서 엄마께 알려 주세요)</small>`}</p>
-    <div class="inrow"><input id="momPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>
+    <p class="lbl">👩 엄마 비밀번호 ${isMom()?'바꾸기':`<small>(${momPinH()?'정해져 있어요':'아직 없어요'} · 엄마아빠가 심인당 처음 화면에서 아이 비밀번호로 확인하고 정해요)</small>`}</p>
+    ${isMom()?`<div class="inrow"><input id="momPin" style="background:#fff;color:#1F3354;-webkit-text-fill-color:#1F3354;caret-color:#1F3354" type="text" class="pinbox" autocomplete="off" inputmode="numeric" maxlength="4" placeholder="엄마 비밀번호 4자리"><button class="pill" data-act="admMomPin">${momPinH()?'바꾸기':'정하기'}</button></div>`:''}
     ${!isMom()&&momPinH()?'<button class="linkbtn" data-act="admMomDel">엄마 비밀번호 지우기 (엄마 모드 닫기)</button>':''}
     ${isMom()?'':`${who?`<p class="lbl">⭐ ${esc(who)} 별 관리 (지금 ${stars}개)</p>
     <div class="seg">${[-5,-1,1,5,10].map(n=>`<button class="pill" data-act="admStar" data-v="${n}">${n>0?'+':''}${n}</button>`).join('')}</div>`:''}`}
