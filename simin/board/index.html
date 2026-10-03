@@ -406,7 +406,8 @@ ${wheelHTML()}
       const slots = picker ? c.nums.map((_,i)=>i) : c.nums.map((_,i)=>i).sort((a,b)=>c.nums[a]-c.nums[b]);
       cards = `${picker?`<div class="picker">${ageOf(picker)[2]} ${nameOf(picker)} 모둠 친구가<br>카드를 한 장 골라요</div><p class="note" style="margin:0;text-align:center">동생부터 한 장씩 뒤집어요 · 카드에 적힌 숫자가 순서예요</p>`:'<div class="picker">순서가 정해졌어요! (숫자 순서대로)</div>'}
         <div class="cards">${slots.map(i=>{ const num=c.nums[i]; return c.up[i]?`<div class="cardf up"><span><b>${num}</b>${nameOf(c.up[i])}</span></div>`:`<button class="cardf" data-card="${i}" aria-label="카드 뒤집기" ${picker?'':'disabled'}>?</button>`; }).join('')}</div>
-        <button class="small-link" data-act="reshuffle">🔄 다시 섞기</button>`;
+        <button class="small-link" data-act="reshuffle">🔄 다시 섞기</button>
+        ${Object.keys(c.up).length?`<p class="note" style="margin:6px 0 0;text-align:center">${Object.entries(c.up).sort((a,b)=>c.nums[a[0]]-c.nums[b[0]]).map(([i,k])=>`${ageOf(k)[2]} <b>${nameOf(k)}</b>는 ${ORD[c.nums[i]-1]}예요`).join(' · ')}</p>`:''}`;
     } else if(n===1) cards='<div class="picker">한 연령대라 바로 시작해요</div>';
     else cards='<p class="note">먼저 ① 연령대를 골라요</p>';
     const busy=(ST.spin&&ST.spin.busy) || (ST.ladder&&ST.ladder.run);
@@ -414,9 +415,11 @@ ${wheelHTML()}
   }
   const ready = solo || (ST.ages.length && orderDone());
   const ordPart = ord.length ? ord : ST.how==='roulette' && ST.spin ? ST.spin.list : [];   // 룰렛은 뽑는 대로 바로 보여요
+  // 카드는 뒤집는 대로 숫자 자리에 바로 (모르는 자리는 ?)
+  const cardSeq = !ord.length && ST.how==='card' && ST.cards && Object.keys(ST.cards.up).length ? (()=>{ const s=Array(ST.ages.length).fill(null); Object.entries(ST.cards.up).forEach(([i,k])=>{ s[ST.cards.nums[i]-1]=k; }); return s; })() : null;
   const goalTxt = solo ? '📚 내 나이 공부방' : ST.mode==='all' ? `🪷 ${per()*(ST.ages.length||1)}송이 (연령대마다 ${per()})` : '🪷 연령대마다 100송이';
   const m4 = `<span class="lbl">${solo?'들어갈 곳':'순서'}</span>
-    ${solo?'':`<div class="order">${ordPart.length?ordPart.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join('')+'<i>→</i><span>?</span>'.repeat(ord.length?0:ST.ages.length-ordPart.length):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
+    ${solo?'':`<div class="order">${cardSeq?cardSeq.map((k,i)=>`${i?'<i>→</i>':''}<span>${k?nameOf(k):'?'}</span>`).join(''):ordPart.length?ordPart.map((k,i)=>`${i?'<i>→</i>':''}<span>${nameOf(k)}</span>`).join('')+'<i>→</i><span>?</span>'.repeat(ord.length?0:ST.ages.length-ordPart.length):'<span style="background:none;color:var(--sub)">③에서 정해요</span>'}</div>`}
     <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
     <div class="promise">${solo?'🙈 친구가 비밀번호 누를 때는<br>살짝 눈 감아 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>🙂 틀려도 괜찮다고 말해 주기'}</div>
     <button class="go" data-act="start" ${ready?'':'disabled'}>${solo?'들어가기':'시작하기'}</button>
