@@ -1210,7 +1210,7 @@ const SUBJ = {
   math:{name:'연산', ico:SICO.math, desc:'분수 · 대분수 · 소수 · 나눗셈 · 세 자리 × 두 자리 · 분수 · 소수 곱하기 (11단계, 쉬운 것부터)'},
   school:{name:'학교수학', ico:SICO.school, desc:'5학년 2학기 · 설명, 퀴즈'},
   korean:{name:'국어', ico:SICO.korean, desc:'긴 글 읽고 4문제 · 관용 표현 · 헷갈리는 말'},
-  eng:{name:'영어', ico:SICO.eng, desc:'초4 단어와 문장'},
+  eng:{name:'영어', ico:SICO.eng, desc:'1단계 초5 · 2단계 초6 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'동화처럼 읽는 이야기책 · 9급 · 8급'},
   social:{name:'사회', ico:SICO.social, desc:'초5 사회 단원 설명과 퀴즈'},
@@ -1900,7 +1900,7 @@ const PRAISE = ['최고야!','우와, 정답!','대단해!','멋져요!','완벽
 const WD = ['일','월','화','수','목','금','토'];
 
 /* 영어 초4: 단어 [영어, 뜻, 그림] */
-const E4_WORDS = {
+let E4_WORDS = {
   school:{name:'🏫 학교',items:[['book','책','📕'],['bag','가방','🎒'],['pencil','연필','✏️'],['ruler','자','📏'],['scissors','가위','✂️'],['crayon','크레파스','🖍️'],['chair','의자','🪑'],['clock','시계','🕰️'],['computer','컴퓨터','💻'],['notebook','공책','📓']]},
   family:{name:'👪 가족',items:[['family','가족','👪'],['father','아버지','👨'],['mother','어머니','👩'],['brother','형 · 남동생','👦'],['sister','누나 · 여동생','👧'],['grandfather','할아버지','👴'],['grandmother','할머니','👵'],['baby','아기','👶'],['uncle','삼촌','🧔'],['friend','친구','🧑‍🤝‍🧑']]},
   weather:{name:'☀️ 날씨 · 계절',items:[['sunny','맑은','☀️'],['rainy','비 오는','🌧️'],['cloudy','흐린','☁️'],['snowy','눈 오는','❄️'],['windy','바람 부는','🌬️'],['hot','더운','🥵'],['cold','추운','🥶'],['warm','따뜻한','🌤️'],['spring','봄','🌸'],['winter','겨울','⛄']]},
@@ -1911,7 +1911,7 @@ const E4_WORDS = {
 };
 Object.values(E4_WORDS).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); });
 /* 영어 초4: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
-const E4_SENT = {
+let E4_SENT = {
   greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Haneul.','내 이름은 하늘이야.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
   can:{name:'🏊 할 수 있니?', e:'🏊', qa:[['Can you swim?','너는 수영할 수 있니?','Yes, I can.','응, 할 수 있어.'],['Can you skate?','너는 스케이트 탈 수 있니?','No, I can\'t.','아니, 못 해.'],['Can you help me?','나 좀 도와줄래?','Sure.','물론이지.']]},
   weather:{name:'☀️ 날씨', e:'☀️', qa:[['How\'s the weather?','날씨가 어때?','It\'s sunny.','날씨가 맑아.'],['Is it raining?','비가 오니?','Yes, it is.','응, 비가 와.'],['Is it cold outside?','밖이 춥니?','No, it\'s warm.','아니, 따뜻해.']]},
@@ -1923,7 +1923,57 @@ const E4_SENT = {
   shop:{name:'🛒 얼마예요?', e:'🛒', qa:[['How much is it?','이거 얼마예요?','It\'s two thousand won.','2,000원이에요.'],['What do you want?','무엇을 원하니?','I want some water.','나는 물을 원해.'],['How many apples?','사과가 몇 개니?','Three apples.','사과 세 개야.']]},
   feel:{name:'😷 괜찮니?', e:'😷', qa:[['What\'s wrong?','무슨 일이야?','I have a cold.','나 감기에 걸렸어.'],['Are you hungry?','너 배고프니?','Yes, I am.','응, 배고파.'],['May I come in?','들어가도 되나요?','Sure. Come in.','물론이지, 들어와.']]}
 };
-const E4_LINES = Object.entries(E4_SENT).flatMap(([k,t])=>t.qa.flatMap(([q,qk,a,ak])=>[{en:q,ko:qk,top:k,e:t.e},{en:a,ko:ak,top:k,e:t.e}]));
+let E4_LINES = Object.entries(E4_SENT).flatMap(([k,t])=>t.qa.flatMap(([q,qk,a,ak])=>[{en:q,ko:qk,top:k,e:t.e},{en:a,ko:ak,top:k,e:t.e}]));
+/* 영어 두 단계: 1단계(초5 교과서) · 2단계(초6 교과서) */
+const G5_WORDS = {
+  country:{name:'🌏 나라',items:[['Korea','한국','🇰🇷'],['China','중국','🇨🇳'],['Japan','일본','🇯🇵'],['America','미국','🇺🇸'],['Canada','캐나다','🇨🇦'],['France','프랑스','🇫🇷'],['Germany','독일','🇩🇪'],['England','영국','🇬🇧'],['Australia','오스트레일리아','🇦🇺'],['Brazil','브라질','🇧🇷']]},
+  subject:{name:'📚 과목 · 학교생활',items:[['math','수학','➗'],['science','과학','🔬'],['music','음악','🎵'],['art','미술','🎨'],['history','역사','📜'],['subject','과목','📚'],['homework','숙제','📝'],['test','시험','💯'],['grade','학년','🏫'],['classroom','교실','🚪']]},
+  feel:{name:'😊 기분',items:[['happy','행복한','😊'],['sad','슬픈','😢'],['angry','화난','😠'],['tired','피곤한','😫'],['bored','지루한','🥱'],['excited','신이 난','🤩'],['worried','걱정되는','😟'],['surprised','놀란','😲'],['scared','무서운','😨'],['nervous','긴장한','😬']]},
+  health:{name:'🤒 몸 · 건강',items:[['headache','두통','🤕'],['fever','열','🌡️'],['stomachache','배탈 · 복통','🤢'],['toothache','치통','🦷'],['cough','기침','😷'],['medicine','약','💊'],['rest','휴식','🛌'],['dentist','치과 의사','🪥'],['healthy','건강한','💪'],['sick','아픈','🤒']]},
+  day:{name:'📅 하루 · 때',items:[['breakfast','아침 식사','🍳'],['lunch','점심 식사','🍱'],['dinner','저녁 식사','🍽️'],['morning','아침','🌅'],['afternoon','오후','🌇'],['evening','저녁','🌆'],['weekend','주말','🎡'],['yesterday','어제','⏪'],['tomorrow','내일','⏩'],['today','오늘','📅']]},
+  town:{name:'🗺️ 길 · 동네',items:[['straight','똑바로','⬆️'],['left','왼쪽','⬅️'],['right','오른쪽','➡️'],['corner','모퉁이','↩️'],['block','블록 · 구역','🏙️'],['bank','은행','🏦'],['bakery','빵집','🥐'],['station','역','🚉'],['market','시장','🛒'],['bridge','다리','🌉']]},
+  activity:{name:'🏕️ 주말 · 방학 활동',items:[['camping','캠핑','🏕️'],['hiking','등산','🥾'],['fishing','낚시','🎣'],['shopping','쇼핑','🛍️'],['picnic','소풍','🧺'],['concert','음악회','🎻'],['festival','축제','🎪'],['movie','영화','🎬'],['photo','사진','📷'],['vacation','방학','🏖️']]}
+};
+const G5_SENT = {
+  from:{name:'🌏 어디에서 왔니?', e:'🌏', qa:[['Where are you from?','너는 어디에서 왔니?','I\'m from Canada.','나는 캐나다에서 왔어.'],['Is he from China?','그는 중국에서 왔니?','No, he is from Japan.','아니, 그는 일본에서 왔어.'],['Where is she from?','그녀는 어디에서 왔니?','She is from France.','그녀는 프랑스에서 왔어.']]},
+  grade:{name:'🏫 몇 학년이니?', e:'🏫', qa:[['What grade are you in?','너는 몇 학년이니?','I\'m in the fifth grade.','나는 5학년이야.'],['What class are you in?','너는 몇 반이니?','I\'m in class three.','나는 3반이야.'],['Is this your classroom?','여기가 너희 교실이니?','Yes, it is.','응, 맞아.']]},
+  weekend:{name:'🎡 주말에 뭐 하니?', e:'🎡', qa:[['What do you do on weekends?','너는 주말마다 무엇을 하니?','I play badminton.','나는 배드민턴을 쳐.'],['What does your dad do on Sundays?','너희 아빠는 일요일마다 무엇을 하시니?','He cooks for us.','우리를 위해 요리하셔.'],['Do you go to the park?','너는 공원에 가니?','Yes, every Saturday.','응, 토요일마다.']]},
+  past:{name:'⏪ 지난 일', e:'⏪', qa:[['What did you do yesterday?','너는 어제 무엇을 했니?','I went to the beach.','나는 해변에 갔어.'],['How was your weekend?','주말 어땠니?','It was great.','정말 좋았어.'],['What did you do during the vacation?','방학 동안 무엇을 했니?','I went camping.','캠핑을 갔어.']]},
+  may:{name:'📷 해도 되나요?', e:'📷', qa:[['Can I take a picture?','사진 찍어도 되나요?','Sure, go ahead.','물론이에요, 찍으세요.'],['May I sit here?','여기 앉아도 되나요?','Sorry, you can\'t.','미안하지만 안 돼요.'],['Can I borrow your book?','네 책 빌려도 될까?','Of course.','물론이지.']]},
+  way:{name:'🗺️ 길 찾기', e:'🗺️', qa:[['Where is the bank?','은행은 어디에 있나요?','Go straight and turn left.','똑바로 가서 왼쪽으로 도세요.'],['How can I get to the station?','역에 어떻게 가나요?','Take bus number ten.','10번 버스를 타세요.'],['Is it far from here?','여기서 머나요?','No, it\'s near here.','아니요, 가까워요.']]},
+  sick:{name:'🤒 아픈 곳', e:'🤒', qa:[['What\'s wrong with you?','어디가 안 좋니?','I have a headache.','나 머리가 아파.'],['You should take some medicine.','약을 먹는 게 좋겠어.','Okay, I will.','응, 그럴게.'],['Are you okay now?','이제 괜찮니?','Yes, I feel better.','응, 나아졌어.']]},
+  fav:{name:'💖 좋아하는 것', e:'💖', qa:[['What\'s your favorite subject?','네가 가장 좋아하는 과목은 뭐니?','My favorite subject is science.','내가 가장 좋아하는 과목은 과학이야.'],['What do you do in your free time?','너는 시간이 날 때 무엇을 하니?','I read comic books.','나는 만화책을 읽어.'],['When is your birthday?','네 생일은 언제니?','It\'s May fifth.','5월 5일이야.']]}
+};
+const G6_WORDS = {
+  job:{name:'🧑‍🚀 직업',items:[['teacher','선생님','🧑‍🏫'],['doctor','의사','🧑‍⚕️'],['pilot','조종사','🧑‍✈️'],['farmer','농부','🧑‍🌾'],['scientist','과학자','🧑‍🔬'],['chef','요리사','🧑‍🍳'],['singer','가수','🧑‍🎤'],['firefighter','소방관','🧑‍🚒'],['artist','화가 · 예술가','🧑‍🎨'],['astronaut','우주 비행사','🧑‍🚀']]},
+  person:{name:'🤗 성격',items:[['kind','친절한','🤗'],['brave','용감한','🦸'],['funny','재미있는','🤡'],['smart','똑똑한','🧠'],['shy','수줍은','🙈'],['honest','정직한','😇'],['lazy','게으른','🦥'],['careful','조심스러운','⚠️'],['diligent','부지런한','🐝'],['friendly','다정한','😊']]},
+  adj:{name:'📏 비교하는 말',items:[['fast','빠른','🐆'],['slow','느린','🐢'],['heavy','무거운','🏋️'],['light','가벼운','🪶'],['strong','힘센','💪'],['weak','약한','🥀'],['old','나이 든 · 오래된','👴'],['young','어린','👶'],['cheap','값이 싼','🏷️'],['expensive','비싼','💎']]},
+  often:{name:'🔁 얼마나 자주',items:[['always','항상','🔁'],['usually','보통','🔂'],['often','자주','🔃'],['sometimes','가끔','🔀'],['never','전혀 ~ 않는','🚫'],['once','한 번','1️⃣'],['twice','두 번','2️⃣'],['week','주','🗓️'],['month','달 · 월','📆'],['year','해 · 년','🎆']]},
+  hobby:{name:'🎸 취미 · 운동',items:[['cartoon','만화','📺'],['puzzle','퍼즐','🧩'],['guitar','기타','🎸'],['piano','피아노','🎹'],['violin','바이올린','🎻'],['soccer','축구','⚽'],['baseball','야구','⚾'],['badminton','배드민턴','🏸'],['drawing','그림 그리기','🖍️'],['hobby','취미','🎯']]},
+  earth:{name:'🌍 지구 · 환경',items:[['earth','지구','🌍'],['recycle','재활용하다','♻️'],['trash','쓰레기','🗑️'],['energy','에너지','⚡'],['forest','숲','🌲'],['river','강','🏞️'],['air','공기','💨'],['plastic','플라스틱','🧴'],['plant','식물 · 심다','🌱'],['save','아끼다 · 구하다','💧']]},
+  travel:{name:'✈️ 교통 · 여행',items:[['airplane','비행기','✈️'],['train','기차','🚆'],['subway','지하철','🚇'],['bicycle','자전거','🚲'],['ship','배','🚢'],['taxi','택시','🚕'],['travel','여행하다','🧳'],['ticket','표','🎫'],['beach','해변','🏖️'],['mountain','산','⛰️']]}
+};
+const G6_SENT = {
+  dream:{name:'🧑‍🚀 장래 희망', e:'🧑‍🚀', qa:[['What do you want to be?','너는 무엇이 되고 싶니?','I want to be a pilot.','나는 조종사가 되고 싶어.'],['Why do you want to be a chef?','너는 왜 요리사가 되고 싶니?','Because I like cooking.','요리하는 것을 좋아하기 때문이야.'],['What are you good at?','너는 무엇을 잘하니?','I\'m good at drawing.','나는 그림을 잘 그려.']]},
+  plan:{name:'⏩ 앞으로 할 일', e:'⏩', qa:[['What will you do this weekend?','이번 주말에 무엇을 할 거니?','I will visit my grandma.','할머니 댁에 갈 거야.'],['Where are you going?','너는 어디에 가니?','I\'m going to the library.','나는 도서관에 가.'],['Are you going to go camping?','캠핑 갈 거니?','Yes, I am.','응, 갈 거야.']]},
+  compare:{name:'📏 비교하기', e:'📏', qa:[['Who is taller, you or your brother?','너와 네 동생 중 누가 더 키가 크니?','My brother is taller.','내 동생이 더 커.'],['Which is bigger, the sun or the moon?','해와 달 중 어느 것이 더 크니?','The sun is bigger.','해가 더 커.'],['Is your bag heavier than mine?','네 가방이 내 것보다 더 무겁니?','No, it\'s lighter.','아니, 더 가벼워.']]},
+  often:{name:'🔁 얼마나 자주', e:'🔁', qa:[['How often do you exercise?','너는 얼마나 자주 운동하니?','Three times a week.','일주일에 세 번.'],['What time do you go to bed?','너는 몇 시에 자니?','I go to bed at ten.','나는 10시에 자.'],['How long does it take?','얼마나 걸리니?','It takes ten minutes.','10분 걸려.']]},
+  look:{name:'👀 생김새 · 성격', e:'👀', qa:[['What does she look like?','그녀는 어떻게 생겼니?','She has long hair.','그녀는 머리가 길어.'],['What is he like?','그는 어떤 사람이니?','He is kind and funny.','그는 친절하고 재미있어.'],['What is he wearing?','그는 무엇을 입고 있니?','He is wearing a blue cap.','그는 파란 모자를 쓰고 있어.']]},
+  why:{name:'❔ 왜 그러니?', e:'❔', qa:[['Why are you happy?','너는 왜 행복하니?','Because I got a present.','선물을 받았기 때문이야.'],['Why were you late?','너는 왜 늦었니?','Because I missed the bus.','버스를 놓쳤기 때문이야.'],['Why do you like winter?','너는 왜 겨울을 좋아하니?','Because I can ski.','스키를 탈 수 있기 때문이야.']]},
+  think:{name:'💭 생각 말하기', e:'💭', qa:[['What do you think about it?','그것에 대해 어떻게 생각하니?','I think it\'s great.','멋지다고 생각해.'],['Do you agree?','너도 동의하니?','Yes, I agree.','응, 동의해.'],['What do you think of this song?','이 노래 어때?','I think it\'s boring.','지루한 것 같아.']]},
+  should:{name:'🌍 해야 할 일', e:'🌍', qa:[['What should we do for the earth?','지구를 위해 무엇을 해야 할까?','We should recycle.','재활용을 해야 해.'],['Should I wear a coat?','외투를 입어야 할까?','Yes, it\'s cold.','응, 추워.'],['You shouldn\'t waste water.','물을 낭비하면 안 돼.','Okay, I won\'t.','응, 안 그럴게.']]},
+  offer:{name:'🙋 권유 · 부탁', e:'🙋', qa:[['Would you like some juice?','주스 좀 마실래?','Yes, please.','응, 줘.'],['Can I use your pencil?','네 연필 써도 될까?','Of course.','물론이지.'],['May I help you?','도와드릴까요?','I\'m looking for a cap.','모자를 찾고 있어요.']]}
+};
+[G5_WORDS,G6_WORDS].forEach(W=>Object.values(W).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); }));
+const sentLines = S => Object.entries(S).flatMap(([k,t])=>t.qa.flatMap(([q,qk,a,ak])=>[{en:q,ko:qk,top:k,e:t.e},{en:a,ko:ak,top:k,e:t.e}]));
+const ENG_LV = {
+  1:{name:'🌱 1단계', sub:'초5 교과서 단어와 표현', words:G5_WORDS, sent:G5_SENT, first:'country'},
+  2:{name:'🚀 2단계', sub:'초6 교과서 단어와 표현', words:G6_WORDS, sent:G6_SENT, first:'job'}
+};
+Object.values(ENG_LV).forEach(L=>{ L.lines=sentLines(L.sent); });
+/* 고른 단계의 단어 · 표현을 E4_WORDS · E4_SENT · E4_LINES 자리에 넣어요 */
+function engUse(v){ const L=ENG_LV[v]||ENG_LV[1]; E4_WORDS=L.words; E4_SENT=L.sent; E4_LINES=L.lines; return L; }
+engUse(1);
 
 /* ───── 상태 ───── */
 const App = { view:'home', roomv:'room', lockPick:null, emode:'abc', cat:'animal', qcat:'all', letter:'A', elv: store.get('elv','e4'), e4type:'word', e4mode:'wcard', e4cat:'school', e4qcat:'all', e4top:'all',
@@ -2510,7 +2560,7 @@ function guestAfter(){ const n=guestNext; guestNext=null; if(!n) return; const e
 function loadProfile(name, guest){
   GUEST=!!guest;
   who=name; if(!guest) store.set('lastWho',name);
-  App.unit=store.get('unit','frac'); App.hlv=store.get('hlv',9); App.hslv=store.get('hslv',9); App.elv=store.get('elv','e4');
+  App.unit=store.get('unit','frac'); App.hlv=store.get('hlv',9); App.hslv=store.get('hslv',9); App.elv=ENG_LV[store.get('elv','1')]?String(store.get('elv','1')):'1'; engUse(App.elv);
   settings=Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🪷 연꽃 디자인으로 한 번 바꿔요
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
   if(settings.fontV!==3){ settings.theme='lotus'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 연꽃 · 또박으로
@@ -3374,14 +3424,16 @@ function vis(w){
   if(w.n!==undefined) return `<span class="num en">${w.n}</span>`;
   return `<span class="emo">${w.e}</span>`;
 }
-/* 영어는 두 단계: 🌱 기초 다지기(동생 하람이와 같은 초2 내용) · 🚀 초4 교과서 */
+/* 영어는 두 단계: 🌱 1단계 초5 교과서 · 🚀 2단계 초6 교과서 (ENG_LV) */
 const E4_MODES = {
   word:{wcard:'📚 단어 카드', wlisten:'👂 듣고 고르기', wmean:'👀 뜻 고르기', spell:'✏️ 철자 맞추기'},
   sent:{scard:'💬 표현 카드', slisten:'👂 듣고 뜻 고르기', sreply:'💭 알맞은 대답', sbuild:'🧩 문장 만들기'}
 };
 const E4_MODE_NAME = Object.assign({}, E4_MODES.word, E4_MODES.sent);
 function renderEng(){
-  App.elv='e4'; const lv='';   // 🌱 기초(초2 내용)는 뺐어요 (2026-10-03)
+  if(!ENG_LV[App.elv]) App.elv='1'; engUse(App.elv);
+  if(!E4_WORDS[App.e4cat]) App.e4cat=ENG_LV[App.elv].first; if(App.e4qcat!=='all'&&!E4_WORDS[App.e4qcat]) App.e4qcat='all'; if(App.e4top!=='all'&&!E4_SENT[App.e4top]) App.e4top='all';
+  const lv=lvPick('elv', App.elv, Object.entries(ENG_LV).map(([k,L])=>({v:k, name:L.name, sub:L.sub})));
   if(App.elv==='basic'){
     view.innerHTML=`${lv}
       <div class="seg">${pill('emode','abc','🔤 알파벳',App.emode)}${pill('emode','phonics','🧩 소리 합치기',App.emode)}${pill('emode','words','📚 단어 카드',App.emode)}${pill('emode','listen','👂 듣고 고르기',App.emode)}${pill('emode','read','👀 보고 고르기',App.emode)}</div>
@@ -3391,7 +3443,7 @@ function renderEng(){
   }
   // 단어 · 문장을 한 줄로: 맨 앞 [단어 | 문장] 스위치 + 고른 쪽 활동 4개만
   const kind=isSent(App.e4mode)?'sent':'word';
-  const row=`<div class="kindrow"><div class="lvsw sm" role="group" aria-label="단어 또는 문장"><button class="${kind==='word'?'on':''}" data-act="e4kind" data-v="word">🔤 단어</button><button class="${kind==='sent'?'on':''}" data-act="e4kind" data-v="sent">💬 문장</button></div>${Object.entries(E4_MODES[kind]).map(([k,n])=>pill('e4mode',k,n+weakTag('eng',n.replace(/^\S+ /,'')),App.e4mode)).join('')}</div>`;
+  const row=`<div class="kindrow"><div class="lvsw sm" role="group" aria-label="단어 또는 문장"><button class="${kind==='word'?'on':''}" data-act="e4kind" data-v="word">🔤 단어</button><button class="${kind==='sent'?'on':''}" data-act="e4kind" data-v="sent">💬 문장</button></div>${Object.entries(E4_MODES[kind]).map(([k,n])=>pill('e4mode',k,n+weakTag('eng',App.elv+'단계 · '+n.replace(/^\S+ /,'')),App.e4mode)).join('')}</div>`;
   view.innerHTML=`${lv}${row}<div id="ebody" style="margin-top:4px"></div>`;
   drawE4();
 }
@@ -3408,7 +3460,7 @@ function e4Filter(){
 function drawE4(){
   const eb=document.getElementById('ebody'); if(!eb) return;
   const m=App.e4mode;
-  if(m==='scard' && App.e4top==='all') App.e4top='greet';
+  if(m==='scard' && (App.e4top==='all'||!E4_SENT[App.e4top])) App.e4top=Object.keys(E4_SENT)[0];
   if(m==='wcard'){
     eb.innerHTML=`${e4Filter()}<p class="desc">카드를 누르면 소리가 나와요.</p>
       <div class="word-grid">${E4_WORDS[App.e4cat].items.map((w,i)=>`<button class="wcard" data-act="e4word" data-v="${i}"><span class="emo">${w.e}</span><span class="ww en">${w.w}</span><span class="wk">${w.k}</span></button>`).join('')}</div>`;
@@ -3421,7 +3473,7 @@ function drawE4(){
         <button class="sent-card a" data-act="esay" data-v="${esc(a)}"><span class="emo">💬</span><span><span class="en">${esc(a)}</span><small>${ak}</small></span></button>`).join('')}`;
     return;
   }
-  const key=m+'|'+(isSent(m)?App.e4top:App.e4qcat);
+  const key=App.elv+'|'+m+'|'+(isSent(m)?App.e4top:App.e4qcat);
   let first=false;
   if(!E || E.key!==key){ startE4(key); first=true; }
   if(E.done){
@@ -3450,7 +3502,7 @@ const linePool = t => t==='all' ? E4_LINES : E4_LINES.filter(x=>x.top===t);
 const qaPool = t => (t==='all' ? Object.keys(E4_SENT) : [t]).flatMap(k=>E4_SENT[k].qa.map(x=>({q:x[0],qk:x[1],a:x[2],ak:x[3],top:k})));
 function pickOthers(pool, cur, keyf, n=3){ const seen=new Set([keyf(cur)]); return shuffle(pool).filter(x=>{ const k=keyf(x); if(seen.has(k)) return false; seen.add(k); return true; }).slice(0,n); }
 function genE4(m, w){
-  const sub=E4_MODE_NAME[m].replace(/^\S+ /,'');
+  const sub=App.elv+'단계 · '+E4_MODE_NAME[m].replace(/^\S+ /,'');
   if(m==='wlisten'){ const ch=shuffle([w,...pickOthers(wordPool(App.e4qcat).length>=4?wordPool(App.e4qcat):wordPool('all'),w,x=>x.w)]);
     return {sub, html:`<button class="replay" data-act="ereplay" aria-label="다시 듣기">🔊</button><p class="center sub" style="margin-top:-6px">잘 듣고 알맞은 그림을 골라요.</p>`,
       labels:ch.map(x=>`<span class="emo">${x.e}</span><span class="ct" style="font-size:1rem">${x.k}</span>`), vals:ch.map(x=>x.w), ans:w.w, say:w.w, sayFirst:true, reveal:`<span class="en">${w.w}</span>`,
@@ -3504,7 +3556,7 @@ function e4Next(ms){
     if(E!==me) return;
     E.i++; E.tried=false; E.solved=false; E.picked=[]; E.built=[]; E.note='';
     if(E.i>=E.list.length){ E.done=true; if(E.score>=8) burst(); }
-    if(App.view==='eng' && App.elv==='e4'){ drawE4(); const q=!E.done&&E.list[E.i]; if(q&&q.sayFirst) setTimeout(()=>speak(q.say),300); }
+    if(App.view==='eng' && ENG_LV[App.elv]){ drawE4(); const q=!E.done&&E.list[E.i]; if(q&&q.sayFirst) setTimeout(()=>speak(q.say),300); }
   }, ms);
 }
 function ePick(i){
@@ -5469,7 +5521,7 @@ const ACT = {
   gameStart: ()=>startGame(),
   gpick: v=>gPick(+v),
   // 영어
-  elv: v=>{ App.elv=v; store.set('elv',v); Q=null; E=null; render(); },
+  elv: v=>{ App.elv=v; store.set('elv',v); engUse(v); App.e4cat=ENG_LV[v].first; App.e4qcat='all'; App.e4top='all'; Q=null; E=null; render(); },
   emode: v=>{ App.emode=v; Q=null; render(); },
   cat: v=>{ App.cat=v; drawWords(); },
   qcat: v=>{ App.qcat=v; Q=null; drawQuiz(); },

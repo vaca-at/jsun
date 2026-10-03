@@ -1194,7 +1194,7 @@ const SUBJ = {
   math:{name:'연산', ico:SICO.math, desc:'세 자리 덧셈 · 뺄셈부터 곱셈 · 나눗셈 · 소수까지 (10단계)'},
   school:{name:'학교수학', ico:SICO.school, desc:'1단계 초3-1 · 2단계 초4-1 · 3단계 초4-2'},
   korean:{name:'국어', ico:SICO.korean, desc:'1단계 초3-2 · 2단계 초4-1 · 3단계 초4-2 (긴 글 읽기 · 낱말 · 독서 기록)'},
-  eng:{name:'영어', ico:SICO.eng, desc:'1단계 초3 · 2단계 초4 · 3단계 초5·6 단어와 문장'},
+  eng:{name:'영어', ico:SICO.eng, desc:'1단계 초3 · 2단계 초4 단어와 문장'},
   hanja:{name:'한자', ico:'<span class="hanja">漢</span>', desc:'9급 · 8급 · 7급 한자 카드와 퀴즈'},
   history:{name:'한국사', ico:SICO.history, desc:'동화처럼 읽는 이야기책 · 9급 · 8급'},
   social:{name:'사회', ico:SICO.social, desc:'초3 사회 단원 설명과 퀴즈'},
@@ -2036,7 +2036,7 @@ const E4_WORDS = {
 Object.values(E4_WORDS).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); });
 /* 영어 2단계: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
 const E4_SENT = {
-  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Seohee.','내 이름은 수민아.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
+  greet:{name:'👋 인사 · 소개', e:'👋', qa:[['How are you?','어떻게 지내?','I\'m fine, thank you.','잘 지내, 고마워.'],['What\'s your name?','이름이 뭐니?','My name is Sumin.','내 이름은 수민아.'],['Nice to meet you.','만나서 반가워.','Nice to meet you, too.','나도 만나서 반가워.'],['Who is he?','그는 누구니?','He is my brother.','그는 우리 형이야.']]},
   can:{name:'🏊 할 수 있니?', e:'🏊', qa:[['Can you swim?','너는 수영할 수 있니?','Yes, I can.','응, 할 수 있어.'],['Can you skate?','너는 스케이트 탈 수 있니?','No, I can\'t.','아니, 못 해.'],['Can you help me?','나 좀 도와줄래?','Sure.','물론이지.']]},
   weather:{name:'☀️ 날씨', e:'☀️', qa:[['How\'s the weather?','날씨가 어때?','It\'s sunny.','날씨가 맑아.'],['Is it raining?','비가 오니?','Yes, it is.','응, 비가 와.'],['Is it cold outside?','밖이 춥니?','No, it\'s warm.','아니, 따뜻해.']]},
   time:{name:'⏰ 시각', e:'⏰', qa:[['What time is it?','몇 시니?','It\'s seven o\'clock.','7시야.'],['What time do you get up?','너는 몇 시에 일어나니?','I get up at seven.','나는 7시에 일어나.'],['Is it time for lunch?','점심 먹을 시간이니?','Yes, let\'s eat!','응, 먹자!']]},
@@ -2048,28 +2048,6 @@ const E4_SENT = {
   feel:{name:'😷 괜찮니?', e:'😷', qa:[['What\'s wrong?','무슨 일이야?','I have a cold.','나 감기에 걸렸어.'],['Are you hungry?','너 배고프니?','Yes, I am.','응, 배고파.'],['May I come in?','들어가도 되나요?','Sure. Come in.','물론이지, 들어와.']]}
 };
 
-/* 영어 3단계 (초5 · 6 교과서): 단어 */
-const E5_WORDS = {
-  job:{name:'🧑‍🚀 직업',items:[['teacher','선생님','🧑‍🏫'],['doctor','의사','🧑‍⚕️'],['pilot','조종사','🧑‍✈️'],['farmer','농부','🧑‍🌾'],['scientist','과학자','🧑‍🔬'],['chef','요리사','🧑‍🍳'],['singer','가수','🧑‍🎤'],['firefighter','소방관','🧑‍🚒'],['artist','화가 · 예술가','🧑‍🎨'],['astronaut','우주 비행사','🧑‍🚀']]},
-  subject:{name:'📚 과목 · 학교생활',items:[['math','수학','➗'],['science','과학','🔬'],['music','음악','🎵'],['art','미술','🎨'],['history','역사','📜'],['subject','과목','📚'],['homework','숙제','📝'],['test','시험','💯'],['vacation','방학','🏖️'],['classroom','교실','🏫']]},
-  feel:{name:'😊 기분',items:[['happy','행복한','😊'],['sad','슬픈','😢'],['angry','화난','😠'],['tired','피곤한','😫'],['bored','지루한','🥱'],['excited','신이 난','🤩'],['worried','걱정되는','😟'],['surprised','놀란','😲'],['scared','무서운','😨'],['nervous','긴장한','😬']]},
-  health:{name:'🤒 몸 · 건강',items:[['headache','두통','🤕'],['fever','열','🌡️'],['stomachache','배탈 · 복통','🤢'],['toothache','치통','🦷'],['cough','기침','😷'],['medicine','약','💊'],['rest','휴식','🛌'],['dentist','치과 의사','🪥'],['healthy','건강한','💪'],['sick','아픈','🤒']]},
-  day:{name:'📅 하루 · 때',items:[['breakfast','아침 식사','🍳'],['lunch','점심 식사','🍱'],['dinner','저녁 식사','🍽️'],['morning','아침','🌅'],['afternoon','오후','🌇'],['evening','저녁','🌆'],['weekend','주말','🎡'],['yesterday','어제','⏪'],['tomorrow','내일','⏩'],['today','오늘','📅']]},
-  town:{name:'🗺️ 길 · 동네',items:[['straight','똑바로','⬆️'],['left','왼쪽','⬅️'],['right','오른쪽','➡️'],['corner','모퉁이','↩️'],['block','블록 · 구역','🏙️'],['bank','은행','🏦'],['bakery','빵집','🥐'],['station','역','🚉'],['market','시장','🛒'],['bridge','다리','🌉']]},
-  travel:{name:'✈️ 교통 · 여행',items:[['airplane','비행기','✈️'],['train','기차','🚆'],['subway','지하철','🚇'],['bicycle','자전거','🚲'],['ship','배','🚢'],['taxi','택시','🚕'],['travel','여행하다','🧳'],['ticket','표','🎫'],['beach','해변','🏖️'],['mountain','산','⛰️']]}
-};
-/* 영어 3단계: 핵심 표현 */
-const E5_SENT = {
-  dream:{name:'🧑‍🚀 장래 희망', e:'🧑‍🚀', qa:[['What do you want to be?','너는 무엇이 되고 싶니?','I want to be a pilot.','나는 조종사가 되고 싶어.'],['Why do you want to be a chef?','너는 왜 요리사가 되고 싶니?','Because I like cooking.','요리하는 것을 좋아하기 때문이야.'],['What are you good at?','너는 무엇을 잘하니?','I\'m good at drawing.','나는 그림을 잘 그려.']]},
-  past:{name:'⏪ 지난 일', e:'⏪', qa:[['What did you do yesterday?','너는 어제 무엇을 했니?','I went to the beach.','나는 해변에 갔어.'],['How was your weekend?','주말 어땠니?','It was great.','정말 좋았어.'],['Did you have fun?','재미있었니?','Yes, I did.','응, 재미있었어.']]},
-  plan:{name:'⏩ 앞으로 할 일', e:'⏩', qa:[['What will you do this weekend?','이번 주말에 무엇을 할 거니?','I will visit my grandma.','할머니 댁에 갈 거야.'],['Where are you going?','너는 어디에 가니?','I\'m going to the library.','나는 도서관에 가.'],['Are you going to go camping?','캠핑 갈 거니?','Yes, I am.','응, 갈 거야.']]},
-  way:{name:'🗺️ 길 찾기', e:'🗺️', qa:[['Where is the bank?','은행은 어디에 있나요?','Go straight and turn left.','똑바로 가서 왼쪽으로 도세요.'],['How can I get to the station?','역에 어떻게 가나요?','Take bus number ten.','10번 버스를 타세요.'],['Is it far from here?','여기서 머나요?','No, it\'s near here.','아니요, 가까워요.']]},
-  sick:{name:'🤒 아픈 곳', e:'🤒', qa:[['What\'s wrong with you?','어디가 안 좋니?','I have a headache.','나 머리가 아파.'],['You should take some medicine.','약을 먹는 게 좋겠어.','Okay, I will.','응, 그럴게.'],['Are you okay now?','이제 괜찮니?','Yes, I feel better.','응, 나아졌어.']]},
-  compare:{name:'📏 비교하기', e:'📏', qa:[['Who is taller, you or your brother?','너와 네 동생 중 누가 더 키가 크니?','My brother is taller.','내 동생이 더 커.'],['Which is bigger, the sun or the moon?','해와 달 중 어느 것이 더 크니?','The sun is bigger.','해가 더 커.'],['Is your bag heavier than mine?','네 가방이 내 것보다 더 무겁니?','No, it\'s lighter.','아니, 더 가벼워.']]},
-  often:{name:'🔁 얼마나 자주', e:'🔁', qa:[['How often do you exercise?','너는 얼마나 자주 운동하니?','Three times a week.','일주일에 세 번.'],['What time do you go to bed?','너는 몇 시에 자니?','I go to bed at ten.','나는 10시에 자.'],['How long does it take?','얼마나 걸리니?','It takes ten minutes.','10분 걸려.']]},
-  fav:{name:'💖 좋아하는 것', e:'💖', qa:[['What\'s your favorite subject?','네가 가장 좋아하는 과목은 뭐니?','My favorite subject is science.','내가 가장 좋아하는 과목은 과학이야.'],['What do you do in your free time?','너는 시간이 날 때 무엇을 하니?','I read comic books.','나는 만화책을 읽어.'],['When is your birthday?','네 생일은 언제니?','It\'s May fifth.','5월 5일이야.']]},
-  offer:{name:'🙋 권유 · 부탁', e:'🙋', qa:[['Would you like some juice?','주스 좀 마실래?','Yes, please.','응, 줘.'],['Can I use your pencil?','네 연필 써도 될까?','Of course.','물론이지.'],['May I help you?','도와드릴까요?','I\'m looking for a cap.','모자를 찾고 있어요.']]}
-};
 /* 영어 1단계 (초3 교과서): 단어 [영어, 뜻, 그림] */
 const E3_WORDS = {
   animal:{name:'🐶 동물',items:[['dog','개','🐶'],['cat','고양이','🐱'],['bird','새','🐦'],['fish','물고기','🐟'],['lion','사자','🦁'],['tiger','호랑이','🐯'],['bear','곰','🐻'],['rabbit','토끼','🐰'],['duck','오리','🦆'],['monkey','원숭이','🐵']]},
@@ -2082,7 +2060,7 @@ const E3_WORDS = {
 };
 /* 영어 1단계: 교과서 핵심 표현 [물음, 뜻, 대답, 뜻] */
 const E3_SENT = {
-  hello:{name:'👋 인사', e:'👋', qa:[['Hello, I\'m Seohee.','안녕, 나는 수민아.','Hi, I\'m Tom.','안녕, 나는 톰이야.'],['Goodbye!','잘 가!','See you later.','나중에 봐.'],['Good morning!','좋은 아침이야!','Good morning!','좋은 아침이야!']]},
+  hello:{name:'👋 인사', e:'👋', qa:[['Hello, I\'m Sumin.','안녕, 나는 수민아.','Hi, I\'m Tom.','안녕, 나는 톰이야.'],['Goodbye!','잘 가!','See you later.','나중에 봐.'],['Good morning!','좋은 아침이야!','Good morning!','좋은 아침이야!']]},
   what:{name:'❓ 이건 뭐니?', e:'❓', qa:[['What\'s this?','이것은 무엇이니?','It\'s a ball.','그것은 공이야.'],['What\'s that?','저것은 무엇이니?','It\'s a robot.','그것은 로봇이야.'],['Is it a cat?','그것은 고양이니?','Yes, it is.','응, 맞아.']]},
   color:{name:'🎨 무슨 색이니?', e:'🎨', qa:[['What color is it?','그것은 무슨 색이니?','It\'s yellow.','그것은 노란색이야.'],['Is it red?','그것은 빨간색이니?','No, it isn\'t. It\'s blue.','아니. 파란색이야.']]},
   age:{name:'🎂 몇 살이니?', e:'🎂', qa:[['How old are you?','너는 몇 살이니?','I\'m ten years old.','나는 열 살이야.'],['How old is your sister?','네 여동생은 몇 살이니?','She\'s seven.','일곱 살이야.']]},
@@ -2093,13 +2071,12 @@ const E3_SENT = {
   please:{name:'🙋 해 주세요', e:'🙋', qa:[['Sit down, please.','앉아 주세요.','Okay.','알겠어요.'],['Don\'t run.','뛰지 마.','Sorry.','미안해.'],['Stand up, please.','일어나 주세요.','Okay.','알겠어요.']]},
   feel:{name:'😊 기분이 어때?', e:'😊', qa:[['How are you?','기분이 어때?','I\'m happy.','나는 행복해.'],['Are you hungry?','너 배고프니?','Yes, I am.','응, 배고파.'],['Are you sleepy?','너 졸리니?','No, I\'m not.','아니, 안 졸려.']]}
 };
-[E3_WORDS,E5_WORDS].forEach(W=>Object.values(W).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); }));
+[E3_WORDS].forEach(W=>Object.values(W).forEach(c=>{ c.items=c.items.map(([w,k,e])=>({w,k,e})); }));
 const sentLines = S => Object.entries(S).flatMap(([k,t])=>t.qa.flatMap(([q,qk,a,ak])=>[{en:q,ko:qk,top:k,e:t.e},{en:a,ko:ak,top:k,e:t.e}]));
-/* 영어 세 단계: 1단계(초3 교과서) · 2단계(초4 교과서) · 3단계(초5 · 6 교과서) */
+/* 영어 두 단계: 1단계(초3 교과서) · 2단계(초4 교과서) */
 const ENG_LV = {
   1:{name:'🌱 1단계', sub:'초3 교과서 단어와 표현', words:E3_WORDS, sent:E3_SENT, first:'animal'},
-  2:{name:'🚀 2단계', sub:'초4 교과서 단어와 표현', words:E4_WORDS, sent:E4_SENT, first:'school'},
-  3:{name:'🏆 3단계', sub:'초5 · 6 교과서 단어와 표현', words:E5_WORDS, sent:E5_SENT, first:'job'}
+  2:{name:'🚀 2단계', sub:'초4 교과서 단어와 표현', words:E4_WORDS, sent:E4_SENT, first:'school'}
 };
 Object.values(ENG_LV).forEach(L=>{ L.lines=sentLines(L.sent); });
 const engLv = () => ENG_LV[App.elv] || ENG_LV[1];
