@@ -111,6 +111,18 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
 .tbl th,.tbl td{padding:8px 6px;border-bottom:1.5px dashed var(--line);text-align:center}
 .tbl th{color:var(--sub);font-weight:normal}
+/* 엄마아빠 모드: 일자별 · 과목별 */
+.pd h3{margin:18px 0 4px}
+.pd .tbl td.sj{text-align:left;font-size:.85rem;color:var(--sub)}
+.pd .tbl tr.off td{color:var(--sub);opacity:.6}
+.pd .tbl td b{color:var(--lotus-d)}
+.pd-seg{display:flex;gap:6px;margin:6px 0 2px}
+.pd-seg button{padding:.25rem .8rem;border-radius:999px;border:2px solid var(--line);background:var(--paper);font-size:.9rem}
+.pd-seg button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.pbar{display:grid;grid-template-columns:5.2em 1fr auto;align-items:center;gap:8px;margin:7px 0;font-size:.95rem}
+.pbar i{display:block;height:14px;border-radius:999px;background:var(--lotus-s);overflow:hidden}
+.pbar i span{display:block;height:100%;border-radius:999px;background:var(--lotus)}
+.pbar small{color:var(--sub);white-space:nowrap}
 /* 아래: 이용 방법 · 개인정보처리방침 (늘 보여요) */
 .foot{width:min(960px,100%);margin:26px auto 0;padding:0 16px calc(18px + env(safe-area-inset-bottom,0px))}
 .foot details{background:var(--paper);border:2px solid var(--line);border-radius:20px;margin-top:10px;overflow:hidden}
@@ -448,7 +460,41 @@ async function parentHome(){
       <div id="pdays"></div><div id="pch"></div>
       <div class="row-btns"><button class="pill" data-act="kidPinChange">🔑 아이 비밀번호 다시 정하기</button><button class="pill" data-act="parentPinChange">🔐 엄마아빠 비밀번호 바꾸기</button><button class="pill" data-act="parentOut">🚪 나가기</button></div></div>`;
   challengeList(k.id);
+  parentDetail(k.id);
   const s=await kidStats(k.id); const b=$('pstats'); if(s && b) b.innerHTML=`<div class="stat"><b>${s.stars}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날 (이번 달 ${s.month})</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제 (맞힘 ${s.ok})</small></div>`;
+}
+/* 📅 일자별 · 📚 과목별: 나이별 공부방이 날마다 저장한 room/state/daily/{날짜} = { 과목:{n,ok}, total, board_n, board_ok, visited } */
+const SUBJ_NAME = {math:'연산', school:'학교수학', korean:'국어', eng:'영어', hanja:'한자', history:'한국사', social:'사회', science:'과학', board:'전자칠판'};
+const subjName = k => SUBJ_NAME[k] || k;
+function daySubj(v){   // 그날 과목별 [이름키, n, ok] (많이 한 순서)
+  const out=[]; for(const k in v){ const e=v[k]; if(e && typeof e==='object' && 'n' in e && e.n) out.push([k, e.n, e.ok||0]); }
+  if(v.board_n) out.push(['board', v.board_n, v.board_ok||0]);
+  return out.sort((a,b)=>b[1]-a[1]);
+}
+async function parentDetail(id){
+  const box=$('pdays'); if(!box) return; box.innerHTML='<p class="sub center" style="margin:14px 0 0">기록을 불러오는 중…</p>';
+  let days={};
+  try{ const d=await db(), qs=await d.collection(C_KIDS).doc(id).collection('room').doc('state').collection('daily').get(); qs.forEach(x=>{ days[x.id]=x.data()||{}; }); }
+  catch(e){ box.innerHTML='<p class="sub center">기록을 불러오지 못했어요</p>'; return; }
+  S.pd={days, span:S.pd&&S.pd.span||'month'}; drawParentDetail();
+}
+function drawParentDetail(){
+  const box=$('pdays'); if(!box||!S.pd) return; const {days, span}=S.pd, WD='일월화수목금토', pct=(ok,n)=>n?Math.round(ok/n*100)+'%':'–';
+  // 최근 14일 (공부 안 한 날도 한 줄)
+  const rows=[]; for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); const k=dayKey(t), v=days[k]||{}, list=daySubj(v), n=list.reduce((a,x)=>a+x[1],0), ok=list.reduce((a,x)=>a+x[2],0);
+    rows.push(`<tr class="${n?'':'off'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}</b>`:(v.visited?'들어옴':'–')}</td><td>${pct(ok,n)}</td><td class="sj">${list.map(([s,c])=>`${subjName(s)} ${c}`).join(' · ')||''}</td></tr>`); }
+  // 과목별 합계 (이번 달 · 최근 7일 · 전체)
+  const m=dayKey().slice(0,7), wk=dayKey(new Date(Date.now()-6*864e5)), sum={};
+  Object.entries(days).forEach(([k,v])=>{ if(span==='month' && !k.startsWith(m)) return; if(span==='week' && k<wk) return;
+    daySubj(v).forEach(([s,n,ok])=>{ const e=sum[s]||(sum[s]={n:0,ok:0,d:0}); e.n+=n; e.ok+=ok; e.d++; }); });
+  const subs=Object.entries(sum).sort((a,b)=>b[1].n-a[1].n), max=Math.max(1,...subs.map(([,e])=>e.n));
+  box.innerHTML=`<div class="pd">
+    <h3>📅 최근 14일</h3>
+    <table class="tbl"><tr><th>날짜</th><th>푼 문제</th><th>정답률</th><th>과목</th></tr>${rows.join('')}</table>
+    <h3>📚 과목별</h3>
+    <div class="pd-seg" role="group" aria-label="기간">${[['week','최근 7일'],['month','이번 달'],['all','전체']].map(([v,l])=>`<button class="${span===v?'on':''}" data-pdspan="${v}">${l}</button>`).join('')}</div>
+    ${subs.length?subs.map(([s,e])=>`<div class="pbar"><b>${subjName(s)}</b><i><span style="width:${Math.round(e.n/max*100)}%"></span></i><small>${e.n}문제 · 정답 ${pct(e.ok,e.n)} · ${e.d}일</small></div>`).join(''):'<p class="sub">이 기간에는 푼 문제가 없어요</p>'}
+  </div>`;
 }
 /* 🏅 전자칠판 '나만의 도전' 기록 (지난번의 나와만 비교, 순위 없음) */
 async function challengeList(id){
@@ -547,6 +593,7 @@ function act(a, el){
 }
 document.addEventListener('click', e=>{
   const g=e.target.closest('[data-go]'); if(g){ const s=g.dataset.go; if(s==='phone'||s==='parent'){ S.form={name:'',age:null,pin:'',first:''}; } if(s==='parentSetup'){ S.setupKid=null; S.form.pin=''; S.form.first=''; } go(s); return; }
+  const ps=e.target.closest('[data-pdspan]'); if(ps){ if(S.pd){ S.pd.span=ps.dataset.pdspan; drawParentDetail(); } return; }
   const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade, goal:S.goal||20}); return; }
   const gl=e.target.closest('[data-goal]'); if(gl){ S.goal=+gl.dataset.goal; render(); return; }
   const ag=e.target.closest('[data-age]'); if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
