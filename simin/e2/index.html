@@ -2280,7 +2280,7 @@ function showLogin(){
 /* 구경 모드: 처음 들어오면 비밀번호 없이 홈만 보여 줘요 (자랑하기 좋게). 과목 · 도서관 · 내 방 · 게임 등을 누르면 비밀번호 화면으로 가고,
    맞히면 누르려던 곳으로 바로 가요. 구경하는 동안은 방문 · 공부 시간 · 온라인 저장을 남기지 않아요. */
 let GUEST=false, guestNext=null;
-const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','clockTile','wxTile','reloadApp','openSet','guestBack'];
+const GUEST_OK=['tab','provMove','provSay','provMean','bnMove','bnSay','grass','clockTile','wxTile','reloadApp','openSet','guestBack','openAdmin'];
 /* 관리자(엄마 계정)로 로그인한 기기는 구경 모드여도 아이 비밀번호를 묻지 않아요 */
 let ADM_IN=false;
 cloudInit().then(ok=>{ if(!ok || !firebase.auth) return; firebase.auth().onAuthStateChanged(u=>{ if(!u){ ADM_IN=false; return; } isAdminUser(u).then(y=>{ ADM_IN=!!y; }).catch(()=>{}); }); });
@@ -5163,10 +5163,14 @@ evListen();
 </script>
 
 <a class="sim-home" href="../" aria-label="행원심인당 자성동이 공부방 입구로">🪷 심인당 공부방</a>
+<button class="sim-adm" data-act="openAdmin" aria-label="관리자 모드">🔒 관리자</button>
 <style>
 /* 🪷 심인당: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
 .sim-home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:inline-flex;align-items:center;gap:4px;padding:.45rem .85rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 10px rgba(221,101,144,.18)}
 [data-act="openAdmin"],[data-act="openMom"],.adm-links,[data-act="typingGame"],[data-act="openAllAdmin"]{display:none!important}
+/* 모든 화면 오른쪽 아래: 살짝 투명한 관리자 단추 (위의 숨김 규칙에서 이것만 빼요) */
+.sim-adm[data-act="openAdmin"]{display:inline-flex!important;position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;align-items:center;gap:4px;padding:.4rem .8rem;border-radius:999px;background:#FFF7F0;border:2px solid #F1DED3;color:#8C7A72;font-weight:700;font-size:.85rem;opacity:.5;cursor:pointer;transition:opacity .2s}
+.sim-adm[data-act="openAdmin"]:hover,.sim-adm[data-act="openAdmin"]:focus-visible{opacity:1}
 /* 🖥️ 전자칠판: 모두 한 팀 막대 · 큰 화면 */
 .team-bar{display:none}
 html.sim-board .team-bar{display:flex;position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:60;align-items:center;gap:12px;padding:8px 18px;border-radius:999px;background:#FFF7F0;border:3px solid #F7C9D8;box-shadow:0 6px 18px rgba(221,101,144,.25);font-weight:700;color:#7A3A55;font-size:1.05rem;white-space:nowrap}

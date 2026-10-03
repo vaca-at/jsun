@@ -130,6 +130,12 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 /* 전자칠판: 큰 화면이면 글씨를 더 크게 */
 body.board{font-size:20px}
 body.board .grade{font-size:2rem;padding:26px 6px}
+.busy{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(255,247,240,.72);backdrop-filter:blur(2px)}
+.busy[hidden]{display:none}
+.busy div{padding:22px 30px;border-radius:24px;background:var(--paper);border:3px solid var(--lotus-s);box-shadow:var(--shadow);font-family:var(--font-t);font-size:1.25rem;color:var(--lotus-d);text-align:center}
+.busy i{display:block;font-style:normal;font-size:2.4rem;animation:busy 1.2s ease-in-out infinite}
+@keyframes busy{50%{transform:scale(1.15) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.busy i{animation:none}}
 </style>
 </head>
 <body>
@@ -230,6 +236,9 @@ const keyOf = (kind, name, age, pin) => sha256Hex(`simin-v1|${kind}|${cleanName(
 const rid = () => { const a=new Uint8Array(15); crypto.getRandomValues(a); return [...a].map(x=>x.toString(36).padStart(2,'0')).join('').slice(0,24); };
 const dayKey = (t=new Date()) => `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 let toastT=null;
+// 비밀번호를 누른 뒤 확인하는 동안 화면 가운데에 '접속하고 있어요'
+function busy(on, text){ let b=$('busy'); if(!b){ b=document.createElement('div'); b.id='busy'; b.className='busy'; b.setAttribute('role','status'); document.body.appendChild(b); }
+  b.innerHTML=`<div><i>🪷</i>${text||'공부방에 접속하고 있어요…'}</div>`; b.hidden=!on; }
 function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2400); }
 function speak(text){ try{ if(!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='ko-KR'; u.rate=.9; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.replace('_','-').startsWith('ko')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
 /* 이 기기에 남기는 것: 들어온 아이 목록 (이름 · 나이 · 아이 번호) */
@@ -326,19 +335,20 @@ async function pinDone(){
   if(S.screen==='phonePin'){
     if(f.first){   // 새로 만들기: 두 번째 입력
       if(f.pin!==f.first){ f.pin=''; f.first=''; render(); $('msg').textContent='두 번이 달라요. 처음부터 다시 눌러 주세요'; return; }
-      try{ const kid=await createKid(f.name, f.age, f.pin); enterKid(kid, true); }catch(e){ f.pin=''; f.first=''; render(); $('msg').textContent=e.message||'만들지 못했어요'; }
+      busy(true,'공부방을 만들고 있어요…');
+      try{ const kid=await createKid(f.name, f.age, f.pin); busy(false); enterKid(kid, true); }catch(e){ busy(false); f.pin=''; f.first=''; render(); $('msg').textContent=e.message||'만들지 못했어요'; }
       return;
     }
-    msg.className='msg ok'; msg.textContent='찾는 중…';
+    msg.className='msg ok'; msg.textContent='찾는 중…'; busy(true);
     try{
-      const kid=await findKid('k', f.name, f.age, f.pin);
+      const kid=await findKid('k', f.name, f.age, f.pin); busy(false);
       if(kid){ enterKid(kid); return; }
       // 이 핸드폰 목록에서 고른 친구면 새로 만들지 않고 번호만 다시 (같은 이름이 둘 생기지 않게)
       if(f.quick){ f.pin=''; render(); $('msg').innerHTML='비밀번호가 달라요. 다시 눌러 주세요.<br><span class="sub">잊었으면 엄마아빠 모드에서 다시 정할 수 있어요</span>'; return; }
       // 없으면: 처음 온 친구 → 한 번 더 눌러 만들기
       f.first=f.pin; f.pin=''; render();
       $('msg').className='msg'; $('msg').textContent='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (전에 만든 적 있으면 ◀ 뒤로 가서 이름 · 나이 · 번호를 다시 확인해 주세요)';
-    }catch(e){ f.pin=''; render(); $('msg').textContent=e.message||'찾지 못했어요'; }
+    }catch(e){ busy(false); f.pin=''; render(); $('msg').textContent=e.message||'찾지 못했어요'; }
     return;
   }
   if(S.screen==='parentPin'){
