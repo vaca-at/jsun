@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
+<defs>
+<linearGradient id="back" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF86D2"/><stop offset="1" stop-color="#E23C9E"/></linearGradient>
+<linearGradient id="side" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F45CBA"/><stop offset="1" stop-color="#C92A86"/></linearGradient>
+<linearGradient id="mid" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F866C4"/><stop offset=".7" stop-color="#EE45AE"/><stop offset="1" stop-color="#D8359C"/></linearGradient>
+<linearGradient id="low" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E63FA6"/><stop offset="1" stop-color="#C4248A"/></linearGradient>
+<radialGradient id="front" cx=".45" cy=".45" r=".65"><stop offset="0" stop-color="#FF8DD6"/><stop offset=".7" stop-color="#F258BA"/><stop offset="1" stop-color="#DE3AA2"/></radialGradient>
+<linearGradient id="cupSide" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFB13A"/><stop offset=".5" stop-color="#FFD23A"/><stop offset="1" stop-color="#FFA22E"/></linearGradient>
+<linearGradient id="cupTop" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFE23A"/><stop offset="1" stop-color="#FFF23A"/></linearGradient>
+</defs>
+<rect width="180" height="180" fill="#FDE6EE"/>
+<!-- 이모지 칸(300×300) 좌표로 그리고 줄여요 -->
+<g transform="translate(20 22) scale(.4667)">
+  <!-- 뒤 가운데 뾰족한 꽃잎 -->
+  <path d="M150 0C185 38 212 80 206 128H94C88 80 115 38 150 0Z" fill="url(#back)"/>
+  <!-- 뒤 양옆 꽃잎 (끝이 둥글게 잘린 모양) -->
+  <path d="M22 66C62 58 112 70 150 112L120 172C72 162 34 140 24 92C22 82 20 72 22 66Z" fill="url(#side)"/>
+  <path d="M278 66C238 58 188 70 150 112L180 172C228 162 266 140 276 92C278 82 280 72 278 66Z" fill="url(#side)"/>
+  <!-- 노란 원통 꽃술 -->
+  <path d="M98 96L202 96L190 168H110Z" fill="url(#cupSide)"/>
+  <ellipse cx="150" cy="96" rx="52" ry="20" fill="url(#cupTop)"/>
+  <!-- 아래로 처진 꽃잎 -->
+  <path d="M2 192C42 210 112 232 156 262L150 294C104 304 50 300 26 276C10 260 3 230 2 192Z" fill="url(#low)"/>
+  <path d="M298 192C258 210 188 232 144 262L150 294C196 304 250 300 274 276C290 260 297 230 298 192Z" fill="url(#low)"/>
+  <!-- 가운데 양옆 큰 꽃잎 -->
+  <path d="M0 128C54 118 124 140 152 214C124 254 62 254 30 222C10 202 0 164 0 128Z" fill="url(#mid)"/>
+  <path d="M300 128C246 118 176 140 148 214C176 254 238 254 270 222C290 202 300 164 300 128Z" fill="url(#mid)"/>
+  <!-- 앞 가운데 꽃잎 -->
+  <path d="M150 100C186 134 214 170 212 214C210 254 184 278 150 278C116 278 90 254 88 214C86 170 114 134 150 100Z" fill="url(#front)"/>
+</g>
+</svg>
