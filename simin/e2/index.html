@@ -739,7 +739,8 @@ body[data-theme="bright"] .subj:is([data-v="korean"],[data-v="school"],[data-v="
 .rc-mm{margin-top:1px;color:var(--sub);font-size:.88rem}
 @media (max-width:640px){ .rc-pair{grid-template-columns:1fr} .rc-q{font-size:1.55rem} }
 /* 연산 (단계별) */
-.cx-lvs .pill{white-space:nowrap}
+.seg.small.cx-lvs{gap:4px}
+.seg.small.cx-lvs .pill{white-space:nowrap;font-size:.76rem;padding:.18rem .55rem}   /* 연산 단계가 많아도 자리를 덜 차지하게 */
 .cx-v .vgrid{grid-template-columns:2.6rem repeat(var(--n),4.4rem)}
 .cx-h{text-align:center}
 .cx-q{font-size:1.8rem;line-height:1.6;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.25em .3em;font-variant-numeric:tabular-nums;word-break:keep-all}
@@ -3938,7 +3939,11 @@ function cxPad(P){
     ${ex.map(([v,l])=>`<button class="key fn ${ex.length===1?'wide':''}" data-act="cxKey" data-v="${v}">${l}</button>`).join('')}</div>`;
 }
 let CX=null;
-function cxLv(){ if(App.clv===undefined) App.clv=store.get('clv',0); if(!CALC_LEVELS[App.clv]) App.clv=0; return CALC_LEVELS[App.clv]; }
+function cxLv(){
+  if(store.get('cxv',1)<2){   // 예전 단계 번호(1번 뒤로 세 자리 덧셈 3단계가 들어감)를 한 번만 옮겨요
+    const o=store.get('cxok',{}), n={}; Object.keys(o).forEach(k=>{ n[+k>=1?+k+3:k]=o[k]; }); store.set('cxok',n);
+    const c=store.get('clv',0); if(c>=1) store.set('clv',c+3); store.set('cxv',2); }
+  if(App.clv===undefined) App.clv=store.get('clv',0); if(!CALC_LEVELS[App.clv]) App.clv=0; return CALC_LEVELS[App.clv]; }
 function cxNew(){
   const lv=cxLv(), P=lv.g(App.cdan||'mix');
   if(P.v){ const {a,b,op}=P.v, ans=op==='-'?a-b:a+b; P.n=Math.max(String(a).length,String(b).length,String(ans).length); P.cells=Array(P.n).fill(''); }
@@ -4001,6 +4006,10 @@ function cxCheck(ok){
 /* 연산 단계표 (초2) */
 const CALC_LEVELS = [
   {n:'받아올림 두 번', d:'받아올림이 두 번 있는 덧셈 (합이 세 자리) · 예: 57 + 68 = 125', g:()=>{ const a1=cxR(1,9), b1=cxR(10-a1,9), a10=cxR(1,9), b10=cxR(Math.max(1,9-a10),9); return cxV(a10*10+a1,b10*10+b1,'+'); }},
+  // 세 자리 덧셈 3단계 (2026-10-03, 받아올림 두 번 다음에 들어감. 그 뒤 단계는 번호가 3씩 밀려요 → cxLv 에서 예전 기록을 한 번 옮겨요)
+  {n:'세 자리 + 한 자리', d:'세 자리 + 한 자리 · 예: 347 + 8 = 355', g:()=>{ const a1=cxR(1,9), b=Math.random()<.7?cxR(10-a1,9):cxR(1,9-a1||1), a=cxR(10,98)*10+a1; return cxV(a,b,'+'); }},
+  {n:'세 자리 + 두 자리', d:'세 자리 + 두 자리 · 예: 258 + 67 = 325', g:()=>{ const b=cxR(11,99), a=cxR(101,999-b); return cxV(a,b,'+'); }},
+  {n:'세 자리 + 세 자리', d:'세 자리 + 세 자리 · 예: 365 + 278 = 643', g:()=>{ const a=cxR(101,698), b=cxR(101,999-a); return cxV(a,b,'+'); }},
   {n:'세 수의 덧셈', d:'세 수의 덧셈 · 예: 23 + 18 + 34', g:()=>{ const a=cxR(11,35), b=cxR(11,35), c=cxR(11,99-a-b);
     return cxH(`${a} + ${b} + ${c} = {0}`,[a+b+c],{hint:`앞의 두 수를 먼저 더해요: ${a} + ${b} = ${a+b} → ${a+b} + ${c} = <b>${a+b+c}</b>`}); }},
   {n:'두 자리 − 한 자리', d:'두 자리 − 한 자리 (받아내림) · 예: 32 − 7', g:()=>{ const a1=cxR(0,8), b1=cxR(a1+1,9), a10=cxR(2,9); return cxV(a10*10+a1,b1,'-'); }},
