@@ -5164,7 +5164,7 @@ evListen();
 })();
 </script>
 
-<a class="sim-home" href="../" aria-label="행원심인당 자성동이 공부방 처음 화면으로">🪷 처음으로</a>
+<a class="sim-home" href="../" aria-label="행원심인당 자성동이 공부방 처음 화면으로">🪷 심인당 공부방 처음으로</a>
 <script>/* 처음 화면 단추: 화면 위 방 이름 바로 옆으로 (잘 보이게) */ (function(){ const b=document.querySelector('.sim-home'), t=document.querySelector('header .tabs'), h=document.querySelector('.bar .logo'); if(b&&t){ t.appendChild(b); b.classList.add('in-top','in-tabs'); } else if(b&&h){ h.insertAdjacentElement('afterend', b); b.classList.add('in-top'); } })();</script>
 <button class="sim-adm" data-act="openAdmin" aria-label="관리자 모드">🔒 관리자</button>
 <style>
@@ -5172,7 +5172,7 @@ evListen();
 .sim-home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:inline-flex;align-items:center;gap:4px;padding:.45rem .85rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 10px rgba(221,101,144,.18)}
 [data-act="openAdmin"],[data-act="openMom"],.adm-links,[data-act="typingGame"],[data-act="openAllAdmin"]{display:none!important}
 /* 처음 화면 단추가 위쪽 방 이름 옆에 있을 때 */
-.sim-home.in-tabs{margin-left:auto;margin-right:0}   /* 과목 탭 줄 오른쪽 끝 */
+.tabs .sim-home.in-tabs{margin:0 0 0 auto}   /* 과목 탭 줄 빈 곳의 오른쪽 끝 */
 .sim-home.in-top{position:static;flex:none;align-self:center;margin:0 6px;box-shadow:none;padding:.35rem .8rem;font-size:.85rem;white-space:nowrap}
 @media (max-width:640px){ .sim-home.in-top{font-size:.78rem;padding:.3rem .6rem} }
 /* 모든 화면 오른쪽 아래: 살짝 투명한 관리자 단추 (위의 숨김 규칙에서 이것만 빼요) */
