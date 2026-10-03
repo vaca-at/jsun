@@ -402,8 +402,10 @@ ${wheelHTML()}
         <button class="small-link" data-act="reshuffle" ${lad.run?'disabled':''}>🔄 새 사다리</button>`;
     } else if(n>1 && ST.how==='card'){
       const picker = !orderDone() ? ST.ages.filter(k=>!Object.values(c.up).includes(k))[0] : null;
-      cards = `${picker?`<div class="picker">${ageOf(picker)[2]} ${nameOf(picker)} 모둠 친구가<br>카드를 한 장 골라요</div>`:'<div class="picker">순서가 정해졌어요!</div>'}
-        <div class="cards">${c.nums.map((num,i)=>c.up[i]?`<div class="cardf up"><span><b>${num}</b>${nameOf(c.up[i])}</span></div>`:`<button class="cardf" data-card="${i}" aria-label="카드 뒤집기" ${picker?'':'disabled'}>?</button>`).join('')}</div>
+      // 다 뒤집으면 카드가 숫자 순서(1, 2, 3…)로 다시 늘어서요 → 왼쪽부터 읽으면 그대로 순서
+      const slots = picker ? c.nums.map((_,i)=>i) : c.nums.map((_,i)=>i).sort((a,b)=>c.nums[a]-c.nums[b]);
+      cards = `${picker?`<div class="picker">${ageOf(picker)[2]} ${nameOf(picker)} 모둠 친구가<br>카드를 한 장 골라요</div><p class="note" style="margin:0;text-align:center">동생부터 한 장씩 뒤집어요 · 카드에 적힌 숫자가 순서예요</p>`:'<div class="picker">순서가 정해졌어요! (숫자 순서대로)</div>'}
+        <div class="cards">${slots.map(i=>{ const num=c.nums[i]; return c.up[i]?`<div class="cardf up"><span><b>${num}</b>${nameOf(c.up[i])}</span></div>`:`<button class="cardf" data-card="${i}" aria-label="카드 뒤집기" ${picker?'':'disabled'}>?</button>`; }).join('')}</div>
         <button class="small-link" data-act="reshuffle">🔄 다시 섞기</button>`;
     } else if(n===1) cards='<div class="picker">한 연령대라 바로 시작해요</div>';
     else cards='<p class="note">먼저 ① 연령대를 골라요</p>';
