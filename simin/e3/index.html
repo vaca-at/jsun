@@ -2880,6 +2880,13 @@ function numChoices(ans){
 const fbar = (n,d,n2=0) => `<span class="fbar">${Array.from({length:d},(_,i)=>`<i class="${i<n?'on':i<n+n2?'on2':''}"></i>`).join('')}</span>`;
 
 /* 도형 그리기: 수학 좌표(위가 +) 점들을 받아 SVG 로. al 각 글자, sl 변 글자, tk 같은 길이 표시 개수, ra 직각 표시, diag 대각선 */
+/* 곧은 선 위의 두 각 그림: 오른쪽 각 a°(주어짐), 왼쪽 각 ?(구할 각) — 호로 각을 표시해요 */
+function lineAngleSVG(a){
+  const r=Math.PI/180, O=[130,100], L=95, P=[O[0]+L*Math.cos(a*r), O[1]-L*Math.sin(a*r)], f=v=>v.toFixed(1);
+  const arc=(r0,s,e)=>`M${f(O[0]+r0*Math.cos(s*r))},${f(O[1]-r0*Math.sin(s*r))} A${r0},${r0} 0 0 0 ${f(O[0]+r0*Math.cos(e*r))},${f(O[1]-r0*Math.sin(e*r))}`;
+  const lab=(t,ang,rr)=>`<text x="${f(O[0]+rr*Math.cos(ang*r))}" y="${f(O[1]-rr*Math.sin(ang*r))}">${t}</text>`;
+  return `<svg class="shape" viewBox="0 0 260 120" role="img" aria-label="곧은 선 위의 두 각"><line x1="15" y1="100" x2="245" y2="100" style="stroke:var(--ink);stroke-width:2.5;stroke-linecap:round"/><line x1="${O[0]}" y1="${O[1]}" x2="${f(P[0])}" y2="${f(P[1])}" style="stroke:var(--ink);stroke-width:2.5;stroke-linecap:round"/><path class="am" d="${arc(20,0,a)}"/><path class="am" d="${arc(26,a,180)}"/>${lab(a+'°',a/2,44)}${lab('?',(a+180)/2,46)}</svg>`;
+}
 function polySVG(pts, o={}){
   const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
   const minx=Math.min(...xs), maxx=Math.max(...xs), miny=Math.min(...ys), maxy=Math.max(...ys);
@@ -3138,7 +3145,7 @@ function genAng4(){
   if(t===5){ const h=rnd(1,5);
     return one([()=>numQ(`${clockSVG(h,0)}<div class="center">${h}시일 때 긴바늘과 짧은바늘이 이루는 작은 쪽의 각도는 □°</div>`, 30*h, `숫자 한 칸은 360 ÷ 12 = 30°. ${h}칸이니까 30 × ${h} = ${30*h}`),
                 ()=>{ const m=one([15,30,45]); return numQ(`시계의 긴바늘이 ${m}분 동안 도는 각도는 □°`, m*6, `긴바늘은 60분에 한 바퀴(360°) 돌아요. 1분에 6° → 6 × ${m} = ${m*6}`); }])(); }
-  const a=5*rnd(4,32); return numQ(`곧은 선 위에서 두 각으로 나누었어요.<br>한 각이 ${a}°이면 다른 한 각은 □°`, 180-a, `곧은 선이 이루는 각은 180°: 180 − ${a} = ${180-a}`);
+  const a=5*rnd(4,32); return numQ(`${lineAngleSVG(a)}곧은 선 위에서 두 각으로 나누었어요.<br>한 각이 ${a}°이면 다른 한 각은 □°`, 180-a, `곧은 선이 이루는 각은 180°: 180 − ${a} = ${180-a}`);
 }
 /* 3. 곱셈과 나눗셈 */
 function genMD4(){
@@ -5888,6 +5895,7 @@ html.sim-board body{padding-top:62px}
   // 칠판 왼쪽 위에 보일 '영역 - 단원' (TAG)
   // 눈으로 풀기 어려운 곱셈 · 나눗셈(세 자리 × 두 자리, 세 자리 ÷ 두 자리 등)은 칠판 협동에서 빼요
   const hardMul = h => { const t=plain(h); const m=t.match(/(\d[\d,]*)\s*([×÷])\s*(\d[\d,]*)/); if(!m) return false; const x=+m[1].replace(/,/g,''), y=+m[3].replace(/,/g,''); return (x>=100&&y>=10)||(x>=10&&y>=100); };
+  const ROOM_G=(new URLSearchParams(location.search).get('g')||location.pathname.split('/').filter(Boolean).pop()||'').slice(0,2);   // e3 → 'e3' 단원(lv)만
   let TAG=''; const QNAME={kor:'한글', word:'낱말', eng:'영어', engw:'영어 낱말', clock:'시계', count:'수 세기', read:'글 읽기', school:'학교 가요'};
   const mix = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
   const plain = h => String(h||'').replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/&nbsp;|&[a-z]+;/g,' ').replace(/□/g,' 무엇 ').replace(/\s+/g,' ').trim();
@@ -5907,7 +5915,7 @@ html.sim-board body{padding-top:62px}
     if(P.h && P.ans && P.ans.length===1){ const h=P.h.replace('{0}','<b class="q-mark">?</b>'); return { html:(P.fig||'')+`<div class="q-eq">${h}</div>`, say:plain(h), ans:String(isFinite(+P.ans[0])?+(+P.ans[0]).toFixed(10):P.ans[0]), choices:numChoices(P.ans[0]), hint:P.hint?plain(P.hint):'' }; }
     return null; }
   function fromUnit(){   // 초등 방: 학교수학 단원
-    const keys=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), UK=pickOne(keys), q=UNITS[UK].gen(); TAG='학교수학 - '+String(UNITS[UK].name||'').replace(/^\d+\.\s*/,''); if(!q) return null;
+    const all=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), mine=all.filter(k=>String(UNITS[k].lv||'').startsWith(ROOM_G)), keys=mine.length?mine:all, UK=pickOne(keys), q=UNITS[UK].gen(); TAG='학교수학 - '+String(UNITS[UK].name||'').replace(/^\d+\.\s*/,''); if(!q) return null;
     const html=`<div class="q-p">${q.html}</div>`;
     if(q.type==='choice' && q.choices && q.choices.length>1) return { html, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') };
     return { html, say:plain(q.html), ans:String(isFinite(+q.ans)?+(+q.ans).toFixed(10):q.ans), choices:numChoices(q.ans), hint:plain(q.explain||'') }; }

@@ -1477,6 +1477,7 @@ html.sim-board body{padding-top:62px}
   // 칠판 왼쪽 위에 보일 '영역 - 단원' (TAG)
   // 눈으로 풀기 어려운 곱셈 · 나눗셈(세 자리 × 두 자리, 세 자리 ÷ 두 자리 등)은 칠판 협동에서 빼요
   const hardMul = h => { const t=plain(h); const m=t.match(/(\d[\d,]*)\s*([×÷])\s*(\d[\d,]*)/); if(!m) return false; const x=+m[1].replace(/,/g,''), y=+m[3].replace(/,/g,''); return (x>=100&&y>=10)||(x>=10&&y>=100); };
+  const ROOM_G=(new URLSearchParams(location.search).get('g')||location.pathname.split('/').filter(Boolean).pop()||'').slice(0,2);   // e3 → 'e3' 단원(lv)만
   let TAG=''; const QNAME={kor:'한글', word:'낱말', eng:'영어', engw:'영어 낱말', clock:'시계', count:'수 세기', read:'글 읽기', school:'학교 가요'};
   const mix = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
   const plain = h => String(h||'').replace(/<br\s*\/?>/g,' ').replace(/<[^>]+>/g,'').replace(/&nbsp;|&[a-z]+;/g,' ').replace(/□/g,' 무엇 ').replace(/\s+/g,' ').trim();
@@ -1496,7 +1497,7 @@ html.sim-board body{padding-top:62px}
     if(P.h && P.ans && P.ans.length===1){ const h=P.h.replace('{0}','<b class="q-mark">?</b>'); return { html:(P.fig||'')+`<div class="q-eq">${h}</div>`, say:plain(h), ans:String(isFinite(+P.ans[0])?+(+P.ans[0]).toFixed(10):P.ans[0]), choices:numChoices(P.ans[0]), hint:P.hint?plain(P.hint):'' }; }
     return null; }
   function fromUnit(){   // 초등 방: 학교수학 단원
-    const keys=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), UK=pickOne(keys), q=UNITS[UK].gen(); TAG='학교수학 - '+String(UNITS[UK].name||'').replace(/^\d+\.\s*/,''); if(!q) return null;
+    const all=Object.keys(UNITS).filter(k=>k!=='mix'&&UNITS[k].gen), mine=all.filter(k=>String(UNITS[k].lv||'').startsWith(ROOM_G)), keys=mine.length?mine:all, UK=pickOne(keys), q=UNITS[UK].gen(); TAG='학교수학 - '+String(UNITS[UK].name||'').replace(/^\d+\.\s*/,''); if(!q) return null;
     const html=`<div class="q-p">${q.html}</div>`;
     if(q.type==='choice' && q.choices && q.choices.length>1) return { html, say:plain(q.html), ans:String(q.ans), choices:mix(q.choices.map(String)), hint:plain(q.explain||'') };
     return { html, say:plain(q.html), ans:String(isFinite(+q.ans)?+(+q.ans).toFixed(10):q.ans), choices:numChoices(q.ans), hint:plain(q.explain||'') }; }
