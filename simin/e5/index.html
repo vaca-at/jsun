@@ -2,6 +2,45 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>/* 오래된 전자칠판 · 태블릿 브라우저 도우미: 없는 기능을 채워 두고, 멈추면 까닭을 남겨요 (2026-10-04) */
+(function(){
+  window.__SIM_ERR='';
+  window.addEventListener('error',function(e){ if(!window.__SIM_ERR) window.__SIM_ERR=(e.message||'오류')+(e.lineno?' (줄 '+e.lineno+')':'')+' · '+((navigator.userAgent.match(/Chrome\/\d+/)||[navigator.userAgent.slice(0,40)])[0]); });
+  var AP=Array.prototype, d=function(o,k,f){ if(!o[k]) try{ Object.defineProperty(o,k,{value:f,writable:true,configurable:true}); }catch(e){ o[k]=f; } };
+  d(AP,'flat',function(n){ n=n===undefined?1:Math.floor(n); var r=[]; (function f(a,k){ for(var i=0;i<a.length;i++){ if(Array.isArray(a[i])&&k>0) f(a[i],k-1); else if(i in a) r.push(a[i]); } })(this,n); return r; });
+  d(AP,'flatMap',function(fn,t){ return AP.map.call(this,fn,t).flat(1); });
+  d(AP,'at',function(i){ i=Math.trunc(i)||0; if(i<0) i+=this.length; return this[i]; });
+  d(AP,'findLast',function(fn,t){ for(var i=this.length-1;i>=0;i--) if(fn.call(t,this[i],i,this)) return this[i]; });
+  d(String.prototype,'replaceAll',function(a,b){ return a instanceof RegExp ? this.replace(a,b) : this.split(a).join(typeof b==='function'?b(a):b); });
+  d(String.prototype,'at',function(i){ i=Math.trunc(i)||0; if(i<0) i+=this.length; return this.charAt(i)||undefined; });
+  d(Object,'fromEntries',function(it){ var o={}; Array.from(it).forEach(function(p){ o[p[0]]=p[1]; }); return o; });
+  if(typeof globalThis==='undefined') window.globalThis=window;
+})();
+</script>
+<script>/* 🪷 연꽃 이모지는 2021년에 생긴 글자라 오래된 기기에는 없어요 → 그릴 수 없으면 연꽃 그림으로 바꿔요 (2026-10-04) */
+(function(){
+  var L='\uD83E\uDEB7';
+  function has(){ try{ var c=document.createElement('canvas'); c.width=c.height=24; var x=c.getContext('2d'); x.textBaseline='top'; x.font='20px sans-serif'; x.fillText(L,0,0); var d=x.getImageData(0,0,24,24).data; for(var i=0;i<d.length;i+=4){ if(d[i+3]>40 && (Math.abs(d[i]-d[i+1])>30 || Math.abs(d[i+1]-d[i+2])>30)) return true; } return false; }catch(e){ return true; } }
+  if(has()) return;
+  window.__SIM_NOLOTUS=true;
+  var SRC='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+DQo8ZGVmcz4NCjxsaW5lYXJHcmFkaWVudCBpZD0iYmFjayIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGODZEMiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UyM0M5RSIvPjwvbGluZWFyR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9InNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGNDVDQkEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOTJBODYiLz48L2xpbmVhckdyYWRpZW50Pg0KPGxpbmVhckdyYWRpZW50IGlkPSJtaWQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGODY2QzQiLz48c3RvcCBvZmZzZXQ9Ii43IiBzdG9wLWNvbG9yPSIjRUU0NUFFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDgzNTlDIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0ibG93IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTYzRkE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzQyNDhBIi8+PC9saW5lYXJHcmFkaWVudD4NCjxyYWRpYWxHcmFkaWVudCBpZD0iZnJvbnQiIGN4PSIuNDUiIGN5PSIuNDUiIHI9Ii42NSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkY4REQ2Ii8+PHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0YyNThCQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RFM0FBMiIvPjwvcmFkaWFsR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9ImN1cFNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkIxM0EiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjRkZEMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZBMjJFIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0iY3VwVG9wIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGMjNBIi8+PC9saW5lYXJHcmFkaWVudD4NCjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkRFNkVFIi8+DQo8IS0tIOydtOuqqOyngCDsubgoMzAww5czMDApIOyijO2RnOuhnCDqt7jrpqzqs6Ag7KSE7Jes7JqUIC0tPg0KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgMjIpIHNjYWxlKC40NjY3KSI+DQogIDwhLS0g65KkIOqwgOyatOuNsCDrvrDsobHtlZwg6r2D7J6OIC0tPg0KICA8cGF0aCBkPSJNMTUwIDBDMTg1IDM4IDIxMiA4MCAyMDYgMTI4SDk0Qzg4IDgwIDExNSAzOCAxNTAgMFoiIGZpbGw9InVybCgjYmFjaykiLz4NCiAgPCEtLSDrkqQg7JaR7JiGIOq9g+yejiAo64Gd7J20IOuRpeq4gOqyjCDsnpjrprAg66qo7JaRKSAtLT4NCiAgPHBhdGggZD0iTTIyIDY2QzYyIDU4IDExMiA3MCAxNTAgMTEyTDEyMCAxNzJDNzIgMTYyIDM0IDE0MCAyNCA5MkMyMiA4MiAyMCA3MiAyMiA2NloiIGZpbGw9InVybCgjc2lkZSkiLz4NCiAgPHBhdGggZD0iTTI3OCA2NkMyMzggNTggMTg4IDcwIDE1MCAxMTJMMTgwIDE3MkMyMjggMTYyIDI2NiAxNDAgMjc2IDkyQzI3OCA4MiAyODAgNzIgMjc4IDY2WiIgZmlsbD0idXJsKCNzaWRlKSIvPg0KICA8IS0tIOuFuOuegCDsm5DthrUg6r2D7IigIC0tPg0KICA8cGF0aCBkPSJNOTggOTZMMjAyIDk2TDE5MCAxNjhIMTEwWiIgZmlsbD0idXJsKCNjdXBTaWRlKSIvPg0KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iOTYiIHJ4PSI1MiIgcnk9IjIwIiBmaWxsPSJ1cmwoI2N1cFRvcCkiLz4NCiAgPCEtLSDslYTrnpjroZwg7LKY7KeEIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTIgMTkyQzQyIDIxMCAxMTIgMjMyIDE1NiAyNjJMMTUwIDI5NEMxMDQgMzA0IDUwIDMwMCAyNiAyNzZDMTAgMjYwIDMgMjMwIDIgMTkyWiIgZmlsbD0idXJsKCNsb3cpIi8+DQogIDxwYXRoIGQ9Ik0yOTggMTkyQzI1OCAyMTAgMTg4IDIzMiAxNDQgMjYyTDE1MCAyOTRDMTk2IDMwNCAyNTAgMzAwIDI3NCAyNzZDMjkwIDI2MCAyOTcgMjMwIDI5OCAxOTJaIiBmaWxsPSJ1cmwoI2xvdykiLz4NCiAgPCEtLSDqsIDsmrTrjbAg7JaR7JiGIO2BsCDqvYPsno4gLS0+DQogIDxwYXRoIGQ9Ik0wIDEyOEM1NCAxMTggMTI0IDE0MCAxNTIgMjE0QzEyNCAyNTQgNjIgMjU0IDMwIDIyMkMxMCAyMDIgMCAxNjQgMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPHBhdGggZD0iTTMwMCAxMjhDMjQ2IDExOCAxNzYgMTQwIDE0OCAyMTRDMTc2IDI1NCAyMzggMjU0IDI3MCAyMjJDMjkwIDIwMiAzMDAgMTY0IDMwMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPCEtLSDslZ4g6rCA7Jq0642wIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTE1MCAxMDBDMTg2IDEzNCAyMTQgMTcwIDIxMiAyMTRDMjEwIDI1NCAxODQgMjc4IDE1MCAyNzhDMTE2IDI3OCA5MCAyNTQgODggMjE0Qzg2IDE3MCAxMTQgMTM0IDE1MCAxMDBaIiBmaWxsPSJ1cmwoI2Zyb250KSIvPg0KPC9nPg0KPC9zdmc+DQo=';
+  var esc=function(s){ return s.replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
+  var IMG='<img src="'+SRC+'" alt="연꽃" class="lotus-emo" style="height:1.05em;width:1.05em;vertical-align:-0.15em;display:inline-block">';
+  function walk(n){
+    if(!n) return;
+    if(n.nodeType===3){
+      if(n.nodeValue.indexOf(L)<0) return;
+      var p=n.parentNode; if(!p) return;
+      if(p.namespaceURI && p.namespaceURI.indexOf('svg')>=0){ n.nodeValue=n.nodeValue.split(L).join('\uD83C\uDF38'); return; }   // 그림(SVG) 안 글자는 🌸로
+      if(/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(p.nodeName)) return;
+      var s=document.createElement('span'); s.innerHTML=n.nodeValue.split(L).map(esc).join(IMG); p.replaceChild(s,n); return;
+    }
+    if(n.nodeType===1 && !/^(SCRIPT|STYLE|TEXTAREA)$/i.test(n.nodeName)){ for(var c=n.firstChild;c;){ var nx=c.nextSibling; walk(c); c=nx; } }
+  }
+  function start(){ walk(document.body); try{ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.type==='characterData') walk(m.target); for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]); } }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded',start);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="../manifest.webmanifest">
