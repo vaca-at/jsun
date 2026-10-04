@@ -717,19 +717,26 @@ function adminLogin(){
 }
 /* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요) */
 function adminAuto(){
-  cloudInit().then(ok=>{ if(!ok) return; let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off()); if(u) isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); }); }); });
+  cloudInit().then(ok=>{ if(!ok) return;
+    try{ firebase.auth().getRedirectResult().catch(()=>{}); }catch(e){}   // 로그인 도우미(숨은 창)를 미리 준비해 두면 단추를 누르자마자 구글 창이 열려요
+    let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off()); if(u) isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); }); }); });
 }
+/* 구글 로그인 창은 누른 순간 바로 열어야 브라우저가 막지 않아요 (앞에서 기다리면 팝업 차단).
+   그래서 관리자 화면이 뜰 때 미리 불러 두고(adminAuto), 아직 준비 전이면 준비한 뒤 한 번 더 눌러 달라고 해요 */
 async function adminGoogle(){
   const msg=()=>document.getElementById('msg');
-  if(!await cloudInit()){ toast('인터넷 연결을 확인해 주세요'); return; }
+  if(!cloud.db || !window.firebase || !firebase.auth){
+    if(msg()) msg().textContent='로그인을 준비하고 있어요…';
+    const ok=await cloudInit(); if(msg()) msg().textContent= ok ? '준비됐어요! 구글로 로그인을 한 번 더 눌러 주세요' : '인터넷 연결을 확인해 주세요'; return;
+  }
   const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
+  if(msg()) msg().textContent='구글 로그인 창을 열었어요. 관리자 계정을 골라 주세요';
   try{
-    try{ await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}
-    const r=await firebase.auth().signInWithPopup(p);
+    const r=await firebase.auth().signInWithPopup(p);   // 로그인 유지는 웹 기본값(LOCAL)이라 따로 정하지 않아요
     if(await isAdminUser(r.user)) go('adminHome'); else { await firebase.auth().signOut(); if(msg()) msg().textContent='관리자 계정이 아니에요 ('+(r.user.email||'')+')'; }
   }catch(e){
     if(e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment'){ try{ LS.set('adminRedirect',1); await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
-    if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request') return;
+    if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request'){ if(msg()) msg().textContent=''; return; }
     const why={'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/internal-error':'로그인 창을 열지 못했어요. 앱 안 브라우저라면 사파리 · 크롬에서 열어 주세요'}[e.code];
     if(msg()) msg().textContent=(why||'로그인하지 못했어요')+(e.code?' ('+e.code+')':''); else toast(why||'로그인하지 못했어요');
   }
