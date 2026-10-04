@@ -465,6 +465,46 @@ body{background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171p
 .kid-msg{background:#E3F4E8;color:#2F6E4B}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
+<script>/* 🖐️ 전자칠판 쉬운 누르기 (2026-10-04): 어린아이가 손가락을 조금 움직이거나 오래 눌러도 '누르기'로 알아들어요.
+   전자칠판 모드(html.sim-board · 전자칠판 입구)에서만 켜져요. 집 핸드폰은 그대로. 오래된 칠판 브라우저도 읽게 예전 문법으로 */
+(function(){
+  if(!window.PointerEvent) return;
+  function on(){ return document.documentElement.classList.contains('sim-board') || /\/simin\/board\//.test(location.pathname); }
+  var SEL='button,a[href],[data-act],[data-go],[data-grade],[data-goal],[data-age],[data-quick],[role=button],summary';
+  var SKIP='input,textarea,select,canvas,.tile,.slot,[data-notap]';
+  var downs={}, inSyn=false, synEl=null, synAt=0;
+  function pick(t){ if(!t || !t.closest || t.closest(SKIP)) return null; var el=t.closest(SEL); return el && !el.disabled ? el : null; }
+  document.addEventListener('pointerdown',function(e){ if(!on()) return; var el=pick(e.target); if(el) downs[e.pointerId]={el:el,x:e.clientX,y:e.clientY,lx:e.clientX,ly:e.clientY,t:Date.now()}; },true);
+  document.addEventListener('pointermove',function(e){ var d=downs[e.pointerId]; if(d){ d.lx=e.clientX; d.ly=e.clientY; } },true);
+  function done(e,cancel){
+    var d=downs[e.pointerId]; delete downs[e.pointerId]; if(!d) return;
+    var x=cancel?d.lx:e.clientX, y=cancel?d.ly:e.clientY, moved=Math.abs(x-d.x)+Math.abs(y-d.y);
+    if(moved>60 || Date.now()-d.t>3000) return;                 /* 크게 움직이면 끌기 · 넘기기로 봐요 */
+    var r=d.el.getBoundingClientRect(), pad=24;                  /* 단추에서 조금(24px) 벗어나 떼도 괜찮아요 */
+    if(x<r.left-pad || x>r.right+pad || y<r.top-pad || y>r.bottom+pad) return;
+    var el=d.el, at=Date.now();
+    setTimeout(function(){                                       /* 브라우저가 이미 눌렀으면 그대로, 안 눌렀으면 대신 눌러요 */
+      if(el.__tapAt && el.__tapAt>=at-50) return;
+      if(!document.documentElement.contains(el)) return;
+      inSyn=true; synEl=el; synAt=Date.now(); try{ el.click(); }finally{ inSyn=false; }
+    }, 120);
+  }
+  document.addEventListener('pointerup',function(e){ if(on()) done(e,false); },true);
+  document.addEventListener('pointercancel',function(e){ if(on()) done(e,true); },true);
+  document.addEventListener('click',function(e){
+    if(!on() || inSyn) return; var el=pick(e.target); if(!el) return;
+    if(synEl===el && Date.now()-synAt<800){ e.preventDefault(); e.stopImmediatePropagation(); return; }   /* 대신 누른 뒤 늦게 온 진짜 누르기는 한 번만 */
+    el.__tapAt=Date.now();
+  },true);
+  document.addEventListener('contextmenu',function(e){ if(on() && !(e.target.closest && e.target.closest('input,textarea'))) e.preventDefault(); },true);   /* 오래 누르면 뜨는 메뉴 막기 */
+  var st=document.createElement('style');
+  st.textContent='html.sim-board,html.sim-board body{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}'
+    +'html.sim-board input,html.sim-board textarea{-webkit-user-select:text;user-select:text}'
+    +'html.sim-board button:active,html.sim-board [data-act]:active,html.sim-board [data-go]:active,html.sim-board [data-grade]:active{filter:brightness(.93)}';
+  (document.head||document.documentElement).appendChild(st);
+  if(/\/simin\/board\//.test(location.pathname)) document.documentElement.classList.add('sim-board-entry');
+})();
+</script>
 </head>
 <body>
 <div class="login" id="login" hidden>
@@ -736,7 +776,7 @@ document.addEventListener('pointerdown', e=>{
 });
 document.addEventListener('pointermove', e=>{
   if(!DND) return;
-  if(!DND.moved && Math.hypot(e.clientX-DND.x0, e.clientY-DND.y0)<8) return;
+  if(!DND.moved && Math.hypot(e.clientX-DND.x0, e.clientY-DND.y0)<(SIM_BOARD?28:8)) return;   // 전자칠판은 손가락이 조금 흔들려도 누르기로
   if(!DND.moved){ DND.moved=true; const g=DND.t.cloneNode(true); g.classList.add('ghost'); g.style.width=DND.w+'px'; g.style.height=DND.h+'px'; document.body.appendChild(g); DND.g=g; DND.t.classList.add('lift'); }
   DND.g.style.left=e.clientX+'px'; DND.g.style.top=e.clientY+'px';
   const s=slotAt(e.clientX,e.clientY); if(DND.hover!==s){ DND.hover&&DND.hover.classList.remove('hover'); s&&s.classList.add('hover'); DND.hover=s; }
@@ -744,10 +784,12 @@ document.addEventListener('pointermove', e=>{
 document.addEventListener('pointerup', e=>{
   if(!DND) return; const D=DND; DND=null;
   if(D.g) D.g.remove(); D.t.classList.remove('lift'); D.hover&&D.hover.classList.remove('hover');
-  const s = D.moved ? slotAt(e.clientX,e.clientY) : [...document.querySelectorAll('.slot:not(.filled)')][0];
+  let s = D.moved ? slotAt(e.clientX,e.clientY) : [...document.querySelectorAll('.slot:not(.filled)')][0];
+  if(!s && SIM_BOARD && Math.hypot(e.clientX-D.x0, e.clientY-D.y0)<90) s=[...document.querySelectorAll('.slot:not(.filled)')][0];   // 전자칠판: 조금 끌다 빈칸 밖에 떼도 누르기처럼 앞 빈칸으로
   if(s) dropInto(s, D.t);
 });
-document.addEventListener('pointercancel', ()=>{ if(DND){ DND.g&&DND.g.remove(); DND.t.classList.remove('lift'); DND=null; } });
+document.addEventListener('pointercancel', ()=>{ if(DND){ const D=DND; DND=null; D.g&&D.g.remove(); D.t.classList.remove('lift'); D.hover&&D.hover.classList.remove('hover');
+  if(SIM_BOARD && !D.moved){ const s=[...document.querySelectorAll('.slot:not(.filled)')][0]; if(s) dropInto(s, D.t); } } });   // 전자칠판이 누르기를 취소해도 살짝 누른 거면 넣어 줘요
 function slotAt(x,y){ const el=document.elementFromPoint(x,y); const s=el&&el.closest('.slot'); return s&&!s.classList.contains('filled')?s:null; }
 function dropInto(s, t){
   const ok = String(s.dataset.ans)===String(t.dataset.val);
