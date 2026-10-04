@@ -383,6 +383,23 @@ function cloudInit(){
   cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>{ firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); return cloud.db; }).catch(()=>null);
   return cloud.ready;
 }
+/* 📊 심인당 숫자 통계 (2026-10-04): simin_stats/날짜 에 숫자만 더해요. 이름 · 아이 번호 · 푼 문제는 넣지 않아요 */
+function simDay(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function simStat(add, day){
+  return cloudInit().then(function(d){ if(!d) return; var FV=firebase.firestore.FieldValue, o={}, n=0;
+    Object.keys(add).forEach(function(k){ var v=add[k]; if(v && typeof v==='object'){ var m={}; Object.keys(v).forEach(function(h){ if(v[h]) { m[h]=FV.increment(v[h]); n++; } }); o[k]=m; } else if(v){ o[k]=FV.increment(v); n++; } });
+    if(n) return d.collection('simin_stats').doc(day||simDay()).set(o,{merge:true});
+  }).catch(function(e){ console.warn('통계', e); });
+}
+// 전자칠판을 켤 때 1번 · 머문 시간은 화면이 켜져 있고 1분 안에 누른 동안만 (1분마다 숫자만 더해요)
+(function(){ setTimeout(function(){ simStat({board:1}); }, 1500);
+  var last=Date.now(), buf=0, day=simDay();
+  ['pointerdown','keydown','touchstart'].forEach(function(t){ addEventListener(t,function(){ last=Date.now(); },{capture:true,passive:true}); });
+  function flush(){ if(buf<5) return; var n=buf, d=day; buf=0; simStat({boardSec:n}, d); }
+  setInterval(function(){ var d=simDay(); if(d!==day){ flush(); day=d; } if(document.visibilityState==='visible' && Date.now()-last<60000) buf++; if(buf>=60) flush(); },1000);
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') flush(); });
+  addEventListener('pagehide',flush);
+})();
 async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터넷 연결을 확인해 주세요'); return d; }
 const keyOf = (name, age, pin) => sha256Hex(`simin-v1|k|${cleanName(name)}|${age}|${pin}`);   // 입구 · 집 공부방과 같은 열쇠
 
@@ -518,7 +535,7 @@ ${wheelHTML()}
     <span class="t" style="font-size:21px;color:var(--leaf-d)">${goalTxt}</span>
     <div class="promise">${solo?'🙈 친구가 비밀번호 누를 때는<br>살짝 눈 감아 줘요':'🙏 놀리지 않기 · 대신 풀지 않기<br>🙂 틀려도 괜찮다고 말해 주기'}</div>
     <button class="go" data-act="start" ${ready?'':'disabled'}>${solo?'들어가기':'시작하기'}</button>
-    <p class="note" style="margin:0">${solo?'🔑 공부한 기록은 내 공부방에 저장돼요':'다 같이 · 학년별은 저장하지 않아요'}</p>`;
+    <p class="note" style="margin:0">${solo?'🔑 공부한 기록은 내 공부방에 저장돼요':'다 같이 · 학년별은 아이 기록으로 저장하지 않아요'}</p>`;
   stage.innerHTML = barHTML('다 같이 연꽃 피우기') + `<div class="marks">
     <div class="mark m1"><h4>① 누가 할까요?</h4>${m1}</div>
     <div class="mark m2"><h4>② 어떻게 할까요?</h4>${m2}</div>
@@ -529,6 +546,7 @@ ${wheelHTML()}
 /* ── 함께 풀기 ── */
 function startTeam(){
   const ord=orderList();
+  simStat({boardPlays:1, boardKids:ord.reduce((a,k)=>a+(ST.cnt[k]||1),0)});   // 다 같이 놀이 한 판 · 함께한 친구 수 (숫자만)
   G = { kind:'team', mode:ST.mode, groups:ord.map(k=>({k, cnt:ST.cnt[k]||1, friend:0, got:0, goal: ST.mode==='all' ? allGoal(k) : per()})), pos:0, q:null, lock:false, loading:false };
   ord.forEach(k=>bankOf(ROOM_OF[k]));   // 미리 열어 둬요
   ST.screen='play'; newTurn(true);

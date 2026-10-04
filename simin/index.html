@@ -146,6 +146,15 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .vdays tr.off td{color:var(--sub)}
 .vdays tr.today td{background:#FFF6E0}
 .vbar{width:35%}
+.sstat,.sdays{width:100%;font-size:.88rem}
+.sstat td,.sstat th,.sdays td,.sdays th{white-space:nowrap}
+.sstat td.sl{text-align:left}
+.sdays tr.off td{color:var(--sub)}.sdays tr.today td{background:#FFF6E0}
+.sh{margin:16px 0 6px;font-size:1rem}
+.hrs{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;align-items:end;height:90px;max-width:560px}
+.hrs div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.hrs i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:#8FCBA3}
+.hrs small{font-size:.65rem;color:var(--sub);height:14px}
 .stats.tstats{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (min-width:720px){ .stats.tstats{grid-template-columns:repeat(4,minmax(0,1fr))} }
 .stats.tstats .stat b{font-size:1.25rem;white-space:nowrap}
@@ -292,7 +301,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
     <summary>🪷 이용 방법</summary>
     <div class="doc">
       <h4>🖥️ 전자칠판 (심인당에서 다 같이)</h4>
-      <ol><li>처음 화면에서 <b>전자칠판</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(연꽃 약 100송이를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100송이를 채우면 다음 차례) · 🔑 내 공부방 중에서 골라요.</li><li><b>③ 순서</b>: 🃏 카드 뒤집기 · 🎡 룰렛 · 🪜 사다리 중 하나로 정해요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 각자 자기 나이 문제를 스스로 풀고, 정답은 차례인 친구만 눌러요. 맞히면 연꽃 한 송이!</li><li>🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 저장하지 않아요. <b>🔑 내 공부방</b>은 집처럼 이름 두 글자 + 나이 + 비밀번호로 들어가서 <b>내 나이 공부방</b>에서 혼자 공부해요. 기록은 내 공부방에 저장돼요.</li></ol>
+      <ol><li>처음 화면에서 <b>전자칠판</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(연꽃 약 100송이를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100송이를 채우면 다음 차례) · 🔑 내 공부방 중에서 골라요.</li><li><b>③ 순서</b>: 🃏 카드 뒤집기 · 🎡 룰렛 · 🪜 사다리 중 하나로 정해요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 각자 자기 나이 문제를 스스로 풀고, 정답은 차례인 친구만 눌러요. 맞히면 연꽃 한 송이!</li><li>🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요 (몇 판 했는지 · 함께한 친구 수 · 머문 시간 같은 숫자만 날짜별로 세요). <b>🔑 내 공부방</b>은 집처럼 이름 두 글자 + 나이 + 비밀번호로 들어가서 <b>내 나이 공부방</b>에서 혼자 공부해요. 기록은 내 공부방에 저장돼요.</li></ol>
       <h4>📱 부모님 핸드폰 (집에서 한 명씩)</h4>
       <ol><li><b>부모님 핸드폰</b>을 누르고 아이 <b>이름 두 글자</b>를 써요.</li><li><b>나이</b>를 누르고, 아이 <b>비밀번호 4자리</b>를 눌러요. 처음이면 같은 번호를 한 번 더 눌러 만들어요.</li><li>나이에 맞는 공부방이 열려요. 다음부터는 이 핸드폰에 이름이 남아 있어서 비밀번호만 누르면 돼요.</li></ol>
       <h4>👩 엄마아빠 모드</h4>
@@ -310,10 +319,10 @@ body.board .grade{font-size:2rem;padding:26px 6px}
         <li><b>아이 비밀번호 · 엄마아빠 비밀번호</b>: 번호 그대로 저장하지 않아요. 이름 · 나이와 함께 되돌릴 수 없게 암호화한 값(해시)만 ‘열쇠’로 저장해요.</li>
         <li><b>공부 기록</b>: 공부한 날, 푼 문제 수 · 맞힌 수, 모은 별, 공부방에 머문 시간(화면을 켜 두고 1분 안에 무언가 누른 시간만 초로 세요).</li>
         <li><b>이 기기에만</b>: 이 핸드폰에서 들어온 아이 이름 · 나이와 아이 번호를 브라우저 저장소에 남겨 다음에 쉽게 들어오게 해요. ‘이 기기에서 지우기’로 언제든 지울 수 있어요.</li>
-        <li><b>전자칠판</b>: 다 같이 · 학년별 협동은 저장하지 않아요. <b>🔑 내 공부방</b>은 이름 두 글자 · 나이 · 비밀번호로 아이를 확인한 뒤 집과 같은 그 아이의 공부방을 열어요. 공부 기록은 집에서 공부할 때와 똑같이 저장돼요.</li></ul>
+        <li><b>전자칠판</b>: 다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요 (몇 판 했는지 · 함께한 친구 수 · 머문 시간 같은 숫자만 날짜별로 세요). <b>🔑 내 공부방</b>은 이름 두 글자 · 나이 · 비밀번호로 아이를 확인한 뒤 집과 같은 그 아이의 공부방을 열어요. 공부 기록은 집에서 공부할 때와 똑같이 저장돼요.</li></ul>
       <h4>2. 누가 볼 수 있나요</h4>
       <ul><li><b>보호자</b>는 엄마아빠 비밀번호로 <b>우리 아이 기록만</b> 볼 수 있어요.</li>
-        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 같은 <b>숫자만</b> 나와요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
+        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 · 첫 화면이 열린 횟수와 시각 · 전자칠판을 쓴 횟수와 시간 같은 <b>숫자만</b> 나와요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
         <li>다른 아이의 기록은 서로 볼 수 없어요.</li></ul>
       <h4>3. 보관하는 곳과 기간</h4>
       <ul><li>기록은 Google Firebase(클라우드 데이터베이스)에 저장돼요.</li>
@@ -386,6 +395,16 @@ function cloudInit(){
   }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
   return cloud.ready;
 }
+/* 📊 심인당 숫자 통계 (2026-10-04): simin_stats/날짜 에 숫자만 더해요. 이름 · 아이 번호 · 푼 문제는 넣지 않아요 */
+function simDay(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function simStat(add, day){
+  return cloudInit().then(function(d){ if(!d) return; var FV=firebase.firestore.FieldValue, o={}, n=0;
+    Object.keys(add).forEach(function(k){ var v=add[k]; if(v && typeof v==='object'){ var m={}; Object.keys(v).forEach(function(h){ if(v[h]) { m[h]=FV.increment(v[h]); n++; } }); o[k]=m; } else if(v){ o[k]=FV.increment(v); n++; } });
+    if(n) return d.collection('simin_stats').doc(day||simDay()).set(o,{merge:true});
+  }).catch(function(e){ console.warn('통계', e); });
+}
+// 첫 화면을 열 때: 열린 횟수 · 오늘 처음 온 기기 · 몇 시에 왔는지
+(function(){ try{ var k='simin:seen', t=simDay(), first=localStorage.getItem(k)!==t; localStorage.setItem(k,t); var hr={}; hr[('0'+new Date().getHours()).slice(-2)]=1; setTimeout(function(){ simStat({views:1, visitors:first?1:0, hours:hr}); }, 1500); }catch(e){} })();
 async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터넷 연결을 확인해 주세요'); return d; }
 async function findKid(kind, name, age, pin){   // 열쇠로 아이 문서 찾기
   const d=await db(), k=await keyOf(kind,name,age,pin), s=await d.collection(kind==='k'?C_KEY:C_PKEY).doc(k).get();
@@ -415,7 +434,7 @@ const fontPick = () => { const cur=LS.get("font","unz"); return `<div class="fon
 function entry(){
   view.innerHTML = `<div class="hello"><span class="dongi">🪷</span><div class="bub">반가워요, 자성동이! 오늘은 어디에서 공부할까요?</div></div>
     <div class="doors">
-      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>🪷 심인당에서</small><span class="door-note">다 같이 · 학년별 협동은 저장하지 않아요<br>🔑 내 공부방은 이름 + 나이 + 비밀번호로 들어가요</span></div></a>
+      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>🪷 심인당에서</small><span class="door-note">다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요<br>🔑 내 공부방은 이름 + 나이 + 비밀번호로 들어가요</span></div></a>
       <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>🏠 집에서</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
     </div>
     ${a2hsCard()}
@@ -462,7 +481,7 @@ function boardPlay(){
     <h3 style="margin-top:16px">오늘 우리 팀 목표</h3>
     <div class="row-btns">${[10,20,30].map(g=>`<button class="grade ${S.goal===g?'on':''}" style="min-width:110px;padding:14px 10px" data-goal="${g}">🪷 ${g}<small>연꽃 별</small></button>`).join('')}</div>
     <button class="big-btn" data-act="boardStart">▶ 다 같이 시작!</button>
-    <p class="sub" style="margin-top:10px">전자칠판에서 한 공부는 저장하지 않아요.</p>
+    <p class="sub" style="margin-top:10px">전자칠판에서 다 같이 한 공부는 아이 기록으로 저장하지 않아요.</p>
     <button class="big-btn ghost" data-go="board">◀ 학년 다시 고르기</button></div>`;
 }
 
@@ -749,6 +768,7 @@ async function adminGoogle(){
 }
 async function adminHome(){
   view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
+    <div class="card" style="margin-top:14px"><h3>🖥️ 첫 화면 · 전자칠판 <span class="sub">(날짜별 숫자만 · 아이 기록과 따로)</span></h3><div id="astat"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>⏱ 활동 시간 <span class="sub">(모든 아이를 합친 시간 · 화면을 켜 두고 1분 넘게 아무것도 안 누른 시간은 빼요)</span></h3><div id="atime"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>🌱 접속 잔디 <span class="sub">(최근 13주 · 그날 공부방에 들어온 아이 수)</span></h3><div id="agrass"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>📅 날짜별 접속 <span class="sub">(최근 14일)</span></h3><div id="adays"><p class="sub">불러오는 중…</p></div></div>
@@ -765,6 +785,7 @@ async function adminHome(){
         if(s>0) secs[y.id]=(secs[y.id]||0)+s;
         if(!(v.visited || (v.total||0)>0 || s>0)) return; cnt[y.id]=(cnt[y.id]||0)+1; if(y.id>=k7 && y.id<=tk) wkKids.add(x.id); }); }catch(e){} }));
     const today=cnt[tk]||0, week=wkKids.size;
+    try{ const ss=await d.collection('simin_stats').get(), st={}; ss.forEach(x=>{ st[x.id]=x.data()||{}; }); $('astat').innerHTML=siteStats(st); }catch(e){ $('astat').innerHTML='<p class="msg">숫자를 불러오지 못했어요. Firebase 규칙에 simin_stats 자리가 있는지 확인해 주세요.</p>'; }
     $('agrass').innerHTML=visitGrass(cnt); $('adays').innerHTML=visitDays(cnt, secs); $('atime').innerHTML=timeStats(cnt, secs);
     $('anum').innerHTML = `<div class="stats"><div class="stat"><b>${qs.size}</b><small>👫 모든 아이</small></div><div class="stat"><b>${today}</b><small>📅 오늘 들어온 아이</small></div><div class="stat"><b>${week}</b><small>🗓️ 7일 동안</small></div></div>
       <table class="tbl"><tr>${AGES.map(a=>`<th>${a.n}</th>`).join('')}</tr><tr>${AGES.map(a=>`<td>${by[a.k]||0}</td>`).join('')}</tr></table>`;
@@ -780,6 +801,23 @@ function visitGrass(cnt){
   const tot=Object.entries(cnt).filter(([k])=>k>=dayKey(start)).reduce((a,[,n])=>a+n,0);
   return `<div class="vgrass" role="img" aria-label="최근 13주 접속 잔디">${cells}</div>
     <div class="vleg"><span>적게</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>많이</span><small>· 1명 · 2~3명 · 4~6명 · 7명 이상 (13주 동안 모두 ${tot}번)</small></div>`;
+}
+// 🖥️ 첫 화면 · 전자칠판 숫자: 기간 합계 + 최근 14일 표 + 시간대 (최근 30일)
+function siteStats(st){
+  const tk=dayKey(), w=dayKey(new Date(Date.now()-6*864e5)), mo=tk.slice(0,7), m30=dayKey(new Date(Date.now()-29*864e5)), WD='일월화수목금토';
+  const sum=(f,key)=>Object.entries(st).filter(([k])=>f(k)).reduce((a,[,v])=>a+(+v[key]||0),0);
+  const P=[['오늘',k=>k===tk],['최근 7일',k=>k>=w&&k<=tk],['이번 달',k=>k.startsWith(mo)],['모두',()=>true]];
+  const L=[['views','👀 첫 화면 열림','번'],['visitors','📱 찾아온 기기','대'],['board','🖥️ 전자칠판 켬','번'],['boardPlays','🤝 다 같이 놀이','판'],['boardKids','👫 함께한 친구','명'],['boardSec','⏱ 전자칠판 머문 시간','']];
+  const head=`<tr><th></th>${P.map(([n])=>`<th>${n}</th>`).join('')}</tr>`;
+  const body=L.map(([key,name,u])=>`<tr><td class="sl">${name}</td>${P.map(([,f])=>{ const v=sum(f,key); return `<td>${v ? (key==='boardSec'?fmtT(v):v+u) : '–'}</td>`; }).join('')}</tr>`).join('');
+  const days=[]; for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); const v=st[dayKey(t)]||{}; days.push(`<tr class="${(v.views||v.board)?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${v.views||'–'}</td><td>${v.visitors||'–'}</td><td>${v.boardPlays||'–'}</td><td>${v.boardKids||'–'}</td><td>${v.boardSec?fmtT(v.boardSec):'–'}</td></tr>`); }
+  const hrs=Array(24).fill(0); Object.entries(st).forEach(([k,v])=>{ if(k<m30 || !v.hours) return; Object.entries(v.hours).forEach(([h,n])=>{ hrs[+h]+=(+n||0); }); });
+  const hmax=Math.max(1,...hrs);
+  return `<div class="scroll-x"><table class="tbl sstat">${head}${body}</table></div>
+    <h4 class="sh">🕘 몇 시에 오나요? <span class="sub">(최근 30일 · 첫 화면을 연 시각)</span></h4>
+    <div class="hrs">${hrs.map((n,h)=>`<div title="${h}시 ${n}번"><i style="height:${Math.round(n/hmax*100)}%"></i><small>${h%3===0?h:''}</small></div>`).join('')}</div>
+    <h4 class="sh">📅 최근 14일</h4>
+    <div class="scroll-x"><table class="tbl sdays"><tr><th>날짜</th><th>첫 화면</th><th>기기</th><th>다 같이 놀이</th><th>친구</th><th>전자칠판 시간</th></tr>${days.join('')}</table></div>`;
 }
 // ⏱ 활동 시간: 오늘 · 최근 7일 · 이번 달 · 모두 (아이를 합친 시간과 한 명 평균)
 const fmtT = s => { const m=Math.round((s||0)/60); return m<60 ? m+'분' : Math.floor(m/60)+'시간'+(m%60?' '+(m%60)+'분':''); };
