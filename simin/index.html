@@ -396,7 +396,7 @@ addEventListener('popstate', e=>{ const s=e.state&&e.state.s; if(s && s!==S.scre
 function render(){
   $('homeBtn').hidden = S.screen==='entry';
   document.body.classList.toggle('board', S.screen.startsWith('board'));
-  ({entry, board, boardPlay, phone, phoneAge, phonePin, kidHome, parent, parentAge, parentPin, parentSetup, parentHome, adminLogin, adminHome})[S.screen]();
+  ({entry, board, boardPlay, phone, phoneAge, phonePin, kidHome, parent:parentScreen, parentAge, parentPin, parentSetup, parentHome, adminLogin, adminHome})[S.screen]();
 }
 const steps = (n, cur) => `<div class="steps">${Array.from({length:n},(_,i)=>`<i class="${i<=cur?'on':''}"></i>`).join('')}</div>`;
 const pinPad = (label, sub='') => `<div class="card center">${label}${sub?`<p class="sub">${sub}</p>`:''}
@@ -590,7 +590,8 @@ function kidHome(){
 }
 
 /* ───── 👩 엄마아빠 모드 ───── */
-function parent(){
+/* 엄마아빠 화면 (이름을 parent 로 하면 브라우저의 window.parent 를 덮어써서 구글 로그인 도우미가 멈춰요) */
+function parentScreen(){
   const f=S.form;
   view.innerHTML = `<div class="card center" style="margin-bottom:14px;padding:14px 20px"><h2 style="margin:0">👩 엄마아빠 모드</h2><p class="sub" style="margin:4px 0 0">우리 아이 공부 기록을 봐요</p></div>
     <div class="login2">
@@ -610,8 +611,8 @@ function parent(){
   inp.addEventListener('input', ()=>{ f.name=cleanName(inp.value); });
   inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); inp.blur(); } });
 }
-function parentAge(){ S.screen='parent'; parent(); }   // 예전 세 화면 → 한 화면으로 합쳤어요
-function parentPin(){ S.screen='parent'; parent(); }
+function parentAge(){ S.screen='parent'; parentScreen(); }   // 예전 세 화면 → 한 화면으로 합쳤어요
+function parentPin(){ S.screen='parent'; parentScreen(); }
 /* 이름 · 나이를 먼저 확인 (부모님 핸드폰 · 엄마아빠 모드 같은 화면) */
 function loginCheck(){
   const f=S.form, n=$('nameIn'); if(n) f.name=cleanName(n.value);
