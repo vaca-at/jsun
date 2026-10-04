@@ -130,6 +130,23 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .sub{color:var(--sub)}
 .big-btn{display:block;width:100%;max-width:420px;margin:16px auto 0;padding:.9rem 1rem;border-radius:20px;background:var(--lotus-d);color:#fff;font-family:var(--font-t);font-size:1.25rem;box-shadow:0 5px 0 #B94873}
 .big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B94873}
+/* 구글로 로그인: 흰 동그라미 안에 구글 G */
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.gico{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;flex:none}
+/* 관리자 현황판: 접속 잔디 · 날짜별 */
+.vgrass{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin-top:10px;max-width:520px}
+.vgrass i,.vleg i{display:block;aspect-ratio:1;border-radius:4px;background:#F1ECE4}
+.vgrass i.fut{background:transparent}
+.vgrass i.now{outline:2px solid var(--lotus-d);outline-offset:1px}
+.vgrass .l1,.vleg .l1{background:#CFE8D6}.vgrass .l2,.vleg .l2{background:#8FCBA3}.vgrass .l3,.vleg .l3{background:#4FA875}.vgrass .l4,.vleg .l4{background:#2E7D52}
+.vleg{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:.8rem;color:var(--sub)}
+.vleg i{width:12px;height:12px}
+.vleg small{margin-left:4px}
+.vdays{width:100%}
+.vdays tr.off td{color:var(--sub)}
+.vdays tr.today td{background:#FFF6E0}
+.vbar{width:45%}
+.vbar span{display:block;height:10px;border-radius:999px;background:#8FCBA3;min-width:0}
 .big-btn.leaf{background:var(--leaf-d);box-shadow:0 5px 0 #3B7C57}
 .big-btn.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line);box-shadow:none}
 .link{color:var(--lotus-d);text-decoration:underline;text-underline-offset:3px;font-size:.92rem}
@@ -695,7 +712,7 @@ function adminLogin(){
   view.innerHTML = `<div class="card center"><h2>🔒 관리자</h2><p class="sub">기존 공부방과 같은 관리자 구글 계정으로 들어가요</p>
     ${IN_APP?`<div class="soon" style="text-align:left">⚠️ <b>카카오톡 · 네이버 같은 앱 안에서는 구글 로그인이 막혀 있어요.</b><br>${kakao?'아래 단추로 기본 브라우저(사파리 · 크롬)에서 열어 주세요.':'오른쪽 위 ⋮ 또는 ⋯ 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 주세요.'}</div>
       <div class="row-btns">${kakao?`<a class="pill" href="kakaotalk://web/openExternal?url=${encodeURIComponent(url)}">🌐 기본 브라우저로 열기</a>`:''}<button class="pill" data-act="copyUrl">🔗 주소 복사</button></div>`:''}
-    <button class="big-btn" data-act="adminGoogle">G 구글로 로그인</button><div class="msg" id="msg"></div></div>`;
+    <button class="big-btn gbtn" data-act="adminGoogle"><span class="gico" aria-hidden="true"><svg viewBox="0 0 48 48" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span>구글로 로그인</button><div class="msg" id="msg"></div></div>`;
   adminAuto();
 }
 /* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요) */
@@ -719,15 +736,41 @@ async function adminGoogle(){
 }
 async function adminHome(){
   view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
+    <div class="card" style="margin-top:14px"><h3>🌱 접속 잔디 <span class="sub">(최근 13주 · 그날 공부방에 들어온 아이 수)</span></h3><div id="agrass"><p class="sub">불러오는 중…</p></div></div>
+    <div class="card" style="margin-top:14px"><h3>📅 날짜별 접속 <span class="sub">(최근 14일)</span></h3><div id="adays"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>🔐 엄마아빠 비밀번호 초기화</h3><p class="sub">보호자가 부탁했을 때만 써요. 이름을 정확히 써야 찾아져요.</p>
       <input class="field" id="aName" maxlength="12" placeholder="아이 이름 두 글자" style="max-width:none"><button class="big-btn ghost" data-act="adminFind">찾기</button><div id="afound"></div></div>
     <div class="row-btns"><button class="pill" data-act="adminOut">🚪 관리자 나가기</button></div>`;
   try{
-    const d=await db(), qs=await d.collection(C_KIDS).get(), now=Date.now(), by={}; let week=0, today=0;
-    qs.forEach(x=>{ const v=x.data(); by[v.age]=(by[v.age]||0)+1; if(now-(v.updatedAt||0)<7*864e5) week++; if(dayKey(new Date(v.updatedAt||0))===dayKey()) today++; });
+    const d=await db(), qs=await d.collection(C_KIDS).get(), by={};
+    qs.forEach(x=>{ const v=x.data(); by[v.age]=(by[v.age]||0)+1; });
+    // 날짜별 들어온 아이 수: 아이 공부방의 날짜 기록(room/state/daily/날짜)에 '들어옴'이나 푼 문제가 있으면 1명
+    const cnt={}, wkKids=new Set(), k7=dayKey(new Date(Date.now()-6*864e5)), tk=dayKey();
+    await Promise.all(qs.docs.map(async x=>{ try{ const ds=await x.ref.collection('room').doc('state').collection('daily').get();
+      ds.forEach(y=>{ const v=y.data()||{}; if(!(v.visited || (v.total||0)>0)) return; cnt[y.id]=(cnt[y.id]||0)+1; if(y.id>=k7 && y.id<=tk) wkKids.add(x.id); }); }catch(e){} }));
+    const today=cnt[tk]||0, week=wkKids.size;
+    $('agrass').innerHTML=visitGrass(cnt); $('adays').innerHTML=visitDays(cnt);
     $('anum').innerHTML = `<div class="stats"><div class="stat"><b>${qs.size}</b><small>👫 모든 아이</small></div><div class="stat"><b>${today}</b><small>📅 오늘 들어온 아이</small></div><div class="stat"><b>${week}</b><small>🗓️ 7일 동안</small></div></div>
       <table class="tbl"><tr>${AGES.map(a=>`<th>${a.n}</th>`).join('')}</tr><tr>${AGES.map(a=>`<td>${by[a.k]||0}</td>`).join('')}</tr></table>`;
   }catch(e){ $('anum').innerHTML=`<p class="msg">숫자를 불러오지 못했어요. Firebase 규칙에 simin 자리가 있는지 확인해 주세요.</p>`; }
+}
+// 🌱 접속 잔디: 13주 · 일요일부터 · 칸 색 = 그날 들어온 아이 수
+function visitGrass(cnt){
+  const W=13, end=new Date(), start=new Date(end); start.setDate(end.getDate()-end.getDay()-7*(W-1));
+  const lv=n=>!n?'':n<2?'l1':n<4?'l2':n<7?'l3':'l4', WD='일월화수목금토', tk=dayKey();
+  let cells='';
+  for(let i=0;i<W*7;i++){ const t=new Date(start); t.setDate(start.getDate()+i); const k=dayKey(t), n=cnt[k]||0, fut=k>tk;
+    cells+=`<i class="${fut?'fut':lv(n)}${k===tk?' now':''}" title="${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]}) ${fut?'':n+'명'}"></i>`; }
+  const tot=Object.entries(cnt).filter(([k])=>k>=dayKey(start)).reduce((a,[,n])=>a+n,0);
+  return `<div class="vgrass" role="img" aria-label="최근 13주 접속 잔디">${cells}</div>
+    <div class="vleg"><span>적게</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>많이</span><small>· 1명 · 2~3명 · 4~6명 · 7명 이상 (13주 동안 모두 ${tot}번)</small></div>`;
+}
+// 📅 날짜별 접속: 최근 14일, 그날 들어온 아이 수 막대
+function visitDays(cnt){
+  const WD='일월화수목금토', rows=[]; let max=1;
+  for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); rows.push([t, cnt[dayKey(t)]||0]); }
+  rows.forEach(([,n])=>{ if(n>max) max=n; });
+  return `<table class="tbl vdays"><tr><th>날짜</th><th>들어온 아이</th><th></th></tr>${rows.map(([t,n],i)=>`<tr class="${n?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}명</b>`:'–'}</td><td class="vbar"><span style="width:${Math.round(n/max*100)}%"></span></td></tr>`).join('')}</table>`;
 }
 async function adminFind(){
   const name=cleanName($('aName').value), box=$('afound'); if(!name){ box.innerHTML='<p class="msg">이름을 써 주세요</p>'; return; }
