@@ -5390,5 +5390,32 @@ html.sim-board body{padding-top:62px}
   draw();
 })();
 </script>
+<script>/* ⏱ 심인당 활동 시간 (2026-10-04): 화면이 켜져 있고 1분 안에 무언가 눌렀을 때만 1초씩 세서
+   아이 공부방 날짜 기록(simin_kids/아이/room/state/daily/날짜)의 act(초)에 더해요. 숫자만 · 전자칠판 다 같이는 세지 않아요 */
+(function(){
+  if(typeof SIM==='undefined' || !SIM || !SIM.id || SIM.id==='board') return;
+  var last=Date.now(), buf=0, busy=false, KEY='sim_act_pend_'+SIM.id;
+  try{ buf=+localStorage.getItem(KEY)||0; }catch(e){}
+  function act(){ last=Date.now(); }
+  ['pointerdown','keydown','touchstart','wheel'].forEach(function(t){ addEventListener(t,act,{capture:true,passive:true}); });
+  function day(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+  var curDay=day();
+  function save(){ try{ localStorage.setItem(KEY,String(buf)); }catch(e){} }
+  function flush(){
+    if(busy || buf<5 || !window.firebase || !firebase.apps || !firebase.apps.length || !firebase.firestore) return;
+    var n=buf, d=curDay; busy=true; buf=0; save();
+    firebase.firestore().collection('simin_kids').doc(SIM.id).collection('room').doc('state').collection('daily').doc(d)
+      .set({act:firebase.firestore.FieldValue.increment(n)},{merge:true})
+      .then(function(){ busy=false; }, function(){ busy=false; buf+=n; save(); });
+  }
+  setInterval(function(){
+    var d=day(); if(d!==curDay){ flush(); curDay=d; }
+    if(document.visibilityState==='visible' && Date.now()-last<60000){ buf++; if(buf%10===0) save(); }
+    if(buf>=30) flush();
+  },1000);
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden'){ save(); flush(); } });
+  addEventListener('pagehide',function(){ save(); flush(); });
+})();
+</script>
 </body>
 </html>

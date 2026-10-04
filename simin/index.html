@@ -145,7 +145,12 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .vdays{width:100%}
 .vdays tr.off td{color:var(--sub)}
 .vdays tr.today td{background:#FFF6E0}
-.vbar{width:45%}
+.vbar{width:35%}
+.stats.tstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:720px){ .stats.tstats{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.stats.tstats .stat b{font-size:1.25rem;white-space:nowrap}
+.stats.tstats .stat small{display:block;line-height:1.5}
+.stats.tstats .stat i{display:block;font-style:normal;font-size:.75rem;opacity:.85}
 .vbar span{display:block;height:10px;border-radius:999px;background:#8FCBA3;min-width:0}
 .big-btn.leaf{background:var(--leaf-d);box-shadow:0 5px 0 #3B7C57}
 .big-btn.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line);box-shadow:none}
@@ -303,12 +308,12 @@ body.board .grade{font-size:2rem;padding:26px 6px}
       <h4>1. 모으는 정보</h4>
       <ul><li><b>아이 이름 두 글자와 나이 · 학년</b>: 아이를 구분하고 나이에 맞는 공부를 보여 주려고 써요.</li>
         <li><b>아이 비밀번호 · 엄마아빠 비밀번호</b>: 번호 그대로 저장하지 않아요. 이름 · 나이와 함께 되돌릴 수 없게 암호화한 값(해시)만 ‘열쇠’로 저장해요.</li>
-        <li><b>공부 기록</b>: 공부한 날, 푼 문제 수 · 맞힌 수, 모은 별.</li>
+        <li><b>공부 기록</b>: 공부한 날, 푼 문제 수 · 맞힌 수, 모은 별, 공부방에 머문 시간(화면을 켜 두고 1분 안에 무언가 누른 시간만 초로 세요).</li>
         <li><b>이 기기에만</b>: 이 핸드폰에서 들어온 아이 이름 · 나이와 아이 번호를 브라우저 저장소에 남겨 다음에 쉽게 들어오게 해요. ‘이 기기에서 지우기’로 언제든 지울 수 있어요.</li>
         <li><b>전자칠판</b>: 다 같이 · 학년별 협동은 저장하지 않아요. <b>🔑 내 공부방</b>은 이름 두 글자 · 나이 · 비밀번호로 아이를 확인한 뒤 집과 같은 그 아이의 공부방을 열어요. 공부 기록은 집에서 공부할 때와 똑같이 저장돼요.</li></ul>
       <h4>2. 누가 볼 수 있나요</h4>
       <ul><li><b>보호자</b>는 엄마아빠 비밀번호로 <b>우리 아이 기록만</b> 볼 수 있어요.</li>
-        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 공부한 아이 수 같은 <b>숫자만</b> 나와요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
+        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 같은 <b>숫자만</b> 나와요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
         <li>다른 아이의 기록은 서로 볼 수 없어요.</li></ul>
       <h4>3. 보관하는 곳과 기간</h4>
       <ul><li>기록은 Google Firebase(클라우드 데이터베이스)에 저장돼요.</li>
@@ -744,6 +749,7 @@ async function adminGoogle(){
 }
 async function adminHome(){
   view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
+    <div class="card" style="margin-top:14px"><h3>⏱ 활동 시간 <span class="sub">(모든 아이를 합친 시간 · 화면을 켜 두고 1분 넘게 아무것도 안 누른 시간은 빼요)</span></h3><div id="atime"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>🌱 접속 잔디 <span class="sub">(최근 13주 · 그날 공부방에 들어온 아이 수)</span></h3><div id="agrass"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>📅 날짜별 접속 <span class="sub">(최근 14일)</span></h3><div id="adays"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>🔐 엄마아빠 비밀번호 초기화</h3><p class="sub">보호자가 부탁했을 때만 써요. 이름을 정확히 써야 찾아져요.</p>
@@ -753,11 +759,13 @@ async function adminHome(){
     const d=await db(), qs=await d.collection(C_KIDS).get(), by={};
     qs.forEach(x=>{ const v=x.data(); by[v.age]=(by[v.age]||0)+1; });
     // 날짜별 들어온 아이 수: 아이 공부방의 날짜 기록(room/state/daily/날짜)에 '들어옴'이나 푼 문제가 있으면 1명
-    const cnt={}, wkKids=new Set(), k7=dayKey(new Date(Date.now()-6*864e5)), tk=dayKey();
+    const cnt={}, secs={}, wkKids=new Set(), k7=dayKey(new Date(Date.now()-6*864e5)), tk=dayKey();
     await Promise.all(qs.docs.map(async x=>{ try{ const ds=await x.ref.collection('room').doc('state').collection('daily').get();
-      ds.forEach(y=>{ const v=y.data()||{}; if(!(v.visited || (v.total||0)>0)) return; cnt[y.id]=(cnt[y.id]||0)+1; if(y.id>=k7 && y.id<=tk) wkKids.add(x.id); }); }catch(e){} }));
+      ds.forEach(y=>{ const v=y.data()||{}, s=+v.act||+v.sec||0;   // 활동 시간(act, 2026-10-04부터 모든 방) · 그 전 날은 공부 시간(sec, 초3~초6 방)
+        if(s>0) secs[y.id]=(secs[y.id]||0)+s;
+        if(!(v.visited || (v.total||0)>0 || s>0)) return; cnt[y.id]=(cnt[y.id]||0)+1; if(y.id>=k7 && y.id<=tk) wkKids.add(x.id); }); }catch(e){} }));
     const today=cnt[tk]||0, week=wkKids.size;
-    $('agrass').innerHTML=visitGrass(cnt); $('adays').innerHTML=visitDays(cnt);
+    $('agrass').innerHTML=visitGrass(cnt); $('adays').innerHTML=visitDays(cnt, secs); $('atime').innerHTML=timeStats(cnt, secs);
     $('anum').innerHTML = `<div class="stats"><div class="stat"><b>${qs.size}</b><small>👫 모든 아이</small></div><div class="stat"><b>${today}</b><small>📅 오늘 들어온 아이</small></div><div class="stat"><b>${week}</b><small>🗓️ 7일 동안</small></div></div>
       <table class="tbl"><tr>${AGES.map(a=>`<th>${a.n}</th>`).join('')}</tr><tr>${AGES.map(a=>`<td>${by[a.k]||0}</td>`).join('')}</tr></table>`;
   }catch(e){ $('anum').innerHTML=`<p class="msg">숫자를 불러오지 못했어요. Firebase 규칙에 simin 자리가 있는지 확인해 주세요.</p>`; }
@@ -773,12 +781,21 @@ function visitGrass(cnt){
   return `<div class="vgrass" role="img" aria-label="최근 13주 접속 잔디">${cells}</div>
     <div class="vleg"><span>적게</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>많이</span><small>· 1명 · 2~3명 · 4~6명 · 7명 이상 (13주 동안 모두 ${tot}번)</small></div>`;
 }
-// 📅 날짜별 접속: 최근 14일, 그날 들어온 아이 수 막대
-function visitDays(cnt){
+// ⏱ 활동 시간: 오늘 · 최근 7일 · 이번 달 · 모두 (아이를 합친 시간과 한 명 평균)
+const fmtT = s => { const m=Math.round((s||0)/60); return m<60 ? m+'분' : Math.floor(m/60)+'시간'+(m%60?' '+(m%60)+'분':''); };
+function timeStats(cnt, secs){
+  const tk=dayKey(), w=dayKey(new Date(Date.now()-6*864e5)), mo=tk.slice(0,7);
+  const sum=f=>Object.entries(secs).filter(([k])=>f(k)).reduce((a,[,s])=>a+s,0), kd=f=>Object.entries(cnt).filter(([k])=>f(k)).reduce((a,[,n])=>a+n,0);
+  const row=(label,f)=>{ const s=sum(f), n=kd(f); return `<div class="stat"><b>${fmtT(s)}</b><small>${label}${n?`<i>한 명 하루 평균 ${fmtT(s/n)}</i>`:''}</small></div>`; };
+  return `<div class="stats tstats">${row('📅 오늘',k=>k===tk)}${row('🗓️ 최근 7일',k=>k>=w && k<=tk)}${row('🌙 이번 달',k=>k.startsWith(mo))}${row('🪷 모두',()=>true)}</div>
+    <p class="sub" style="margin:8px 0 0;font-size:.8rem">'한 명 하루 평균'은 아이 한 명이 하루에 머문 시간이에요. 10월 4일 전에는 초3~초6 방의 공부 시간만 남아 있어요.</p>`;
+}
+// 📅 날짜별 접속: 최근 14일, 그날 들어온 아이 수 막대 · 모두 합친 활동 시간
+function visitDays(cnt, secs){ secs=secs||{};
   const WD='일월화수목금토', rows=[]; let max=1;
   for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); rows.push([t, cnt[dayKey(t)]||0]); }
   rows.forEach(([,n])=>{ if(n>max) max=n; });
-  return `<table class="tbl vdays"><tr><th>날짜</th><th>들어온 아이</th><th></th></tr>${rows.map(([t,n],i)=>`<tr class="${n?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}명</b>`:'–'}</td><td class="vbar"><span style="width:${Math.round(n/max*100)}%"></span></td></tr>`).join('')}</table>`;
+  return `<table class="tbl vdays"><tr><th>날짜</th><th>들어온 아이</th><th>활동 시간</th><th></th></tr>${rows.map(([t,n],i)=>`<tr class="${n?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}명</b>`:'–'}</td><td>${secs[dayKey(t)]?fmtT(secs[dayKey(t)]):'–'}</td><td class="vbar"><span style="width:${Math.round(n/max*100)}%"></span></td></tr>`).join('')}</table>`;
 }
 async function adminFind(){
   const name=cleanName($('aName').value), box=$('afound'); if(!name){ box.innerHTML='<p class="msg">이름을 써 주세요</p>'; return; }
