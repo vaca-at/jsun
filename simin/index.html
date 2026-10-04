@@ -213,7 +213,13 @@ body.board .grade{font-size:2rem;padding:26px 6px}
     </div>
     <button class="homebtn" id="homeBtn" hidden>🏠 처음으로</button>
   </header>
-  <main id="view"></main>
+  <main id="view"><!-- 스크립트가 멈춰도(아주 오래된 전자칠판 브라우저 등) 들어갈 수 있게 미리 그려 둔 입구. 스크립트가 돌면 바로 바뀌어요 -->
+    <div class="doors">
+      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>🪷 심인당에서</small></div></a>
+      <a class="door phone" href="./" style="text-decoration:none;color:inherit"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>🏠 집에서</small></div></a>
+    </div>
+    <p class="center" style="margin-top:14px;color:var(--sub)">화면이 이대로 멈춰 있으면 이 기기의 인터넷 브라우저(크롬)를 최신으로 업데이트해 주세요.</p>
+  </main>
 </div>
 
 <footer class="foot">
@@ -284,7 +290,7 @@ const C_KIDS='simin_kids', C_KEY='simin_key', C_PKEY='simin_pkey';
 /* ═════════ 도움 함수 ═════════ */
 const $ = id => document.getElementById(id);
 const view = $('view');
-const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const josa = (w,a,b) => { const c=w.charCodeAt(w.length-1); return w + (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? a : b); };
 const cleanName = s => String(s||'').replace(/\s+/g,' ').trim().slice(0,12);
 async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }

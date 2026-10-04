@@ -262,7 +262,7 @@ const PROMISE = '🙏 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜�
 const $ = id => document.getElementById(id), stage = $('stage');
 const ageOf = k => AGES.find(a=>a[0]===k);
 const nameOf = k => ageOf(k)[1];
-const esc = s => String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const josa = (w,a,b) => { const c=w.charCodeAt(w.length-1); return w + (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? a : b); };
 const LS = { get(k,d){ try{ const v=localStorage.getItem('simin:'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } } };
@@ -566,7 +566,7 @@ stage.addEventListener('click', e=>{
   if(a==='reshuffle'){ resetCards(); render(); }
   else if(a==='spin') spinWheel();
   else if(a==='climb') climbLadder();
-  else if(a==='start'){ try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){}   /* 아이패드 소리 열기 */ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:ST.soloAge||null,pin:'',first:''}; render(); $('nameIn')?.focus(); } else startTeam(); }
+  else if(a==='start'){ try{ speechSynthesis.speak(new SpeechSynthesisUtterance(' ')); }catch(e){}   /* 아이패드 소리 열기 */ if(ST.mode==='solo'){ ST.screen='soloLogin'; ST.form={name:'',age:ST.soloAge||null,pin:'',first:''}; render(); { const ni=$('nameIn'); if(ni) ni.focus(); } } else startTeam(); }
   else if(a==='sayQ'){ if(G&&G.q) speak(G.q.say); }
   else if(a==='retryQ') newTurn(false);
   else if(a==='stop'){ if(confirm('그만하고 처음 화면으로 갈까요?')){ G=null; ST.screen='setup'; render(); } }

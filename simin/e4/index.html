@@ -2773,7 +2773,7 @@ async function loadWeather(force){
   try{
     const u=`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`;
     const d=await (await fetch(u)).json();
-    wxSet('data',{at:Date.now(), lat:loc.lat, temp:d.current.temperature_2m, code:d.current.weather_code, max:d.daily.temperature_2m_max[0], min:d.daily.temperature_2m_min[0], rain:d.daily.precipitation_probability_max[0]??0});
+    wxSet('data',{at:Date.now(), lat:loc.lat, temp:d.current.temperature_2m, code:d.current.weather_code, max:d.daily.temperature_2m_max[0], min:d.daily.temperature_2m_min[0], rain:(d.daily.precipitation_probability_max[0]==null?0:d.daily.precipitation_probability_max[0])});
     const card=document.getElementById('wxCard'); if(card) card.outerHTML=weatherHTML(); drawDockExtra();
   }catch(e){ console.warn('날씨를 불러오지 못했어요', e); }
 }

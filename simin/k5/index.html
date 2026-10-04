@@ -712,7 +712,7 @@ function dropInto(s, t){
   else { beep(false); t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
   if(onDrop) onDrop(s, t, ok);
 }
-const tileHTML = (v, label, cls='') => `<button class="tile ${cls}" data-val="${v}">${label??v}</button>`;
+const tileHTML = (v, label, cls='') => `<button class="tile ${cls}" data-val="${v}">${label==null?v:label}</button>`;
 
 /* ───── 문제 한 벌 (5문제) 공통 흐름 ───── */
 let Q=null; // {area, lv, list, i, miss, done}
@@ -1037,7 +1037,7 @@ function readFrom(i){
   speak(st.pages[i][1], 'ko', ()=>{ if(RD===tok) readFrom(i+1); });
 }
 /* 다섯 방에서 쓰는 작은 도구 */
-const esc = t => String(t??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = t => String(t==null?'':t).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const pill = (act,v,label,cur,extra='') => `<button class="pill ${String(v)===String(cur)?'on':''}" data-act="${act}" data-v="${v}" ${extra}>${label}</button>`;
 /* ───── 내 캐릭터 방: 모은 별로 캐릭터 · 모자 · 소품 · 친구 · 배경을 사서 꾸며요 (여섯 방 공통 · 다온 방은 돌고래가 처음부터 있어요) ─────
    모은 별(stars)은 그대로 두고 쓴 별(deco.spent)을 따로 세요 → 스티커(모은 별 ÷ 10)는 줄지 않아요.
