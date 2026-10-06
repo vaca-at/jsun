@@ -404,8 +404,8 @@ function simStat(add, day){
     if(n) return d.collection('simin_stats').doc(day||simDay()).set(o,{merge:true});
   }).catch(function(e){ console.warn('통계', e); });
 }
-// 첫 화면을 열 때: 열린 횟수 · 오늘 처음 온 기기 · 몇 시에 왔는지
-(function(){ try{ var k='simin:seen', t=simDay(), first=localStorage.getItem(k)!==t; localStorage.setItem(k,t); var hr={}; hr[('0'+new Date().getHours()).slice(-2)]=1; setTimeout(function(){ simStat({views:1, visitors:first?1:0, hours:hr}); }, 1500); }catch(e){} })();
+// 첫 화면을 열 때: 열린 횟수 · 오늘 처음 온 기기 · 몇 시에 왔는지 (관리자 주소 #admin 으로 연 것은 세지 않아요)
+(function(){ try{ if(/^#admin$/.test(location.hash) || /[?&]admin\b/.test(location.search)) return; var k='simin:seen', t=simDay(), first=localStorage.getItem(k)!==t; localStorage.setItem(k,t); var hr={}; hr[('0'+new Date().getHours()).slice(-2)]=1; setTimeout(function(){ simStat({views:1, visitors:first?1:0, hours:hr}); }, 1500); }catch(e){} })();
 async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터넷 연결을 확인해 주세요'); return d; }
 async function findKid(kind, name, age, pin){   // 열쇠로 아이 문서 찾기
   const d=await db(), k=await keyOf(kind,name,age,pin), s=await d.collection(kind==='k'?C_KEY:C_PKEY).doc(k).get();
@@ -765,6 +765,8 @@ async function adminGoogle(){
     const r=await firebase.auth().signInWithPopup(p);   // 로그인 유지는 웹 기본값(LOCAL)이라 따로 정하지 않아요
     if(await isAdminUser(r.user)) go('adminHome'); else { await firebase.auth().signOut(); if(msg()) msg().textContent='관리자 계정이 아니에요 ('+(r.user.email||'')+')'; }
   }catch(e){
+    // moontr.site 관리자 허브 안(iframe)에서는 구글 화면으로 넘어가기(redirect)가 막혀요 → 새 창으로 열기 안내
+    if((e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment') && window.top!==window){ if(msg()) msg().innerHTML='이 창 안에서는 로그인 창을 열 수 없어요. 위의 <b>[새 창으로]</b>를 눌러 주세요'; return; }
     if(e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment'){ try{ LS.set('adminRedirect',1); await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
     if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request'){ if(msg()) msg().textContent=''; return; }
     const why={'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/internal-error':'로그인 창을 열지 못했어요. 앱 안 브라우저라면 사파리 · 크롬에서 열어 주세요'}[e.code];
@@ -902,6 +904,8 @@ $('homeBtn').addEventListener('click', ()=>go('entry'));
 /* 이 핸드폰에서 방금까지 공부하던 친구가 있으면 비밀번호만 누르게 */
 try{ history.replaceState({s:'entry'},''); }catch(e){}
 render();
+// 주소 끝이 #admin (또는 ?admin)이면 관리자 화면부터: moontr.site 관리자 허브에서 바로 열어요
+if(/^#admin$/.test(location.hash) || /[?&]admin\b/.test(location.search)){ try{ history.replaceState({s:'adminLogin'},''); }catch(e){} S.screen='adminLogin'; render(); }
 if(LS.get('adminRedirect',0)){ LS.del('adminRedirect'); cloudInit().then(ok=>{ if(!ok) return; firebase.auth().getRedirectResult().then(r=>{ const u=r&&r.user||firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y) go('adminHome'); else toast('관리자 계정이 아니에요'); }); }).catch(e=>toast('로그인하지 못했어요 ('+(e.code||'')+')')); }); }
 </script>
 </body>
