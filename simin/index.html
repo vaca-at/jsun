@@ -132,6 +132,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B94873}
 /* 구글로 로그인: 흰 동그라미 안에 구글 G */
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.gbtn:disabled{opacity:.5;cursor:wait}
 .gico{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;flex:none}
 /* 관리자 현황판: 접속 잔디 · 날짜별 */
 .vgrass{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin-top:10px;max-width:520px}
@@ -737,14 +738,18 @@ function adminLogin(){
   view.innerHTML = `<div class="card center"><h2>🔒 관리자</h2><p class="sub">기존 공부방과 같은 관리자 구글 계정으로 들어가요</p>
     ${IN_APP?`<div class="soon" style="text-align:left">⚠️ <b>카카오톡 · 네이버 같은 앱 안에서는 구글 로그인이 막혀 있어요.</b><br>${kakao?'아래 단추로 기본 브라우저(사파리 · 크롬)에서 열어 주세요.':'오른쪽 위 ⋮ 또는 ⋯ 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 주세요.'}</div>
       <div class="row-btns">${kakao?`<a class="pill" href="kakaotalk://web/openExternal?url=${encodeURIComponent(url)}">🌐 기본 브라우저로 열기</a>`:''}<button class="pill" data-act="copyUrl">🔗 주소 복사</button></div>`:''}
-    <button class="big-btn gbtn" data-act="adminGoogle"><span class="gico" aria-hidden="true"><svg viewBox="0 0 48 48" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span>구글로 로그인</button><div class="msg" id="msg"></div></div>`;
+    <button class="big-btn gbtn" id="gBtn" data-act="adminGoogle" disabled><span class="gico" aria-hidden="true"><svg viewBox="0 0 48 48" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span>구글로 로그인</button><div class="msg" id="msg">로그인 상태를 확인하고 있어요…</div></div>`;
   adminAuto();
 }
-/* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요) */
+/* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요).
+   확인이 끝날 때까지 단추를 잠가 둬요: 먼저 누르면 구글 창이 뜬 뒤에 뒤에서 현황판이 열려 겹쳐 보여요 */
 function adminAuto(){
-  cloudInit().then(ok=>{ if(!ok) return;
+  const ready=()=>{ const b=$('gBtn'), m=$('msg'); if(b) b.disabled=false; if(m && m.textContent.startsWith('로그인 상태')) m.textContent=''; };
+  cloudInit().then(ok=>{ if(!ok){ ready(); const m=$('msg'); if(m) m.textContent='인터넷 연결을 확인해 주세요'; return; }
     try{ firebase.auth().getRedirectResult().catch(()=>{}); }catch(e){}   // 로그인 도우미(숨은 창)를 미리 준비해 두면 단추를 누르자마자 구글 창이 열려요
-    let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off()); if(u) isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); }); }); });
+    let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off());
+      if(!u){ ready(); return; }
+      isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); else ready(); }); }); });
 }
 /* 구글 로그인 창은 누른 순간 바로 열어야 브라우저가 막지 않아요 (앞에서 기다리면 팝업 차단).
    그래서 관리자 화면이 뜰 때 미리 불러 두고(adminAuto), 아직 준비 전이면 준비한 뒤 한 번 더 눌러 달라고 해요 */
@@ -767,6 +772,9 @@ async function adminGoogle(){
   }
 }
 async function adminHome(){
+  // 뒤로 · 앞으로 가기로 들어와도 관리자 로그인이 아니면 로그인 화면으로 (숫자는 Firebase 규칙이 관리자에게만 줘요)
+  const u=window.firebase && firebase.apps && firebase.apps.length && firebase.auth().currentUser;
+  if(!u || !(await isAdminUser(u))){ S.screen='adminLogin'; try{ history.replaceState({s:'adminLogin'},''); }catch(e){} render(); return; }
   view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
     <div class="card" style="margin-top:14px"><h3>🖥️ 첫 화면 · 전자칠판 <span class="sub">(날짜별 숫자만 · 아이 기록과 따로)</span></h3><div id="astat"><p class="sub">불러오는 중…</p></div></div>
     <div class="card" style="margin-top:14px"><h3>⏱ 활동 시간 <span class="sub">(모든 아이를 합친 시간 · 화면을 켜 두고 1분 넘게 아무것도 안 누른 시간은 빼요)</span></h3><div id="atime"><p class="sub">불러오는 중…</p></div></div>
