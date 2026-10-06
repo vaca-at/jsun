@@ -323,7 +323,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
         <li><b>전자칠판</b>: 다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요 (몇 판 했는지 · 함께한 친구 수 · 머문 시간 같은 숫자만 날짜별로 세요). <b>🔑 내 공부방</b>은 이름 두 글자 · 나이 · 비밀번호로 아이를 확인한 뒤 집과 같은 그 아이의 공부방을 열어요. 공부 기록은 집에서 공부할 때와 똑같이 저장돼요.</li></ul>
       <h4>2. 누가 볼 수 있나요</h4>
       <ul><li><b>보호자</b>는 엄마아빠 비밀번호로 <b>우리 아이 기록만</b> 볼 수 있어요.</li>
-        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 · 첫 화면이 열린 횟수와 시각 · 전자칠판을 쓴 횟수와 시간 같은 <b>숫자만</b> 나와요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
+        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 · 첫 화면이 열린 횟수와 시각 · 전자칠판을 쓴 횟수와 시간 같은 <b>숫자만</b> 나와요. 첫 화면이 열린 횟수는 운영자가 여러 웹앱을 함께 보는 관리 화면(moontr.site)에도 숫자로만 세요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
         <li>다른 아이의 기록은 서로 볼 수 없어요.</li></ul>
       <h4>3. 보관하는 곳과 기간</h4>
       <ul><li>기록은 Google Firebase(클라우드 데이터베이스)에 저장돼요.</li>
@@ -908,5 +908,7 @@ render();
 if(/^#admin$/.test(location.hash) || /[?&]admin\b/.test(location.search)){ try{ history.replaceState({s:'adminLogin'},''); }catch(e){} S.screen='adminLogin'; render(); }
 if(LS.get('adminRedirect',0)){ LS.del('adminRedirect'); cloudInit().then(ok=>{ if(!ok) return; firebase.auth().getRedirectResult().then(r=>{ const u=r&&r.user||firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y) go('adminHome'); else toast('관리자 계정이 아니에요'); }); }).catch(e=>toast('로그인하지 못했어요 ('+(e.code||'')+')')); }); }
 </script>
+<!-- moontr.site 관리자 허브 [홈]에 보일 방문 수 (세기만 · 화면에는 안 보임 · 관리자 화면은 안 셈) -->
+<script type="module" src="https://moontr.site/visit.js?app=simin&hide=1"></script>
 </body>
 </html>
