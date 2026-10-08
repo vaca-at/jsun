@@ -395,6 +395,24 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .momnote a{color:inherit}
 .legal-f{max-width:780px;margin:0 auto;padding:10px 12px 28px;text-align:center;font-size:.82rem;color:var(--sub)}
 .legal-f a{color:var(--sub)}
+
+/* ── 2026-10-08 유아 방 다듬기 ── */
+/* 글자 아이콘 상자: 글자가 길면 옆으로 넓어져요 (ABC · 3−1 이 상자 밖으로 넘치던 것) */
+.head .ico.txt{width:auto;min-width:56px;padding:0 14px;white-space:nowrap;letter-spacing:-.02em}
+/* 🍭 단계 칩: 칩마다 다른 사탕 색 · 동그란 번호 · 눌리는 그림자 · 고른 칩에 ⭐ */
+.levels .lv{--lc:var(--c);display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px 0 7px;border-radius:999px;background:color-mix(in srgb,var(--lc) 13%,#fff);border:2.5px solid color-mix(in srgb,var(--lc) 45%,#fff);color:color-mix(in srgb,var(--lc) 60%,#3b2c27);font-size:1.05rem;font-weight:800;box-shadow:0 4px 0 color-mix(in srgb,var(--lc) 35%,#fff);transition:transform .15s,box-shadow .15s;cursor:pointer}
+.levels .lv:not(:has(.lvn)){padding:0 18px}
+.levels .lv .lvn{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--lc);color:#fff;font-style:normal;font-size:1.05rem;box-shadow:inset 0 -3px 0 rgba(0,0,0,.14)}
+.levels .lv:hover{transform:translateY(-2px)}
+.levels .lv:active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--lc) 35%,#fff)}
+.levels .lv.on{background:var(--lc);border-color:var(--lc);color:#fff;box-shadow:0 5px 0 color-mix(in srgb,var(--lc) 62%,#000);transform:translateY(-2px)}
+.levels .lv.on .lvn{background:#fff;color:var(--lc)}
+.levels .lv.on::after{content:"⭐";font-size:.95rem;margin-left:-2px;animation:lvpop .5s ease}
+@keyframes lvpop{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.3)}100%{transform:none}}
+/* 정답 없는 마음 문제 안내 */
+.prompt small.nohint{display:inline-block;margin-top:6px;padding:2px 12px;border-radius:999px;background:color-mix(in srgb,var(--c) 14%,#fff);color:color-mix(in srgb,var(--c) 70%,#3b2c27);font-size:.62em}
+@media (max-width:760px){ .head .ico.txt{min-width:44px;padding:0 10px} .levels .lv{min-height:46px;font-size:.95rem;padding:0 14px 0 6px} .levels .lv .lvn{width:32px;height:32px;font-size:.95rem} }
+@media (prefers-reduced-motion:reduce){ .levels .lv.on::after{animation:none} }
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 </head>
@@ -661,7 +679,7 @@ document.addEventListener('pointerup', e=>{
 document.addEventListener('pointercancel', ()=>{ if(DND){ DND.g&&DND.g.remove(); DND.t.classList.remove('lift'); DND=null; } });
 function slotAt(x,y){ const el=document.elementFromPoint(x,y); const s=el&&el.closest('.slot'); return s&&!s.classList.contains('filled')?s:null; }
 function dropInto(s, t){
-  const ok = String(s.dataset.ans)===String(t.dataset.val);
+  const ok = s.dataset.any==='1' || String(s.dataset.ans)===String(t.dataset.val);   // data-any: 정답 없는 마음 나누기
   if(ok){ s.innerHTML=t.innerHTML; s.classList.add('filled'); t.classList.add('used'); beep(true); }
   else { beep(false); t.classList.remove('shake'); void t.offsetWidth; t.classList.add('shake'); }
   if(onDrop) onDrop(s, t, ok);
@@ -676,11 +694,11 @@ function afterDrop(s, t, ok){
   if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
   if(document.querySelectorAll('#qbox .slot:not(.filled)').length) { if(P.partSay) speak(t.textContent); return; }   // 칸이 더 남았어요
   if(Q.ok[Q.i]===undefined){ addStar(1); logToday(AREAS[Q.area].p, !Q.miss, Q.area); Q.ok[Q.i]=!Q.miss; }   // 이전으로 돌아가 다시 맞혀도 별은 한 번만
-  const msg=praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
+  const msg=P.any&&P.anyMsg?P.anyMsg(t.dataset.val):praise(); $('hint').innerHTML=`<span class="praise">${msg}</span>`;
   if(P.after && P.afterLang==='en') speak(msg, 'ko', ()=>speak(P.after, 'en'));   // 칭찬은 한국말, 영어 낱말은 영어 목소리로
   else speak(P.after ? `${msg} ${P.after}` : msg);
   burst();
-  setTimeout(()=>{ Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); }, 1500);
+  const q0=Q, i0=Q.i; clearTimeout(Q.adv); Q.adv=setTimeout(()=>{ if(Q!==q0 || Q.i!==i0 || Q.done) return; Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); }, 1500);   // 그사이 다음 ▶ · 단계 바꾸기를 누르면 아무것도 안 해요 (다음 문제가 떴다가 또 바뀌던 것)
 }
 function dotsHTML(){ return `<div class="dots">${Q.list.map((_,k)=>`<i class="${k<Q.i?'ok':k===Q.i?'cur':''}"></i>`).join('')}</div>`; }
 function setDone(title){
@@ -695,7 +713,7 @@ const CHO = [['ㄱ','기역',0],['ㄴ','니은',2],['ㄷ','디귿',3],['ㄹ','�
 const JUNG = [['ㅏ','아',0],['ㅑ','야',2],['ㅓ','어',4],['ㅕ','여',6],['ㅗ','오',8],['ㅛ','요',12],['ㅜ','우',13],['ㅠ','유',17],['ㅡ','으',18],['ㅣ','이',20]];
 const syl = (c,j) => String.fromCharCode(0xAC00+(c*21+j)*28);
 const WORDS0 = [['오리','🦆'],['나비','🦋'],['사자','🦁'],['기차','🚂'],['포도','🍇'],['우유','🥛'],['바지','👖'],['치마','👗'],['하마','🦛'],['가지','🍆'],['오이','🥒'],['버스','🚌'],['피자','🍕'],['토마토','🍅'],['바나나','🍌'],['고구마','🍠'],['코끼리','🐘'],['개구리','🐸'],['너구리','🦝'],['야구','⚾']];
-const WORDS1 = [['곰','🐻'],['달','🌙'],['별','⭐'],['꽃','🌸'],['공','⚽'],['밥','🍚'],['책','📚'],['집','🏠'],['사탕','🍬'],['수박','🍉'],['딸기','🍓'],['연필','✏️'],['가방','🎒'],['우산','☂️'],['강아지','🐶'],['사과','🍎'],['물고기','🐟'],['고양이','🐱']];
+const WORDS1 = [['곰','🐻'],['달','🌙'],['별','⭐'],['꽃','🌸'],['공','⚽'],['빵','🍞'],['책','📚'],['집','🏠'],['사탕','🍬'],['수박','🍉'],['딸기','🍓'],['연필','✏️'],['가방','🎒'],['우산','☂️'],['강아지','🐶'],['사과','🍎'],['물고기','🐟'],['고양이','🐱']];
 /* 한글 ① 글자 놀이: 자음 · 모음 · 글자 만들고 나누기 */
 const HLV = [
   {n:'자음 이름', g:()=>{ const [c,nm]=CHO[rnd(0,13)]; const o=shuffle([c,...pick(CHO.filter(x=>x[0]!==c).map(x=>x[0]),2)]);
@@ -797,7 +815,7 @@ const K7_WORD=[['친구가 지우개를 빌려줬어요','고마워',['몰라','
 const K7_RULE=[['선생님께 말하고 싶어요','손을 들어요',['소리쳐요','뛰어다녀요']],['수업 중에 화장실에 가고 싶어요','선생님께 말해요',['그냥 나가요','꾹 참아요']],['급식을 받을 때','줄을 서요',['새치기해요','밀어요']],['선생님이 이야기하실 때','앉아서 들어요',['돌아다녀요','떠들어요']],['친구 물건을 쓰고 싶어요','빌려 달라고 해요',['그냥 가져가요','숨겨요']],['다 쓴 휴지는','휴지통에 버려요',['바닥에 버려요','책상에 둬요']]];
 const K7_SAFE=[['신호등이 빨간불이에요','멈춰서 기다려요',['뛰어서 건너요','그냥 건너요']],['초록불이 켜졌어요','좌우를 보고 건너요',['눈 감고 뛰어요','휴대폰을 보며 건너요']],['모르는 사람이 같이 가자고 해요','싫어요! 하고 어른께 알려요',['따라가요','과자를 받아요']],['불이 났어요','코와 입을 막고 몸을 낮춰요',['엘리베이터를 타요','숨어요']],['차가 다니는 길이에요','인도로 걸어요',['차도에서 놀아요','공을 차요']]];
 const SCHOOLLV = [
-  {n:'이럴 땐 어떤 마음?', g:()=>{ const [s,e]=K7_SIT[rnd(0,K7_SIT.length-1)], w=K7_FEELS.find(x=>x[0]===e)[1]; return {say:`${s}. 어떤 마음일까요?`, prompt:`${s}.<br>어떤 마음일까요?`, slots:[e], tiles:shuffle([e,...k7o(K7_FEELS.map(x=>x[0]),e)]), tcls:'pic-tile', after:w}; }},
+  {n:'나라면 어떤 마음?', g:()=>{ const [s,e]=K7_SIT[rnd(0,K7_SIT.length-1)], w=K7_FEELS.find(x=>x[0]===e)[1]; return {say:`${s}. 나라면 어떤 마음일까요? 정답은 없어요.`, prompt:`${s}.<br>나라면 어떤 마음일까요?<br><small class="nohint">정답은 없어요 · 내 마음을 골라요</small>`, slots:[e], tiles:shuffle([e,...k7o(K7_FEELS.map(x=>x[0]),e)]), tcls:'pic-tile', after:'', any:true, anyMsg:v=>{ const x=K7_FEELS.find(f=>f[0]===v); return `그 마음도 괜찮아요! ${x?'"'+x[1]+'" 하고 말해 볼까요? ':''}왜 그런지 엄마 · 아빠에게도 이야기해 봐요`; }}; }},
   {n:'고운 말', g:()=>{ const [s,a,o]=K7_WORD[rnd(0,K7_WORD.length-1)]; return {say:`${s}. 뭐라고 말할까요?`, prompt:`${s}.<br>뭐라고 말할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
   {n:'학교 약속', g:()=>{ const [s,a,o]=K7_RULE[rnd(0,K7_RULE.length-1)]; return {say:`${s}. 어떻게 할까요?`, prompt:`${s}.<br>어떻게 할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
   {n:'안전 약속', g:()=>{ const [s,a,o]=K7_SAFE[rnd(0,K7_SAFE.length-1)]; return {say:`${s}. 어떻게 할까요?`, prompt:`${s}.<br>어떻게 할까요?`, slots:[a], tiles:shuffle([a,...o]), wide:true, after:a}; }},
@@ -889,7 +907,9 @@ function progressHTML(){
       <div class="cal">${['일','월','화','수','목','금','토'].map(w=>`<span class="cal-w">${w}</span>`).join('')}${cells}</div>
       <div class="cal-leg">⭐ 공부한 날 · 🌟 10개 넘게 한 날 · 이번 달 모두 ${sum}개</div></div></div>`;
 }
-function areaHead(k){ const a=AREAS[k]; return `<div class="head" style="--c:${a.c}"><button class="back" data-act="back">◀ 뒤로</button><span class="ico">${a.ico}</span><b>${a.n}</b></div>`; }
+// 🍭 단계 칩 색 (칩마다 달라요, 흰 글씨가 잘 보이는 진한 사탕 색)
+const LVC=['#F06A85','#F0901F','#2BB38A','#4D8DF0','#9B6CF0','#F07C46','#25A9D9','#E866A0','#49B86A'];
+function areaHead(k){ const a=AREAS[k]; return `<div class="head" style="--c:${a.c}"><button class="back" data-act="back">◀ 뒤로</button><span class="ico${/[A-Za-z0-9가-힣ㄱ-ㅎㅏ-ㅣ+−▲●]/.test(a.ico)?' txt':''}">${a.ico}</span><b>${a.n}</b></div>`; }
 function renderQuiz(area){
   const {LV, key} = QUIZ[area], c=AREAS[area].c;
   if(!LV[App[key]]) App[key]=0;
@@ -899,7 +919,7 @@ function renderQuiz(area){
   if(Q.done) body=setDone(LV[Q.lv].n);
   else { const P=Q.list[Q.i], sm=P.small||P.wide?'small':'';
     const slots = P.parts ? P.parts.map(x=>x===null?`<span class="slot" data-ans="${P.slots[0]}"></span>`:`<span style="font-size:3.4rem;font-weight:700">${x}</span>`).join('')
-      : P.slots.map(a=>`<span class="slot ${sm}" data-ans="${a}"></span>`).join(' ');
+      : P.slots.map(a=>`<span class="slot ${sm}" data-ans="${a}"${P.any?' data-any="1"':''}></span>`).join(' ');
     body=`<div class="board" id="qbox">
       <div class="q-top"><span>${LV[Q.lv].n}</span>${dotsHTML()}</div>
       ${P.pic?`<div class="pic">${P.pic}</div>`:''}${P.big?`<div class="big-letter">${P.big}</div>`:''}
@@ -909,7 +929,7 @@ function renderQuiz(area){
       <div class="tray">${P.tiles.map(v=>tileHTML(v,v,P.tcls||sm)).join('')}</div>
       <div class="hint" id="hint"></div>
       <div class="qnav"><button class="qn" data-act="qPrev" ${Q.i===0?'disabled':''}>◀ 이전</button><button class="qn" data-act="qNext">${Q.i+1<Q.list.length?'다음 ▶':'끝내기 ▶'}</button></div></div>`; }
-  view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}">${i+1}. ${l.n}</button>`).join('')}</div>${body}</div>`;
+  view.innerHTML=`<div style="--c:${c}">${areaHead(area)}<div class="levels">${LV.map((l,i)=>`<button class="lv ${i===App[key]?'on':''}" data-act="lv" data-k="${key}" data-v="${i}" style="--lc:${LVC[i%LVC.length]}"><i class="lvn">${i+1}</i>${l.n}</button>`).join('')}</div>${body}</div>`;
   if(!Q.done) sayQ();
 }
 function sayQ(){ if(!Q||Q.done||!Q.list) return; const P=Q.list[Q.i]; if(P) speak(P.say, P.lang||'ko'); }
@@ -931,7 +951,7 @@ function renderMath(area){
   // 구슬: 더하기는 두 색으로, 빼기는 처음 수만큼 놓고 빼는 만큼 빈 구슬로
   const beads = r => plus ? '<i></i>'.repeat(r.a)+'<i class="b"></i>'.repeat(r.b) : '<i></i>'.repeat(r.s)+'<i class="x"></i>'.repeat(r.b);
   view.innerHTML=`<div style="--c:${c}">${areaHead(area)}
-    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="${M.key}" data-v="${n-1}">${M.op}${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
+    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="${M.key}" data-v="${n-1}" style="--lc:${LVC[(n-1)%LVC.length]}">${M.op}${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
     <div class="wsheet"><div class="sheet-h"><b>${M.w} ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
       <div class="sheet-body"><div class="rows">${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} ${M.op} ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
         <div class="cnt">${beads(r)}</div></div>`).join('')}</div>
