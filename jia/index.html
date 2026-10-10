@@ -688,7 +688,20 @@ const tileHTML = (v, label, cls='') => `<button class="tile ${cls}" data-val="${
 
 /* ───── 문제 한 벌 (5문제) 공통 흐름 ───── */
 let Q=null; // {area, lv, list, i, miss, done}
-function startSet(area, lv, gen){ Q={area, lv, list:Array.from({length:5},(_,i)=>gen(i)), i:0, miss:false, done:false, ok:[]}; }
+// 같은 문제 안 겹치기 (2026-10-11): 한 벌 5문제 안에서는 같은 문제가 없게, 최근에 나온 문제도 되도록 피해요
+// (이 기기에 단계마다 최근 25문제를 기억 · 새 문제가 바닥나면 그때만 다시 내요)
+function qKey(q){ try{ return [q.say||'',q.prompt||'',q.pic||'',q.big||'',q.eq||'',(q.slots||[]).join('|')].join('¦'); }catch(e){ return String(Math.random()); } }
+function startSet(area, lv, gen){
+  const hk='seen_'+area+'_'+lv, seen=store.get(hk,[]), used=new Set(), list=[];
+  for(let i=0;i<5;i++){
+    let pick=null, spare=null;
+    for(let t=0;t<60 && !pick;t++){ const q=gen(i), k=qKey(q); if(used.has(k)) continue; if(!spare) spare=[q,k]; if(!seen.includes(k)) pick=[q,k]; }
+    if(!pick) pick=spare || (q=>[q,qKey(q)+'#'+i])(gen(i));
+    used.add(pick[1]); list.push(pick[0]);
+  }
+  store.set(hk, [...seen.filter(k=>!used.has(k)), ...used].slice(-25));
+  Q={area, lv, list, i:0, miss:false, done:false, ok:[]};
+}
 function afterDrop(s, t, ok){
   const P=Q.list[Q.i];
   if(!ok){ Q.miss=true; $('hint').textContent='다시 해 볼까?'; speak('다시 해 볼까?'); return; }
