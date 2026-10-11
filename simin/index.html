@@ -99,6 +99,15 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .a2hs-top b{display:block;font-size:1.02rem}
 .a2hs-top small{display:block;color:var(--sub);font-size:.85rem;line-height:1.4}
 .a2hs-top button{margin-left:auto;flex:none;padding:.5rem .9rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem}
+/* 홈 화면 아이콘 · 밴드 바로가기를 반씩 나란히 (좁은 핸드폰에서는 위아래로) */
+.quick-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 0;align-items:start}
+.quick-row>.a2hs{margin:0}
+.quick-row>.a2hs:only-child{grid-column:1 / -1}
+.band-card{display:block;text-decoration:none;color:inherit}
+.a2hs-top .band-logo{width:44px;height:44px;border-radius:12px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.a2hs-top .a2hs-go{margin-left:auto;flex:none;padding:.5rem .9rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;white-space:nowrap}
+.a2hs-top button{white-space:nowrap}
+@media (max-width:620px){ .quick-row{grid-template-columns:1fr} }
 .a2hs ol{margin:10px 0 0;padding-left:1.3rem;line-height:1.75;font-size:.95rem}
 .a2hs ol b{color:#B94873}
 .a2hs .ios-share{display:inline-block;vertical-align:-3px;width:18px;height:18px}
@@ -438,7 +447,7 @@ function entry(){
       <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🖥️</span><div><b>전자칠판</b><small>🪷 심인당에서</small><span class="door-note">다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요<br>🔑 내 공부방은 이름 + 나이 + 비밀번호로 들어가요</span></div></a>
       <button class="door phone" data-go="phone"><span class="ico">📱</span><div><b>부모님 핸드폰</b><small>🏠 집에서</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
     </div>
-    ${a2hsCard()}
+    <div class="quick-row">${a2hsCard()}${bandCard()}</div>
     ${fontPick()}
     <div class="side-links"><button data-go="parent">👩 엄마아빠 모드</button><button data-go="adminLogin">🔒 관리자</button></div>
     <div class="share-row"><button class="kakao-btn" data-act="kakaoShare">💬 카카오톡 공유</button><button class="link-btn" data-act="copyShare">🔗 링크 복사</button></div>`;
@@ -459,6 +468,13 @@ function a2hsSteps(){
     : '<li>지금은 앱 안에서 열려 있어요. 오른쪽 위 <b>⋮</b> → <b>다른 브라우저로 열기</b>(Chrome · 삼성 인터넷)를 골라요</li><li>브라우저 메뉴 <b>⋮</b> → <b>홈 화면에 추가</b></li>';
   if(IS_IOS) return '<li>Safari에서 '+SHARE_ICO+' <b>공유</b> 단추를 눌러요 (아이폰은 화면 아래, 아이패드는 주소창 오른쪽)</li><li>메뉴를 위로 올려 <b>홈 화면에 추가</b>를 눌러요</li><li>오른쪽 위 <b>추가</b>를 누르면 🪷 아이콘이 생겨요</li>';
   return '<li>오른쪽 위 메뉴 <b>⋮</b>(삼성 인터넷은 아래 <b>≡</b>)를 눌러요</li><li><b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 눌러요</li>';
+}
+/* 🙏 행원심인당 온라인 불사: 밴드 바로가기 (홈 화면 아이콘 칸과 같은 모양으로 오른쪽에) */
+const BAND_URL = 'https://www.band.us/band/66115212';
+const BAND_LOGO = '<svg class="band-logo" viewBox="0 0 48 48" role="img" aria-label="밴드"><rect width="48" height="48" rx="12" fill="#1FE06C"/><g fill="none" stroke="#0A3D22" stroke-width="3.6"><path d="M13 9V30A11 11 0 1 0 24 19"/><path d="M19.5 9V30A4.5 4.5 0 1 0 24 25.5"/></g></svg>';
+function bandCard(){
+  return `<a class="a2hs band-card" href="${BAND_URL}" target="_blank" rel="noopener"><div class="a2hs-top">${BAND_LOGO}<div><b>🙏 행원심인당 온라인 불사</b><small>행원심인당 밴드에서 함께해요</small></div>
+    <span class="a2hs-go">바로 가기</span></div></a>`;
 }
 function a2hsCard(){
   if(IS_STANDALONE() || LS.get('a2hsHide')) return '';
