@@ -613,7 +613,7 @@ const DAYS=['월','화','수','목','금'];
 /* g: 월~목 미션의 문제 만들기 이름. g 가 없는 주는 아직 준비 중이에요 */
 const WEEKS=[
  {z:1,t:['소수 두 자리 수','소수 세 자리 수','소수의 크기 비교','소수 사이의 관계','1주차 복습 보스전'],g:['dec2','dec3','cmp','rel']},
- /* 2~4주차 월~목 = 문제집처럼 쭉 푸는 학습지 2장(①세로셈 ②가로셈) + 이야기 문제 3개. SHEET 참고 */
+ /* 2~4주차 월~목 = 문제집처럼 쭉 푸는 학습지 2장(①세로셈 ②가로셈) + 이야기 문제 3개 (하루 2개면 2배). SHEET 참고 */
  {z:1,t:['받아올림이 없는 소수 한 자리 수의 덧셈','받아올림이 있는 소수 한 자리 수의 덧셈','받아내림이 없는 소수 한 자리 수의 뺄셈','받아내림이 있는 소수 한 자리 수의 뺄셈','2주차 복습 보스전'],g:['a1n','a1c','s1n','s1b']},
  {z:1,t:['받아올림이 없는 소수 두 자리 수의 덧셈','받아올림이 있는 소수 두 자리 수의 덧셈','받아내림이 없는 소수 두 자리 수의 뺄셈','받아내림이 있는 소수 두 자리 수의 뺄셈','3주차 복습 보스전'],g:['a2n','a2c','s2n','s2b']},
  {z:1,t:['자릿수가 다른 소수의 덧셈','자릿수가 다른 소수의 뺄셈','소수 계산 이야기 문제','소수의 덧셈과 뺄셈 정리','표층 최종 보스전'],g:['adiff','sdiff','story','mix']},
@@ -809,7 +809,9 @@ const SHEET={
 };
 const isSheet=m=>!!(m&&m.gen&&SHEET[m.gen]);
 /* 1주차(소수 두·세 자리 수, 크기 비교, 소수 사이의 관계)도 퀴즈 대신 문제집처럼 쭉 푸는 학습지 */
-const CQ_N=15;
+/* 문항 수: 하루 미션이 2개 이상이면 2배 (진도 2배 = 문항 2배) */
+const QX=()=>perDay()>1?2:1;
+const CQN=()=>15*QX();
 const isCQ=m=>!!(m&&m.gen&&!m.boss&&!SHEET[m.gen]&&['dec2','dec3','cmp','rel'].includes(m.gen));
 /* 답 채점: 끝자리 0(4.0, 7.60)은 정답 + 코멘트, 소수점을 빠뜨리면(2.5 → 25) 코멘트 */
 function classify(s,ans){
@@ -842,7 +844,7 @@ G.story=[()=>storyQ('story')];
 
 /* 미션 문제 세트 만들기 */
 function makeQs(m){
-  const n=m.boss?10:9, out=[], seen=new Set();
+  const n=(m.boss?10:9)*QX(), out=[], seen=new Set();
   let order=[], guard=0;
   while(out.length<n && guard++<300){
     let f;
@@ -918,7 +920,7 @@ const relTag=m=>{ const r=relWhen(m); return r<0?'<span class="today late">⏰ �
 function previewMission(i){
   const m=MISSIONS[i]; if(!m) return;
   const sp=SHEET[m.gen], st=i<S.mission?'done':i===S.mission?'now':'later';
-  const kind=!m.ready?'🚧 아직 준비 중인 바다예요':isCQ(m)?`📝 학습지 1장 (${CQ_N}문제)`:isSheet(m)?`📝 학습지 2장 (세로셈 ${sp.v-1} · 가로셈 ${sp.h-1}) + 이야기 문제 3개`:m.boss?`⚔️ 보스전 10문제 (지난 4일 내용 섞어서)`:`문제 9개`;
+  const kind=!m.ready?'🚧 아직 준비 중인 바다예요':isCQ(m)?`📝 학습지 1장 (${CQN()}문제)`:isSheet(m)?`📝 학습지 2장 (세로셈 ${(sp.v-1)*QX()} · 가로셈 ${(sp.h-1)*QX()}) + 이야기 문제 ${3*QX()}개`:m.boss?`⚔️ 보스전 ${10*QX()}문제 (지난 미션 4개 내용 섞어서)`:`문제 ${9*QX()}개`;
   let ex=[];
   try{ if(m.ready){ const keys=m.boss?m.wgens:[m.gen]; keys.slice(0,2).forEach(k=>{ if(G[k]&&G[k].length) ex.push(G[k][0]()); }); if(ex.length<2&&m.gen&&G[m.gen]&&G[m.gen][1]) ex.push(G[m.gen][1]()); } }catch(e){}
   const btn=st==='done'?`<button class="btn wide" onclick="closeModal();startMission(${i},true)">🔁 다시 풀기${S.done[m.id]!==undefined?` (최고 ${S.done[m.id]}개)`:''}</button>`
@@ -943,7 +945,7 @@ function render(){
     const late=MISSIONS.filter(x=>x.i>=S.mission&&ymd(planDate(x.i))<tk).length;   // 밀린 미션
     const left=todayMs.filter(x=>x.i>=S.mission);                          // 오늘 미션 중 남은 것
     const doneToday=Object.values(S.rep||{}).filter(r=>r.d===tk).length;
-    const kind=x=>isCQ(x)?`학습지 1장 (${CQ_N}문제)`:isSheet(x)?'학습지 2장 + 이야기 문제 3개':x.boss?'보스전 10문제':'문제 9개';
+    const kind=x=>isCQ(x)?`학습지 1장 (${CQN()}문제)`:isSheet(x)?`학습지 2장 + 이야기 문제 ${3*QX()}개`:x.boss?`보스전 ${10*QX()}문제`:`문제 ${9*QX()}개`;
     let todo;
     if(S.mission>=MISSIONS.length) todo='🔱 모든 미션을 끝냈어요!';
     else if(late) todo=`⏰ 밀린 미션 <b>${late}개</b>${left.length?` + 오늘 미션 <b>${left.length}개</b>`:''}가 남았어요. 앞에서부터 차례로 풀어요!`;
@@ -962,9 +964,9 @@ function render(){
       <p class="mlabel">${mLabel(m)}${relTag(m)}</p><h2 class="mtitle">${m.title}</h2>`;
     if(m.ready){
       const sp=SHEET[m.gen], draft=(isSheet(m)||isCQ(m))&&hasDraft(m.id);
-      h+=isCQ(m)?`<p class="mdesc">📝 학습지 1장 (${CQ_N}문제) · 문제집처럼 쭉 풀고 한 번에 채점해요<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
-        :isSheet(m)?`<p class="mdesc">📝 학습지 2장 (①세로셈 ${sp.v-1}문제 · ②가로셈 ${sp.h-1}문제) + 이야기 문제 3개<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
-        :`<p class="mdesc">문제 ${m.boss?10:9}개 · ${m.boss?`7문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`;
+      h+=isCQ(m)?`<p class="mdesc">📝 학습지 1장 (${CQN()}문제) · 문제집처럼 쭉 풀고 한 번에 채점해요<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
+        :isSheet(m)?`<p class="mdesc">📝 학습지 2장 (①세로셈 ${(sp.v-1)*QX()}문제 · ②가로셈 ${(sp.h-1)*QX()}문제) + 이야기 문제 ${3*QX()}개<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
+        :`<p class="mdesc">문제 ${(m.boss?10:9)*QX()}개 · ${m.boss?`${7*QX()}문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`;
       if(draft) h+=`<p class="mdesc" style="color:#c4561a">✏️ 풀던 학습지가 있어요. 이어서 풀 수 있어요!</p>`;
       h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>${m.boss?`<b>보스</b>가 길을 막고 있어요!<br>정체는… ???`:`${m.depth.toLocaleString()}m 아래에서<br>누군가 기다리고 있어요…`}</p></div>
         <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${draft?'📝 이어서 풀기':relWhen(m)<0?'⏰ 밀린 것 풀기':relWhen(m)>0?'🌙 미리 풀기':m.boss?'⚔️ 보스와 대결!':(isSheet(m)||isCQ(m))?'📝 학습지 펼치기':'🚀 잠수 시작!'}</button>`;
@@ -988,7 +990,7 @@ function startMission(i,replay){
   const m=MISSIONS[i]; if(!m||!m.ready) return;
   if(isSheet(m)) return startSheet(m,!!replay);
   if(isCQ(m)) return startCQ(m,!!replay);
-  Q={mode:m.boss?'boss':'mission',m,list:makeQs(m),i:0,c:0,res:[],replay:!!replay,hp:7,buf:''};
+  Q={mode:m.boss?'boss':'mission',m,list:makeQs(m),i:0,c:0,res:[],replay:!!replay,hp:7*QX(),hpMax:7*QX(),buf:''};
   drawQuiz();
 }
 function startVortex(){
@@ -1002,7 +1004,7 @@ function quizHead(){
 }
 function drawQuiz(){
   const q=Q.list[Q.i]; let h=`<div class="screen" id="qs"><div class="inner">${quizHead()}`;
-  if(Q.mode==='boss') h+=`<div class="bossbar"><div class="pic" id="bosspic">${creSVG(Q.m.cre)}</div><div><div class="bn">⚔️ ${Q.m.cre.n}</div><div class="hp" id="hp">${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}</div><small style="opacity:.8">맞힐 때마다 ❤️ 하나씩 줄어요</small></div></div>`;
+  if(Q.mode==='boss') h+=`<div class="bossbar"><div class="pic" id="bosspic">${creSVG(Q.m.cre)}</div><div><div class="bn">⚔️ ${Q.m.cre.n}</div><div class="hp" id="hp">${'❤️'.repeat(Q.hp)}${'🤍'.repeat((Q.hpMax||7)-Q.hp)}</div><small style="opacity:.8">맞힐 때마다 ❤️ 하나씩 줄어요</small></div></div>`;
   if(Q.sheetN!=null) h+=`<div class="wbanner">📝 학습지 ⭕ ${Q.sheetC} / ${Q.sheetN} 끝! 이제 이야기 문제 ${Q.list.length}개만 풀면 잠수해요 🫧</div>`;
   if(Q.mode==='vortex') h+=`<div class="bossbar"><div style="font-size:44px">🌀</div><div><div class="bn">오답 소용돌이</div><small style="opacity:.85">맞히면 소용돌이에서 빠져나와요 (${q.from||''})</small></div></div>`;
   h+=`<div class="qcard" id="qcard"><div class="qtext">${q.q}</div>${q.svg?`<div class="qsvg">${q.svg}</div>`:''}`;
@@ -1037,7 +1039,7 @@ function judge(ok,note){
   if(Q.mode==='vortex'){ if(ok) S.wrong=S.wrong.filter(w=>w.id!==q.id); }
   else if(!ok&&note!=='dot'){ S.wrong.push(Object.assign({},q,{id:'w'+Date.now().toString(36)+rnd(100,999),from:Q.m.title})); if(S.wrong.length>80) S.wrong.shift(); }
   save();
-  if(Q.mode==='boss'&&ok){ Q.hp--; const hp=$('hp'); if(hp) hp.innerHTML=`${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}`; const bp=$('bosspic'); if(bp){ bp.classList.remove('hit'); void bp.offsetWidth; bp.classList.add('hit'); } }
+  if(Q.mode==='boss'&&ok){ Q.hp--; const hp=$('hp'); if(hp) hp.innerHTML=`${'❤️'.repeat(Q.hp)}${'🤍'.repeat((Q.hpMax||7)-Q.hp)}`; const bp=$('bosspic'); if(bp){ bp.classList.remove('hit'); void bp.offsetWidth; bp.classList.add('hit'); } }
   const fb=document.createElement('div'); fb.className='fb';
   const ansTxt=q.t==='cho'?choLabel(q.a):q.a;
   const zero=ok&&note==='zero';
@@ -1070,7 +1072,7 @@ function finishQuiz(){
   const m=Q.m, win=Q.mode!=='boss'||Q.hp<=0, replay=Q.replay, sc=(Q.sheetC||0)+Q.c, score=`${sc}/${(Q.sheetN||0)+done}`;
   if(Q.mode==='boss'&&!win){
     Q=null; $('layer').innerHTML=''; render(); sNO();
-    modal(`<h2>💨 ${jo(m.cre.n,'이','가')} 도망갔어요!</h2><div style="max-width:260px;margin:0 auto">${picHTML(m.cre,true)}</div><p style="font-size:20px;text-align:center">${score} 맞혔어요. 7문제를 맞히면 물리칠 수 있어요!<br>틀린 문제는 오답 소용돌이에서 연습해 봐요.</p><div class="row"><button class="btn gray" style="flex:1" onclick="closeModal()">다음에</button><button class="btn" style="flex:1" onclick="closeModal();startMission(${m.i},${replay})">⚔️ 다시 도전</button></div>`);
+    modal(`<h2>💨 ${jo(m.cre.n,'이','가')} 도망갔어요!</h2><div style="max-width:260px;margin:0 auto">${picHTML(m.cre,true)}</div><p style="font-size:20px;text-align:center">${score} 맞혔어요. ${7*QX()}문제를 맞히면 물리칠 수 있어요!<br>틀린 문제는 오답 소용돌이에서 연습해 봐요.</p><div class="row"><button class="btn gray" style="flex:1" onclick="closeModal()">다음에</button><button class="btn" style="flex:1" onclick="closeModal();startMission(${m.i},${replay})">⚔️ 다시 도전</button></div>`);
     return;
   }
   S.done[m.id]=Math.max(S.done[m.id]||0,sc);
@@ -1099,8 +1101,8 @@ function startSheet(m,replay){
   let d=null; if(!replay){ try{ d=JSON.parse(localStorage.getItem(draftKey(m.id))||'null'); }catch(e){} }
   if(d&&d.mid===m.id&&d.sheets) W=d;
   else { const sp=SHEET[m.gen]; W={mid:m.id,mi:m.i,replay,step:0,c:0,n:0,
-    sheets:[{kind:'v',probs:genSheet(m.gen,sp.v),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}},
-            {kind:'h',probs:genSheet(m.gen,sp.h),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}}]}; }
+    sheets:[{kind:'v',probs:genSheet(m.gen,(sp.v-1)*QX()+1),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}},
+            {kind:'h',probs:genSheet(m.gen,(sp.h-1)*QX()+1),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}}]}; }
   W.mi=m.i; W.focus=null;
   if(W.step===2) return sheetQuiz();
   drawSheet(true);
@@ -1231,16 +1233,19 @@ function nextStep(){
 }
 function sheetQuiz(){
   const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n, sw=sheetWrong(); W=null;
-  Q={mode:'mission',m,list:[0,1,2].map(()=>storyQ(m.gen)),i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n,sheetWrong:sw};
+  Q={mode:'mission',m,list:Array.from({length:3*QX()},()=>storyQ(m.gen)),i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n,sheetWrong:sw};
   drawQuiz();
 }
 /* ════════ 개념 학습지 (1주차): 문제 15개를 한 장에, 숫자는 키패드 · 고르는 문제는 눌러서 ════════ */
 function genCQ(m){
-  const gens=G[m.gen], per=Math.ceil(CQ_N/gens.length), out=[], seen=new Set();
+  const gens=G[m.gen], per=Math.ceil(CQN()/gens.length), out=[], seen=new Set();
   /* 문제집처럼 같은 종류끼리 모아서 (종류 순서대로) */
   gens.forEach((f,gi)=>{ let made=0, g=0; while(made<per&&g++<40){ const q=f(); const k=q.q+q.svg; if(seen.has(k)) continue; seen.add(k); q.g=gi; out.push(q); made++; } });
+  /* 어떤 종류는 만들 수 있는 문제가 적어요 → 다른 종류로 채우고, 종류 순서대로 다시 모아요 */
+  for(let g=0;out.length<CQN()&&g<400;g++){ const gi=g%gens.length, q=gens[gi](), k=q.q+q.svg; if(seen.has(k)) continue; seen.add(k); q.g=gi; out.push(q); }
+  out.sort((a,b)=>a.g-b.g);
   /* 많으면 종류마다 고르게 덜어 내요 */
-  while(out.length>CQ_N){ const cnt={}; out.forEach(q=>cnt[q.g]=(cnt[q.g]||0)+1); const most=+Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]; const k=out.map(q=>q.g).lastIndexOf(most); out.splice(k,1); }
+  while(out.length>CQN()){ const cnt={}; out.forEach(q=>cnt[q.g]=(cnt[q.g]||0)+1); const most=+Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a])[0]; const k=out.map(q=>q.g).lastIndexOf(most); out.splice(k,1); }
   return out;
 }
 function startCQ(m,replay){
