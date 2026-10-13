@@ -65,9 +65,25 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .big-btn.boss{background:linear-gradient(180deg,#9b6cff,#6a3df0);box-shadow:0 5px 0 #4320b0}
 .big-btn[disabled]{background:#b9c4d2;box-shadow:0 5px 0 #8b97a6;cursor:default}
 .week{display:flex;gap:6px;margin:12px 0 4px}
-.week div{flex:1;text-align:center;border-radius:12px;padding:6px 0;background:#eef3f9;color:#8193ab;font-size:15px;line-height:1.25}
-.week div small{display:block;font-size:12px;opacity:.85}
-.week .done{background:#d8f5e6;color:#14814b}.week .now{background:#ffe7d4;color:#c4561a;outline:3px solid #ffb27a}
+.week button{flex:1;min-width:0;text-align:center;border-radius:12px;padding:6px 0;background:#e6f0fb;color:#2d5a8c;font-size:15px;line-height:1.25;box-shadow:0 2px 0 #c9daee}
+.week button small{display:block;font-size:12px;opacity:.85}
+.week button:active{transform:translateY(2px);box-shadow:none}
+.week .done{background:#d8f5e6;color:#14814b;box-shadow:0 2px 0 #a8dfc1}.week .now{background:#ffe7d4;color:#c4561a;outline:3px solid #ffb27a}
+.week .tdy{box-shadow:0 0 0 3px #ffd34d inset}
+/* 엄마의 한마디 (초록 띠) · 오늘 상자 */
+.mommsg{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(135deg,#2fbf71,#1f9e5c);color:#fff;border-radius:18px;padding:12px 16px;margin-bottom:12px;box-shadow:0 6px 16px rgba(20,90,50,.25)}
+.mommsg .mm-ic{font-size:26px;line-height:1.2}
+.mommsg b{font-size:15px;opacity:.9;font-weight:400}
+.mommsg p{margin:2px 0 0;font-size:20px;line-height:1.45;white-space:pre-wrap;word-break:keep-all}
+.todaybox{background:var(--card);border-radius:18px;padding:12px 16px;margin-bottom:12px;box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.tb-date{font-size:22px;color:#1d4f91}
+.tb-todo{font-size:18px;margin-top:4px;line-height:1.45;word-break:keep-all}
+.tb-stat{font-size:15px;color:var(--sub);margin-top:4px}
+.tb-send{margin-top:10px;width:100%;font-size:19px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#46d18c,#1fae68);color:#fff;box-shadow:0 4px 0 #168a52}
+.today.late{background:#ffe1dc;color:#b3261e}.today.ahead{background:#e4ecff;color:#2b4ea8}
+.pv-q{background:#f4f8fd;border-radius:14px;padding:10px 12px;margin:8px 0;font-size:18px;line-height:1.45}
+.pv-q .bignum{display:block;text-align:center;font-size:28px;color:#1d4f91}
+.pv-q svg{max-width:260px;height:auto;display:block;margin:6px auto 0}
 .wait{display:flex;align-items:center;gap:12px;background:#f2f6fb;border-radius:16px;padding:10px;margin-top:6px}
 .wait .pic{width:110px;flex:none}
 .wait p{margin:0;font-size:17px;color:var(--sub)}
@@ -890,17 +906,55 @@ function renderGauge(d){
 }
 
 /* ════════ 화면: 메인 ════════ */
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* 미션 날짜가 오늘보다 앞(-1: 밀린 것) · 오늘(0) · 뒤(1: 미리 풀기) */
+function relWhen(m){ const d=planDate(m.i), t=new Date(); d.setHours(0,0,0,0); t.setHours(0,0,0,0); return d<t?-1:d>t?1:0; }
+const relTag=m=>{ const r=relWhen(m); return r<0?'<span class="today late">⏰ 밀린 미션</span>':r>0?'<span class="today ahead">🌙 미리 풀기</span>':'<span class="today">📅 오늘</span>'; };
+/* 날짜 칸을 누르면: 그날 무엇을 푸는지 · 문제 맛보기 2개 (답은 안 보여요) */
+function previewMission(i){
+  const m=MISSIONS[i]; if(!m) return;
+  const sp=SHEET[m.gen], st=i<S.mission?'done':i===S.mission?'now':'later';
+  const kind=!m.ready?'🚧 아직 준비 중인 바다예요':isCQ(m)?`📝 학습지 1장 (${CQ_N}문제)`:isSheet(m)?`📝 학습지 2장 (세로셈 ${sp.v-1} · 가로셈 ${sp.h-1}) + 이야기 문제 3개`:m.boss?`⚔️ 보스전 10문제 (지난 4일 내용 섞어서)`:`문제 9개`;
+  let ex=[];
+  try{ if(m.ready){ const keys=m.boss?m.wgens:[m.gen]; keys.slice(0,2).forEach(k=>{ if(G[k]&&G[k].length) ex.push(G[k][0]()); }); if(ex.length<2&&m.gen&&G[m.gen]&&G[m.gen][1]) ex.push(G[m.gen][1]()); } }catch(e){}
+  const btn=st==='done'?`<button class="btn wide" onclick="closeModal();startMission(${i},true)">🔁 다시 풀기${S.done[m.id]!==undefined?` (최고 ${S.done[m.id]}개)`:''}</button>`
+    :st==='now'&&m.ready?`<button class="btn wide" onclick="closeModal();startMission(${i})">${relWhen(m)<0?'⏰ 밀린 것 풀기':relWhen(m)>0?'🌙 미리 풀기':'📝 지금 풀기'}</button>`
+    :`<p style="text-align:center;color:var(--sub);font-size:16px;margin:10px 0 0">🫧 앞의 미션을 풀고 나면 이 바다로 내려가요</p>`;
+  modal(`<h2 style="margin-bottom:4px">${dLabel(planDate(i))} ${m.boss?'⚔️ 보스전':'미션'} ${relTag(m)}</h2>
+    <p style="margin:0;color:var(--sub);font-size:16px">${m.week}주차 · ${ZONES[m.z-1].name} · 수심 ${m.depth.toLocaleString()}m</p>
+    <h3 style="font-size:26px;margin:10px 0 4px">${m.title}</h3><p style="margin:0 0 6px;font-size:18px">${kind}</p>
+    ${ex.length?`<p style="margin:10px 0 0;font-size:16px;color:var(--sub)">이런 문제를 풀어요 👀</p>${ex.slice(0,2).map(q=>`<div class="pv-q">${q.q}${q.svg||''}</div>`).join('')}`:''}
+    ${btn}`);
+}
 function render(){
   const d=curDepth(); setBg(d); renderGauge(d);
   const m=MISSIONS[S.mission];
   let h='';
+  /* 💚 엄마의 한마디 (관리자 모드에서 쓰고 고쳐요) */
+  if(S.momMsg) h+=`<div class="mommsg"><span class="mm-ic">💚</span><div><b>엄마의 한마디</b><p>${esc(S.momMsg)}</p></div></div>`;
+  /* 📅 오늘: 날짜 · 오늘 할 일 · 밀린 것 · 다 했으면 엄마한테 보내기 */
+  { const now=new Date(), tk=todayKey(), L=S.log[tk]||{q:0,c:0};
+    const ymd=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
+    const due=MISSIONS.filter(x=>ymd(planDate(x.i))<=tk).length;          // 오늘까지 했어야 하는 미션 수
+    const todayM=MISSIONS.find(x=>ymd(planDate(x.i))===tk);                // 오늘 날짜의 미션 (주말이면 없음)
+    const doneToday=Object.values(S.rep||{}).filter(r=>r.d===tk).length;
+    const behind=Math.max(0,due-S.mission), weekend=!todayM;
+    let todo;
+    if(S.mission>=MISSIONS.length) todo='🔱 모든 미션을 끝냈어요!';
+    else if(behind>1) todo=`⏰ 밀린 미션 <b>${behind-(todayM?1:0)}개</b>${todayM?` + 오늘 미션 1개`:''}가 남았어요. 앞에서부터 차례로 풀어요!`;
+    else if(behind===1) todo=todayM&&todayM.i===S.mission?`오늘 할 일: <b>${todayM.title}</b> ${isCQ(todayM)?`학습지 1장 (${CQ_N}문제)`:isSheet(todayM)?'학습지 2장 + 이야기 문제 3개':todayM.boss?'보스전 10문제':'문제 9개'}`:`⏰ 어제 못 푼 미션 1개가 남았어요.`;
+    else todo=weekend?`🌴 오늘은 쉬는 날! 다음 미션을 미리 풀어도 돼요.`:`✅ 오늘 할 일 끝! 내일 것을 미리 풀어도 돼요.`;
+    h+=`<div class="todaybox"><div class="tb-date">📅 ${now.getMonth()+1}월 ${now.getDate()}일 ${WDK[now.getDay()]}요일</div><div class="tb-todo">${todo}</div>
+      ${L.q?`<div class="tb-stat">오늘 푼 문제 <b>${L.q}</b>개 · 맞힘 <b>${L.c}</b>개${doneToday?` · 끝낸 미션 <b>${doneToday}</b>개`:''}</div>`:''}
+      ${doneToday?`<button class="tb-send" onclick="sendMom()">📩 엄마한테 보내기</button>`:''}</div>`;
+  }
   if(!m){
     h+=`<div class="card" style="text-align:center"><div class="zone">🔱 아틀란티스</div><h2 class="mtitle" style="margin-top:12px">크라켄의 봉인을 모두 풀었어요!</h2><div style="max-width:320px;margin:0 auto">${picHTML(CRE[CRE.length-1])}</div><p class="mdesc">도윤 선장님, 아틀란티스 정복 완료! 🎉</p></div>`;
   } else {
     const z=ZONES[m.z-1], wk=MISSIONS.filter(x=>x.week===m.week);
     h+=`<div class="card"><span class="zone">${z.n}구역 ${z.name} (${z.range}) · ${z.unit}</span>
-      <div class="week">${wk.map(x=>{ const d=planDate(x.i); return `<div class="${x.i<S.mission?'done':x.i===S.mission?'now':''}">${d.getMonth()+1}/${d.getDate()}<small>${WDK[d.getDay()]}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</small></div>`; }).join('')}</div>
-      <p class="mlabel">${mLabel(m)}${isToday(planDate(m.i))?'<span class="today">📅 오늘</span>':''}</p><h2 class="mtitle">${m.title}</h2>`;
+      <div class="week">${wk.map(x=>{ const d=planDate(x.i); return `<button class="${x.i<S.mission?'done':x.i===S.mission?'now':''}${isToday(d)?' tdy':''}" onclick="previewMission(${x.i})" title="${esc(x.title)}">${d.getMonth()+1}/${d.getDate()}<small>${WDK[d.getDay()]}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</small></button>`; }).join('')}</div>
+      <p class="mlabel">${mLabel(m)}${relTag(m)}</p><h2 class="mtitle">${m.title}</h2>`;
     if(m.ready){
       const sp=SHEET[m.gen], draft=(isSheet(m)||isCQ(m))&&hasDraft(m.id);
       h+=isCQ(m)?`<p class="mdesc">📝 학습지 1장 (${CQ_N}문제) · 문제집처럼 쭉 풀고 한 번에 채점해요<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
@@ -908,7 +962,7 @@ function render(){
         :`<p class="mdesc">문제 ${m.boss?10:9}개 · ${m.boss?`7문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`;
       if(draft) h+=`<p class="mdesc" style="color:#c4561a">✏️ 풀던 학습지가 있어요. 이어서 풀 수 있어요!</p>`;
       h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>${m.boss?`<b>보스</b>가 길을 막고 있어요!<br>정체는… ???`:`${m.depth.toLocaleString()}m 아래에서<br>누군가 기다리고 있어요…`}</p></div>
-        <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${m.boss?'⚔️ 보스와 대결!':draft?'📝 이어서 풀기':(isSheet(m)||isCQ(m))?'📝 학습지 펼치기':'🚀 잠수 시작!'}</button>`;
+        <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${draft?'📝 이어서 풀기':relWhen(m)<0?'⏰ 밀린 것 풀기':relWhen(m)>0?'🌙 미리 풀기':m.boss?'⚔️ 보스와 대결!':(isSheet(m)||isCQ(m))?'📝 학습지 펼치기':'🚀 잠수 시작!'}</button>`;
     } else {
       h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>🚧 이 바다는 아직 지도를 그리는 중이에요.<br>곧 열려요! 그동안 오답 소용돌이를 탈출해 볼까요?</p></div><button class="big-btn" disabled>🔒 준비 중</button>`;
     }
@@ -1015,13 +1069,16 @@ function finishQuiz(){
     return;
   }
   S.done[m.id]=Math.max(S.done[m.id]||0,sc);
+  /* 엄마한테 보낼 결과: 언제 · 몇 개 맞힘 · 틀린 문제 (학습지 + 이야기 문제) */
+  const qw=Q.list.map((q,j)=>Q.res[j]===false?{q:plain(q.q),a:'',c:q.t==='cho'?plain(choLabel(q.a)):q.a}:null).filter(Boolean);
+  (S.rep||(S.rep={}))[m.id]={d:todayKey(),t:m.title,c:sc,n:(Q.sheetN||0)+done,w:(Q.sheetWrong||[]).concat(qw).slice(0,12)};
   if(!replay) clearDraft(m.id);
   logMission(`${mLabel(m)} ${m.title} (${score})`);
   Q=null; $('layer').innerHTML='';
-  if(replay||m.i!==S.mission){ save(); render(); sWIN(); modal(`<h2>✅ 다시 풀기 끝!</h2><p style="font-size:22px;text-align:center">${m.title}<br>${score} 맞혔어요!</p><button class="btn wide" onclick="closeModal()">좋아요</button>`); return; }
+  if(replay||m.i!==S.mission){ save(); render(); sWIN(); modal(`<h2>✅ 다시 풀기 끝!</h2><p style="font-size:22px;text-align:center">${m.title}<br>${score} 맞혔어요!</p><div class="row"><button class="btn gray" style="flex:1" onclick="closeModal()">좋아요</button><button class="btn" style="flex:1" onclick="sendMom()">📩 엄마한테 보내기</button></div>`); return; }
   const from=curDepth(); S.mission++;
   const c=m.cre, isNew=!S.dex.includes(c.id); if(isNew) S.dex.push(c.id);
-  save(); diveTo(from,m.depth,()=>{ render(); showCreature(c,isNew,`${m.boss?'보스를 물리쳤어요! ':''}${score} 맞혔어요`); });
+  save(); diveTo(from,m.depth,()=>{ render(); showCreature(c,isNew,`${m.boss?'보스를 물리쳤어요! ':''}${score} 맞혔어요`,true); });
 }
 
 /* ════════ 학습지: 문제집처럼 쭉 풀고 한 번에 채점 ════════
@@ -1168,8 +1225,8 @@ function nextStep(){
   W.step=2; saveDraft(); sheetQuiz();   // 학습지 2장 끝 → 이야기 문제 (중간에 나가도 학습지는 남아 있어요)
 }
 function sheetQuiz(){
-  const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n; W=null;
-  Q={mode:'mission',m,list:[0,1,2].map(()=>storyQ(m.gen)),i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n};
+  const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n, sw=sheetWrong(); W=null;
+  Q={mode:'mission',m,list:[0,1,2].map(()=>storyQ(m.gen)),i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n,sheetWrong:sw};
   drawQuiz();
 }
 /* ════════ 개념 학습지 (1주차): 문제 15개를 한 장에, 숫자는 키패드 · 고르는 문제는 눌러서 ════════ */
@@ -1243,8 +1300,8 @@ function gradeCQ(){
   const f=document.querySelector('#ws .sum'); if(f) f.scrollIntoView({block:'center',behavior:'smooth'});
 }
 function finishCQ(){
-  const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n; W=null;
-  Q={mode:'mission',m,list:[],i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n};
+  const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n, sw=sheetWrong(); W=null;
+  Q={mode:'mission',m,list:[],i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n,sheetWrong:sw};
   finishQuiz();
 }
 function quitSheet(){
@@ -1268,8 +1325,43 @@ function closeModal(){ $('layer').innerHTML=''; }
 function creatureHTML(c){
   return `<div class="creature">${picHTML(c)}<h3>${c.n}</h3><span class="badge">🌊 사는 곳: ${c.r}</span><ul>${c.f.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
 }
-function showCreature(c,isNew,sub){
-  modal(`<div class="flip" style="text-align:center">${isNew?'<span class="new">NEW! 새 친구</span>':'<span class="new" style="background:#8aa">이미 만난 친구</span>'}<p style="margin:4px 0;color:var(--sub);font-size:18px">${c.d.toLocaleString()}m에서 만났어요${sub?' · '+sub:''}</p>${creatureHTML(c)}</div><button class="btn wide" style="margin-top:12px" onclick="closeModal()">📖 도감에 넣기</button>`);
+function showCreature(c,isNew,sub,send){
+  modal(`<div class="flip" style="text-align:center">${isNew?'<span class="new">NEW! 새 친구</span>':'<span class="new" style="background:#8aa">이미 만난 친구</span>'}<p style="margin:4px 0;color:var(--sub);font-size:18px">${c.d.toLocaleString()}m에서 만났어요${sub?' · '+sub:''}</p>${creatureHTML(c)}</div>
+    ${send?`<div class="row" style="margin-top:12px"><button class="btn gray" style="flex:1" onclick="closeModal()">📖 도감에 넣기</button><button class="btn" style="flex:1" onclick="sendMom()">📩 엄마한테 보내기</button></div>`:`<button class="btn wide" style="margin-top:12px" onclick="closeModal()">📖 도감에 넣기</button>`}`);
+}
+/* ════════ 엄마한테 보내기 (문자) ════════
+   엄마 이름 · 전화번호는 관리자 모드에서 정하고, 이 기기에만 저장해요 (온라인에는 올리지 않아요) */
+const MOM_KEY='atlan-mom';
+const getMom=()=>{ try{ return JSON.parse(localStorage.getItem(MOM_KEY)||'null')||{}; }catch(e){ return {}; } };
+const plain=h=>String(h||'').replace(/<br\s*\/?>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+/* 학습지에서 틀린 문제 (보낼 글자로) */
+function sheetWrong(){
+  const out=[];
+  (W&&W.sheets||[]).forEach(sh=>sh.probs.forEach((p,i)=>{
+    const r=sh.res[i]; if(!r||r.ok) return;
+    if(sh.kind==='q') out.push({q:plain(p.q),a:sh.vals['a'+i]||'(빈칸)',c:p.t==='cho'?plain(choLabel(p.a)):p.a});
+    else if(i>0){ const [a,b]=pStr(p); out.push({q:`${a} ${opS(p.op)} ${b}`,a:sh.vals['a'+i]||'(빈칸)',c:solve(p)}); }
+  }));
+  return out;
+}
+function momText(){
+  const tk=todayKey(), d=new Date(), reps=Object.values(S.rep||{}).filter(r=>r.d===tk);
+  const L=S.log[tk]||{q:0,c:0};
+  let t=`[아틀란티스 수학 잠수] ${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]}) 오늘 공부 끝! 🌊\n`;
+  if(!reps.length) t+=`오늘 푼 문제 ${L.q}개 중 ${L.c}개 맞혔어요.\n`;
+  reps.forEach(r=>{
+    t+=`\n📝 ${r.t} — ${r.c}/${r.n} 맞힘\n`;
+    if(r.w&&r.w.length){ t+=`틀린 문제:\n`; r.w.forEach((w,k)=>{ t+=`${k+1}) ${w.q}${w.a?` → 내 답 ${w.a}`:''} / 정답 ${w.c}\n`; }); }
+    else t+=`모두 맞혔어요! 🎉\n`;
+  });
+  t+=`\n지금 수심 ${curDepth().toLocaleString()}m · 도감 ${S.dex.length}/${CRE.length}\nhttps://jsun.site/atlan/`;
+  return t;
+}
+async function sendMom(){
+  const mom=getMom(), body=momText(), phone=(mom.phone||'').replace(/[^\d+]/g,'');
+  if(phone){ const ios=/iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent)&&'ontouchend' in document; location.href=`sms:${phone}${ios?'&':'?'}body=${encodeURIComponent(body)}`; return; }
+  if(navigator.share){ try{ await navigator.share({text:body}); return; }catch(e){ if(e&&e.name==='AbortError') return; } }
+  try{ await navigator.clipboard.writeText(body); toast('내용을 복사했어요. 문자에 붙여 넣어 보내요'); }catch(e){ toast('엄마 전화번호를 관리자 모드에서 먼저 정해 주세요'); }
 }
 function openDex(){
   let h=`<h2>📖 바다 생물 도감 <small style="color:var(--sub);font-size:18px">${S.dex.length} / ${CRE.length}</small></h2>`;
@@ -1363,6 +1455,13 @@ function drawAdmin(){
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>📅 시작한 날</b> <span style="color:var(--sub);font-size:15px">이날부터 평일마다 미션 하나씩 날짜가 붙어요 (토 · 일 건너뜀)</span>
    <div class="row" style="margin-top:8px"><input id="startD" type="date" value="${S.start||START_DEF}" style="flex:1;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setStart()">바꾸기</button></div>
    <p style="margin:8px 0 0;font-size:15px;color:var(--sub)">1번째 미션 ${dLabel(planDate(0))} · 지금 미션 ${m?dLabel(planDate(m.i)):'-'} · 마지막 ${dLabel(planDate(MISSIONS.length-1))}</p></div>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
+   <textarea id="momMsg" maxlength="200" rows="3" placeholder="예) 도윤아, 오늘도 차근차근! 다 풀면 엄마한테 보내 줘 💚" style="width:100%;margin-top:8px;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit;resize:vertical">${esc(S.momMsg||'')}</textarea>
+   <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div></div>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장 (온라인에 올리지 않아요)</span>
+   <div class="row" style="margin-top:8px"><input id="momName" type="text" maxlength="10" placeholder="부르는 이름 (예: 엄마)" value="${esc(getMom().name||'')}" style="flex:1;min-width:0;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"></div>
+   <div class="row" style="margin-top:8px"><input id="momPhone" type="tel" inputmode="tel" maxlength="15" placeholder="010-0000-0000" value="${esc(getMom().phone||'')}" style="flex:1;min-width:0;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setMom()">저장</button></div>
+   <button class="btn gray wide" style="margin-top:8px;font-size:17px" onclick="sendMom()">📩 보내기 시험해 보기</button></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>날짜별 기록</b>
    ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th></tr>${keys.map(k=>{const L=S.log[k];return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td></tr>${(L.m||[]).length||L.z||L.d?`<tr><td colspan="4" style="text-align:left;font-size:14px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+x).join('<br>')}${L.z||L.d?`<div style="color:#d0412f">✏️ 끝자리 0 남김 ${L.z||0}번 · 소수점 빠뜨림 ${L.d||0}번</div>`:''}</td></tr>`:''}`;}).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>오답 소용돌이</b> <span style="color:var(--sub)">${S.wrong.length}문제</span>
@@ -1376,6 +1475,13 @@ function setPin(){
   const v=($('newpin').value||'').trim();
   if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; }
   S.pinH=hashPin(v,'atlan'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒');
+}
+function setMomMsg(){ S.momMsg=($('momMsg').value||'').trim().slice(0,200); save(); render(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
+function setMom(){
+  const name=($('momName').value||'').trim().slice(0,10), phone=($('momPhone').value||'').trim();
+  if(phone&&!/^[0-9+\-\s]{8,15}$/.test(phone)){ toast('전화번호를 확인해 주세요'); return; }
+  try{ localStorage.setItem(MOM_KEY,JSON.stringify({name,phone})); }catch(e){}
+  toast('엄마 프로필을 저장했어요');
 }
 function setStart(){
   const v=$('startD').value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ toast('날짜를 골라 주세요'); return; }
