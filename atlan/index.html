@@ -636,12 +636,16 @@ WEEKS.forEach((w,wi)=>w.t.forEach((t,di)=>{
 /* 날짜: 시작한 날부터 평일(월~금)마다 미션 하나. 시작한 날은 엄마 모드에서 바꿔요 */
 const START_DEF='2026-10-14';
 const WDK='일월화수목금토';
+/* 하루 미션 수 (엄마 · 관리자 모드에서 1~3, 처음은 2) */
+const perDay=()=>[1,2,3].includes(S.perDay)?S.perDay:2;
 function planDate(i){
-  const d=new Date((S.start||START_DEF)+'T00:00:00');
+  const d=new Date((S.start||START_DEF)+'T00:00:00'), n=Math.floor(i/perDay());
   while(d.getDay()===0||d.getDay()===6) d.setDate(d.getDate()+1);
-  for(let k=0;k<i;){ d.setDate(d.getDate()+1); if(d.getDay()%6) k++; }
+  for(let k=0;k<n;){ d.setDate(d.getDate()+1); if(d.getDay()%6) k++; }
   return d;
 }
+/* 같은 날 몇 번째 미션인지 (하루 2개 이상일 때 ①②) */
+const dayNo=i=>perDay()>1?'①②③'[i%perDay()]:'';
 const dLabel=d=>`${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]})`;
 const isToday=d=>d.toDateString()===new Date().toDateString();
 const mLabel=m=>`${m.week}주차 · ${dLabel(planDate(m.i))} ${m.boss?(m.kraken?'최종전':'보스전'):'미션'}`;
@@ -920,7 +924,7 @@ function previewMission(i){
   const btn=st==='done'?`<button class="btn wide" onclick="closeModal();startMission(${i},true)">🔁 다시 풀기${S.done[m.id]!==undefined?` (최고 ${S.done[m.id]}개)`:''}</button>`
     :st==='now'&&m.ready?`<button class="btn wide" onclick="closeModal();startMission(${i})">${relWhen(m)<0?'⏰ 밀린 것 풀기':relWhen(m)>0?'🌙 미리 풀기':'📝 지금 풀기'}</button>`
     :`<p style="text-align:center;color:var(--sub);font-size:16px;margin:10px 0 0">🫧 앞의 미션을 풀고 나면 이 바다로 내려가요</p>`;
-  modal(`<h2 style="margin-bottom:4px">${dLabel(planDate(i))} ${m.boss?'⚔️ 보스전':'미션'} ${relTag(m)}</h2>
+  modal(`<h2 style="margin-bottom:4px">${dLabel(planDate(i))}${dayNo(i)} ${m.boss?'⚔️ 보스전':'미션'} ${relTag(m)}</h2>
     <p style="margin:0;color:var(--sub);font-size:16px">${m.week}주차 · ${ZONES[m.z-1].name} · 수심 ${m.depth.toLocaleString()}m</p>
     <h3 style="font-size:26px;margin:10px 0 4px">${m.title}</h3><p style="margin:0 0 6px;font-size:18px">${kind}</p>
     ${ex.length?`<p style="margin:10px 0 0;font-size:16px;color:var(--sub)">이런 문제를 풀어요 👀</p>${ex.slice(0,2).map(q=>`<div class="pv-q">${q.q}${q.svg||''}</div>`).join('')}`:''}
@@ -935,15 +939,16 @@ function render(){
   /* 📅 오늘: 날짜 · 오늘 할 일 · 밀린 것 · 다 했으면 엄마한테 보내기 */
   { const now=new Date(), tk=todayKey(), L=S.log[tk]||{q:0,c:0};
     const ymd=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
-    const due=MISSIONS.filter(x=>ymd(planDate(x.i))<=tk).length;          // 오늘까지 했어야 하는 미션 수
-    const todayM=MISSIONS.find(x=>ymd(planDate(x.i))===tk);                // 오늘 날짜의 미션 (주말이면 없음)
+    const todayMs=MISSIONS.filter(x=>ymd(planDate(x.i))===tk);             // 오늘 날짜의 미션들 (주말이면 없음)
+    const late=MISSIONS.filter(x=>x.i>=S.mission&&ymd(planDate(x.i))<tk).length;   // 밀린 미션
+    const left=todayMs.filter(x=>x.i>=S.mission);                          // 오늘 미션 중 남은 것
     const doneToday=Object.values(S.rep||{}).filter(r=>r.d===tk).length;
-    const behind=Math.max(0,due-S.mission), weekend=!todayM;
+    const kind=x=>isCQ(x)?`학습지 1장 (${CQ_N}문제)`:isSheet(x)?'학습지 2장 + 이야기 문제 3개':x.boss?'보스전 10문제':'문제 9개';
     let todo;
     if(S.mission>=MISSIONS.length) todo='🔱 모든 미션을 끝냈어요!';
-    else if(behind>1) todo=`⏰ 밀린 미션 <b>${behind-(todayM?1:0)}개</b>${todayM?` + 오늘 미션 1개`:''}가 남았어요. 앞에서부터 차례로 풀어요!`;
-    else if(behind===1) todo=todayM&&todayM.i===S.mission?`오늘 할 일: <b>${todayM.title}</b> ${isCQ(todayM)?`학습지 1장 (${CQ_N}문제)`:isSheet(todayM)?'학습지 2장 + 이야기 문제 3개':todayM.boss?'보스전 10문제':'문제 9개'}`:`⏰ 어제 못 푼 미션 1개가 남았어요.`;
-    else todo=weekend?`🌴 오늘은 쉬는 날! 다음 미션을 미리 풀어도 돼요.`:`✅ 오늘 할 일 끝! 내일 것을 미리 풀어도 돼요.`;
+    else if(late) todo=`⏰ 밀린 미션 <b>${late}개</b>${left.length?` + 오늘 미션 <b>${left.length}개</b>`:''}가 남았어요. 앞에서부터 차례로 풀어요!`;
+    else if(left.length) todo=`오늘 할 일 <b>${left.length}개</b>${todayMs.length>left.length?` (${todayMs.length}개 중 ${todayMs.length-left.length}개 끝!)`:''}<br>${left.map(x=>`${dayNo(x.i)} <b>${x.title}</b> · ${kind(x)}`).join('<br>')}`;
+    else todo=!todayMs.length?`🌴 오늘은 쉬는 날! 다음 미션을 미리 풀어도 돼요.`:`✅ 오늘 할 일 끝! 내일 것을 미리 풀어도 돼요.`;
     h+=`<div class="todaybox"><div class="tb-date">📅 ${now.getMonth()+1}월 ${now.getDate()}일 ${WDK[now.getDay()]}요일</div><div class="tb-todo">${todo}</div>
       ${L.q?`<div class="tb-stat">오늘 푼 문제 <b>${L.q}</b>개 · 맞힘 <b>${L.c}</b>개${doneToday?` · 끝낸 미션 <b>${doneToday}</b>개`:''}</div>`:''}
       ${doneToday?`<button class="tb-send" onclick="sendMom()">📩 엄마한테 보내기</button>`:''}</div>`;
@@ -953,7 +958,7 @@ function render(){
   } else {
     const z=ZONES[m.z-1], wk=MISSIONS.filter(x=>x.week===m.week);
     h+=`<div class="card"><span class="zone">${z.n}구역 ${z.name} (${z.range}) · ${z.unit}</span>
-      <div class="week">${wk.map(x=>{ const d=planDate(x.i); return `<button class="${x.i<S.mission?'done':x.i===S.mission?'now':''}${isToday(d)?' tdy':''}" onclick="previewMission(${x.i})" title="${esc(x.title)}">${d.getMonth()+1}/${d.getDate()}<small>${WDK[d.getDay()]}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</small></button>`; }).join('')}</div>
+      <div class="week">${wk.map(x=>{ const d=planDate(x.i); return `<button class="${x.i<S.mission?'done':x.i===S.mission?'now':''}${isToday(d)?' tdy':''}" onclick="previewMission(${x.i})" title="${esc(x.title)}">${d.getMonth()+1}/${d.getDate()}<small>${WDK[d.getDay()]}${dayNo(x.i)}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</small></button>`; }).join('')}</div>
       <p class="mlabel">${mLabel(m)}${relTag(m)}</p><h2 class="mtitle">${m.title}</h2>`;
     if(m.ready){
       const sp=SHEET[m.gen], draft=(isSheet(m)||isCQ(m))&&hasDraft(m.id);
@@ -1458,8 +1463,10 @@ function drawAdmin(){
    <select id="jump" style="width:100%;font-size:17px;padding:10px;border-radius:12px;font-family:inherit">${MISSIONS.map(x=>`<option value="${x.i}" ${x.i===S.mission?'selected':''}>${x.i+1}. ${mLabel(x)} · ${x.title}${x.ready?'':' (준비 중)'}</option>`).join('')}<option value="${MISSIONS.length}" ${S.mission>=MISSIONS.length?'selected':''}>모두 완료</option></select>
    <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin:10px 0"><input type="checkbox" id="grant" checked style="width:22px;height:22px"> 앞으로 옮길 때 건너뛴 미션의 생물 카드도 주기</label>
    <button class="btn wide" onclick="setMission(+$('jump').value)">이 미션으로 옮기기</button></div>
-   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>📅 시작한 날</b> <span style="color:var(--sub);font-size:15px">이날부터 평일마다 미션 하나씩 날짜가 붙어요 (토 · 일 건너뜀)</span>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>📅 시작한 날</b> <span style="color:var(--sub);font-size:15px">이날부터 평일마다 하루 미션 수만큼 날짜가 붙어요 (토 · 일 건너뜀)</span>
    <div class="row" style="margin-top:8px"><input id="startD" type="date" value="${S.start||START_DEF}" style="flex:1;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setStart()">바꾸기</button></div>
+   <p style="margin:12px 0 6px;font-size:16px"><b>하루 미션 수</b> <span style="color:var(--sub);font-size:15px">미션 1개 = 학습지 1~2장</span></p>
+   <div class="row">${[1,2,3].map(n=>`<button class="btn ${perDay()===n?'':'gray'}" style="flex:1" onclick="setPerDay(${n})">하루 ${n}개</button>`).join('')}</div>
    <p style="margin:8px 0 0;font-size:15px;color:var(--sub)">1번째 미션 ${dLabel(planDate(0))} · 지금 미션 ${m?dLabel(planDate(m.i)):'-'} · 마지막 ${dLabel(planDate(MISSIONS.length-1))}</p></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
    <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e9eef5'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${S.momMsgAt?` · ${new Date(S.momMsgAt).getMonth()+1}/${new Date(S.momMsgAt).getDate()} ${String(new Date(S.momMsgAt).getHours()).padStart(2,'0')}:${String(new Date(S.momMsgAt).getMinutes()).padStart(2,'0')} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
@@ -1490,6 +1497,7 @@ function setMom(){
   try{ localStorage.setItem(MOM_KEY,JSON.stringify({name,phone})); }catch(e){}
   toast('엄마 프로필을 저장했어요');
 }
+function setPerDay(n){ S.perDay=n; save(); render(); drawAdmin(); toast(`하루 미션 ${n}개로 바꿨어요`); }
 function setStart(){
   const v=$('startD').value; if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){ toast('날짜를 골라 주세요'); return; }
   S.start=v; save(); render(); drawAdmin(); toast('시작한 날을 바꿨어요 📅');
