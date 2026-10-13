@@ -91,7 +91,7 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .menu button{background:var(--card);border-radius:18px;padding:14px 6px;font-size:18px;box-shadow:0 4px 14px rgba(0,20,60,.2);line-height:1.3}
 .menu button .ic{display:block;font-size:34px}
 .menu button small{display:block;color:var(--sub);font-size:14px}
-.foot{text-align:center;margin-top:14px}
+.foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
 .foot button{background:rgba(255,255,255,.2);color:#fff;border-radius:12px;padding:8px 14px;font-size:14px}
 
 /* 생물 그림 */
@@ -973,7 +973,7 @@ function render(){
     <button onclick="startVortex()"><span class="ic">🌀</span>오답 소용돌이<small>${S.wrong.length}문제</small></button>
     <button onclick="openVoyage()"><span class="ic">🗺️</span>항해 일지<small>${Math.min(S.mission,MISSIONS.length)} / ${MISSIONS.length}</small></button>
   </div>
-  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button></div>`;
+  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div>`;
   $('main').innerHTML=h;
 }
 
@@ -1414,7 +1414,7 @@ let ADMIN_G=false;
 async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
 const isAdminUser=async u=>{ const em=((u&&u.email)||'').trim().toLowerCase(); return !!em&&await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
 async function adminGoogle(){
-  const msg=t=>{ const m=$('pinmsg'); if(m) m.innerHTML=t; };
+  const msg=t=>{ const m=$('pinmsg'); if(m) m.innerHTML=t; else if(t) toast(t.replace(/<[^>]+>/g,'')); };
   if(!cloud.ok||!window.firebase||!firebase.auth){ msg('로그인을 준비하고 있어요…'); const ok=await cloudInit(); msg(ok?'준비됐어요! 한 번 더 눌러 주세요':'인터넷 연결을 확인해 주세요'); return; }
   const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
   try{
@@ -1426,6 +1426,12 @@ async function adminGoogle(){
     if(window.top!==window&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment')) return msg('이 창 안에서는 로그인 창을 열 수 없어요. 위의 <b>[새 창으로]</b>를 눌러 주세요');
     msg(({'auth/popup-blocked':'팝업이 막혔어요. 팝업을 허용해 주세요','auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요'})[e.code]||('로그인하지 못했어요'+(e.code?' ('+e.code+')':'')));
   }
+}
+/* 하단 🔐 관리자: 이미 관리자로 로그인돼 있으면 바로, 아니면 구글 로그인 창 (누른 순간 열어야 팝업이 안 막혀요) */
+function adminOpen(){
+  const u=cloud.ok&&window.firebase&&firebase.auth&&firebase.auth().currentUser;
+  if(u) return isAdminUser(u).then(y=>{ if(y){ ADMIN_G=true; drawAdmin(); } else adminGoogle(); });
+  adminGoogle();
 }
 async function adminSignOut(){ try{ await firebase.auth().signOut(); }catch(e){} ADMIN_G=false; closeModal(); render(); toast('관리자에서 나왔어요'); }
 const usingDefaultPin=()=>!S.pinH&&!(SETTINGS&&(SETTINGS.momH||SETTINGS.pinH));
