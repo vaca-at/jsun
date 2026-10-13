@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script>/* 오래된 협동 모드 · 태블릿 브라우저 도우미: 없는 기능을 채워 두고, 멈추면 까닭을 남겨요 (2026-10-04) */
+(function(){
+  window.__SIM_ERR='';
+  window.addEventListener('error',function(e){ if(!window.__SIM_ERR) window.__SIM_ERR=(e.message||'오류')+(e.lineno?' (줄 '+e.lineno+')':'')+' · '+((navigator.userAgent.match(/Chrome\/\d+/)||[navigator.userAgent.slice(0,40)])[0]); });
+  var AP=Array.prototype, d=function(o,k,f){ if(!o[k]) try{ Object.defineProperty(o,k,{value:f,writable:true,configurable:true}); }catch(e){ o[k]=f; } };
+  d(AP,'flat',function(n){ n=n===undefined?1:Math.floor(n); var r=[]; (function f(a,k){ for(var i=0;i<a.length;i++){ if(Array.isArray(a[i])&&k>0) f(a[i],k-1); else if(i in a) r.push(a[i]); } })(this,n); return r; });
+  d(AP,'flatMap',function(fn,t){ return AP.map.call(this,fn,t).flat(1); });
+  d(AP,'at',function(i){ i=Math.trunc(i)||0; if(i<0) i+=this.length; return this[i]; });
+  d(AP,'findLast',function(fn,t){ for(var i=this.length-1;i>=0;i--) if(fn.call(t,this[i],i,this)) return this[i]; });
+  d(String.prototype,'replaceAll',function(a,b){ return a instanceof RegExp ? this.replace(a,b) : this.split(a).join(typeof b==='function'?b(a):b); });
+  d(String.prototype,'at',function(i){ i=Math.trunc(i)||0; if(i<0) i+=this.length; return this.charAt(i)||undefined; });
+  d(Object,'fromEntries',function(it){ var o={}; Array.from(it).forEach(function(p){ o[p[0]]=p[1]; }); return o; });
+  if(typeof globalThis==='undefined') window.globalThis=window;
+})();
+</script>
+<script>/* 🌱 연꽃 이모지는 2021년에 생긴 글자라 오래된 기기에는 없어요 → 그릴 수 없으면 연꽃 그림으로 바꿔요 (2026-10-04) */
+(function(){
+  var L='\uD83E\uDEB7';
+  /* 이 기기가 🌱을 색깔 있는 그림으로 그리고, '없는 글자' 상자(□)와도 다르게 그릴 때만 그대로 둬요. 애매하면 그림으로 바꿔요 */
+  function px(ch){ var c=document.createElement('canvas'); c.width=c.height=24; var x=c.getContext('2d'); x.textBaseline='top'; x.font='20px sans-serif'; x.fillText(ch,0,0); return x.getImageData(0,0,24,24).data; }
+  function has(){ try{ var a=px(L), t=px('\uDBFF\uDFFD'), col=false, same=true;
+    for(var i=0;i<a.length;i+=4){ if(a[i+3]>40 && (Math.abs(a[i]-a[i+1])>30 || Math.abs(a[i+1]-a[i+2])>30)) col=true; if(a[i]!==t[i]||a[i+3]!==t[i+3]) same=false; }
+    return col && !same; }catch(e){ return false; } }
+  if(has()) return;
+  window.__SIM_NOLOTUS=true;
+  var SRC='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+DQo8ZGVmcz4NCjxsaW5lYXJHcmFkaWVudCBpZD0iYmFjayIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGODZEMiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UyM0M5RSIvPjwvbGluZWFyR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9InNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGNDVDQkEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOTJBODYiLz48L2xpbmVhckdyYWRpZW50Pg0KPGxpbmVhckdyYWRpZW50IGlkPSJtaWQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGODY2QzQiLz48c3RvcCBvZmZzZXQ9Ii43IiBzdG9wLWNvbG9yPSIjRUU0NUFFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDgzNTlDIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0ibG93IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTYzRkE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzQyNDhBIi8+PC9saW5lYXJHcmFkaWVudD4NCjxyYWRpYWxHcmFkaWVudCBpZD0iZnJvbnQiIGN4PSIuNDUiIGN5PSIuNDUiIHI9Ii42NSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkY4REQ2Ii8+PHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0YyNThCQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RFM0FBMiIvPjwvcmFkaWFsR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9ImN1cFNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkIxM0EiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjRkZEMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZBMjJFIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0iY3VwVG9wIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGMjNBIi8+PC9saW5lYXJHcmFkaWVudD4NCjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkRFNkVFIi8+DQo8IS0tIOydtOuqqOyngCDsubgoMzAww5czMDApIOyijO2RnOuhnCDqt7jrpqzqs6Ag7KSE7Jes7JqUIC0tPg0KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgMjIpIHNjYWxlKC40NjY3KSI+DQogIDwhLS0g65KkIOqwgOyatOuNsCDrvrDsobHtlZwg6r2D7J6OIC0tPg0KICA8cGF0aCBkPSJNMTUwIDBDMTg1IDM4IDIxMiA4MCAyMDYgMTI4SDk0Qzg4IDgwIDExNSAzOCAxNTAgMFoiIGZpbGw9InVybCgjYmFjaykiLz4NCiAgPCEtLSDrkqQg7JaR7JiGIOq9g+yejiAo64Gd7J20IOuRpeq4gOqyjCDsnpjrprAg66qo7JaRKSAtLT4NCiAgPHBhdGggZD0iTTIyIDY2QzYyIDU4IDExMiA3MCAxNTAgMTEyTDEyMCAxNzJDNzIgMTYyIDM0IDE0MCAyNCA5MkMyMiA4MiAyMCA3MiAyMiA2NloiIGZpbGw9InVybCgjc2lkZSkiLz4NCiAgPHBhdGggZD0iTTI3OCA2NkMyMzggNTggMTg4IDcwIDE1MCAxMTJMMTgwIDE3MkMyMjggMTYyIDI2NiAxNDAgMjc2IDkyQzI3OCA4MiAyODAgNzIgMjc4IDY2WiIgZmlsbD0idXJsKCNzaWRlKSIvPg0KICA8IS0tIOuFuOuegCDsm5DthrUg6r2D7IigIC0tPg0KICA8cGF0aCBkPSJNOTggOTZMMjAyIDk2TDE5MCAxNjhIMTEwWiIgZmlsbD0idXJsKCNjdXBTaWRlKSIvPg0KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iOTYiIHJ4PSI1MiIgcnk9IjIwIiBmaWxsPSJ1cmwoI2N1cFRvcCkiLz4NCiAgPCEtLSDslYTrnpjroZwg7LKY7KeEIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTIgMTkyQzQyIDIxMCAxMTIgMjMyIDE1NiAyNjJMMTUwIDI5NEMxMDQgMzA0IDUwIDMwMCAyNiAyNzZDMTAgMjYwIDMgMjMwIDIgMTkyWiIgZmlsbD0idXJsKCNsb3cpIi8+DQogIDxwYXRoIGQ9Ik0yOTggMTkyQzI1OCAyMTAgMTg4IDIzMiAxNDQgMjYyTDE1MCAyOTRDMTk2IDMwNCAyNTAgMzAwIDI3NCAyNzZDMjkwIDI2MCAyOTcgMjMwIDI5OCAxOTJaIiBmaWxsPSJ1cmwoI2xvdykiLz4NCiAgPCEtLSDqsIDsmrTrjbAg7JaR7JiGIO2BsCDqvYPsno4gLS0+DQogIDxwYXRoIGQ9Ik0wIDEyOEM1NCAxMTggMTI0IDE0MCAxNTIgMjE0QzEyNCAyNTQgNjIgMjU0IDMwIDIyMkMxMCAyMDIgMCAxNjQgMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPHBhdGggZD0iTTMwMCAxMjhDMjQ2IDExOCAxNzYgMTQwIDE0OCAyMTRDMTc2IDI1NCAyMzggMjU0IDI3MCAyMjJDMjkwIDIwMiAzMDAgMTY0IDMwMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPCEtLSDslZ4g6rCA7Jq0642wIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTE1MCAxMDBDMTg2IDEzNCAyMTQgMTcwIDIxMiAyMTRDMjEwIDI1NCAxODQgMjc4IDE1MCAyNzhDMTE2IDI3OCA5MCAyNTQgODggMjE0Qzg2IDE3MCAxMTQgMTM0IDE1MCAxMDBaIiBmaWxsPSJ1cmwoI2Zyb250KSIvPg0KPC9nPg0KPC9zdmc+DQo=';
+  var esc=function(s){ return s.replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
+  var IMG='<img src="'+SRC+'" alt="새싹" class="lotus-emo" style="height:1.05em;width:1.05em;vertical-align:-0.15em;display:inline-block">';
+  function walk(n){
+    if(!n) return;
+    if(n.nodeType===3){
+      if(n.nodeValue.indexOf(L)<0) return;
+      var p=n.parentNode; if(!p) return;
+      if(p.namespaceURI && p.namespaceURI.indexOf('svg')>=0){ n.nodeValue=n.nodeValue.split(L).join('\uD83C\uDF38'); return; }   // 그림(SVG) 안 글자는 🌸로
+      if(/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(p.nodeName)) return;
+      var s=document.createElement('span'); s.innerHTML=n.nodeValue.split(L).map(esc).join(IMG); p.replaceChild(s,n); return;
+    }
+    if(n.nodeType===1 && !/^(SCRIPT|STYLE|TEXTAREA)$/i.test(n.nodeName)){ for(var c=n.firstChild;c;){ var nx=c.nextSibling; walk(c); c=nx; } }
+  }
+  function start(){ walk(document.body); try{ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.type==='characterData') walk(m.target); for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]); } }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded',start);
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>새싹 AI 공부방</title>
+<meta name="description" content="아이들이 집에서는 한 명씩, 협동 모드에서는 형제자매와 함께 공부하는 AI 공부방">
+<meta name="theme-color" content="#FFF6EE">
+<!-- 카카오톡 · 메신저 미리보기 (og.png 1200×630). 그림을 바꾸면 ?v= 숫자를 바꾸고 카카오 공유 디버거에서 캐시 초기화 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="새싹 AI 공부방">
+<meta property="og:title" content="새싹 AI 공부방">
+<meta property="og:description" content="협동 모드에서는 다 같이, 집에서는 부모님 핸드폰으로 한 명씩. 나이 · 학년에 맞춘 연산 · 국어 · 영어 · 한자 공부방이에요.">
+<meta property="og:image" content="https://jsun.site/study/og.png?v=20261003">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="새싹 AI 공부방 - 협동 모드에서 다 같이, 집에서는 한 명씩">
+<meta property="og:url" content="https://jsun.site/study/">
+<meta name="twitter:card" content="summary_large_image">
+<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js" integrity="sha384-oroumrnFVE0xtgqyDZJARgERibXg2C28380uaUZz2kHDS5CR7tu20eGiOU6GkTpy" crossorigin="anonymous" defer></script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="새싹 공부방">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icon.png"><!-- 아이폰 홈 화면 아이콘(180×180): 🌱 이모지를 보고 그린 연꽃 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+<script>/* 고른 글씨체를 화면이 그려지기 전에 먼저 (깜빡임 없게) */ try{ if(!localStorage.getItem("study:unz1")){ localStorage.setItem("study:font","\"unz\""); localStorage.setItem("study:unz1","1"); } const f=JSON.parse(localStorage.getItem("study:font")||"\"unz\""); if(f) document.documentElement.dataset.font=f; }catch(e){}</script>
+<style>
+/* ───── 새싹 AI 공부방 (jsun.site/study) ─────
+   연꽃 · 연분홍 · 연두 · 금빛, 둥글고 귀엽게. 머리말 · 꾸밈은 작게만 */
+:root{
+  --bg:#FFF7F0; --paper:#FFFFFF; --ink:#4A3B36; --sub:#8C7A72; --line:#F1DED3;
+  --lotus:#F291B2; --lotus-d:#DD6590; --lotus-s:#FDE3EC; --leaf:#7FC39A; --leaf-d:#4E9E70; --leaf-s:#E3F4E8;
+  --gold:#D4A24C; --gold-s:#FBF0D9; --sky:#7FB6E8; --no:#E35D5D;
+  --r:26px; --shadow:0 6px 0 rgba(221,101,144,.12), 0 10px 26px rgba(160,110,90,.10);
+  --font:'Gowun Dodum',system-ui,sans-serif; --font-t:'Jua','Gowun Dodum',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:17px;line-height:1.55;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;
+  background-image:radial-gradient(circle at 12% 8%,#FDE7EF 0 120px,transparent 121px),radial-gradient(circle at 92% 22%,#E7F5EC 0 150px,transparent 151px),radial-gradient(circle at 80% 96%,#FBF0D9 0 160px,transparent 161px)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+/* 글씨체 3가지 (처음 화면에서 고르고 이 기기에 기억): 기본(고운돋움 + 주아) · 윤탱체 · 언즈체 (눈누 온글잎, 웹 사용 가능) */
+@font-face{font-family:"OwnglyphYuntaeng";src:url("https://cdn.jsdelivr.net/gh/Project-Noonnu/2608211801@font-160/font-160/온글잎 윤탱체.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"OngleipUnz";src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/2406-1@1.0/Ownglyph_UNZ-Rg.woff2") format("woff2");font-weight:normal;font-display:swap}
+:root[data-font="yuntaeng"]{--font:"OwnglyphYuntaeng","Gowun Dodum",sans-serif;--font-t:"OwnglyphYuntaeng","Jua",sans-serif}
+:root[data-font="unz"]{--font:"OngleipUnz","Gowun Dodum",sans-serif;--font-t:"OngleipUnz","Jua",sans-serif}
+:root:is([data-font="yuntaeng"],[data-font="unz"]) body{font-size:20px}
+.a2hs{margin:14px 0 0;padding:14px 16px;border-radius:var(--r);background:#FFFDF6;border:2px dashed #F3D9A4}
+.a2hs-top{display:flex;align-items:center;gap:10px}
+.a2hs-top img{width:44px;height:44px;border-radius:12px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.a2hs-top b{display:block;font-size:1.02rem}
+.a2hs-top small{display:block;color:var(--sub);font-size:.85rem;line-height:1.4}
+.a2hs-top button{margin-left:auto;flex:none;padding:.5rem .9rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem}
+/* 홈 화면 아이콘 · 밴드 바로가기를 반씩 나란히 (좁은 핸드폰에서는 위아래로) */
+.quick-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0 0;align-items:start}
+.quick-row>.a2hs{margin:0}
+.quick-row>.a2hs:only-child{grid-column:1 / -1}
+.band-card{display:block;text-decoration:none;color:inherit}
+.a2hs-top .band-logo{width:44px;height:44px;border-radius:12px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.a2hs-top .a2hs-go{margin-left:auto;flex:none;padding:.5rem .9rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;white-space:nowrap}
+.a2hs-top button{white-space:nowrap}
+@media (max-width:620px){ .quick-row{grid-template-columns:1fr} }
+.a2hs ol{margin:10px 0 0;padding-left:1.3rem;line-height:1.75;font-size:.95rem}
+.a2hs ol b{color:#B94873}
+.a2hs .ios-share{display:inline-block;vertical-align:-3px;width:18px;height:18px}
+.pguide{margin-top:14px}
+.pguide h3{margin:0 0 8px;font-size:1.05rem}
+.pguide ul{margin:0;padding-left:1.2rem;line-height:1.8}
+.pguide code{background:#FDE3EC;color:#B94873;border-radius:6px;padding:0 .35rem;font-family:inherit;white-space:nowrap}
+.share-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.link-btn{display:inline-flex;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.85rem}
+.kakao-btn{display:inline-flex;align-items:center;gap:5px;padding:.38rem .85rem;border-radius:999px;background:#FEE500;border:2px solid #F2D900;color:#191919;font-size:.85rem}   /* 위 엄마아빠 · 관리자 단추보다 조금 작게 */
+.kakao-btn:active{transform:translateY(1px)}
+.font-pick{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0}
+.font-pick span{color:var(--sub);font-size:.9rem}
+.font-pick button{padding:.35rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:1.05rem}
+.font-pick button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
+.wrap{width:min(960px,100%);margin:0 auto;padding:18px 16px 0;flex:1}
+/* 머리 */
+.top{display:flex;align-items:center;gap:12px;padding:6px 0 14px}
+.logo{width:58px;height:58px;flex:none;filter:drop-shadow(0 4px 6px rgba(221,101,144,.25))}
+.brand{flex:1;min-width:0}
+.brand h1{font-size:clamp(1.15rem,4.2vw,1.65rem);line-height:1.2}
+.brand .mantra{font-family:var(--font-t);color:var(--gold);letter-spacing:.32em;font-size:.82rem;margin-top:2px}
+.brand small{display:block;color:var(--sub);font-size:.82rem}
+.homebtn{flex:none;padding:.45rem .9rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.9rem}
+/* 카드 · 단추 */
+.card{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.center{text-align:center}
+.sub{color:var(--sub)}
+.big-btn{display:block;width:100%;max-width:420px;margin:16px auto 0;padding:.9rem 1rem;border-radius:20px;background:var(--lotus-d);color:#fff;font-family:var(--font-t);font-size:1.25rem;box-shadow:0 5px 0 #B94873}
+.big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B94873}
+/* 구글로 로그인: 흰 동그라미 안에 구글 G */
+.gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
+.gbtn:disabled{opacity:.5;cursor:wait}
+.gico{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;background:#fff;flex:none}
+/* 관리자 현황판: 접속 잔디 · 날짜별 */
+.vgrass{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin-top:10px;max-width:520px}
+.vgrass i,.vleg i{display:block;aspect-ratio:1;border-radius:4px;background:#F1ECE4}
+.vgrass i.fut{background:transparent}
+.vgrass i.now{outline:2px solid var(--lotus-d);outline-offset:1px}
+.vgrass .l1,.vleg .l1{background:#CFE8D6}.vgrass .l2,.vleg .l2{background:#8FCBA3}.vgrass .l3,.vleg .l3{background:#4FA875}.vgrass .l4,.vleg .l4{background:#2E7D52}
+.vleg{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:.8rem;color:var(--sub)}
+.vleg i{width:12px;height:12px}
+.vleg small{margin-left:4px}
+.vdays{width:100%}
+.vdays tr.off td{color:var(--sub)}
+.vdays tr.today td{background:#FFF6E0}
+.vbar{width:35%}
+.sstat,.sdays{width:100%;font-size:.88rem}
+.sstat td,.sstat th,.sdays td,.sdays th{white-space:nowrap}
+.sstat td.sl{text-align:left}
+.sdays tr.off td{color:var(--sub)}.sdays tr.today td{background:#FFF6E0}
+.sh{margin:16px 0 6px;font-size:1rem}
+.hrs{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;align-items:end;height:90px;max-width:560px}
+.hrs div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.hrs i{display:block;width:100%;min-height:2px;border-radius:4px 4px 0 0;background:#8FCBA3}
+.hrs small{font-size:.65rem;color:var(--sub);height:14px}
+.stats.tstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:720px){ .stats.tstats{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.stats.tstats .stat b{font-size:1.25rem;white-space:nowrap}
+.stats.tstats .stat small{display:block;line-height:1.5}
+.stats.tstats .stat i{display:block;font-style:normal;font-size:.75rem;opacity:.85}
+.vbar span{display:block;height:10px;border-radius:999px;background:#8FCBA3;min-width:0}
+.big-btn.leaf{background:var(--leaf-d);box-shadow:0 5px 0 #3B7C57}
+.big-btn.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.link{color:var(--lotus-d);text-decoration:underline;text-underline-offset:3px;font-size:.92rem}
+.hello{display:flex;align-items:center;gap:14px;margin:4px 0 18px}
+.hello .bub{flex:1;background:var(--paper);border:2px solid var(--line);border-radius:22px 22px 22px 6px;padding:12px 16px;font-family:var(--font-t);font-size:1.15rem}
+.dongi{font-size:3.2rem;line-height:1}
+/* 입장 */
+.doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.door{display:flex;flex-direction:column;align-items:center;gap:8px;padding:26px 16px 22px;border-radius:30px;background:var(--paper);border:3px solid var(--line);box-shadow:var(--shadow);text-align:center;transition:transform .15s}
+.door:hover{transform:translateY(-3px)}
+.door .ico{font-size:4rem;line-height:1.1}
+.door b{font-family:var(--font-t);font-size:1.5rem}
+.door small{color:var(--sub)}
+.door-note{margin-top:6px;font-size:.88rem;line-height:1.5;color:var(--ink);opacity:.8}
+.door div{display:flex;flex-direction:column;align-items:inherit;gap:2px}   /* 제목 아래 줄에 설명 (넓은 화면 · 협동 모드에서도) */
+.door.board{border-color:#F7C9D8;background:linear-gradient(180deg,#FFF 55%,var(--lotus-s))}
+.door.phone{border-color:#BFE3CB;background:linear-gradient(180deg,#FFF 55%,var(--leaf-s))}
+.side-links{display:flex;justify-content:center;gap:10px;margin:18px 0 0;flex-wrap:wrap}
+.side-links button{padding:.5rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.95rem}
+/* 학년 고르기 */
+.login2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}   /* 왼쪽 이름 · 나이, 오른쪽 비밀번호 (두 칸 높이 같게) */
+.login2>.card{margin:0}
+.login2 h3{margin:0 0 10px;font-size:1.1rem;display:flex;align-items:center;gap:8px}
+.login2 h3 .no{display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;border:2px solid var(--ink);font-size:.95rem;flex:none}
+.login2 .field{margin:0 0 16px;width:100%;max-width:none;box-sizing:border-box}
+.login2 .grades.sm{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.login2 .grades.sm .grade{padding:9px 4px;font-size:1.05rem;border-radius:16px;border-width:2px;box-shadow:none}
+.login2 .grades.sm .grade small{display:none}
+.login2 .note{margin:12px 0 0;font-size:.82rem;color:var(--sub);line-height:1.5}
+@media (max-width:720px){ .login2{grid-template-columns:1fr} }
+.grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}   /* 5세 ~ 초6 아홉 칸: 3줄 3칸 */
+.grade{padding:18px 6px;border-radius:24px;background:var(--paper);border:3px solid var(--line);font-family:var(--font-t);font-size:1.4rem;box-shadow:var(--shadow)}
+.grade small{display:block;font-family:var(--font);font-size:.78rem;color:var(--sub)}
+.grade.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.grade:nth-child(-n+3){background:linear-gradient(180deg,#FFF,var(--gold-s))}
+/* 입력 · 비밀번호 */
+.field{display:block;width:100%;max-width:360px;margin:10px auto 0;padding:.8rem 1rem;border-radius:18px;border:2px solid var(--line);font:inherit;font-size:1.25rem;text-align:center;background:#FFFDFB;color:var(--ink)}
+.field:focus{outline:none;border-color:var(--lotus)}
+.pinrow{display:flex;justify-content:center;gap:14px;margin:16px 0 8px}
+.pinrow i{width:22px;height:22px;border-radius:50%;border:3px solid var(--lotus);background:#fff}
+.pinrow i.f{background:var(--lotus)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:8px auto 0}
+.key{height:62px;border-radius:20px;background:var(--paper);border:2px solid var(--line);font-family:var(--font-t);font-size:1.6rem;box-shadow:0 4px 0 var(--line)}
+.key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.key.fn{font-size:1rem;font-family:var(--font)}
+.steps{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
+.steps i{width:30px;height:6px;border-radius:99px;background:var(--line)}
+.steps i.on{background:var(--lotus)}
+.msg{min-height:1.6em;margin-top:8px;color:var(--no);text-align:center;font-size:.95rem}
+.msg.ok{color:var(--leaf-d)}
+/* 아이 목록 · 아이 홈 */
+.kids{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px}
+.kid{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;border-radius:999px;background:var(--lotus-s);border:2px solid #F7C9D8;font-family:var(--font-t);font-size:1.1rem}
+.kid small{font-family:var(--font);font-size:.8rem;color:var(--sub)}
+.room-card{display:flex;align-items:center;gap:16px;padding:20px;border-radius:28px;background:linear-gradient(135deg,var(--lotus-s),var(--gold-s));border:3px solid #F7C9D8;box-shadow:var(--shadow);width:100%;text-align:left}
+.room-card .ico{font-size:3.4rem}
+.room-card b{font-family:var(--font-t);font-size:1.45rem;display:block}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.stat{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:12px 8px;text-align:center}
+.stat b{display:block;font-family:var(--font-t);font-size:1.6rem;color:var(--lotus-d)}
+.stat small{color:var(--sub);font-size:.82rem}
+.soon{margin-top:14px;padding:14px 16px;border-radius:20px;background:var(--gold-s);border:2px dashed var(--gold);color:#7A5A1E;font-size:.95rem}
+.row-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.pill{padding:.55rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.95rem}
+.pill.warn{border-color:#F3B8B8;color:#B94444}
+.tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:.95rem}
+.tbl th,.tbl td{padding:8px 6px;border-bottom:1.5px dashed var(--line);text-align:center}
+.tbl th{color:var(--sub);font-weight:normal}
+/* 엄마아빠 모드: 일자별 · 과목별 */
+.pd h3{margin:18px 0 4px}
+.pd .tbl td.sj{text-align:left;font-size:.85rem;color:var(--sub)}
+.pd .tbl tr.off td{color:var(--sub);opacity:.6}
+.pd .tbl td b{color:var(--lotus-d)}
+.pd-seg{display:flex;gap:6px;margin:6px 0 2px}
+.pd-seg button{padding:.25rem .8rem;border-radius:999px;border:2px solid var(--line);background:var(--paper);font-size:.9rem}
+.pd-seg button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.pbar{display:grid;grid-template-columns:5.2em 1fr auto;align-items:center;gap:8px;margin:7px 0;font-size:.95rem}
+.pbar i{display:block;height:14px;border-radius:999px;background:var(--lotus-s);overflow:hidden}
+.pbar i span{display:block;height:100%;border-radius:999px;background:var(--lotus)}
+.pbar small{color:var(--sub);white-space:nowrap}
+/* 아래: 이용 방법 · 개인정보처리방침 (늘 보여요) */
+.foot{width:min(960px,100%);margin:26px auto 0;padding:0 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.foot details{background:var(--paper);border:2px solid var(--line);border-radius:20px;margin-top:10px;overflow:hidden}
+.foot summary{list-style:none;cursor:pointer;padding:12px 16px;font-family:var(--font-t);font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
+.foot summary::-webkit-details-marker{display:none}
+.foot summary::after{content:'＋';color:var(--lotus-d)}
+.foot details[open] summary::after{content:'－'}
+.foot .doc{padding:0 18px 16px;font-size:.93rem;color:#5E4E48}
+.foot .doc h4{margin:14px 0 4px;font-family:var(--font-t);font-weight:normal;font-size:1rem;color:var(--ink)}
+.foot .doc ul,.foot .doc ol{margin:4px 0;padding-left:1.2em}
+.foot .doc p{margin:4px 0}
+.foot .copy{text-align:center;color:var(--sub);font-size:.8rem;margin-top:12px}
+.foot .copy b{color:var(--gold);font-family:var(--font-t);font-weight:normal;letter-spacing:.2em}
+.toast{white-space:normal;max-width:calc(100vw - 32px);text-align:center;position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#4A3B36;color:#fff;padding:.7rem 1.2rem;border-radius:999px;font-size:.95rem;z-index:50;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw;text-align:center}
+.toast.on{opacity:1}
+@media (max-width:620px){ .doors{grid-template-columns:1fr} .grades{grid-template-columns:repeat(3,minmax(0,1fr))} .door{flex-direction:row;text-align:left;padding:18px} .door .ico{font-size:3rem} .door div{display:flex;flex-direction:column} }
+/* 협동 모드: 큰 화면이면 글씨를 더 크게 */
+body.board{font-size:20px}
+body.board .grade{font-size:2rem;padding:26px 6px}
+.busy{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(255,247,240,.72);backdrop-filter:blur(2px)}
+.busy[hidden]{display:none}
+.busy div{padding:22px 30px;border-radius:24px;background:var(--paper);border:3px solid var(--lotus-s);box-shadow:var(--shadow);font-family:var(--font-t);font-size:1.25rem;color:var(--lotus-d);text-align:center}
+.busy i{display:block;font-style:normal;font-size:2.4rem;animation:busy 1.2s ease-in-out infinite}
+@keyframes busy{50%{transform:scale(1.15) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.busy i{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <!-- 새싹: 아이들이 쑥쑥 자라는 공부방 -->
+    <svg class="logo" viewBox="0 0 64 64" aria-hidden="true">
+      <ellipse cx="32" cy="54" rx="21" ry="5" fill="#E9D3B0"/>
+      <path d="M32 54V31" stroke="#3FA45B" stroke-width="4" stroke-linecap="round"/>
+      <path d="M31 36C29 24 19 17 8 19c1 12 11 19 23 17z" fill="#86D99A"/>
+      <path d="M33 32C35 18 45 11 57 13c-1 13-12 20-24 19z" fill="#4CBF6A"/>
+      <path d="M30 34C25 28 19 24 12 22" stroke="#3FA45B" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <path d="M34 30C39 23 45 18 52 16" stroke="#2E8A48" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="brand">
+      <h1>새싹 AI 공부방</h1>
+      <div class="mantra">즐겁게 · 꾸준히</div>
+    </div>
+    <button class="homebtn" id="homeBtn" hidden>🏠 처음으로</button>
+  </header>
+  <main id="view"><!-- 스크립트가 멈춰도(아주 오래된 협동 모드 브라우저 등) 들어갈 수 있게 미리 그려 둔 입구. 스크립트가 돌면 바로 바뀌어요 -->
+    <div class="doors">
+      <a class="door phone" href="./" style="text-decoration:none;color:inherit"><span class="ico">📚</span><div><b>공부방</b><small>🏠 한 명씩 내 공부방</small></div></a>
+      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🤝</span><div><b>협동 모드</b><small>👫 형제자매랑 함께</small></div></a>
+    </div>
+    <p class="center" style="margin-top:14px;color:var(--sub)">화면이 이대로 멈춰 있으면 이 기기의 인터넷 브라우저(크롬)를 최신으로 업데이트해 주세요.</p>
+  </main>
+</div>
+
+<footer class="foot">
+  <details id="howto">
+    <summary>🌱 이용 방법</summary>
+    <div class="doc">
+      <h4>🤝 협동 모드 (형제자매랑 함께)</h4>
+      <ol><li>처음 화면에서 <b>협동 모드</b>을 누르면 책갈피 네 장이 나와요.</li><li><b>① 누가</b>: 오늘 온 연령대를 모두 누르고, 연령대마다 친구 수를 맞춰요.</li><li><b>② 어떻게</b>: 🤝 다 같이 협동(별 약 100개를 모둠마다 나눠 모아요) · 🎓 학년별 협동(한 연령대가 100개를 채우면 다음 차례) · 🔑 내 공부방 중에서 골라요.</li><li><b>③ 순서</b>: 🃏 카드 뒤집기 · 🎡 룰렛 · 🪜 사다리 중 하나로 정해요.</li><li><b>④ 시작</b>: 차례인 연령대 문제가 나와요. 각자 자기 나이 문제를 스스로 풀고, 정답은 차례인 친구만 눌러요. 맞히면 별 하나!</li><li>🤗 놀리지 않기 · 대신 풀지 않기 · 틀려도 괜찮다고 말해 주기</li><li>다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요 (몇 판 했는지 · 함께한 친구 수 · 머문 시간 같은 숫자만 날짜별로 세요). <b>🔑 내 공부방</b>은 집처럼 이름 두 글자 + 나이 + 비밀번호로 들어가서 <b>내 나이 공부방</b>에서 혼자 공부해요. 기록은 내 공부방에 저장돼요.</li></ol>
+      <h4>📱 부모님 핸드폰 (집에서 한 명씩)</h4>
+      <ol><li><b>부모님 핸드폰</b>을 누르고 아이 <b>이름 두 글자</b>를 써요.</li><li><b>나이</b>를 누르고, 아이 <b>비밀번호 4자리</b>를 눌러요. 처음이면 같은 번호를 한 번 더 눌러 만들어요.</li><li>나이에 맞는 공부방이 열려요. 다음부터는 이 핸드폰에 이름이 남아 있어서 비밀번호만 누르면 돼요.</li></ol>
+      <h4>👩 엄마아빠 모드</h4>
+      <ol><li>아이 이름 · 나이를 넣고 <b>엄마아빠 비밀번호</b>를 눌러요.</li><li>처음이면 <b>아이 비밀번호</b>로 우리 아이인지 확인한 뒤, 엄마아빠 비밀번호를 두 번 눌러 정해요.</li><li>우리 아이의 공부한 날 · 푼 문제 · 별을 볼 수 있어요.</li></ol>
+      <h4>🔑 비밀번호를 잊었을 때</h4>
+      <ul><li><b>아이 비밀번호</b>: 엄마아빠 모드에서 다시 정해요.</li><li><b>엄마아빠 비밀번호</b>: 관리자에게 초기화를 부탁하세요. 초기화한 뒤 아이 비밀번호로 확인하고 새로 정하면 돼요.</li></ul>
+    </div>
+  </details>
+  <details id="privacy">
+    <summary>🔒 개인정보처리방침</summary>
+    <div class="doc">
+      <p>새싹 AI 공부방(이하 “공부방”)은 친구들이 즐겁게 공부할 수 있도록 운영자가 비영리로 만든 학습 웹앱이에요. 아이의 개인정보는 꼭 필요한 만큼만 다루고, 광고나 판매에 쓰지 않아요.</p>
+      <h4>1. 모으는 정보</h4>
+      <ul><li><b>아이 이름 두 글자와 나이 · 학년</b>: 아이를 구분하고 나이에 맞는 공부를 보여 주려고 써요.</li>
+        <li><b>아이 비밀번호 · 엄마아빠 비밀번호</b>: 번호 그대로 저장하지 않아요. 이름 · 나이와 함께 되돌릴 수 없게 암호화한 값(해시)만 ‘열쇠’로 저장해요.</li>
+        <li><b>공부 기록</b>: 공부한 날, 푼 문제 수 · 맞힌 수, 모은 별, 공부방에 머문 시간(화면을 켜 두고 1분 안에 무언가 누른 시간만 초로 세요).</li>
+        <li><b>이 기기에만</b>: 이 핸드폰에서 들어온 아이 이름 · 나이와 아이 번호를 브라우저 저장소에 남겨 다음에 쉽게 들어오게 해요. ‘이 기기에서 지우기’로 언제든 지울 수 있어요.</li>
+        <li><b>협동 모드</b>: 다 같이 · 학년별 협동은 아이 기록으로 저장하지 않아요 (몇 판 했는지 · 함께한 친구 수 · 머문 시간 같은 숫자만 날짜별로 세요). <b>🔑 내 공부방</b>은 이름 두 글자 · 나이 · 비밀번호로 아이를 확인한 뒤 집과 같은 그 아이의 공부방을 열어요. 공부 기록은 집에서 공부할 때와 똑같이 저장돼요.</li></ul>
+      <h4>2. 누가 볼 수 있나요</h4>
+      <ul><li><b>보호자</b>는 엄마아빠 비밀번호로 <b>우리 아이 기록만</b> 볼 수 있어요.</li>
+        <li><b>운영자(관리자)</b> 화면에는 아이 수 · 나이별 인원 · 날짜별 들어온 아이 수 · 모든 아이를 합친 활동 시간 · 첫 화면이 열린 횟수와 시각 · 협동 모드을 쓴 횟수와 시간 같은 <b>숫자만</b> 나와요. 첫 화면이 열린 횟수는 운영자가 여러 웹앱을 함께 보는 관리 화면(moontr.site)에도 숫자로만 세요. 보호자가 엄마아빠 비밀번호 초기화를 요청했을 때만 그 아이 이름을 찾아 초기화해요.</li>
+        <li>다른 아이의 기록은 서로 볼 수 없어요.</li></ul>
+      <h4>3. 보관하는 곳과 기간</h4>
+      <ul><li>기록은 Google Firebase(클라우드 데이터베이스)에 저장돼요.</li>
+        <li>보호자가 지워 달라고 하거나 공부방을 더 쓰지 않게 되면 기록을 지워요. 1년 동안 한 번도 들어오지 않은 아이의 기록도 지울 수 있어요.</li></ul>
+      <h4>4. 만 14세 미만 아동</h4>
+      <p>공부방은 5세부터 초등 6학년까지의 아이를 위한 곳이에요. 아이의 공부방은 보호자가 직접 이름과 나이를 넣어 만들고, 보호자는 엄마아빠 모드에서 기록을 확인하고 지워 달라고 요청할 수 있어요.</p>
+      <h4>5. 문의 · 지워 달라는 요청</h4>
+      <p>운영자 <a href="mailto:202609vibe@gmail.com">202609vibe@gmail.com</a> · 방침이 바뀌면 이곳에 먼저 알리고 시행일을 고쳐 적어요.</p>
+      <p class="sub">시행일 2026년 9월 30일</p>
+    </div>
+  </details>
+  <p class="copy">새싹 AI 공부방</p>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ═════════ 설정 ═════════ */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c"
+};
+/* 관리자: 기존 공부방과 같은 구글 계정 (메일 주소는 SHA-256 값으로만) */
+const ADMIN_EMAIL_SHA256 = '22fa372a479af0929cadcbf6b12b6c2dace34800344067ef44b21a0c187487fb';
+/* 나이 · 학년 → 공부방 (2단계에서 나이별 공부방을 붙여요) */
+const AGES = [
+  {k:'k5', n:'5세', s:'유아', ico:'🐣'}, {k:'k6', n:'6세', s:'유아', ico:'🐥'}, {k:'k7', n:'7세', s:'유아', ico:'🐤'},
+  {k:'e1', n:'초1', s:'1학년', ico:'🌱'}, {k:'e2', n:'초2', s:'2학년', ico:'🌿'}, {k:'e3', n:'초3', s:'3학년', ico:'🍀'}, {k:'e4', n:'초4', s:'4학년', ico:'🌳'},
+  {k:'e5', n:'초5', s:'5학년', ico:'🌲'}, {k:'e6', n:'초6', s:'6학년', ico:'🎋'}
+];
+const ROOM_OF = {k5:'k5', k6:'k7', k7:'k7', e1:'e1', e2:'e2', e3:'e3', e4:'e4', e5:'e5', e6:'e6'};   // 6세는 7세 공부방을 같이 써요
+const ageOf = k => AGES.find(a=>a.k===k) || AGES[0];
+/* 저장 자리 (우리 가족 공부방과 따로): 아이 문서 · 아이 열쇠 · 엄마아빠 열쇠 */
+const C_KIDS='study_kids', C_KEY='study_key', C_PKEY='study_pkey';
+
+/* ═════════ 도움 함수 ═════════ */
+const $ = id => document.getElementById(id);
+const view = $('view');
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const josa = (w,a,b) => { const c=w.charCodeAt(w.length-1); return w + (c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28 ? a : b); };
+const cleanName = s => String(s||'').replace(/\s+/g,' ').trim().slice(0,12);
+async function sha256Hex(t){ const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const keyOf = (kind, name, age, pin) => sha256Hex(`study-v1|${kind}|${cleanName(name)}|${age}|${pin}`);
+const rid = () => { const a=new Uint8Array(15); crypto.getRandomValues(a); return [...a].map(x=>x.toString(36).padStart(2,'0')).join('').slice(0,24); };
+const dayKey = (t=new Date()) => `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+let toastT=null;
+// 비밀번호를 누른 뒤 확인하는 동안 화면 가운데에 '접속하고 있어요'
+function busy(on, text){ let b=$('busy'); if(!b){ b=document.createElement('div'); b.id='busy'; b.className='busy'; b.setAttribute('role','status'); document.body.appendChild(b); }
+  b.innerHTML=`<div><i>🌱</i>${text||'공부방에 접속하고 있어요…'}</div>`; b.hidden=!on; }
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),2400); }
+function speak(text){ try{ if(!('speechSynthesis' in window)) return; speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang='ko-KR'; u.rate=.9; const v=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.replace('_','-').startsWith('ko')); if(v) u.voice=v; speechSynthesis.speak(u); }catch(e){} }
+/* 이 기기에 남기는 것: 들어온 아이 목록 (이름 · 나이 · 아이 번호) */
+const LS = { get(k,d){ try{ const v=localStorage.getItem('study:'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } }, set(k,v){ try{ localStorage.setItem('study:'+k, JSON.stringify(v)); }catch(e){} }, del(k){ try{ localStorage.removeItem('study:'+k); }catch(e){} } };
+const localKids = () => LS.get('kids',[]);
+function rememberKid(k){ const L=localKids().filter(x=>x.id!==k.id); L.unshift({id:k.id, name:k.name, age:k.age}); LS.set('kids', L.slice(0,6)); LS.set('cur', k.id); }
+/* 협동 모드 '내 공부방'으로 들어갔던 아이가 입구로 나오면 이 기기에서 나가요 (칠판은 여럿이 쓰니까) */
+(()=>{ const b=LS.get('boardKid',null); if(!b) return; LS.set('kids', localKids().filter(x=>x.id!==b)); if(LS.get('cur',null)===b) LS.del('cur'); LS.del('boardKid'); })();
+
+/* ═════════ 온라인 저장 (Firebase) ═════════ */
+const cloud = { ready:null, db:null };
+function cloudInit(){
+  if(cloud.ready) return cloud.ready;
+  const load=src=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); });
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  cloud.ready = load(base+'firebase-app-compat.js').then(()=>load(base+'firebase-firestore-compat.js')).then(()=>load(base+'firebase-auth-compat.js')).then(()=>{
+    firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); return cloud.db;
+  }).catch(e=>{ console.warn('온라인 저장을 쓸 수 없어요', e); return null; });
+  return cloud.ready;
+}
+/* 📊 공부방 숫자 통계 (2026-10-04): study_stats/날짜 에 숫자만 더해요. 이름 · 아이 번호 · 푼 문제는 넣지 않아요 */
+function simDay(){ var t=new Date(); return t.getFullYear()+'-'+('0'+(t.getMonth()+1)).slice(-2)+'-'+('0'+t.getDate()).slice(-2); }
+function simStat(add, day){
+  return cloudInit().then(function(d){ if(!d) return; var FV=firebase.firestore.FieldValue, o={}, n=0;
+    Object.keys(add).forEach(function(k){ var v=add[k]; if(v && typeof v==='object'){ var m={}; Object.keys(v).forEach(function(h){ if(v[h]) { m[h]=FV.increment(v[h]); n++; } }); o[k]=m; } else if(v){ o[k]=FV.increment(v); n++; } });
+    if(n) return d.collection('study_stats').doc(day||simDay()).set(o,{merge:true});
+  }).catch(function(e){ console.warn('통계', e); });
+}
+// 첫 화면을 열 때: 열린 횟수 · 오늘 처음 온 기기 · 몇 시에 왔는지 (관리자 주소 #admin 으로 연 것은 세지 않아요)
+(function(){ try{ if(/^#admin$/.test(location.hash) || /[?&]admin\b/.test(location.search)) return; var k='study:seen', t=simDay(), first=localStorage.getItem(k)!==t; localStorage.setItem(k,t); var hr={}; hr[('0'+new Date().getHours()).slice(-2)]=1; setTimeout(function(){ simStat({views:1, visitors:first?1:0, hours:hr}); }, 1500); }catch(e){} })();
+async function db(){ const d=await cloudInit(); if(!d) throw new Error('인터넷 연결을 확인해 주세요'); return d; }
+async function findKid(kind, name, age, pin){   // 열쇠로 아이 문서 찾기
+  const d=await db(), k=await keyOf(kind,name,age,pin), s=await d.collection(kind==='k'?C_KEY:C_PKEY).doc(k).get();
+  if(!s.exists) return null;
+  const kid=await d.collection(C_KIDS).doc(s.data().kid).get();
+  return kid.exists ? Object.assign({id:kid.id, keyId:k}, kid.data()) : null;
+}
+
+/* ═════════ 화면 ═════════ */
+const S = { screen:'entry', grade:null, goal:20, form:{name:'', age:null, pin:'', first:''}, kid:null, parent:null, admin:null };
+function go(screen, patch={}){ Object.assign(S, {screen}, patch); render(); window.scrollTo(0,0); try{ history.pushState({s:screen},''); }catch(e){} }
+addEventListener('popstate', e=>{ const s=e.state&&e.state.s; if(s && s!==S.screen){ S.screen=s; render(); } else if(!s && S.screen!=='entry'){ S.screen='entry'; render(); } });
+function render(){
+  $('homeBtn').hidden = S.screen==='entry';
+  document.body.classList.toggle('board', S.screen.startsWith('board'));
+  ({entry, board, boardPlay, phone, phoneAge, phonePin, kidHome, parent:parentScreen, parentAge, parentPin, parentSetup, parentHome, adminLogin, adminHome})[S.screen]();
+}
+const steps = (n, cur) => `<div class="steps">${Array.from({length:n},(_,i)=>`<i class="${i<=cur?'on':''}"></i>`).join('')}</div>`;
+const pinPad = (label, sub='') => `<div class="card center">${label}${sub?`<p class="sub">${sub}</p>`:''}
+    <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<S.form.pin.length?'f':''}"></i>`).join('')}</div>
+    <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 뒤로</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
+    <div class="msg" id="msg"></div></div>`;
+
+/* 처음 화면 */
+const FONTS = [["","기본","'Jua',sans-serif"],["yuntaeng","윤탱체","'OwnglyphYuntaeng',sans-serif"],["unz","언즈체","'OngleipUnz',sans-serif"]];
+const fontPick = () => { const cur=LS.get("font","unz"); return `<div class="font-pick" role="group" aria-label="글씨체 고르기"><span>✏️ 글씨체</span>${FONTS.map(([k,n,ff])=>`<button class="${cur===k?"on":""}" data-font="${k}" aria-pressed="${cur===k}" style="font-family:${ff}">${n}</button>`).join("")}</div>`; };
+function entry(){
+  view.innerHTML = `<div class="hello"><span class="dongi">🌱</span><div class="bub">반가워요, 친구! 오늘은 어디에서 공부할까요?</div></div>
+    <div class="doors">
+      <button class="door phone" data-go="phone"><span class="ico">📚</span><div><b>공부방</b><small>🏠 한 명씩 내 공부방</small><span class="door-note">부모님 핸드폰이나 태블릿PC로 들어와요<br>공부한 날과 푼 문제가 저장되고 부모님이 같이 봐 주세요</span></div></button>
+      <a class="door board" href="board/" style="text-decoration:none;color:inherit"><span class="ico">🤝</span><div><b>협동 모드</b><small>👫 형제자매랑 함께</small><span class="door-note">태블릿PC 하나로 형제자매가 차례대로 함께 풀어요<br>함께 푼 문제는 아이 기록으로 저장하지 않아요</span></div></a>
+    </div>
+    <div class="quick-row">${a2hsCard()}</div>
+    ${fontPick()}
+    <div class="side-links"><button data-go="parent">👩 엄마아빠 모드</button><button data-go="adminLogin">🔒 관리자</button></div>
+    <div class="share-row"><button class="kakao-btn" data-act="kakaoShare">💬 카카오톡 공유</button><button class="link-btn" data-act="copyShare">🔗 링크 복사</button></div>`;
+}
+
+/* ───── 📲 홈 화면에 추가: 아이폰 · 아이패드는 공유 → 홈 화면에 추가, 안드로이드는 설치 창 ───── */
+const UA = navigator.userAgent || '';
+const IS_IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints > 1);
+const IS_STANDALONE = () => (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+let installEvt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); installEvt = e; if(S.screen==='entry') render(); });
+window.addEventListener('appinstalled', () => { installEvt = null; LS.set('a2hsHide', 1); if(S.screen==='entry') render(); });
+const SHARE_ICO = '<svg class="ios-share" viewBox="0 0 24 24" fill="none" stroke="#2F7BF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="공유 단추"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5"/><path d="M5 11v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8"/></svg>';
+function a2hsSteps(){
+  if(/KAKAOTALK/i.test(UA)) return '<li>카카오톡 안에서는 홈 화면에 추가할 수 없어요. 먼저 <a href="kakaotalk://web/openExternal?url='+encodeURIComponent(location.href.split('#')[0])+'"><b>🌐 기본 브라우저로 열기</b></a>를 눌러요</li>'+(IS_IOS?'<li>Safari 아래쪽 '+SHARE_ICO+' <b>공유</b> 단추 → <b>홈 화면에 추가</b> → <b>추가</b></li>':'<li>브라우저 메뉴 <b>⋮</b> → <b>홈 화면에 추가</b></li>');
+  if(IN_APP) return IS_IOS
+    ? '<li>지금은 카카오톡 안에서 열려 있어요. 오른쪽 아래 <b>⋯</b> 또는 공유 단추를 눌러 <b>Safari로 열기</b>를 골라요</li><li>Safari 아래쪽 '+SHARE_ICO+' <b>공유</b> 단추 → <b>홈 화면에 추가</b> → <b>추가</b></li>'
+    : '<li>지금은 앱 안에서 열려 있어요. 오른쪽 위 <b>⋮</b> → <b>다른 브라우저로 열기</b>(Chrome · 삼성 인터넷)를 골라요</li><li>브라우저 메뉴 <b>⋮</b> → <b>홈 화면에 추가</b></li>';
+  if(IS_IOS) return '<li>Safari에서 '+SHARE_ICO+' <b>공유</b> 단추를 눌러요 (아이폰은 화면 아래, 아이패드는 주소창 오른쪽)</li><li>메뉴를 위로 올려 <b>홈 화면에 추가</b>를 눌러요</li><li>오른쪽 위 <b>추가</b>를 누르면 🌱 아이콘이 생겨요</li>';
+  return '<li>오른쪽 위 메뉴 <b>⋮</b>(삼성 인터넷은 아래 <b>≡</b>)를 눌러요</li><li><b>홈 화면에 추가</b> 또는 <b>앱 설치</b>를 눌러요</li>';
+}
+function a2hsCard(){
+  if(IS_STANDALONE() || LS.get('a2hsHide')) return '';
+  const open = S.a2hsOpen;
+  return `<div class="a2hs"><div class="a2hs-top"><img src="icon.png" alt=""><div><b>📲 홈 화면에 공부방 아이콘 만들기</b><small>한 번 만들어 두면 아이가 아이콘만 눌러 바로 들어와요</small></div>
+    <button data-act="a2hs">${installEvt ? '바로 추가' : open ? '접기' : '방법 보기'}</button></div>
+    ${open && !installEvt ? `<ol>${a2hsSteps()}</ol><p class="sub" style="margin:6px 0 0;font-size:.85rem">아이콘으로 처음 열 때는 이름 · 나이 · 비밀번호를 한 번 더 넣어요</p>` : ''}
+    </div>`;
+}
+
+/* ───── 🤝 협동 모드: 학년 고르기 → 협동 놀이 (3단계에서 채워요) ───── */
+function board(){
+  view.innerHTML = `<div class="hello"><span class="dongi">🤝</span><div class="bub">오늘은 몇 살 · 몇 학년 친구들이 함께할까요?</div></div>
+    <div class="grades">${AGES.map(a=>`<button class="grade" data-grade="${a.k}">${a.ico}<br>${a.n}<small>${a.s}</small></button>`).join('')}</div>
+    <p class="center sub" style="margin-top:14px">고른 학년 문제 위주로 나와요. 동생 · 형아 · 언니가 옆에서 도와줘도 좋아요!</p>`;
+}
+function boardPlay(){
+  const a=ageOf(S.grade);
+  view.innerHTML = `<div class="card center"><div style="font-size:4rem">${a.ico}</div><h2>${a.n} 친구들 모여라!</h2>
+    <p>우리 모두 한 팀이 되어 문제를 풀어요.<br>한 명씩 앞에 나와 누르고, 맞힐 때마다 <b>⭐ 별</b>이 모두의 것으로 피어나요.<br><span class="sub">동생 · 형아 · 언니가 옆에서 도와줘도 좋아요!</span></p>
+    <h3 style="margin-top:16px">오늘 우리 팀 목표</h3>
+    <div class="row-btns">${[10,20,30].map(g=>`<button class="grade ${S.goal===g?'on':''}" style="min-width:110px;padding:14px 10px" data-goal="${g}">🌱 ${g}<small>별</small></button>`).join('')}</div>
+    <button class="big-btn" data-act="boardStart">▶ 다 같이 시작!</button>
+    <p class="sub" style="margin-top:10px">협동 모드에서 다 같이 한 공부는 아이 기록으로 저장하지 않아요.</p>
+    <button class="big-btn ghost" data-go="board">◀ 학년 다시 고르기</button></div>`;
+}
+
+/* ───── 📱 부모님 핸드폰: 이름 → 나이 → 아이 비밀번호 ───── */
+function phone(){
+  const L=localKids(), f=S.form, again=!!f.first;
+  view.innerHTML = `${L.length?`<div class="card center" style="margin-bottom:14px"><h3>이 핸드폰에서 공부한 친구</h3><p class="sub">이름을 누르고 비밀번호만 누르면 돼요</p>
+      <div class="kids">${L.map(k=>`<button class="kid ${f.quick===k.id?'on':''}" data-quick="${esc(k.id)}">${ageOf(k.age).ico} ${esc(k.name)} <small>${ageOf(k.age).n}</small></button>`).join('')}</div>
+      <button class="link" data-act="forgetLocal">이 기기에서 목록 지우기</button></div>`:''}
+    <div class="login2">
+      <div class="card"><h3><span class="no">1</span>아이 이름 두 글자</h3>
+        <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자 (성은 빼고)" value="${esc(f.name)}">
+        <h3><span class="no">2</span>몇 살 · 몇 학년이에요?</h3>
+        <div class="grades sm">${AGES.map(a=>`<button class="grade ${f.age===a.k?'on':''}" data-age="${a.k}">${a.ico} ${a.n}<small>${a.s}</small></button>`).join('')}</div>
+        <p class="note">처음이면 이름 · 나이 · 비밀번호로 공부방이 새로 만들어져요. 협동 모드의 ‘내 공부방’과 같은 번호예요.</p></div>
+      <div class="card center"><h3 style="justify-content:center"><span class="no">3</span>${again?'같은 번호를 한 번 더 눌러요':'비밀번호 4자리'}</h3>
+        <p class="sub" style="margin:0">${again?'처음이라 한 번 더 눌러서 만들어요':'처음이면 새로 만들어요'}</p>
+        <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<f.pin.length?'f':''}"></i>`).join('')}</div>
+        <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 처음 화면</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
+        <div class="msg" id="msg"></div></div>
+    </div>`;
+  const inp=$('nameIn');
+  inp.addEventListener('input', ()=>{ const n=cleanName(inp.value); if(n!==f.name){ f.name=n; f.quick=null; if(f.first){ f.first=''; f.pin=''; render(); $('nameIn').focus(); } } });
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); inp.blur(); } });
+}
+function ageGrid(){ return `<div class="grades">${AGES.map(a=>`<button class="grade ${S.form.age===a.k?'on':''}" data-age="${a.k}">${a.ico}<br>${a.n}<small>${a.s}</small></button>`).join('')}</div>`; }
+function phoneAge(){ view.innerHTML = `<div class="card center">${steps(3,1)}<h2>${esc(josa(S.form.name,'이는','는'))} 몇 살 · 몇 학년이에요?</h2><p class="sub">눌러서 골라요</p></div><div style="margin-top:14px">${ageGrid()}</div>
+    <button class="big-btn ghost" data-go="phone">◀ 이름 다시 쓰기</button>`; }
+function phonePin(){
+  const again=!!S.form.first;
+  view.innerHTML = `${steps(3,2)}${pinPad(again?`<h2>한 번 더 눌러 주세요</h2>`:`<h2>${esc(S.form.name)}의 비밀번호</h2>`, again?'처음이라 같은 번호를 한 번 더 눌러서 만들어요':`${ageOf(S.form.age).n} · 비밀번호 4자리를 눌러요 (처음이면 새로 만들어요)`)}`;
+}
+async function pinDone(){
+  const f=S.form, msg=$('msg');
+  if((S.screen==='phone' || S.screen==='parent') && !loginCheck()) return;
+  if(S.screen==='phonePin' || S.screen==='phone'){
+    if(f.first){   // 새로 만들기: 두 번째 입력
+      if(f.pin!==f.first){ f.pin=''; f.first=''; render(); $('msg').textContent='두 번이 달라요. 처음부터 다시 눌러 주세요'; return; }
+      busy(true,'공부방을 만들고 있어요…');
+      try{ const kid=await createKid(f.name, f.age, f.pin); busy(false); enterKid(kid, true); }catch(e){ busy(false); f.pin=''; f.first=''; render(); $('msg').textContent=e.message||'만들지 못했어요'; }
+      return;
+    }
+    msg.className='msg ok'; msg.textContent='찾는 중…'; busy(true);
+    try{
+      const kid=await findKid('k', f.name, f.age, f.pin); busy(false);
+      if(kid){ enterKid(kid); return; }
+      // 이 핸드폰 목록에서 고른 친구면 새로 만들지 않고 번호만 다시 (같은 이름이 둘 생기지 않게)
+      if(f.quick){ f.pin=''; render(); $('msg').innerHTML='비밀번호가 달라요. 다시 눌러 주세요.<br><span class="sub">잊었으면 엄마아빠 모드에서 다시 정할 수 있어요</span>'; return; }
+      // 없으면: 처음 온 친구 → 한 번 더 눌러 만들기
+      f.first=f.pin; f.pin=''; render();
+      $('msg').className='msg'; $('msg').textContent='처음 온 친구예요? 같은 번호를 한 번 더 누르면 만들어요. (전에 만든 적 있으면 이름 · 나이 · 번호를 다시 확인해 주세요)';
+    }catch(e){ busy(false); f.pin=''; render(); $('msg').textContent=e.message||'찾지 못했어요'; }
+    return;
+  }
+  if(S.screen==='parentPin' || S.screen==='parent'){
+    msg.className='msg ok'; msg.textContent='확인하는 중…';
+    try{
+      const kid=await findKid('p', f.name, f.age, f.pin);
+      if(kid){ S.parent=kid; f.pin=''; go('parentHome'); return; }
+      f.pin=''; render(); $('msg').innerHTML='비밀번호가 맞지 않아요.<br><button class="link" data-go="parentSetup">처음이거나 초기화됐나요? 아이 비밀번호로 확인하고 새로 정하기</button>';
+    }catch(e){ f.pin=''; render(); $('msg').textContent=e.message||'확인하지 못했어요'; }
+    return;
+  }
+  if(S.screen==='parentSetup'){
+    if(!S.setupKid){   // 1) 아이 비밀번호로 우리 아이인지 확인
+      msg.className='msg ok'; msg.textContent='확인하는 중…';
+      try{
+        const kid=await findKid('k', f.name, f.age, f.pin);
+        if(!kid){ f.pin=''; render(); $('msg').textContent='아이 비밀번호가 맞지 않아요'; return; }
+        if(kid.ppinSet){ f.pin=''; render(); $('msg').textContent='이미 엄마아빠 비밀번호가 있어요. 잊었으면 관리자에게 초기화를 부탁해 주세요'; return; }
+        S.setupKid=kid; f.pin=''; f.first=''; render(); return;
+      }catch(e){ f.pin=''; render(); $('msg').textContent=e.message||'확인하지 못했어요'; return; }
+    }
+    if(!f.first){ f.first=f.pin; f.pin=''; render(); return; }   // 2) 새 엄마아빠 비밀번호 두 번
+    if(f.pin!==f.first){ f.pin=''; f.first=''; render(); $('msg').textContent='두 번이 달라요. 다시 눌러 주세요'; return; }
+    try{ await setParentPin(S.setupKid, f.pin); const kid=S.setupKid; S.setupKid=null; S.parent=kid; f.pin=''; f.first=''; toast('엄마아빠 비밀번호를 정했어요'); go('parentHome'); }
+    catch(e){ f.pin=''; f.first=''; render(); $('msg').textContent=e.message||'정하지 못했어요'; }
+    return;
+  }
+  if(S.screen==='kidPinChange'){ /* 엄마아빠 모드에서 아이 비밀번호 다시 정하기 */ }
+}
+async function createKid(name, age, pin){
+  const d=await db(), id=rid(), k=await keyOf('k',name,age,pin), now=Date.now();
+  const exist=await d.collection(C_KEY).doc(k).get(); if(exist.exists) throw new Error('이미 있는 친구예요. 다시 눌러 볼까요?');
+  const doc={name:cleanName(name), age, keyId:k, pkeyId:null, ppinSet:false, stars:0, createdAt:now, updatedAt:now};
+  await d.collection(C_KIDS).doc(id).set(doc);
+  await d.collection(C_KEY).doc(k).set({kid:id});
+  return Object.assign({id}, doc);
+}
+async function setParentPin(kid, pin){
+  const d=await db(), k=await keyOf('p',kid.name,kid.age,pin);
+  if(kid.pkeyId) await d.collection(C_PKEY).doc(kid.pkeyId).delete().catch(()=>{});
+  await d.collection(C_PKEY).doc(k).set({kid:kid.id});
+  await d.collection(C_KIDS).doc(kid.id).update({pkeyId:k, ppinSet:true, updatedAt:Date.now()});
+  kid.pkeyId=k; kid.ppinSet=true;
+}
+async function setKidPin(kid, pin){
+  const d=await db(), k=await keyOf('k',kid.name,kid.age,pin);
+  const ex=await d.collection(C_KEY).doc(k).get(); if(ex.exists && ex.data().kid!==kid.id) throw new Error('다른 번호로 해 주세요');
+  if(kid.keyId && kid.keyId!==k) await d.collection(C_KEY).doc(kid.keyId).delete().catch(()=>{});
+  await d.collection(C_KEY).doc(k).set({kid:kid.id});
+  await d.collection(C_KIDS).doc(kid.id).update({keyId:k, updatedAt:Date.now()});
+  kid.keyId=k;
+}
+function enterKid(kid, isNew){
+  try{ localStorage.setItem('study:t','1'); if(localStorage.getItem('study:t')!=='1') throw 0; localStorage.removeItem('study:t'); }
+  catch(e){ alert('이 브라우저는 저장이 막혀 있어서 공부방에 들어갈 수 없어요.\n아이폰: 설정 → Safari → "모든 쿠키 차단"을 끄고, 개인정보 보호(시크릿) 창이 아닌 일반 창에서 열어 주세요.'); return; }
+  rememberKid(kid); S.kid=kid; S.form={name:'',age:null,pin:'',first:''};
+  // 들어가기 단추 없이 바로 내 나이 공부방 홈으로 (방이 아직 없으면 예전처럼 안내 화면)
+  const r=ROOM_OF[kid.age]; busy(true, isNew?'🌱 공부방이 만들어졌어요! 들어가는 중…':`${esc(kid.name)}의 공부방으로 가는 중…`); speak(`${josa(kid.name,'이','')} 반가워요!`);
+  fetch(`${r}/`,{method:'HEAD'}).then(x=>{ if(x.ok) location.href=`${r}/`; else throw 0; }).catch(()=>{ busy(false); go('kidHome'); const s=$('roomSoon'); if(s) s.hidden=false; });
+}
+/* 나이별 공부방이 저장한 곳: study_kids/{아이}/room/state (별) · room/state/daily/{날짜} (과목마다 {n, ok}, total) */
+async function kidStats(id){
+  try{ const d=await db(), ref=d.collection(C_KIDS).doc(id).collection('room').doc('state'), st=await ref.get(), qs=await ref.collection('daily').get();
+    let days=0,n=0,ok=0,month=0; const m=dayKey().slice(0,7);
+    qs.forEach(x=>{ const v=x.data(), t=(v.total||0)+(v.board_n||0); let o=v.board_ok||0; for(const k in v){ const e=v[k]; if(e && typeof e==='object' && 'ok' in e) o+=e.ok||0; }
+      if(t){ days++; if(x.id.startsWith(m)) month++; } n+=t; ok+=o; });
+    const s=st.exists?st.data():{}; return {days, n, ok, month, stars:(s.stars||0)+(s.estars||0)}; }catch(e){ return null; }
+}
+function kidHome(){
+  const k=S.kid; if(!k){ go('phone'); return; }
+  const a=ageOf(k.age);
+  view.innerHTML = `<div class="hello"><span class="dongi">${a.ico}</span><div class="bub">${esc(josa(k.name,'아','야'))}, 반가워요! 오늘도 즐겁게 공부해요 🌱</div></div>
+    <button class="room-card" data-act="openRoom"><span class="ico">📚</span><span><b>${a.n} 공부방 들어가기</b><span class="sub">한글 · 수 · 영어 · 이야기 … 나이에 맞게 준비했어요</span></span></button>
+    <div class="soon" id="roomSoon" hidden>공부방을 여는 중이에요… 잠시 뒤 다시 눌러 주세요.</div>
+    <div class="stats" id="kstats"><div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>–</b><small>📅 공부한 날</small></div><div class="stat"><b>–</b><small>✏️ 푼 문제</small></div></div>
+    <div class="row-btns"><button class="pill" data-go="phone">👫 다른 친구로</button><button class="pill" data-act="logout">🚪 나가기</button></div>`;
+  kidStats(k.id).then(s=>{ if(!s || S.screen!=='kidHome') return; const b=$('kstats'); if(b) b.innerHTML=`<div class="stat"><b>${s.stars}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제</small></div>`; });
+}
+
+/* ───── 👩 엄마아빠 모드 ───── */
+/* 엄마아빠 화면 (이름을 parent 로 하면 브라우저의 window.parent 를 덮어써서 구글 로그인 도우미가 멈춰요) */
+function parentScreen(){
+  const f=S.form;
+  view.innerHTML = `<div class="card center" style="margin-bottom:14px;padding:14px 20px"><h2 style="margin:0">👩 엄마아빠 모드</h2><p class="sub" style="margin:4px 0 0">우리 아이 공부 기록을 봐요</p></div>
+    <div class="login2">
+      <div class="card"><h3><span class="no">1</span>우리 아이 이름 두 글자</h3>
+        <input class="field" id="nameIn" maxlength="2" autocomplete="off" placeholder="이름 두 글자 (성은 빼고)" value="${esc(f.name)}">
+        <h3><span class="no">2</span>몇 살 · 몇 학년이에요?</h3>
+        <div class="grades sm">${AGES.map(a=>`<button class="grade ${f.age===a.k?'on':''}" data-age="${a.k}">${a.ico} ${a.n}<small>${a.s}</small></button>`).join('')}</div>
+        <p class="note">아이가 공부방에 들어갈 때 쓰는 이름 · 나이와 같아요.</p></div>
+      <div class="card center"><h3 style="justify-content:center"><span class="no">3</span>엄마아빠 비밀번호 4자리</h3>
+        <p class="sub" style="margin:0">아이 비밀번호와 다른, 엄마아빠만 아는 번호예요</p>
+        <div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<f.pin.length?'f':''}"></i>`).join('')}</div>
+        <div class="keypad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="key" data-pin="${n}">${n}</button>`).join('')}<button class="key fn" data-pin="back">◀ 처음 화면</button><button class="key" data-pin="0">0</button><button class="key fn" data-pin="del">⌫ 지우기</button></div>
+        <div class="msg" id="msg"></div>
+        <p style="margin:8px 0 0"><button class="link" data-act="pSetup">처음이에요 · 초기화됐어요 → 새로 정하기</button></p></div>
+    </div>`;
+  const inp=$('nameIn');
+  inp.addEventListener('input', ()=>{ f.name=cleanName(inp.value); });
+  inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); inp.blur(); } });
+}
+function parentAge(){ S.screen='parent'; parentScreen(); }   // 예전 세 화면 → 한 화면으로 합쳤어요
+function parentPin(){ S.screen='parent'; parentScreen(); }
+/* 이름 · 나이를 먼저 확인 (부모님 핸드폰 · 엄마아빠 모드 같은 화면) */
+function loginCheck(){
+  const f=S.form, n=$('nameIn'); if(n) f.name=cleanName(n.value);
+  if(!/^[가-힣]{2}$/.test(f.name||'')){ f.pin=''; render(); $('msg').textContent='① 이름 두 글자를 한글로 먼저 써 주세요'; $('nameIn').focus(); return false; }
+  if(!f.age){ f.pin=''; render(); $('msg').textContent='② 몇 살 · 몇 학년인지 먼저 눌러 주세요'; return false; }
+  return true;
+}
+function parentSetup(){
+  const f=S.form, k=S.setupKid;
+  const title = !k ? '<h2>우리 아이인지 확인해요</h2>' : !f.first ? '<h2>엄마아빠 비밀번호 정하기</h2>' : '<h2>한 번 더 눌러 주세요</h2>';
+  const sub = !k ? `${esc(f.name)} (${ageOf(f.age).n})의 <b>아이 비밀번호</b>를 눌러 주세요` : !f.first ? '엄마아빠만 아는 4자리를 눌러요' : '같은 번호를 한 번 더 눌러요';
+  view.innerHTML = pinPad(title, sub);
+}
+async function parentHome(){
+  const k=S.parent; if(!k){ go('parent'); return; }
+  const a=ageOf(k.age);
+  view.innerHTML = `<div class="card"><div class="hello" style="margin:0 0 6px"><span class="dongi">${a.ico}</span><div><h2>${esc(k.name)} <small class="sub">${a.n}</small></h2><p class="sub" style="margin:0">우리 아이 공부 기록이에요</p></div></div>
+      <div class="stats" id="pstats"><div class="stat"><b>${k.stars||0}</b><small>⭐ 모은 별</small></div><div class="stat"><b>…</b><small>📅 공부한 날</small></div><div class="stat"><b>…</b><small>✏️ 푼 문제</small></div></div>
+      <div id="pdays"></div><div id="pch"></div>
+      <div class="row-btns"><button class="pill" data-act="kidPinChange">🔑 아이 비밀번호 다시 정하기</button><button class="pill" data-act="parentPinChange">🔐 엄마아빠 비밀번호 바꾸기</button><button class="pill" data-act="parentOut">🚪 나가기</button></div></div>
+    <div class="card pguide"><h3>📚 다른 학년 미리 공부하기 · 별 약속</h3><ul>
+      <li>다른 학년을 미리 공부하고 싶으면 홈페이지 주소 끝에 <code>/e2</code> <code>/e3</code> <code>/e4</code> <code>/e5</code> <code>/e6</code>을 넣어 들어가세요.<br><small class="sub">예: <code>jsun.site/study/e4</code> → 초4 공부방</small></li>
+      <li>다른 학년에서 공부한 내용도 별이 쌓여요.</li>
+      <li>대신 자기보다 낮은 나이 · 학년 방에서 쉬운 문제를 풀면 별이 모이지 않아요.</li>
+      <li>별은 하루에 <b>300개</b>, 스티커는 하루 최대 <b>30장</b>까지 모여요.</li></ul></div>`;
+  challengeList(k.id);
+  parentDetail(k.id);
+  const s=await kidStats(k.id); const b=$('pstats'); if(s && b) b.innerHTML=`<div class="stat"><b>${s.stars}</b><small>⭐ 모은 별</small></div><div class="stat"><b>${s.days}</b><small>📅 공부한 날 (이번 달 ${s.month})</small></div><div class="stat"><b>${s.n}</b><small>✏️ 푼 문제 (맞힘 ${s.ok})</small></div>`;
+}
+/* 📅 일자별 · 📚 과목별: 나이별 공부방이 날마다 저장한 room/state/daily/{날짜} = { 과목:{n,ok}, total, board_n, board_ok, visited } */
+const SUBJ_NAME = {math:'연산', school:'학교수학', korean:'국어', eng:'영어', hanja:'한자', history:'한국사', social:'사회', science:'과학', board:'협동 모드'};
+const subjName = k => SUBJ_NAME[k] || k;
+function daySubj(v){   // 그날 과목별 [이름키, n, ok] (많이 한 순서)
+  const out=[]; for(const k in v){ const e=v[k]; if(e && typeof e==='object' && 'n' in e && e.n) out.push([k, e.n, e.ok||0]); }
+  if(v.board_n) out.push(['board', v.board_n, v.board_ok||0]);
+  return out.sort((a,b)=>b[1]-a[1]);
+}
+async function parentDetail(id){
+  const box=$('pdays'); if(!box) return; box.innerHTML='<p class="sub center" style="margin:14px 0 0">기록을 불러오는 중…</p>';
+  let days={};
+  try{ const d=await db(), qs=await d.collection(C_KIDS).doc(id).collection('room').doc('state').collection('daily').get(); qs.forEach(x=>{ days[x.id]=x.data()||{}; }); }
+  catch(e){ box.innerHTML='<p class="sub center">기록을 불러오지 못했어요</p>'; return; }
+  S.pd={days, span:S.pd&&S.pd.span||'month'}; drawParentDetail();
+}
+function drawParentDetail(){
+  const box=$('pdays'); if(!box||!S.pd) return; const {days, span}=S.pd, WD='일월화수목금토', pct=(ok,n)=>n?Math.round(ok/n*100)+'%':'–';
+  // 최근 14일 (공부 안 한 날도 한 줄)
+  const rows=[]; for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); const k=dayKey(t), v=days[k]||{}, list=daySubj(v), n=list.reduce((a,x)=>a+x[1],0), ok=list.reduce((a,x)=>a+x[2],0);
+    rows.push(`<tr class="${n?'':'off'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}</b>`:(v.visited?'들어옴':'–')}</td><td>${pct(ok,n)}</td><td class="sj">${list.map(([s,c])=>`${subjName(s)} ${c}`).join(' · ')||''}</td></tr>`); }
+  // 과목별 합계 (이번 달 · 최근 7일 · 전체)
+  const m=dayKey().slice(0,7), wk=dayKey(new Date(Date.now()-6*864e5)), sum={};
+  Object.entries(days).forEach(([k,v])=>{ if(span==='month' && !k.startsWith(m)) return; if(span==='week' && k<wk) return;
+    daySubj(v).forEach(([s,n,ok])=>{ const e=sum[s]||(sum[s]={n:0,ok:0,d:0}); e.n+=n; e.ok+=ok; e.d++; }); });
+  const subs=Object.entries(sum).sort((a,b)=>b[1].n-a[1].n), max=Math.max(1,...subs.map(([,e])=>e.n));
+  box.innerHTML=`<div class="pd">
+    <h3>📅 최근 14일</h3>
+    <table class="tbl"><tr><th>날짜</th><th>푼 문제</th><th>정답률</th><th>과목</th></tr>${rows.join('')}</table>
+    <h3>📚 과목별</h3>
+    <div class="pd-seg" role="group" aria-label="기간">${[['week','최근 7일'],['month','이번 달'],['all','전체']].map(([v,l])=>`<button class="${span===v?'on':''}" data-pdspan="${v}">${l}</button>`).join('')}</div>
+    ${subs.length?subs.map(([s,e])=>`<div class="pbar"><b>${subjName(s)}</b><i><span style="width:${Math.round(e.n/max*100)}%"></span></i><small>${e.n}문제 · 정답 ${pct(e.ok,e.n)} · ${e.d}일</small></div>`).join(''):'<p class="sub">이 기간에는 푼 문제가 없어요</p>'}
+  </div>`;
+}
+/* 🏅 협동 모드 '나만의 도전' 기록 (지난번의 나와만 비교, 순위 없음) */
+async function challengeList(id){
+  try{ const d=await db(), s=await d.collection(C_KIDS).doc(id).collection('room').doc('challenge').get(), runs=(s.exists&&s.data().runs)||[]; const box=$('pch'); if(!box||!runs.length) return;
+    const lab=r=>r.type==='time'?`⏱ ${r.val}분 동안`:`🌱 ${r.val}개까지`, res=r=>r.type==='time'?`${r.got}개`:`${Math.floor(r.sec/60)}분 ${r.sec%60}초`;
+    box.innerHTML='<h3 style="margin:14px 0 4px">🏅 나만의 도전 (협동 모드)</h3><table class="tbl"><tr><th>날짜</th><th>도전</th><th>기록</th></tr>'+runs.slice(-6).reverse().map(r=>{ const t=new Date(r.at); return `<tr><td>${t.getMonth()+1}/${t.getDate()}</td><td>${lab(r)}</td><td>${res(r)}</td></tr>`; }).join('')+'</table>';
+  }catch(e){}
+}
+/* 엄마아빠 모드 안에서 비밀번호 바꾸기 (두 번 입력) */
+function pinDialog(title, done){
+  S.dialog={title, done}; S.form.pin=''; S.form.first='';
+  view.innerHTML = pinPad(`<h2>${title}</h2>`, '4자리를 눌러요');
+}
+async function dialogPin(){
+  const f=S.form, D=S.dialog;
+  if(!f.first){ f.first=f.pin; f.pin=''; view.innerHTML=pinPad(`<h2>${D.title}</h2>`,'같은 번호를 한 번 더 눌러요'); return; }
+  if(f.pin!==f.first){ f.pin=''; f.first=''; view.innerHTML=pinPad(`<h2>${D.title}</h2>`,'4자리를 눌러요'); $('msg').textContent='두 번이 달라요. 다시 눌러 주세요'; return; }
+  try{ await D.done(f.pin); S.dialog=null; f.pin=''; f.first=''; toast('바꿨어요'); parentHome(); }
+  catch(e){ f.pin=''; f.first=''; view.innerHTML=pinPad(`<h2>${D.title}</h2>`,'4자리를 눌러요'); $('msg').textContent=e.message||'바꾸지 못했어요'; }
+}
+
+/* ───── 🔒 관리자: 구글 로그인 · 숫자만 · 엄마아빠 비밀번호 초기화 ───── */
+const isAdminUser = async u => { const em=((u&&u.email)||'').trim().toLowerCase(); return !!em && await sha256Hex(em)===ADMIN_EMAIL_SHA256; };
+/* 💬 카카오톡 공유: 카카오 앱(새싹AI공부방, ID 1596029)의 JavaScript 키(공개용). 미리보기는 위의 og 태그를 그대로 써요 */
+const KAKAO_JS_KEY = "e0cc2f73f1885e173b1eabc15d610612";
+const SHARE_URL = "https://jsun.site/study/";
+function kakaoShare(){
+  const K=window.Kakao;
+  if(KAKAO_JS_KEY && K){ try{ if(!K.isInitialized()) K.init(KAKAO_JS_KEY); K.Share.sendScrap({requestUrl:SHARE_URL}); return; }catch(e){} }
+  if(navigator.share){ navigator.share({title:'새싹 AI 공부방', url:SHARE_URL}).catch(()=>{}); return; }
+  (navigator.clipboard?navigator.clipboard.writeText(SHARE_URL):Promise.reject()).then(()=>toast('주소를 복사했어요. 카카오톡에 붙여 넣어 보내 주세요')).catch(()=>toast(SHARE_URL));
+}
+/* 카카오톡 · 네이버 · 인스타그램 같은 앱 안 브라우저에서는 구글이 로그인을 막아요 (disallowed_useragent) → 기본 브라우저로 열기 안내 */
+const IN_APP = /KAKAOTALK|NAVER\(inapp|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp/i.test(navigator.userAgent);
+function adminLogin(){
+  const kakao=/KAKAOTALK/i.test(navigator.userAgent), url=location.href.split('#')[0];
+  view.innerHTML = `<div class="card center"><h2>🔒 관리자</h2><p class="sub">기존 공부방과 같은 관리자 구글 계정으로 들어가요</p>
+    ${IN_APP?`<div class="soon" style="text-align:left">⚠️ <b>카카오톡 · 네이버 같은 앱 안에서는 구글 로그인이 막혀 있어요.</b><br>${kakao?'아래 단추로 기본 브라우저(사파리 · 크롬)에서 열어 주세요.':'오른쪽 위 ⋮ 또는 ⋯ 메뉴에서 <b>다른 브라우저로 열기</b>를 눌러 주세요.'}</div>
+      <div class="row-btns">${kakao?`<a class="pill" href="kakaotalk://web/openExternal?url=${encodeURIComponent(url)}">🌐 기본 브라우저로 열기</a>`:''}<button class="pill" data-act="copyUrl">🔗 주소 복사</button></div>`:''}
+    <button class="big-btn gbtn" id="gBtn" data-act="adminGoogle" disabled><span class="gico" aria-hidden="true"><svg viewBox="0 0 48 48" width="22" height="22"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg></span>구글로 로그인</button><div class="msg" id="msg">로그인 상태를 확인하고 있어요…</div></div>`;
+  adminAuto();
+}
+/* 이 기기에 관리자 로그인이 남아 있으면 바로 (로그인 정보가 되살아날 때까지 기다려요).
+   확인이 끝날 때까지 단추를 잠가 둬요: 먼저 누르면 구글 창이 뜬 뒤에 뒤에서 현황판이 열려 겹쳐 보여요 */
+function adminAuto(){
+  const ready=()=>{ const b=$('gBtn'), m=$('msg'); if(b) b.disabled=false; if(m && m.textContent.startsWith('로그인 상태')) m.textContent=''; };
+  cloudInit().then(ok=>{ if(!ok){ ready(); const m=$('msg'); if(m) m.textContent='인터넷 연결을 확인해 주세요'; return; }
+    try{ firebase.auth().getRedirectResult().catch(()=>{}); }catch(e){}   // 로그인 도우미(숨은 창)를 미리 준비해 두면 단추를 누르자마자 구글 창이 열려요
+    let off=null, once=false; off=firebase.auth().onAuthStateChanged(u=>{ if(once) return; once=true; setTimeout(()=>off&&off());
+      if(!u){ ready(); return; }
+      isAdminUser(u).then(y=>{ if(y && S.screen==='adminLogin') go('adminHome'); else ready(); }); }); });
+}
+/* 구글 로그인 창은 누른 순간 바로 열어야 브라우저가 막지 않아요 (앞에서 기다리면 팝업 차단).
+   그래서 관리자 화면이 뜰 때 미리 불러 두고(adminAuto), 아직 준비 전이면 준비한 뒤 한 번 더 눌러 달라고 해요 */
+async function adminGoogle(){
+  const msg=()=>document.getElementById('msg');
+  if(!cloud.db || !window.firebase || !firebase.auth){
+    if(msg()) msg().textContent='로그인을 준비하고 있어요…';
+    const ok=await cloudInit(); if(msg()) msg().textContent= ok ? '준비됐어요! 구글로 로그인을 한 번 더 눌러 주세요' : '인터넷 연결을 확인해 주세요'; return;
+  }
+  const p=new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
+  if(msg()) msg().textContent='구글 로그인 창을 열었어요. 관리자 계정을 골라 주세요';
+  try{
+    const r=await firebase.auth().signInWithPopup(p);   // 로그인 유지는 웹 기본값(LOCAL)이라 따로 정하지 않아요
+    if(await isAdminUser(r.user)) go('adminHome'); else { await firebase.auth().signOut(); if(msg()) msg().textContent='관리자 계정이 아니에요 ('+(r.user.email||'')+')'; }
+  }catch(e){
+    // moontr.site 관리자 허브 안(iframe)에서는 구글 화면으로 넘어가기(redirect)가 막혀요 → 새 창으로 열기 안내
+    if((e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment') && window.top!==window){ if(msg()) msg().innerHTML='이 창 안에서는 로그인 창을 열 수 없어요. 위의 <b>[새 창으로]</b>를 눌러 주세요'; return; }
+    if(e.code==='auth/popup-blocked' || e.code==='auth/operation-not-supported-in-this-environment'){ try{ LS.set('adminRedirect',1); await firebase.auth().signInWithRedirect(p); return; }catch(e2){ e=e2; } }
+    if(e.code==='auth/popup-closed-by-user' || e.code==='auth/cancelled-popup-request'){ if(msg()) msg().textContent=''; return; }
+    const why={'auth/unauthorized-domain':'이 주소가 Firebase 승인된 도메인에 없어요','auth/network-request-failed':'인터넷 연결을 확인해 주세요','auth/too-many-requests':'여러 번 시도해서 잠시 막혔어요','auth/internal-error':'로그인 창을 열지 못했어요. 앱 안 브라우저라면 사파리 · 크롬에서 열어 주세요'}[e.code];
+    if(msg()) msg().textContent=(why||'로그인하지 못했어요')+(e.code?' ('+e.code+')':''); else toast(why||'로그인하지 못했어요');
+  }
+}
+async function adminHome(){
+  // 뒤로 · 앞으로 가기로 들어와도 관리자 로그인이 아니면 로그인 화면으로 (숫자는 Firebase 규칙이 관리자에게만 줘요)
+  const u=window.firebase && firebase.apps && firebase.apps.length && firebase.auth().currentUser;
+  if(!u || !(await isAdminUser(u))){ S.screen='adminLogin'; try{ history.replaceState({s:'adminLogin'},''); }catch(e){} render(); return; }
+  view.innerHTML = `<div class="card"><h2>🔒 관리자 현황판</h2><p class="sub">이름이나 기록 내용은 보이지 않고 숫자만 보여요</p><div id="anum">불러오는 중…</div></div>
+    <div class="card" style="margin-top:14px"><h3>🤝 첫 화면 · 협동 모드 <span class="sub">(날짜별 숫자만 · 아이 기록과 따로)</span></h3><div id="astat"><p class="sub">불러오는 중…</p></div></div>
+    <div class="card" style="margin-top:14px"><h3>⏱ 활동 시간 <span class="sub">(모든 아이를 합친 시간 · 화면을 켜 두고 1분 넘게 아무것도 안 누른 시간은 빼요)</span></h3><div id="atime"><p class="sub">불러오는 중…</p></div></div>
+    <div class="card" style="margin-top:14px"><h3>🌱 접속 잔디 <span class="sub">(최근 13주 · 그날 공부방에 들어온 아이 수)</span></h3><div id="agrass"><p class="sub">불러오는 중…</p></div></div>
+    <div class="card" style="margin-top:14px"><h3>📅 날짜별 접속 <span class="sub">(최근 14일)</span></h3><div id="adays"><p class="sub">불러오는 중…</p></div></div>
+    <div class="card" style="margin-top:14px"><h3>🔐 엄마아빠 비밀번호 초기화</h3><p class="sub">보호자가 부탁했을 때만 써요. 이름을 정확히 써야 찾아져요.</p>
+      <input class="field" id="aName" maxlength="12" placeholder="아이 이름 두 글자" style="max-width:none"><button class="big-btn ghost" data-act="adminFind">찾기</button><div id="afound"></div></div>
+    <div class="row-btns"><button class="pill" data-act="adminOut">🚪 관리자 나가기</button></div>`;
+  try{
+    const d=await db(), qs=await d.collection(C_KIDS).get(), by={};
+    qs.forEach(x=>{ const v=x.data(); by[v.age]=(by[v.age]||0)+1; });
+    // 날짜별 들어온 아이 수: 아이 공부방의 날짜 기록(room/state/daily/날짜)에 '들어옴'이나 푼 문제가 있으면 1명
+    const cnt={}, secs={}, wkKids=new Set(), k7=dayKey(new Date(Date.now()-6*864e5)), tk=dayKey();
+    await Promise.all(qs.docs.map(async x=>{ try{ const ds=await x.ref.collection('room').doc('state').collection('daily').get();
+      ds.forEach(y=>{ const v=y.data()||{}, s=+v.act||+v.sec||0;   // 활동 시간(act, 2026-10-04부터 모든 방) · 그 전 날은 공부 시간(sec, 초3~초6 방)
+        if(s>0) secs[y.id]=(secs[y.id]||0)+s;
+        if(!(v.visited || (v.total||0)>0 || s>0)) return; cnt[y.id]=(cnt[y.id]||0)+1; if(y.id>=k7 && y.id<=tk) wkKids.add(x.id); }); }catch(e){} }));
+    const today=cnt[tk]||0, week=wkKids.size;
+    try{ const ss=await d.collection('study_stats').get(), st={}; ss.forEach(x=>{ st[x.id]=x.data()||{}; }); $('astat').innerHTML=siteStats(st); }catch(e){ $('astat').innerHTML='<p class="msg">숫자를 불러오지 못했어요. Firebase 규칙에 study_stats 자리가 있는지 확인해 주세요.</p>'; }
+    $('agrass').innerHTML=visitGrass(cnt); $('adays').innerHTML=visitDays(cnt, secs); $('atime').innerHTML=timeStats(cnt, secs);
+    $('anum').innerHTML = `<div class="stats"><div class="stat"><b>${qs.size}</b><small>👫 모든 아이</small></div><div class="stat"><b>${today}</b><small>📅 오늘 들어온 아이</small></div><div class="stat"><b>${week}</b><small>🗓️ 7일 동안</small></div></div>
+      <table class="tbl"><tr>${AGES.map(a=>`<th>${a.n}</th>`).join('')}</tr><tr>${AGES.map(a=>`<td>${by[a.k]||0}</td>`).join('')}</tr></table>`;
+  }catch(e){ $('anum').innerHTML=`<p class="msg">숫자를 불러오지 못했어요. Firebase 규칙에 study 자리가 있는지 확인해 주세요.</p>`; }
+}
+// 🌱 접속 잔디: 13주 · 일요일부터 · 칸 색 = 그날 들어온 아이 수
+function visitGrass(cnt){
+  const W=13, end=new Date(), start=new Date(end); start.setDate(end.getDate()-end.getDay()-7*(W-1));
+  const lv=n=>!n?'':n<2?'l1':n<4?'l2':n<7?'l3':'l4', WD='일월화수목금토', tk=dayKey();
+  let cells='';
+  for(let i=0;i<W*7;i++){ const t=new Date(start); t.setDate(start.getDate()+i); const k=dayKey(t), n=cnt[k]||0, fut=k>tk;
+    cells+=`<i class="${fut?'fut':lv(n)}${k===tk?' now':''}" title="${t.getMonth()+1}/${t.getDate()}(${WD[t.getDay()]}) ${fut?'':n+'명'}"></i>`; }
+  const tot=Object.entries(cnt).filter(([k])=>k>=dayKey(start)).reduce((a,[,n])=>a+n,0);
+  return `<div class="vgrass" role="img" aria-label="최근 13주 접속 잔디">${cells}</div>
+    <div class="vleg"><span>적게</span><i></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>많이</span><small>· 1명 · 2~3명 · 4~6명 · 7명 이상 (13주 동안 모두 ${tot}번)</small></div>`;
+}
+// 🤝 첫 화면 · 협동 모드 숫자: 기간 합계 + 최근 14일 표 + 시간대 (최근 30일)
+function siteStats(st){
+  const tk=dayKey(), w=dayKey(new Date(Date.now()-6*864e5)), mo=tk.slice(0,7), m30=dayKey(new Date(Date.now()-29*864e5)), WD='일월화수목금토';
+  const sum=(f,key)=>Object.entries(st).filter(([k])=>f(k)).reduce((a,[,v])=>a+(+v[key]||0),0);
+  const P=[['오늘',k=>k===tk],['최근 7일',k=>k>=w&&k<=tk],['이번 달',k=>k.startsWith(mo)],['모두',()=>true]];
+  const L=[['views','👀 첫 화면 열림','번'],['visitors','📱 찾아온 기기','대'],['board','🤝 협동 모드 켬','번'],['boardPlays','🤝 다 같이 놀이','판'],['boardKids','👫 함께한 친구','명'],['boardSec','⏱ 협동 모드 머문 시간','']];
+  const head=`<tr><th></th>${P.map(([n])=>`<th>${n}</th>`).join('')}</tr>`;
+  const body=L.map(([key,name,u])=>`<tr><td class="sl">${name}</td>${P.map(([,f])=>{ const v=sum(f,key); return `<td>${v ? (key==='boardSec'?fmtT(v):v+u) : '–'}</td>`; }).join('')}</tr>`).join('');
+  const days=[]; for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); const v=st[dayKey(t)]||{}; days.push(`<tr class="${(v.views||v.board)?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${v.views||'–'}</td><td>${v.visitors||'–'}</td><td>${v.boardPlays||'–'}</td><td>${v.boardKids||'–'}</td><td>${v.boardSec?fmtT(v.boardSec):'–'}</td></tr>`); }
+  const hrs=Array(24).fill(0); Object.entries(st).forEach(([k,v])=>{ if(k<m30 || !v.hours) return; Object.entries(v.hours).forEach(([h,n])=>{ hrs[+h]+=(+n||0); }); });
+  const hmax=Math.max(1,...hrs);
+  return `<div class="scroll-x"><table class="tbl sstat">${head}${body}</table></div>
+    <h4 class="sh">🕘 몇 시에 오나요? <span class="sub">(최근 30일 · 첫 화면을 연 시각)</span></h4>
+    <div class="hrs">${hrs.map((n,h)=>`<div title="${h}시 ${n}번"><i style="height:${Math.round(n/hmax*100)}%"></i><small>${h%3===0?h:''}</small></div>`).join('')}</div>
+    <h4 class="sh">📅 최근 14일</h4>
+    <div class="scroll-x"><table class="tbl sdays"><tr><th>날짜</th><th>첫 화면</th><th>기기</th><th>다 같이 놀이</th><th>친구</th><th>협동 모드 시간</th></tr>${days.join('')}</table></div>`;
+}
+// ⏱ 활동 시간: 오늘 · 최근 7일 · 이번 달 · 모두 (아이를 합친 시간과 한 명 평균)
+const fmtT = s => { const m=Math.round((s||0)/60); return m<60 ? m+'분' : Math.floor(m/60)+'시간'+(m%60?' '+(m%60)+'분':''); };
+function timeStats(cnt, secs){
+  const tk=dayKey(), w=dayKey(new Date(Date.now()-6*864e5)), mo=tk.slice(0,7);
+  const sum=f=>Object.entries(secs).filter(([k])=>f(k)).reduce((a,[,s])=>a+s,0), kd=f=>Object.entries(cnt).filter(([k])=>f(k)).reduce((a,[,n])=>a+n,0);
+  const row=(label,f)=>{ const s=sum(f), n=kd(f); return `<div class="stat"><b>${fmtT(s)}</b><small>${label}${n?`<i>한 명 하루 평균 ${fmtT(s/n)}</i>`:''}</small></div>`; };
+  return `<div class="stats tstats">${row('📅 오늘',k=>k===tk)}${row('🗓️ 최근 7일',k=>k>=w && k<=tk)}${row('🌙 이번 달',k=>k.startsWith(mo))}${row('🌱 모두',()=>true)}</div>
+    <p class="sub" style="margin:8px 0 0;font-size:.8rem">'한 명 하루 평균'은 아이 한 명이 하루에 머문 시간이에요. 10월 4일 전에는 초3~초6 방의 공부 시간만 남아 있어요.</p>`;
+}
+// 📅 날짜별 접속: 최근 14일, 그날 들어온 아이 수 막대 · 모두 합친 활동 시간
+function visitDays(cnt, secs){ secs=secs||{};
+  const WD='일월화수목금토', rows=[]; let max=1;
+  for(let i=0;i<14;i++){ const t=new Date(); t.setDate(t.getDate()-i); rows.push([t, cnt[dayKey(t)]||0]); }
+  rows.forEach(([,n])=>{ if(n>max) max=n; });
+  return `<table class="tbl vdays"><tr><th>날짜</th><th>들어온 아이</th><th>활동 시간</th><th></th></tr>${rows.map(([t,n],i)=>`<tr class="${n?'':'off'}${i?'':' today'}"><td>${t.getMonth()+1}/${t.getDate()} (${WD[t.getDay()]})</td><td>${n?`<b>${n}명</b>`:'–'}</td><td>${secs[dayKey(t)]?fmtT(secs[dayKey(t)]):'–'}</td><td class="vbar"><span style="width:${Math.round(n/max*100)}%"></span></td></tr>`).join('')}</table>`;
+}
+async function adminFind(){
+  const name=cleanName($('aName').value), box=$('afound'); if(!name){ box.innerHTML='<p class="msg">이름을 써 주세요</p>'; return; }
+  try{ const d=await db(), qs=await d.collection(C_KIDS).where('name','==',name).get();
+    if(qs.empty){ box.innerHTML='<p class="msg">그 이름의 아이가 없어요</p>'; return; }
+    box.innerHTML = qs.docs.map(x=>{ const v=x.data(); return `<div class="row-btns" style="justify-content:space-between;align-items:center"><span>${esc(v.name)} · ${ageOf(v.age).n} · 엄마아빠 비밀번호 ${v.ppinSet?'있음':'없음'}</span>${v.ppinSet?`<button class="pill warn" data-reset="${esc(x.id)}">초기화</button>`:''}</div>`; }).join('');
+  }catch(e){ box.innerHTML='<p class="msg">찾지 못했어요</p>'; }
+}
+async function adminReset(id){
+  if(!confirm('이 아이의 엄마아빠 비밀번호를 초기화할까요?\n보호자는 아이 비밀번호로 확인한 뒤 새로 정해요.')) return;
+  try{ const d=await db(), s=await d.collection(C_KIDS).doc(id).get(), v=s.data();
+    if(v.pkeyId) await d.collection(C_PKEY).doc(v.pkeyId).delete().catch(()=>{});
+    await d.collection(C_KIDS).doc(id).update({pkeyId:null, ppinSet:false, updatedAt:v.updatedAt||Date.now()});
+    toast('초기화했어요'); adminFind();
+  }catch(e){ toast('초기화하지 못했어요'); }
+}
+
+/* ═════════ 누르기 ═════════ */
+function act(a, el){
+  const f=S.form;
+  if(a==='nameNext'||a==='pNameNext'){ const n=cleanName($('nameIn').value); if(!/^[가-힣]{2}$/.test(n)){ $('msg').textContent='이름 두 글자를 한글로 써 주세요'; return; } f.name=n; f.age=null; go(a==='nameNext'?'phoneAge':'parentAge'); }
+  else if(a==='openRoom'){ const r=ROOM_OF[S.kid.age]; fetch(`${r}/`,{method:'HEAD'}).then(x=>{ if(x.ok) location.href=`${r}/`; else $('roomSoon').hidden=false; }).catch(()=>{ $('roomSoon').hidden=false; }); }
+  else if(a==='a2hs'){ if(installEvt){ const ev=installEvt; installEvt=null; ev.prompt(); (ev.userChoice||Promise.resolve()).then(c=>{ if(c && c.outcome==='accepted') LS.set('a2hsHide',1); render(); }); } else { S.a2hsOpen=!S.a2hsOpen; render(); } }
+  else if(a==='a2hsHide'){ LS.set('a2hsHide',1); render(); }
+  else if(a==='pSetup'){ if(!loginCheck()) return; S.setupKid=null; f.pin=''; f.first=''; go('parentSetup'); }
+  else if(a==='logout'){ LS.del('cur'); S.kid=null; go('entry'); }
+  else if(a==='forgetLocal'){ if(confirm('이 핸드폰에 남은 친구 목록을 지울까요? (공부 기록은 지워지지 않아요)')){ LS.del('kids'); LS.del('cur'); render(); } }
+  else if(a==='parentOut'){ S.parent=null; go('entry'); }
+  else if(a==='kidPinChange'){ pinDialog('🔑 새 아이 비밀번호', pin=>setKidPin(S.parent, pin)); }
+  else if(a==='parentPinChange'){ pinDialog('🔐 새 엄마아빠 비밀번호', pin=>setParentPin(S.parent, pin)); }
+  else if(a==='boardStart'){ const r=ROOM_OF[S.grade]; try{ sessionStorage.removeItem('study:team:'+S.grade); }catch(e){} location.href=`${r}/?board=1&g=${S.grade}&goal=${S.goal||20}`; }
+  else if(a==='adminGoogle') adminGoogle();
+  else if(a==='kakaoShare') kakaoShare();
+  else if(a==='copyShare') (navigator.clipboard?navigator.clipboard.writeText(SHARE_URL):Promise.reject()).then(()=>toast('🔗 링크를 복사했어요')).catch(()=>toast(SHARE_URL));
+  else if(a==='copyUrl'){ const u=location.href.split('#')[0]; (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('주소를 복사했어요. 사파리 · 크롬에 붙여 넣어 주세요')).catch(()=>prompt('이 주소를 복사해 주세요',u)); }
+  else if(a==='adminFind') adminFind();
+  else if(a==='adminOut'){ firebase.auth().signOut().catch(()=>{}); go('entry'); }
+}
+document.addEventListener('click', e=>{
+  const g=e.target.closest('[data-go]'); if(g){ const s=g.dataset.go; if(s==='phone'||s==='parent'){ S.form={name:'',age:null,pin:'',first:''}; } if(s==='parentSetup'){ S.setupKid=null; S.form.pin=''; S.form.first=''; } go(s); return; }
+  const ps=e.target.closest('[data-pdspan]'); if(ps){ if(S.pd){ S.pd.span=ps.dataset.pdspan; drawParentDetail(); } return; }
+  const gr=e.target.closest('[data-grade]'); if(gr){ go('boardPlay',{grade:gr.dataset.grade, goal:S.goal||20}); return; }
+  const gl=e.target.closest('[data-goal]'); if(gl){ S.goal=+gl.dataset.goal; render(); return; }
+  const ag=e.target.closest('[data-age]'); if(ag && (S.screen==='phone' || S.screen==='parent')){ const f=S.form, n=$('nameIn'); if(n) f.name=cleanName(n.value); if(f.age!==ag.dataset.age){ f.age=ag.dataset.age; f.quick=null; f.first=''; f.pin=''; } render(); return; }
+  if(ag){ S.form.age=ag.dataset.age; S.form.pin=''; S.form.first=''; go(S.screen==='parentAge'?'parentPin':'phonePin'); return; }
+  const q=e.target.closest('[data-quick]'); if(q){ const k=localKids().find(x=>x.id===q.dataset.quick); if(k){ S.form={name:k.name, age:k.age, pin:'', first:'', quick:k.id}; S.screen==='phone' ? render() : go('phone'); } return; }
+  const fp=e.target.closest(".font-pick [data-font]"); if(fp){ const k=fp.dataset.font; LS.set("font",k); if(k) document.documentElement.dataset.font=k; else delete document.documentElement.dataset.font; render(); return; }
+  const rs=e.target.closest('[data-reset]'); if(rs){ adminReset(rs.dataset.reset); return; }
+  const p=e.target.closest('[data-pin]'); if(p){ const v=p.dataset.pin, f=S.form;
+    if(v==='back'){ if(S.dialog){ S.dialog=null; parentHome(); return; } go({phonePin:'phone', parentPin:'parent', parentAge:'parent', parentSetup:'parent'}[S.screen]||'entry'); return; }
+    if(v==='del'){ f.pin=f.pin.slice(0,-1); } else if(f.pin.length<4) f.pin+=v;
+    document.querySelectorAll('.pinrow i').forEach((d,i)=>d.classList.toggle('f', i<f.pin.length));
+    if(f.pin.length===4) setTimeout(()=>{ S.dialog ? dialogPin() : pinDone(); }, 120);
+    return; }
+  const b=e.target.closest('[data-act]'); if(b) act(b.dataset.act, b);
+});
+$('homeBtn').addEventListener('click', ()=>go('entry'));
+/* 이 핸드폰에서 방금까지 공부하던 친구가 있으면 비밀번호만 누르게 */
+try{ history.replaceState({s:'entry'},''); }catch(e){}
+render();
+// 주소 끝이 #admin (또는 ?admin)이면 관리자 화면부터: moontr.site 관리자 허브에서 바로 열어요
+if(/^#admin$/.test(location.hash) || /[?&]admin\b/.test(location.search)){ try{ history.replaceState({s:'adminLogin'},''); }catch(e){} S.screen='adminLogin'; render(); }
+if(LS.get('adminRedirect',0)){ LS.del('adminRedirect'); cloudInit().then(ok=>{ if(!ok) return; firebase.auth().getRedirectResult().then(r=>{ const u=r&&r.user||firebase.auth().currentUser; if(u) isAdminUser(u).then(y=>{ if(y) go('adminHome'); else toast('관리자 계정이 아니에요'); }); }).catch(e=>toast('로그인하지 못했어요 ('+(e.code||'')+')')); }); }
+</script>
+<!-- moontr.site 관리자 허브 [홈]에 보일 방문 수 (세기만 · 화면에는 안 보임 · 관리자 화면은 안 셈) -->
+<script type="module" src="https://moontr.site/visit.js?app=study&hide=1"></script>
+</body>
+</html>
