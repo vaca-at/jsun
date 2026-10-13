@@ -255,6 +255,18 @@ th{color:var(--sub);font-weight:400}
 .kp .del{background:#ffe6e6}
 .kp .nx{grid-column:span 4;background:linear-gradient(180deg,#46d18c,#1fae68);color:#fff;font-size:20px}
 .kp .cl{grid-column:span 2;background:#c8d3e2;font-size:18px}
+.kp .now{grid-column:1/-1;display:flex;align-items:center;gap:10px;color:#cfe3ff;font-size:17px;padding:2px 6px 4px;min-height:34px}
+.kp .now b{flex:1;min-width:0;text-align:right;background:#fff;color:#1d4f91;border-radius:10px;padding:2px 12px;font-size:24px;font-weight:400;letter-spacing:1px;min-height:34px;line-height:30px;overflow:hidden;white-space:nowrap}
+.kp .now b.ph{color:#9aa8bb;font-size:17px}
+/* 휴대폰: 계산기처럼 4칸 × 4줄 (7 8 9 위) */
+@media(max-width:600px){
+  .kp{grid-template-columns:repeat(4,1fr);grid-template-areas:"now now now now" "k7 k8 k9 kdel" "k4 k5 k6 kdot" "k1 k2 k3 kcl" "k0 k0 knx knx";gap:7px}
+  .kp .now{grid-area:now}
+  .kp button{font-size:28px;padding:0;height:50px}
+  .kp .k1{grid-area:k1}.kp .k2{grid-area:k2}.kp .k3{grid-area:k3}.kp .k4{grid-area:k4}.kp .k5{grid-area:k5}.kp .k6{grid-area:k6}.kp .k7{grid-area:k7}.kp .k8{grid-area:k8}.kp .k9{grid-area:k9}.kp .k0{grid-area:k0}
+  .kp .kdot{grid-area:kdot}.kp .del{grid-area:kdel}.kp .cl{grid-area:kcl;font-size:17px}.kp .nx{grid-area:knx;font-size:21px}
+  .inner.wide{padding-bottom:320px}
+}
 @media(min-width:700px){.vgrid,.hgrid{--cw:32px}.dg{font-size:27px}.hx{font-size:26px}}
 </style>
 </head>
@@ -1140,7 +1152,7 @@ function hProb(p,i,sh){
     :`<b class="ab inl" data-id="${aid}" onclick="focusBox('${aid}')">${ansShow(sh,i)}</b><button class="scr" onclick="toggleScr(${i})" title="연습칸">✏️</button>`}</div>
     ${ex?'':resNote(r,p)}${sh.open[i]&&!ex?`<div class="scrbox"><small>연습칸 · 세로로 써서 풀어 봐요 (채점 안 해요)</small>${vGrid(p,i,sh,'s',false)}</div>`:''}</div>`;
 }
-const keypadHTML=()=>`<div class="kp hide" id="kp">${[1,2,3,4,5,6,7,8,9,0].map(k=>`<button onclick="sheetKey('${k}')">${k}</button>`).join('')}<button onclick="sheetKey('.')">.</button><button class="del" onclick="sheetKey('del')">⌫</button><button class="nx" onclick="sheetKey('next')">✔ 제출</button><button class="cl" onclick="sheetKey('close')">닫기</button></div>`;
+const keypadHTML=()=>`<div class="kp hide" id="kp"><div class="now" id="kpNow"></div>${[1,2,3,4,5,6,7,8,9,0].map(k=>`<button class="k${k}" onclick="sheetKey('${k}')">${k}</button>`).join('')}<button class="kdot" onclick="sheetKey('.')">.</button><button class="del" onclick="sheetKey('del')">⌫</button><button class="nx" onclick="sheetKey('next')">✔ 제출</button><button class="cl" onclick="sheetKey('close')">닫기</button></div>`;
 function sheetFoot(sh){
   const tot=sh.probs.length-1;
   if(!sh.graded||sh.fix) return `<button class="big-btn" style="margin-top:22px" onclick="gradeSheet()">📝 ${sh.fix?'다시 채점하기':'채점하기'}</button>`;
@@ -1167,11 +1179,19 @@ function focusBox(id){
   if(isLocked(sh,id)){ toast(sh.fix?'맞힌 문제는 그대로 둬요':'채점이 끝났어요. 틀린 문제는 "고치기"로 고쳐요'); return; }
   W.focus=id; markFocus(true);
 }
+/* 숫자판 맨 위: '7번 ▸ 2.45' (숫자판에 칸이 가려도 무엇을 쓰는지 보여요) */
+function kpNow(){
+  const box=$('kpNow'); if(!box||!W||!W.focus) return;
+  const sh=W.sheets[W.step], id=W.focus, v=sh.vals[id]||'';
+  const mt=/^(s?)(a|c)(\d+)/.exec(id), no=mt?+mt[3]+1:'';
+  const what=!mt?'':mt[1]?`${no}번 연습칸`:mt[2]==='c'?`${no}번 받아올림 · 받아내림`:`${no}번 답`;
+  box.innerHTML=`<span>✏️ ${what}</span><b class="${v?'':'ph'}">${v||'숫자를 눌러요'}</b>`;
+}
 function markFocus(scroll){
   document.querySelectorAll('#ws .f').forEach(e=>e.classList.remove('f'));
   const el=W&&W.focus&&document.querySelector(`[data-id="${W.focus}"]`), kp=$('kp');
-  if(el){ el.classList.add('f'); if(scroll){ const r=el.getBoundingClientRect(); if(r.bottom>innerHeight-200||r.top<60) el.scrollIntoView({block:'center',behavior:'smooth'}); } }
   if(kp) kp.classList.toggle('hide',!el);
+  if(el){ el.classList.add('f'); kpNow(); if(scroll){ const r=el.getBoundingClientRect(), kh=kp?kp.offsetHeight:200; if(r.bottom>innerHeight-kh-16||r.top<60){ const y=scrollY+r.top-Math.max(70,(innerHeight-kh)/2-r.height/2); const ws=$('ws'); if(ws&&ws.scrollHeight>ws.clientHeight) ws.scrollBy({top:r.top-Math.max(70,(innerHeight-kh)/2-r.height/2),behavior:'smooth'}); else scrollTo({top:y,behavior:'smooth'}); } } }
 }
 function sheetKey(k){
   if(!W) return;
@@ -1182,7 +1202,7 @@ function sheetKey(k){
   if(k==='del') v=v.slice(0,-1);
   else if(k==='.'){ if(carry||v.includes('.')) return; v=(v||'0')+'.'; }
   else { if(v.length>=(carry?2:7)) return; v=(v==='0'&&!carry)?k:v+k; }
-  sh.vals[id]=v; const el=document.querySelector(`[data-id="${id}"]`); if(el) el.textContent=v;
+  sh.vals[id]=v; const el=document.querySelector(`[data-id="${id}"]`); if(el) el.textContent=v; kpNow();
   saveDraftSoon();
 }
 /* ✔ 제출: 이 칸은 끝 → 아직 빈 답칸으로. 빈 칸이 없으면 숫자판을 닫고 채점하기 단추로 */
