@@ -161,6 +161,53 @@ th{color:var(--sub);font-weight:400}
 @keyframes sink{from{transform:translateY(-60px)}to{transform:translateY(40px)}}
 .dive .dn{font-size:64px;text-shadow:0 3px 8px rgba(0,0,0,.5)}
 .dive p{font-size:22px;margin:6px}
+
+/* 학습지 (문제집처럼 쭉 풀기) */
+.inner.wide{max-width:960px;padding-bottom:210px}
+.wtitle{flex:1;font-size:20px}.wtitle small{opacity:.75;font-size:15px}
+.paper{background:#fffef9;border-radius:22px;padding:14px 12px 18px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.ptitle{display:flex;align-items:center;gap:8px;font-size:21px;background:#e7e9fb;border-radius:999px;padding:6px 14px 6px 6px;color:#2b3270;margin-bottom:10px;word-break:keep-all}
+.pno{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid #3d4590;font-size:18px;flex:none}
+.hint{display:flex;gap:8px;align-items:center;background:#eef6ff;border-radius:16px;padding:8px 12px;font-size:16px;color:#1d4f91;margin-bottom:6px;word-break:keep-all}
+.pinst{margin:8px 2px 10px;font-size:19px}
+.vgrid{--cw:28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:22px 8px}
+.hgrid{--cw:28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px 16px}
+.vp,.hp{position:relative;padding:6px 6px 8px;border-radius:14px}
+.vp{display:flex;gap:6px;align-items:flex-start}
+.no{color:#5059c9;font-size:24px;line-height:1;min-width:26px}
+.vt{display:inline-grid;align-items:center;row-gap:2px}
+.dg{text-align:center;font-size:24px;line-height:30px;color:#16304f}
+.dg.dot{font-size:24px}.dg.gh{color:#eaa0a0}.dg.op{text-align:left}
+.cb{display:block;width:24px;height:20px;margin:0 auto;border:1.5px dashed #c9d6e6;border-radius:6px;font-size:13px;line-height:17px;text-align:center;color:#d0412f;font-weight:400;cursor:pointer}
+.ln{grid-column:1/-1;border-top:2.5px solid #16304f;margin:2px 0 4px}
+.ab{display:block;grid-column:1/-1;min-height:40px;border:2.5px solid #bcd3ee;border-radius:10px;text-align:right;padding:2px 8px;font-size:26px;line-height:32px;color:#1d4f91;background:#fff;font-weight:400;cursor:pointer;letter-spacing:1px}
+.ab.inl{display:inline-block;min-width:96px;vertical-align:middle}
+.ab.exa{color:#9aa8bb;border-style:dashed;cursor:default}
+.ab.f,.cb.f{outline:3px solid #ff9a4a;border-color:#ff9a4a}
+.hrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hx{font-size:24px;white-space:nowrap}
+.scr{background:#f2f6fb;border-radius:10px;padding:6px 8px;font-size:18px}
+.scrbox{margin:6px 0 0 34px;padding:6px 8px;border:2px dashed #d7e2ef;border-radius:12px;display:inline-block}
+.scrbox small{display:block;color:var(--sub);font-size:13px;margin-bottom:2px}
+.vp.ok::after,.hp.ok::after{content:'';position:absolute;inset:-2px;border:3px solid rgba(229,57,53,.75);border-radius:50%;pointer-events:none}
+.vp.bad::before,.hp.bad::before,.vp.dot::before,.hp.dot::before{content:'✔';position:absolute;left:-4px;top:-10px;font-size:46px;color:#e53935;transform:rotate(8deg);pointer-events:none;line-height:1}
+.vp.dot::before,.hp.dot::before{content:'△';color:#f08c00;font-size:38px}
+.cm{font-size:14px;color:#d0412f;margin:4px 0 0 34px;word-break:keep-all}
+.vp .cm{position:absolute;left:0;right:0;bottom:-18px;margin:0;text-align:center}
+.cm.gray{color:#9aa8bb}.cm.blue{color:#1d6fd1}
+.zs{text-decoration:none;position:relative;color:#9aa8bb}
+.zs::after{content:'';position:absolute;left:-1px;right:-1px;top:50%;border-top:2.5px solid #e53935;transform:rotate(-55deg)}
+.sum{text-align:center;font-size:24px;margin:22px 0 8px}
+.sum small{display:block;font-size:15px;color:var(--sub)}
+.wbanner{background:rgba(255,255,255,.14);color:#fff;border-radius:16px;padding:8px 12px;margin-bottom:10px;font-size:17px}
+.znote{color:#d0412f!important;font-size:18px!important}
+.kp{position:fixed;left:0;right:0;bottom:0;z-index:55;background:rgba(14,30,58,.97);padding:8px 8px max(8px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(6,1fr);gap:6px;max-width:960px;margin:0 auto;border-radius:18px 18px 0 0}
+.kp.hide{display:none}
+.kp button{font-size:26px;padding:9px 0;border-radius:12px;background:#eaf2fc;color:#16304f}
+.kp .del{background:#ffe6e6}
+.kp .nx{grid-column:span 4;background:linear-gradient(180deg,#46d18c,#1fae68);color:#fff;font-size:20px}
+.kp .cl{grid-column:span 2;background:#c8d3e2;font-size:18px}
+@media(min-width:700px){.vgrid,.hgrid{--cw:32px}.dg{font-size:27px}.hx{font-size:26px}}
 </style>
 </head>
 <body>
@@ -283,6 +330,8 @@ function sharkS(o){
 function whaleS(o){
   const c1=o.c1||'#7d93ab',c2=o.c2||'#e3ebf2';
   if(o.sperm) return `<path d="M26,70 L6,52 Q14,70 6,90Z" fill="${c1}"/><path d="M194,52 Q194,34 160,34 L80,40 Q40,50 22,70 Q40,96 90,96 L160,96 Q194,96 194,82Z" fill="${c1}"/><path d="M110,94 Q150,104 186,90" stroke="${c2}" stroke-width="4" fill="none"/><path d="M110,90 l-8,22 l20,-14z" fill="${c1}"/>`+eyeS(128,72,5)+blush(124,82)+`<path d="M150,90 L188,86" stroke="#2a2a3a" stroke-width="2"/>`;
+  if(o.orca) return `<path d="M24,72 L4,54 Q12,72 4,90Z" fill="${c1}"/><path d="M96,50 Q100,8 112,4 Q110,30 120,48Z" fill="${c1}"/><path d="M20,72 Q60,42 120,44 Q164,46 184,68 Q176,90 140,92 Q60,96 20,72Z" fill="${c1}"/><path d="M70,84 Q120,100 170,80 Q150,94 112,94 Q86,94 70,84Z" fill="${c2}"/><ellipse cx="150" cy="58" rx="11" ry="5" transform="rotate(-12 150 58)" fill="${c2}"/><ellipse cx="92" cy="60" rx="14" ry="5" fill="#8b93a6" opacity=".6"/><path d="M120,86 l-14,24 l26,-18z" fill="${c1}"/>`+eyeS(166,66,4)+blush(160,76)+smile(178,78);
+  if(o.grooves) return `<path d="M22,72 L2,56 Q10,72 2,88Z" fill="${c1}"/><path d="M60,52 l6,-8 l6,8z" fill="${c1}"/><path d="M14,72 Q50,50 120,50 Q176,52 196,70 Q178,90 120,92 Q50,94 14,72Z" fill="${c1}"/>`+[0,1,2,3,4].map(i=>`<path d="M${130+i*4},${80+i*2} Q160,${84+i*2} 188,${76+i}" stroke="${c2}" stroke-width="2" fill="none"/>`).join('')+`<path d="M130,84 l-12,20 l22,-14z" fill="${c1}"/>`+eyeS(166,66,4)+blush(160,74);
   return `<path d="M24,72 L4,54 Q12,72 4,90Z" fill="${c1}"/><path d="M98,48 Q106,24 122,22 Q114,36 118,48Z" fill="${c1}"/><path d="M20,72 Q60,44 120,46 Q160,48 178,64 L196,70 L176,75 Q150,92 100,92 Q50,92 20,72Z" fill="${c1}"/><path d="M60,82 Q110,98 172,76 Q140,92 100,92 Q76,92 60,82Z" fill="${c2}"/><path d="M120,84 l-14,22 l24,-16z" fill="${c1}"/>`+eyeS(158,62,5)+blush(156,72)+smile(176,73);
 }
 function rayS(o){
@@ -405,7 +454,22 @@ function krakenS(){
   s+=`<path d="M74,14 L80,0 L90,10 L100,-2 L110,10 L120,0 L126,14Z" fill="#ffd34d"/>`;
   return s+`<path d="M76,48 L94,56 L76,60Z M124,48 L106,56 L124,60Z" fill="#ffe14d"/><circle cx="86" cy="55" r="2.5" fill="#300"/><circle cx="114" cy="55" r="2.5" fill="#300"/><path d="M86,74 q14,-8 28,0" stroke="#2a0b50" stroke-width="3" fill="none"/>`;
 }
-const DRAW={fish:fishS,shark:sharkS,whale:whaleS,ray:rayS,turtle:turtleS,jelly:jellyS,comb:combS,siph:siphS,octo:octoS,squid:squidS,eel:eelS,gulper:gulperS,shell:shellS,crinoid:crinoidS,sponge:spongeS,star:starS,cucumber:cucumberS,spider:spiderS,shrimp:shrimpS,blob:blobS,mola:molaS,kraken:krakenS};
+function seahorseS(o){
+  const c=o.c1||'#f6b73c';
+  let s=`<path d="M100,84 Q112,104 96,116 Q82,126 72,114 Q66,104 80,100" stroke="${c}" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M106,42 Q86,62 100,86" stroke="${c}" stroke-width="28" fill="none" stroke-linecap="round"/><path d="M84,56 Q66,64 80,80Z" fill="#ffe08a"/>`;
+  for(let i=0;i<4;i++) s+=`<path d="M${106-i*2},${56+i*8} h8" stroke="#d8941c" stroke-width="2"/>`;
+  s+=`<rect x="116" y="31" width="30" height="10" rx="5" fill="${c}"/><circle cx="110" cy="36" r="16" fill="${c}"/><path d="M98,24 l2,-10 l6,8 l4,-10 l4,10z" fill="#d8941c"/>`;
+  return s+eyeS(112,32,5)+blush(108,44);
+}
+function nudiS(o){
+  const c1=o.c1||'#8e5bd6',c2=o.c2||'#ff9f2e'; let s='';
+  for(let i=0;i<7;i++){ const a=Math.PI*(1.1+i*.13); s+=`<path d="M56,72 L${56+Math.cos(a)*24},${72+Math.sin(a)*22}" stroke="${c2}" stroke-width="5" stroke-linecap="round"/>`; }
+  s+=`<path d="M24,98 Q36,72 100,70 Q164,68 182,96 Q150,108 100,108 Q48,110 24,98Z" fill="${c1}"/><path d="M28,100 Q100,116 178,98" stroke="${c2}" stroke-width="4" stroke-dasharray="8 4" fill="none"/>`;
+  [[70,86],[100,82],[128,88],[86,96],[116,98]].forEach(([x,y])=>{ s+=`<circle cx="${x}" cy="${y}" r="4" fill="#fff" opacity=".85"/>`; });
+  s+=`<path d="M156,74 q-2,-16 -8,-22 M168,76 q2,-16 8,-22" stroke="${c1}" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="148" cy="52" r="4.5" fill="${c2}"/><circle cx="176" cy="54" r="4.5" fill="${c2}"/>`;
+  return s+eyeS(156,88,4.5)+eyeS(170,88,4.5)+smile(163,98);
+}
+const DRAW={seahorse:seahorseS,nudi:nudiS,fish:fishS,shark:sharkS,whale:whaleS,ray:rayS,turtle:turtleS,jelly:jellyS,comb:combS,siph:siphS,octo:octoS,squid:squidS,eel:eelS,gulper:gulperS,shell:shellS,crinoid:crinoidS,sponge:spongeS,star:starS,cucumber:cucumberS,spider:spiderS,shrimp:shrimpS,blob:blobS,mola:molaS,kraken:krakenS};
 const creSVG=c=>`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" overflow="visible">${DRAW[c.k](c.o||{})}</svg>`;
 const PHOTO={};
 function picHTML(c,sil){
@@ -421,18 +485,26 @@ const CRE=[
  // 1구역 표층 0~200m
  {n:'날치',d:5,r:'0~20m',k:'fish',o:{c1:'#3d7fd1',c2:'#dceeff',c3:'#6fb3ff',wing:'#a9dbff',L:58,H:20},f:['커다란 가슴지느러미를 날개처럼 펴고 물 위를 날아요.','한 번에 수십 m, 길게는 수백 m까지 미끄러지듯 날 수 있어요.']},
  {n:'흰동가리',d:10,r:'1~15m',k:'fish',o:{c1:'#ff8a2a',c2:'#ffb066',c3:'#ff8a2a',bands:[.55,0,-.62],L:52,H:30},f:['말미잘의 독침 사이에 숨어 살아요. 몸의 끈적한 점액 덕분에 쏘이지 않아요.','무리에서 가장 큰 물고기가 엄마(암컷)가 돼요.']},
- {n:'고등어',d:20,r:'0~200m',k:'fish',o:{c1:'#2f7f9a',c2:'#eef6f8',c3:'#2f7f9a',wavy:'#123b4d',L:66,H:20},f:['등의 푸른 물결무늬는 위에서 보면 바다색과 비슷해서 숨기 좋아요.','수천 마리가 떼를 지어 헤엄쳐 다녀요.']},
- {n:'바다거북',d:30,r:'0~40m (더 깊이 잠수하기도)',k:'turtle',f:['태어난 바닷가를 기억했다가 어른이 되면 돌아와 알을 낳아요.','물속에서 숨을 참고 몇 시간 동안 잠을 잘 수도 있어요.']},
- {n:'만타가오리',d:50,r:'0~120m (가끔 1,000m 넘게 잠수)',k:'ray',boss:1,o:{c1:'#26324a',c2:'#e8eef7'},f:['양쪽 지느러미 끝까지 7m 넘게 자라는 거대한 가오리예요.','몸집에 비해 뇌가 아주 큰 똑똑한 물고기예요.']},
- {n:'보름달물해파리',d:60,r:'바다 표면 가까이',k:'jelly',o:{c1:'rgba(205,225,255,.85)',moon:1},f:['뇌도 심장도 뼈도 없어요!','몸의 95% 넘게 물로 되어 있어요.']},
- {n:'병코돌고래',d:70,r:'0~300m',k:'whale',o:{c1:'#7d93ab',c2:'#e3ebf2'},f:['친구마다 자기만의 휘파람 소리가 있어서 이름처럼 서로 불러요.','잘 때도 뇌의 반쪽은 깨어 있어서 숨 쉬러 올라올 수 있어요.']},
- {n:'정어리',d:80,r:'0~100m',k:'fish',o:{c1:'#5b7fa3',c2:'#eef4fa',spots:'#24405e',L:58,H:16},f:['수백만 마리가 모이면 커다란 공처럼 빙글빙글 돌아요.','작은 플랑크톤을 먹고, 큰 바다 동물들의 중요한 먹이가 돼요.']},
- {n:'청새치',d:100,r:'0~200m',k:'fish',o:{c1:'#1f4f8f',c2:'#dfe9f5',c3:'#2c63b0',bill:1,sail:1,L:60,H:20,bands:[.3,.1,-.1,-.3,-.5],bandC:'#7fb6ff',bandW:2},f:['창처럼 뾰족한 주둥이로 물고기 떼를 휘저어 사냥해요.','바다에서 가장 빠른 물고기 중 하나예요.']},
- {n:'고래상어',d:110,r:'0~200m (1,000m 넘게 잠수하기도)',k:'shark',boss:1,o:{c1:'#3b5878',c2:'#dbe4ec',spots:1},f:['세계에서 가장 큰 물고기예요. 버스보다 길게 자라요.','이렇게 큰데도 아주 작은 플랑크톤을 걸러 먹어요.']},
- {n:'개복치',d:130,r:'0~200m (더 깊이 잠수하기도)',k:'mola',o:{c1:'#9aa9b8'},f:['몸이 납작한 동그라미 모양이고 꼬리지느러미가 거의 없어요.','한 번에 알을 3억 개 가까이 낳을 수 있어요.']},
+ {n:'해마',d:15,r:'1~15m (얕은 바다)',k:'seahorse',o:{c1:'#f6b73c'},f:['아빠 해마가 배 주머니에 알을 품었다가 새끼를 낳아요.','꼬리로 해초를 꼭 감고 쉬어요.']},
+ {n:'바다거북',d:25,r:'0~40m (더 깊이 잠수하기도)',k:'turtle',f:['태어난 바닷가를 기억했다가 어른이 되면 돌아와 알을 낳아요.','물속에서 숨을 참고 몇 시간 동안 잠을 잘 수도 있어요.']},
+ {n:'만타가오리',d:40,r:'0~120m (가끔 1,000m 넘게 잠수)',k:'ray',boss:1,o:{c1:'#26324a',c2:'#e8eef7'},f:['양쪽 지느러미 끝까지 7m 넘게 자라는 거대한 가오리예요.','몸집에 비해 뇌가 아주 큰 똑똑한 물고기예요.']},
+ // 2주차
+ {n:'갯민숭달팽이',d:45,r:'얕은 바다~수십 m',k:'nudi',o:{c1:'#8e5bd6',c2:'#ff9f2e'},f:['껍데기 없는 바다 달팽이로, 무지개처럼 알록달록해요.','화려한 색은 "나는 맛없고 독이 있어!"라는 경고예요.']},
+ {n:'보름달물해파리',d:50,r:'바다 표면 가까이',k:'jelly',o:{c1:'rgba(205,225,255,.85)',moon:1},f:['뇌도 심장도 뼈도 없어요!','몸의 95% 넘게 물로 되어 있어요.']},
+ {n:'고등어',d:60,r:'0~200m',k:'fish',o:{c1:'#2f7f9a',c2:'#eef6f8',c3:'#2f7f9a',wavy:'#123b4d',L:66,H:20},f:['등의 푸른 물결무늬는 위에서 보면 바다색과 비슷해서 숨기 좋아요.','수천 마리가 떼를 지어 헤엄쳐 다녀요.']},
+ {n:'정어리',d:70,r:'0~100m',k:'fish',o:{c1:'#5b7fa3',c2:'#eef4fa',spots:'#24405e',L:58,H:16},f:['수백만 마리가 모이면 커다란 공처럼 빙글빙글 돌아요.','작은 플랑크톤을 먹고, 큰 바다 동물들의 중요한 먹이가 돼요.']},
+ {n:'범고래',d:80,r:'0~300m',k:'whale',boss:1,o:{orca:1,c1:'#1d1f27',c2:'#ffffff'},f:['가족끼리 무리 지어 살고, 무리마다 쓰는 소리(사투리)가 달라요.','바다에서 가장 꼭대기에 있는 사냥꾼이에요.']},
+ // 3주차
+ {n:'참문어',d:90,r:'0~200m',k:'octo',o:{c1:'#d9663f'},f:['다리 8개에 빨판이 수백 개씩 달려 있어요.','순식간에 몸 색깔을 바꿔서 주변과 똑같이 숨어요.']},
+ {n:'병코돌고래',d:100,r:'0~300m',k:'whale',o:{c1:'#7d93ab',c2:'#e3ebf2'},f:['친구마다 자기만의 휘파람 소리가 있어서 이름처럼 서로 불러요.','잘 때도 뇌의 반쪽은 깨어 있어서 숨 쉬러 올라올 수 있어요.']},
+ {n:'청새치',d:110,r:'0~200m',k:'fish',o:{c1:'#1f4f8f',c2:'#dfe9f5',c3:'#2c63b0',bill:1,sail:1,L:60,H:20,bands:[.3,.1,-.1,-.3,-.5],bandC:'#7fb6ff',bandW:2},f:['창처럼 뾰족한 주둥이로 물고기 떼를 휘저어 사냥해요.','바다에서 가장 빠른 물고기 중 하나예요.']},
+ {n:'개복치',d:120,r:'0~200m (더 깊이 잠수하기도)',k:'mola',o:{c1:'#9aa9b8'},f:['몸이 납작한 동그라미 모양이고 꼬리지느러미가 거의 없어요.','한 번에 알을 3억 개 가까이 낳을 수 있어요.']},
+ {n:'고래상어',d:130,r:'0~200m (1,000m 넘게 잠수하기도)',k:'shark',boss:1,o:{c1:'#3b5878',c2:'#dbe4ec',spots:1},f:['세계에서 가장 큰 물고기예요. 버스보다 길게 자라요.','이렇게 큰데도 아주 작은 플랑크톤을 걸러 먹어요.']},
+ // 4주차
  {n:'쏠배감펭',d:140,r:'0~300m',k:'fish',o:{c1:'#f6e6d6',c2:'#fff4ea',c3:'#c4492f',spines:1,bands:[.6,.4,.2,0,-.2,-.4,-.6],bandC:'#c4492f',bandW:3,L:50,H:26},f:['화려한 지느러미 가시에 독이 있으니 절대 만지면 안 돼요!','부채처럼 지느러미를 펴서 작은 물고기를 구석으로 몰아요.']},
- {n:'참다랑어',d:160,r:'0~500m',k:'fish',o:{c1:'#1d3557',c2:'#e5edf5',c3:'#ffd166',L:66,H:24},f:['몸을 따뜻하게 유지해서 차가운 바다에서도 빠르게 헤엄쳐요.','넓은 바다를 건너 수천 km를 여행해요.']},
- {n:'귀상어',d:180,r:'0~300m',k:'shark',o:{c1:'#8a9aa8',hammer:1},f:['망치처럼 생긴 머리 양 끝에 눈이 달려서 넓게 볼 수 있어요.','머리로 모래 속에 숨은 가오리의 전기 신호를 찾아내요.']},
+ {n:'참다랑어',d:155,r:'0~500m',k:'fish',o:{c1:'#1d3557',c2:'#e5edf5',c3:'#ffd166',L:66,H:24},f:['몸을 따뜻하게 유지해서 차가운 바다에서도 빠르게 헤엄쳐요.','넓은 바다를 건너 수천 km를 여행해요.']},
+ {n:'귀상어',d:170,r:'0~300m',k:'shark',o:{c1:'#8a9aa8',hammer:1},f:['망치처럼 생긴 머리 양 끝에 눈이 달려서 넓게 볼 수 있어요.','머리로 모래 속에 숨은 가오리의 전기 신호를 찾아내요.']},
+ {n:'대왕고래',d:185,r:'0~500m',k:'whale',o:{c1:'#5d7b9e',c2:'#a9bed6',grooves:1},f:['지구에 살았던 동물 가운데 가장 커요. 몸길이가 30m 가까이 돼요.','심장 크기가 작은 자동차만 해요.']},
  {n:'백상아리',d:200,r:'0~1,200m',k:'shark',boss:1,o:{c1:'#6f8597'},f:['이빨이 빠져도 뒤에서 새 이빨이 계속 나와요.','아주 멀리서도 피 냄새를 맡는 뛰어난 코를 가졌어요.']},
  // 2구역 중층 200~1000m
  {n:'갈치',d:220,r:'100~400m',k:'eel',o:{c1:'#d3dde8',crest:'#9fb3c7'},f:['꼬리를 아래로 하고 몸을 똑바로 세운 채 쉬어요.','반짝이는 은빛 가루는 옛날에 가짜 진주를 만드는 데 쓰였어요.']},
@@ -479,11 +551,11 @@ const CRE=[
  {n:'초심해단각류',d:10900,r:'6,000~11,000m',k:'shrimp',o:{c1:'#f5ece6',small:1},f:['지구에서 가장 깊은 마리아나 해구 바닥에서 살아요.','가라앉은 나무 조각도 소화하는 특별한 소화액을 가졌어요.']},
  {n:'크라켄',d:11000,r:'전설 속 아틀란티스',k:'kraken',boss:1,f:['북유럽 전설에 나오는 거대한 바다 괴물이에요. 배를 통째로 끌어당긴대요.','사람들이 커다란 대왕오징어를 보고 크라켄 이야기를 만들었다는 말도 있어요.']},
 ];
-CRE.forEach((c,i)=>c.id='c'+(i+1));
+CRE.forEach(c=>c.id=c.n);   // 도감 저장은 이름으로 (순서가 바뀌어도 안전하게)
 
 /* ════════ 구역 · 주차 · 미션 ════════ */
 const ZONES=[
- {n:1,name:'표층',range:'0~200m',top:0,bot:200,unit:'소수의 덧셈과 뺄셈'},
+ {n:1,name:'표층',range:'0~200m',top:0,bot:200,unit:'소수의 덧셈과 뺄셈 (4주)'},
  {n:2,name:'중층',range:'200~1,000m',top:200,bot:1000,unit:'사각형'},
  {n:3,name:'점심해층',range:'1,000~4,000m',top:1000,bot:4000,unit:'꺾은선그래프'},
  {n:4,name:'심해저층',range:'4,000~6,000m',top:4000,bot:6000,unit:'다각형'},
@@ -493,14 +565,16 @@ const DAYS=['월','화','수','목','금'];
 /* g: 월~목 미션의 문제 만들기 이름. g 가 없는 주는 아직 준비 중이에요 */
 const WEEKS=[
  {z:1,t:['소수 두 자리 수','소수 세 자리 수','소수의 크기 비교','소수 사이의 관계','1주차 복습 보스전'],g:['dec2','dec3','cmp','rel']},
- {z:1,t:['소수 한 자리 수의 덧셈','소수 한 자리 수의 뺄셈','소수 두 자리 수의 덧셈','소수 두 자리 수의 뺄셈','2주차 복습 보스전']},
- {z:1,t:['자릿수가 다른 소수의 덧셈','자릿수가 다른 소수의 뺄셈','소수 계산 이야기 문제','소수의 덧셈과 뺄셈 정리','표층 최종 보스전']},
- {z:2,t:['수직과 수선','평행과 평행선','평행선 사이의 거리','사다리꼴','4주차 복습 보스전']},
- {z:2,t:['평행사변형','마름모','직사각형과 정사각형','여러 가지 사각형','5주차 복습 보스전']},
+ /* 2~4주차 월~목 = 문제집처럼 쭉 푸는 학습지 2장(①세로셈 ②가로셈) + 이야기 문제 3개. SHEET 참고 */
+ {z:1,t:['받아올림이 없는 소수 한 자리 수의 덧셈','받아올림이 있는 소수 한 자리 수의 덧셈','받아내림이 없는 소수 한 자리 수의 뺄셈','받아내림이 있는 소수 한 자리 수의 뺄셈','2주차 복습 보스전'],g:['a1n','a1c','s1n','s1b']},
+ {z:1,t:['받아올림이 없는 소수 두 자리 수의 덧셈','받아올림이 있는 소수 두 자리 수의 덧셈','받아내림이 없는 소수 두 자리 수의 뺄셈','받아내림이 있는 소수 두 자리 수의 뺄셈','3주차 복습 보스전'],g:['a2n','a2c','s2n','s2b']},
+ {z:1,t:['자릿수가 다른 소수의 덧셈','자릿수가 다른 소수의 뺄셈','소수 계산 이야기 문제','소수의 덧셈과 뺄셈 정리','표층 최종 보스전'],g:['adiff','sdiff','story','mix']},
+ {z:2,t:['수직과 수선','평행과 평행선','평행선 사이의 거리','사다리꼴','5주차 복습 보스전']},
+ {z:2,t:['평행사변형','마름모','직사각형과 정사각형','여러 가지 사각형','6주차 복습 보스전']},
  {z:2,t:['사각형 그리기','사각형 속 각도','사각형 이야기 문제','사각형 정리','중층 최종 보스전']},
- {z:3,t:['꺾은선그래프 알아보기','물결선이 있는 그래프','꺾은선그래프 읽기','꺾은선그래프 그리기','7주차 복습 보스전']},
+ {z:3,t:['꺾은선그래프 알아보기','물결선이 있는 그래프','꺾은선그래프 읽기','꺾은선그래프 그리기','8주차 복습 보스전']},
  {z:3,t:['자료를 조사해 그래프 그리기','막대그래프와 비교하기','변화 예상하기','꺾은선그래프 정리','점심해층 최종 보스전']},
- {z:4,t:['다각형','정다각형','대각선','모양 만들기','9주차 복습 보스전']},
+ {z:4,t:['다각형','정다각형','대각선','모양 만들기','10주차 복습 보스전']},
  {z:4,t:['모양 채우기','정다각형의 각','대각선의 수','다각형 정리','심해저층 최종 보스전']},
  {z:5,t:['전체 복습 ① 소수','전체 복습 ② 사각형','전체 복습 ③ 꺾은선그래프','전체 복습 ④ 다각형','크라켄 최종전'],kraken:true},
 ];
@@ -626,6 +700,80 @@ G.rel=[
 /* 보기 '1/10' 같은 글자를 분수 모양으로 보여 줘요 */
 const choLabel=s=>/^1\/\d+$/.test(s)?frac(1,s.split('/')[1]):s;
 
+/* ════════ 소수의 덧셈과 뺄셈: 계산 문제 만들기 ════════
+   문제 하나 = {a,da,b,db,op}  (a 를 10^da 로 나눈 수 ± b 를 10^db 로 나눈 수)
+   k 는 문제 번호. 문제집처럼 앞쪽(k<5)은 0.□ 처럼 쉬운 수부터 나와요 */
+const P10=[1,10,100,1000];
+const n1=(i,t)=>({v:i*10+t,dp:1}), n2=(i,t,h)=>({v:i*100+t*10+h,dp:2});
+const mkP=(x,y,op)=>({a:x.v,da:x.dp,b:y.v,db:y.dp,op});
+const val=(v,dp,D)=>v*P10[D-dp];
+const bigger=(x,y)=>{const D=Math.max(x.dp,y.dp);return val(x.v,x.dp,D)>val(y.v,y.dp,D);};
+function retry(f){ for(let g=0;g<200;g++){ const r=f(); if(r) return r; } throw new Error('문제 만들기 실패'); }
+const PG={
+  a1n:k=>{ const e=k<5, i1=e?0:rnd(0,8), i2=e?0:rnd(0,9-i1), t1=rnd(1,8), t2=rnd(1,9-t1); return mkP(n1(i1,t1),n1(i2,t2),'+'); },
+  a1c:k=>{ const e=k<5, i1=e?0:rnd(0,8), i2=e?0:rnd(0,9), t1=rnd(1,9), t2=rnd(10-t1,9); return mkP(n1(i1,t1),n1(i2,t2),'+'); },
+  s1n:k=>retry(()=>{ const e=k<5, i1=e?0:rnd(1,9), i2=e?0:rnd(0,i1), t1=rnd(1,9), t2=rnd(1,t1), x=n1(i1,t1), y=n1(i2,t2); return bigger(x,y)&&mkP(x,y,'-'); }),
+  s1b:k=>{ const i1=rnd(1,9), i2=k<5?0:rnd(0,i1-1), t1=rnd(1,8), t2=rnd(t1+1,9); return mkP(n1(i1,t1),n1(i2,t2),'-'); },
+  a2n:k=>{ const e=k<5, i1=e?0:rnd(0,8), i2=e?0:rnd(0,9-i1), t1=rnd(0,8), t2=rnd(0,9-t1), h1=rnd(1,8), h2=rnd(1,9-h1); return mkP(n2(i1,t1,h1),n2(i2,t2,h2),'+'); },
+  a2c:k=>retry(()=>{ const e=k<5, i1=e?0:rnd(0,9), i2=e?0:rnd(0,9), t1=rnd(0,9), t2=rnd(0,9), h1=rnd(1,9), h2=rnd(1,9), c=h1+h2>=10?1:0;
+    return (c||t1+t2>=10)&&mkP(n2(i1,t1,h1),n2(i2,t2,h2),'+'); }),
+  s2n:k=>retry(()=>{ const e=k<5, i1=e?0:rnd(1,9), i2=e?0:rnd(0,i1), t1=rnd(0,9), t2=rnd(0,t1), h1=rnd(1,9), h2=rnd(1,h1), x=n2(i1,t1,h1), y=n2(i2,t2,h2); return bigger(x,y)&&mkP(x,y,'-'); }),
+  s2b:k=>retry(()=>{ const e=k<5, i1=e?0:rnd(1,9), i2=e?0:rnd(0,i1), t1=rnd(0,9), t2=rnd(0,9), h1=rnd(1,9), h2=rnd(1,9), x=n2(i1,t1,h1), y=n2(i2,t2,h2), b=h1<h2?1:0;
+    return (b||t1-b<t2)&&bigger(x,y)&&mkP(x,y,'-'); }),
+  adiff:k=>{ const e=k<5, x=n1(e?0:rnd(0,9),rnd(1,9)), y=n2(e?0:rnd(0,9),rnd(0,9),rnd(1,9)); return Math.random()<.5?mkP(x,y,'+'):mkP(y,x,'+'); },
+  sdiff:k=>retry(()=>{ const e=k<5;
+    if(!e&&Math.random()<.22){ const x={v:rnd(2,9),dp:0}, y=Math.random()<.6?n2(rnd(0,x.v-1),rnd(0,9),rnd(1,9)):n1(rnd(0,x.v-1),rnd(1,9)); return mkP(x,y,'-'); }
+    const p=n1(e?0:rnd(0,9),rnd(1,9)), q=n2(e?0:rnd(0,9),rnd(0,9),rnd(1,9)); const [x,y]=Math.random()<.5?[p,q]:[q,p]; return bigger(x,y)&&mkP(x,y,'-'); }),
+};
+const KEYS=Object.keys(PG);
+PG.mix=k=>PG[pick(KEYS)](k+6);
+function solve(p){ const D=Math.max(p.da,p.db), A=val(p.a,p.da,D), B=val(p.b,p.db,D); return fmt(p.op==='+'?A+B:A-B,D); }
+const opS=op=>op==='+'?'+':'−';
+const pStr=p=>[fmt(p.a,p.da),fmt(p.b,p.db)];
+/* 학습지: v = ①세로셈 문제 수, h = ②가로셈 문제 수 (1번은 보기), hv/hh = 말풍선 */
+const SHEET={
+  a1n:{v:15,h:21,hv:'소수 첫째 자리끼리, 일의 자리끼리 각각 더해요.',hh:'소수점을 기준으로 같은 자리 수끼리 더해요.'},
+  a1c:{v:15,h:21,hv:'소수 첫째 자리끼리의 합이 10이거나 10보다 크면 일의 자리로 받아올림해요.',hh:'소수 첫째 자리에서 받아올림이 있는지 살펴봐요.'},
+  s1n:{v:15,h:21,hv:'소수 첫째 자리끼리, 일의 자리끼리 각각 빼요.',hh:'소수점을 기준으로 같은 자리 수끼리 빼요.'},
+  s1b:{v:15,h:21,hv:'소수 첫째 자리끼리 뺄 수 없으면 일의 자리에서 받아내림해요.',hh:'일의 자리에서 받아내림이 있는지 살펴봐요.'},
+  a2n:{v:15,h:14,hv:'소수 둘째 자리, 소수 첫째 자리, 일의 자리끼리 각각 더해요.',hh:'소수점을 기준으로 같은 자리 수끼리 더해요.'},
+  a2c:{v:15,h:14,hv:'각 자리끼리의 합이 10이거나 10보다 크면 바로 윗자리로 받아올림해요.',hh:'소수점끼리 맞추어 세로로 써 보고, 받아올림에 주의해요.'},
+  s2n:{v:15,h:14,hv:'소수 둘째 자리, 소수 첫째 자리, 일의 자리끼리 각각 빼요.',hh:'소수점을 기준으로 같은 자리 수끼리 빼요.'},
+  s2b:{v:15,h:14,hv:'각 자리끼리 뺄 수 없으면 바로 윗자리에서 받아내림해요.',hh:'소수점끼리 맞추어 세로로 써 보고, 받아내림에 주의해요.'},
+  adiff:{v:15,h:14,hv:'소수 오른쪽 끝자리에 0이 있는 것으로 생각하고 더해요.',hh:'소수점의 자리를 맞추어 세로로 써 봐요. 빈 자리는 0이에요.'},
+  sdiff:{v:15,h:14,hv:'소수 오른쪽 끝자리에 0이 있는 것으로 생각하고 빼요.',hh:'소수점의 자리를 맞추어 세로로 써 봐요. 4는 4.00으로 생각해요.'},
+  mix:{v:15,h:14,hv:'덧셈인지 뺄셈인지 먼저 확인해요!',hh:'소수점의 자리를 맞추는 것, 잊지 마요!'},
+};
+const isSheet=m=>!!(m&&m.gen&&SHEET[m.gen]);
+/* 답 채점: 끝자리 0(4.0, 7.60)은 정답 + 코멘트, 소수점을 빠뜨리면(2.5 → 25) 코멘트 */
+function classify(s,ans){
+  s=String(s||'');
+  if(!s||s==='.') return {ok:false,empty:true};
+  if(/^\d*\.?\d*$/.test(s)&&Math.abs(parseFloat(s)-parseFloat(ans))<1e-9) return {ok:true,note:(s.includes('.')&&/(0|\.)$/.test(s))?'zero':null};
+  if(!s.includes('.')&&ans.includes('.')&&s.replace(/^0+/,'')===ans.replace('.','').replace(/^0+/,'')) return {ok:false,note:'dot'};
+  return {ok:false};
+}
+const NOTE={zero:'✏️ 끝자리 0은 지워요',dot:'✏️ 소수점을 빠뜨렸어요!'};
+function strikeZero(s){ let keep=s.replace(/0+$/,''); if(!s.includes('.')) return s; if(keep.endsWith('.')) keep=keep.slice(0,-1); return `${keep}<s class="zs">${s.slice(keep.length)}</s>`; }
+function calcQ(key){ const p=PG[key](9), [a,b]=pStr(p), r=solve(p); return num(`계산해 보세요.${BIG(`${a} ${opS(p.op)} ${b}`)}`,r,`소수점을 맞추어 세로로 써서 계산해요. ${a} ${opS(p.op)} ${b} = ${r}`); }
+function storyQ(key){
+  const p=PG[key==='mix'||key==='story'?pick(KEYS):key](9), [a,b]=pStr(p), r=solve(p);
+  const T=p.op==='+'?pick([
+    `물통에 물이 ${a} L 있어요. ${b} L를 더 부으면 물은 모두 몇 L일까요?`,
+    `도윤이는 아침에 ${a} km, 저녁에 ${b} km를 걸었어요. 모두 몇 km를 걸었을까요?`,
+    `무게가 ${a} kg인 가방에 ${b} kg인 책을 넣었어요. 가방은 모두 몇 kg일까요?`,
+    `잠수정이 ${a} km를 가고, ${b} km를 더 갔어요. 모두 몇 km를 갔을까요?`])
+   :pick([
+    `우유 ${a} L 중에서 ${b} L를 마셨어요. 남은 우유는 몇 L일까요?`,
+    `리본 ${a} m에서 ${b} m를 잘라 썼어요. 남은 리본은 몇 m일까요?`,
+    `빨간 상자는 ${a} kg, 파란 상자는 ${b} kg이에요. 빨간 상자가 몇 kg 더 무거울까요?`,
+    `산소 탱크에 산소가 ${a} L 있었는데 ${b} L를 썼어요. 남은 산소는 몇 L일까요?`]);
+  return num(T,r,`${a} ${opS(p.op)} ${b} = ${r}`);
+}
+KEYS.forEach(k=>{ G[k]=[()=>calcQ(k),()=>calcQ(k),()=>storyQ(k)]; });
+G.mix=[()=>calcQ('mix'),()=>storyQ('mix')];
+G.story=[()=>storyQ('story')];
+
 /* 미션 문제 세트 만들기 */
 function makeQs(m){
   const n=m.boss?10:9, out=[], seen=new Set();
@@ -643,6 +791,9 @@ function makeQs(m){
 const defState=()=>({mission:0,depth:0,dex:[],wrong:[],log:{},done:{},updatedAt:0});
 let S=defState();
 try{ const raw=localStorage.getItem(LS_KEY); if(raw) S=Object.assign(defState(),JSON.parse(raw)); }catch(e){}
+/* 예전 형식(c1, c2…)이나 없는 생물 이름은 도감에서 빼요 */
+const tidy=()=>{ S.dex=[...new Set(S.dex.filter(id=>CRE.some(c=>c.id===id)))]; };
+tidy();
 const curDepth=()=>S.mission>0?MISSIONS[Math.min(S.mission,MISSIONS.length)-1].depth:0;
 const cloud={db:null,ok:false,ready:null};
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
@@ -662,7 +813,7 @@ async function cloudLoad(){
   try{
     const ok=await timeout(cloudInit(),8000); if(!ok) throw new Error('no firebase');
     const snap=await timeout(docRef().get(),8000);
-    if(snap.exists){ const d=snap.data(); if((d.updatedAt||0)>(S.updatedAt||0)){ S=Object.assign(defState(),d); saveLocal(); render(); } else if((S.updatedAt||0)>(d.updatedAt||0)) await pushCloud(); }
+    if(snap.exists){ const d=snap.data(); if((d.updatedAt||0)>(S.updatedAt||0)){ S=Object.assign(defState(),d); tidy(); saveLocal(); render(); } else if((S.updatedAt||0)>(d.updatedAt||0)) await pushCloud(); }
     else if(S.updatedAt) await pushCloud();
     setSync('ok');
   }catch(e){ console.warn(e); setSync('off'); }
@@ -674,7 +825,7 @@ async function pushCloud(){
   if(!cloud.ok) return;
   try{ await docRef().set(JSON.parse(JSON.stringify(S))); setSync('ok'); }catch(e){ console.warn('저장 실패',e); setSync('err'); }
 }
-function logAnswer(ok){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok) L.c++; }
+function logAnswer(ok,note){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok) L.c++; if(note==='zero') L.z=(L.z||0)+1; if(note==='dot') L.d=(L.d||0)+1; }
 function logMission(txt){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); (L.m||(L.m=[])).push(txt); }
 
 /* ════════ 화면: 배경 · 게이지 ════════ */
@@ -705,9 +856,12 @@ function render(){
       <div class="week">${wk.map(x=>`<div class="${x.i<S.mission?'done':x.i===S.mission?'now':''}">${DAYS[x.day]}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</div>`).join('')}</div>
       <p class="mlabel">${mLabel(m)}</p><h2 class="mtitle">${m.title}</h2>`;
     if(m.ready){
-      h+=`<p class="mdesc">문제 ${m.boss?10:9}개 · ${m.boss?`7문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>
-        <div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>${m.boss?`<b>보스</b>가 길을 막고 있어요!<br>정체는… ???`:`${m.depth.toLocaleString()}m 아래에서<br>누군가 기다리고 있어요…`}</p></div>
-        <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${m.boss?'⚔️ 보스와 대결!':'🚀 잠수 시작!'}</button>`;
+      const sp=SHEET[m.gen], draft=isSheet(m)&&hasDraft(m.id);
+      h+=isSheet(m)?`<p class="mdesc">📝 학습지 2장 (①세로셈 ${sp.v-1}문제 · ②가로셈 ${sp.h-1}문제) + 이야기 문제 3개<br>다 풀면 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`
+        :`<p class="mdesc">문제 ${m.boss?10:9}개 · ${m.boss?`7문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>`;
+      if(draft) h+=`<p class="mdesc" style="color:#c4561a">✏️ 풀던 학습지가 있어요. 이어서 풀 수 있어요!</p>`;
+      h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>${m.boss?`<b>보스</b>가 길을 막고 있어요!<br>정체는… ???`:`${m.depth.toLocaleString()}m 아래에서<br>누군가 기다리고 있어요…`}</p></div>
+        <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${m.boss?'⚔️ 보스와 대결!':draft?'📝 이어서 풀기':isSheet(m)?'📝 학습지 펼치기':'🚀 잠수 시작!'}</button>`;
     } else {
       h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>🚧 이 바다는 아직 지도를 그리는 중이에요.<br>곧 열려요! 그동안 오답 소용돌이를 탈출해 볼까요?</p></div><button class="big-btn" disabled>🔒 준비 중</button>`;
     }
@@ -726,6 +880,7 @@ function render(){
 let Q=null;
 function startMission(i,replay){
   const m=MISSIONS[i]; if(!m||!m.ready) return;
+  if(isSheet(m)) return startSheet(m,!!replay);
   Q={mode:m.boss?'boss':'mission',m,list:makeQs(m),i:0,c:0,res:[],replay:!!replay,hp:7,buf:''};
   drawQuiz();
 }
@@ -741,6 +896,7 @@ function quizHead(){
 function drawQuiz(){
   const q=Q.list[Q.i]; let h=`<div class="screen" id="qs"><div class="inner">${quizHead()}`;
   if(Q.mode==='boss') h+=`<div class="bossbar"><div class="pic" id="bosspic">${creSVG(Q.m.cre)}</div><div><div class="bn">⚔️ ${Q.m.cre.n}</div><div class="hp" id="hp">${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}</div><small style="opacity:.8">맞힐 때마다 ❤️ 하나씩 줄어요</small></div></div>`;
+  if(Q.sheetN!=null) h+=`<div class="wbanner">📝 학습지 ⭕ ${Q.sheetC} / ${Q.sheetN} 끝! 이제 이야기 문제 ${Q.list.length}개만 풀면 잠수해요 🫧</div>`;
   if(Q.mode==='vortex') h+=`<div class="bossbar"><div style="font-size:44px">🌀</div><div><div class="bn">오답 소용돌이</div><small style="opacity:.85">맞히면 소용돌이에서 빠져나와요 (${q.from||''})</small></div></div>`;
   h+=`<div class="qcard" id="qcard"><div class="qtext">${q.q}</div>${q.svg?`<div class="qsvg">${q.svg}</div>`:''}`;
   if(q.t==='num'){
@@ -765,22 +921,24 @@ function key(k){
 }
 function submitNum(){
   if(!Q.buf||Q.buf==='.'){ $('disp').classList.add('shake'); setTimeout(()=>$('disp')&&$('disp').classList.remove('shake'),400); return; }
-  const q=Q.list[Q.i]; judge(Math.abs(parseFloat(Q.buf)-parseFloat(q.a))<1e-9);
+  const q=Q.list[Q.i], r=classify(Q.buf,q.a); judge(r.ok,r.note);
 }
 function choose(j){ const q=Q.list[Q.i]; judge(q.ch[j]===q.a); }
-function judge(ok){
-  const q=Q.list[Q.i]; Q.res[Q.i]=ok; logAnswer(ok);
+function judge(ok,note){
+  const q=Q.list[Q.i]; Q.res[Q.i]=ok; logAnswer(ok,note);
   if(ok){ Q.c++; sOK(); } else sNO();
   if(Q.mode==='vortex'){ if(ok) S.wrong=S.wrong.filter(w=>w.id!==q.id); }
-  else if(!ok){ S.wrong.push(Object.assign({},q,{id:'w'+Date.now().toString(36)+rnd(100,999),from:Q.m.title})); if(S.wrong.length>80) S.wrong.shift(); }
+  else if(!ok&&note!=='dot'){ S.wrong.push(Object.assign({},q,{id:'w'+Date.now().toString(36)+rnd(100,999),from:Q.m.title})); if(S.wrong.length>80) S.wrong.shift(); }
   save();
   if(Q.mode==='boss'&&ok){ Q.hp--; const hp=$('hp'); if(hp) hp.innerHTML=`${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}`; const bp=$('bosspic'); if(bp){ bp.classList.remove('hit'); void bp.offsetWidth; bp.classList.add('hit'); } }
   const fb=document.createElement('div'); fb.className='fb';
   const ansTxt=q.t==='cho'?choLabel(q.a):q.a;
-  fb.innerHTML=ok?`<div class="mark">⭕</div><h3>${pick(['정답!','멋져요!','훌륭해요!','바로 그거예요!'])}</h3>${Q.mode==='boss'?`<p>${Q.m.cre.n}에게 공격 성공! 💥</p>`:''}`
+  const zero=ok&&note==='zero';
+  fb.innerHTML=ok?`<div class="mark">⭕</div><h3>${pick(['정답!','멋져요!','훌륭해요!','바로 그거예요!'])}</h3>${zero?`<p class="znote">${NOTE.zero} → ${strikeZero(Q.buf)}</p><button onclick="nextQ()">알겠어요</button>`:''}${Q.mode==='boss'?`<p>${Q.m.cre.n}에게 공격 성공! 💥</p>`:''}`
+    :note==='dot'?`<div class="mark">🔍</div><h3>소수점을 빠뜨렸어요!</h3><p>정답은</p><div class="ans">${ansTxt}</div><p>숫자는 맞았어요. 소수점을 꼭 찍어요.</p><button onclick="nextQ()">알겠어요</button>`
     :`<div class="mark">❌</div><h3>아쉬워요!</h3><p>정답은</p><div class="ans">${ansTxt}</div><p>${q.ex||''}</p>${Q.mode!=='vortex'?'<p style="font-size:16px">🌀 오답 소용돌이에 넣어 둘게요</p>':''}<button onclick="nextQ()">알겠어요</button>`;
   $('qcard').appendChild(fb);
-  if(ok) setTimeout(nextQ,950);
+  if(ok&&!zero) setTimeout(nextQ,950);
 }
 function nextQ(){
   if(!Q) return;
@@ -790,6 +948,7 @@ function nextQ(){
 }
 function quitQuiz(){ if(confirm('잠수를 멈출까요?\n지금까지 푼 문제는 기록돼요.')){ Q=null; $('layer').innerHTML=''; render(); } }
 document.addEventListener('keydown',e=>{
+  if(W&&$('ws')){ if(/^[0-9]$/.test(e.key)) sheetKey(e.key); else if(e.key==='.') sheetKey('.'); else if(e.key==='Backspace'){ e.preventDefault(); sheetKey('del'); } else if(e.key==='Enter'||e.key==='Tab'){ e.preventDefault(); sheetKey('next'); } return; }
   if(!Q||!$('disp')||document.querySelector('.fb')) { if(e.key==='Enter'){ const b=document.querySelector('.fb button'); if(b) b.click(); } return; }
   if(/^[0-9]$/.test(e.key)) key(e.key); else if(e.key==='.') key('.'); else if(e.key==='Backspace') key('del'); else if(e.key==='Enter') submitNum();
 });
@@ -801,19 +960,160 @@ function finishQuiz(){
     modal(`<h2>🌀 소용돌이 탈출!</h2><p style="font-size:22px;text-align:center">${c}문제를 소용돌이에서 구해 냈어요!<br><small style="color:var(--sub)">남은 문제: ${S.wrong.length}개</small></p><button class="btn wide" onclick="closeModal()">좋아요</button>`);
     return;
   }
-  const m=Q.m, win=Q.mode!=='boss'||Q.hp<=0, replay=Q.replay, score=`${Q.c}/${done}`;
+  const m=Q.m, win=Q.mode!=='boss'||Q.hp<=0, replay=Q.replay, sc=(Q.sheetC||0)+Q.c, score=`${sc}/${(Q.sheetN||0)+done}`;
   if(Q.mode==='boss'&&!win){
     Q=null; $('layer').innerHTML=''; render(); sNO();
     modal(`<h2>💨 ${jo(m.cre.n,'이','가')} 도망갔어요!</h2><div style="max-width:260px;margin:0 auto">${picHTML(m.cre,true)}</div><p style="font-size:20px;text-align:center">${score} 맞혔어요. 7문제를 맞히면 물리칠 수 있어요!<br>틀린 문제는 오답 소용돌이에서 연습해 봐요.</p><div class="row"><button class="btn gray" style="flex:1" onclick="closeModal()">다음에</button><button class="btn" style="flex:1" onclick="closeModal();startMission(${m.i},${replay})">⚔️ 다시 도전</button></div>`);
     return;
   }
-  S.done[m.id]=Math.max(S.done[m.id]||0,Q.c);
+  S.done[m.id]=Math.max(S.done[m.id]||0,sc);
+  if(!replay) clearDraft(m.id);
   logMission(`${mLabel(m)} ${m.title} (${score})`);
   Q=null; $('layer').innerHTML='';
   if(replay||m.i!==S.mission){ save(); render(); sWIN(); modal(`<h2>✅ 다시 풀기 끝!</h2><p style="font-size:22px;text-align:center">${m.title}<br>${score} 맞혔어요!</p><button class="btn wide" onclick="closeModal()">좋아요</button>`); return; }
   const from=curDepth(); S.mission++;
   const c=m.cre, isNew=!S.dex.includes(c.id); if(isNew) S.dex.push(c.id);
   save(); diveTo(from,m.depth,()=>{ render(); showCreature(c,isNew,`${m.boss?'보스를 물리쳤어요! ':''}${score} 맞혔어요`); });
+}
+
+/* ════════ 학습지: 문제집처럼 쭉 풀고 한 번에 채점 ════════
+   칸 이름: a{i} 답, c{i}_{열} 받아올림·받아내림 칸, sa{i}·sc{i}_{열} 가로셈 연습칸 (연습칸은 채점 안 해요) */
+let W=null, draftT=null;
+const draftKey=id=>'atlan-draft-'+id;
+function hasDraft(id){ try{ return !!localStorage.getItem(draftKey(id)); }catch(e){ return false; } }
+function saveDraft(){ if(!W||W.replay) return; try{ localStorage.setItem(draftKey(W.mid),JSON.stringify(Object.assign({},W,{focus:null}))); }catch(e){} }
+function saveDraftSoon(){ clearTimeout(draftT); draftT=setTimeout(saveDraft,400); }
+function clearDraft(id){ try{ localStorage.removeItem(draftKey(id)); }catch(e){} }
+function genSheet(key,n){ const out=[],seen=new Set(); let g=0; while(out.length<n&&g++<600){ const p=PG[key](out.length), k=`${p.a}/${p.da}${p.op}${p.b}/${p.db}`; if(seen.has(k)) continue; seen.add(k); out.push(p); } return out; }
+function startSheet(m,replay){
+  let d=null; if(!replay){ try{ d=JSON.parse(localStorage.getItem(draftKey(m.id))||'null'); }catch(e){} }
+  if(d&&d.mid===m.id&&d.sheets) W=d;
+  else { const sp=SHEET[m.gen]; W={mid:m.id,mi:m.i,replay,step:0,c:0,n:0,
+    sheets:[{kind:'v',probs:genSheet(m.gen,sp.v),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}},
+            {kind:'h',probs:genSheet(m.gen,sp.h),vals:{},res:{},graded:false,fix:false,fixedOnce:false,open:{}}]}; }
+  W.mi=m.i; W.focus=null;
+  if(W.step===2) return sheetQuiz();
+  drawSheet(true);
+}
+const intLen=(v,dp)=>String(Math.floor(v/P10[dp])).length;
+function vLayout(p){ const D=Math.max(p.da,p.db), r=solve(p), rv=Math.round(parseFloat(r)*P10[D]); return {D,I:Math.max(intLen(p.a,p.da),intLen(p.b,p.db),intLen(rv,D)),r}; }
+/* 한 줄의 숫자: 소수점 기준으로 맞추고, 빈 소수 자리는 흐린 0 */
+function digitRow(v,dp,L){
+  const is=String(Math.floor(v/P10[dp])), fs=dp?String(v%P10[dp]).padStart(dp,'0'):''; let h='';
+  for(let c=0;c<L.I;c++){ const k=c-(L.I-is.length); h+=`<span class="dg">${k>=0?is[k]:''}</span>`; }
+  if(L.D){ h+=`<span class="dg dot${dp?'':' gh'}">.</span>`; for(let c=0;c<L.D;c++) h+=`<span class="dg${c<dp?'':' gh'}">${c<dp?fs[c]:'0'}</span>`; }
+  return h;
+}
+function vGrid(p,i,sh,pre,ex){
+  const L=vLayout(p), cols=L.I+(L.D?1+L.D:0);
+  let g=`<div class="vt" style="grid-template-columns:20px repeat(${L.I},var(--cw))${L.D?` 9px repeat(${L.D},var(--cw))`:''}"><span></span>`;
+  for(let c=0;c<cols;c++){ if(L.D&&c===L.I||ex){ g+='<span></span>'; continue; } const id=`${pre}c${i}_${c}`; g+=`<b class="cb" data-id="${id}" onclick="focusBox('${id}')">${sh.vals[id]||''}</b>`; }
+  g+=`<span></span>${digitRow(p.a,p.da,L)}<span class="dg op">${opS(p.op)}</span>${digitRow(p.b,p.db,L)}<span class="ln"></span>`;
+  const aid=`${pre}a${i}`;
+  g+=ex?`<span class="ab exa">${L.r}</span>`:`<b class="ab" data-id="${aid}" onclick="focusBox('${aid}')">${pre?(sh.vals[aid]||''):ansShow(sh,i)}</b>`;
+  return g+'</div>';
+}
+function ansShow(sh,i){ const s=sh.vals['a'+i]||'', r=sh.res[i]; return r&&r.ok&&r.note==='zero'?strikeZero(s):s; }
+const markCls=r=>!r?'':r.ok?'ok':r.note==='dot'?'dot':'bad';
+function resNote(r,p){
+  if(!r) return '';
+  if(r.ok) return r.fixed?`<div class="cm blue">고쳤어요 👍${r.note==='zero'?' · 끝자리 0은 지워요':''}</div>`:r.note==='zero'?`<div class="cm">${NOTE.zero}</div>`:'';
+  const t=`${r.note==='dot'?NOTE.dot:''}${r.reveal?` 정답 ${solve(p)}`:''}`;
+  return t?`<div class="cm">${t}</div>`:'';
+}
+function vProb(p,i,sh){ const ex=i===0, r=sh.res[i]; return `<div class="vp ${markCls(r)}"><span class="no">${i+1}</span>${vGrid(p,i,sh,'',ex)}${ex?'<div class="cm gray">보기</div>':resNote(r,p)}</div>`; }
+function hProb(p,i,sh){
+  const ex=i===0, [a,b]=pStr(p), r=sh.res[i], aid='a'+i;
+  return `<div class="hp ${markCls(r)}"><div class="hrow"><span class="no">${i+1}</span><span class="hx">${a} ${opS(p.op)} ${b} =</span>${ex?`<span class="ab inl exa">${solve(p)}</span><span class="cm gray" style="margin:0">보기</span>`
+    :`<b class="ab inl" data-id="${aid}" onclick="focusBox('${aid}')">${ansShow(sh,i)}</b><button class="scr" onclick="toggleScr(${i})" title="연습칸">✏️</button>`}</div>
+    ${ex?'':resNote(r,p)}${sh.open[i]&&!ex?`<div class="scrbox"><small>연습칸 · 세로로 써서 풀어 봐요 (채점 안 해요)</small>${vGrid(p,i,sh,'s',false)}</div>`:''}</div>`;
+}
+const keypadHTML=()=>`<div class="kp hide" id="kp">${[1,2,3,4,5,6,7,8,9,0].map(k=>`<button onclick="sheetKey('${k}')">${k}</button>`).join('')}<button onclick="sheetKey('.')">.</button><button class="del" onclick="sheetKey('del')">⌫</button><button class="nx" onclick="sheetKey('next')">다음 칸 ▶</button><button class="cl" onclick="sheetKey('close')">닫기</button></div>`;
+function sheetFoot(sh){
+  const tot=sh.probs.length-1;
+  if(!sh.graded||sh.fix) return `<button class="big-btn" style="margin-top:22px" onclick="gradeSheet()">📝 ${sh.fix?'다시 채점하기':'채점하기'}</button>`;
+  const ok=sh.probs.filter((p,i)=>i>0&&sh.res[i]&&sh.res[i].ok).length, wrong=tot-ok;
+  return `<div class="sum">⭕ ${ok} / ${tot}${wrong?`<small>${sh.fixedOnce?'틀린 문제는 오답 소용돌이에서 다시 풀 수 있어요 🌀':'틀린 문제를 한 번 고쳐 볼 수 있어요'}</small>`:'<small>모두 맞혔어요! 🎉</small>'}</div>
+    <div class="row">${wrong&&!sh.fixedOnce?`<button class="btn gray" style="flex:1;font-size:20px" onclick="startFix()">✏️ 틀린 문제 고치기</button>`:''}<button class="btn" style="flex:1;font-size:20px" onclick="nextStep()">${W.step===0?'② 가로셈으로 ▶':'이야기 문제로 ▶'}</button></div>`;
+}
+function drawSheet(top){
+  const m=MISSIONS[W.mi], sp=SHEET[m.gen], sh=W.sheets[W.step], st=$('ws')?$('ws').scrollTop:0;
+  $('layer').innerHTML=`<div class="screen" id="ws"><div class="inner wide">
+    <div class="qtop"><button class="x" onclick="quitSheet()">✕</button><div class="wtitle">📝 학습지 ${W.step?'②':'①'} ${sh.kind==='v'?'세로셈':'가로셈'} <small>${W.step+1} / 2 장</small></div></div>
+    <div class="paper"><div class="ptitle"><span class="pno">${W.step?'②':'①'}</span>${m.title}</div>
+    <div class="hint">💬 ${sh.kind==='v'?sp.hv:sp.hh}</div>
+    <p class="pinst">✳ 계산을 하시오.${sh.kind==='h'?' <small style="color:var(--sub);font-size:15px">(✏️를 누르면 세로로 써 볼 수 있어요)</small>':''}</p>
+    <div class="${sh.kind==='v'?'vgrid':'hgrid'}">${sh.probs.map((p,i)=>sh.kind==='v'?vProb(p,i,sh):hProb(p,i,sh)).join('')}</div>
+    ${sheetFoot(sh)}</div></div></div>${keypadHTML()}`;
+  if(!top) $('ws').scrollTop=st;
+  markFocus();
+}
+function isLocked(sh,id){ const mt=/^a(\d+)$/.exec(id); if(!mt||!sh.graded) return false; const r=sh.res[+mt[1]]; return !(sh.fix&&r&&!r.ok); }
+function focusBox(id){
+  const sh=W.sheets[W.step];
+  if(isLocked(sh,id)){ toast(sh.fix?'맞힌 문제는 그대로 둬요':'채점이 끝났어요. 틀린 문제는 "고치기"로 고쳐요'); return; }
+  W.focus=id; markFocus(true);
+}
+function markFocus(scroll){
+  document.querySelectorAll('#ws .f').forEach(e=>e.classList.remove('f'));
+  const el=W&&W.focus&&document.querySelector(`[data-id="${W.focus}"]`), kp=$('kp');
+  if(el){ el.classList.add('f'); if(scroll){ const r=el.getBoundingClientRect(); if(r.bottom>innerHeight-200||r.top<60) el.scrollIntoView({block:'center',behavior:'smooth'}); } }
+  if(kp) kp.classList.toggle('hide',!el);
+}
+function sheetKey(k){
+  if(!W) return;
+  if(k==='close'){ W.focus=null; return markFocus(); }
+  if(k==='next') return nextBox();
+  const id=W.focus, sh=W.sheets[W.step]; if(!id||isLocked(sh,id)) return;
+  const carry=/c\d+_/.test(id); let v=sh.vals[id]||'';
+  if(k==='del') v=v.slice(0,-1);
+  else if(k==='.'){ if(carry||v.includes('.')) return; v=(v||'0')+'.'; }
+  else { if(v.length>=(carry?2:7)) return; v=(v==='0'&&!carry)?k:v+k; }
+  sh.vals[id]=v; const el=document.querySelector(`[data-id="${id}"]`); if(el) el.textContent=v;
+  saveDraftSoon();
+}
+function nextBox(){
+  const sh=W.sheets[W.step], n=sh.probs.length, cur=/^s?a(\d+)$/.exec(W.focus||'')||/^s?c(\d+)_/.exec(W.focus||''), from=cur?+cur[1]:0;
+  if(!sh.graded||sh.fix) for(let d=1;d<n;d++){ const i=(from+d)%n; if(i===0) continue; if(!isLocked(sh,'a'+i)){ W.focus='a'+i; return markFocus(true); } }
+  W.focus=null; markFocus();
+}
+function toggleScr(i){ const sh=W.sheets[W.step]; sh.open[i]=!sh.open[i]; saveDraftSoon(); drawSheet(); }
+function gradeSheet(){
+  const sh=W.sheets[W.step], m=MISSIONS[W.mi], first=!sh.graded;
+  const targets=sh.probs.map((p,i)=>i).filter(i=>i>0&&(first||(sh.fix&&!sh.res[i].ok)));
+  const empty=targets.filter(i=>!(sh.vals['a'+i]||'').replace('.','')).length;
+  if(empty&&!confirm(`아직 비어 있는 칸이 ${empty}개 있어요.\n그래도 채점할까요?`)) return;
+  let ok=0;
+  targets.forEach(i=>{
+    const p=sh.probs[i], ans=solve(p), r=classify(sh.vals['a'+i],ans);
+    if(r.ok) ok++;
+    if(first){
+      W.n++; if(r.ok) W.c++; logAnswer(r.ok,r.note);
+      if(!r.ok&&r.note!=='dot'){ const [a,b]=pStr(p); S.wrong.push({id:'w'+Date.now().toString(36)+rnd(100,999)+i,t:'num',q:`계산해 보세요.${BIG(`${a} ${opS(p.op)} ${b}`)}`,a:ans,ex:`소수점을 맞추어 세로로 써서 계산해요. ${a} ${opS(p.op)} ${b} = ${ans}`,svg:'',from:m.title}); if(S.wrong.length>80) S.wrong.shift(); }
+    } else { r.fixed=r.ok; r.reveal=!r.ok; }
+    sh.res[i]=r;
+  });
+  if(!first) sh.fixedOnce=true;
+  sh.graded=true; sh.fix=false; W.focus=null; save(); saveDraft();
+  ok===targets.length?sWIN():ok?sOK():sNO();
+  drawSheet();
+  const f=document.querySelector('#ws .sum'); if(f) f.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function startFix(){ const sh=W.sheets[W.step]; sh.fix=true; W.focus=null; drawSheet(true); nextBox(); }
+function nextStep(){
+  const sh=W.sheets[W.step];
+  sh.probs.forEach((p,i)=>{ const r=sh.res[i]; if(i>0&&r&&!r.ok) r.reveal=true; });
+  if(W.step===0){ W.step=1; W.focus=null; saveDraft(); drawSheet(true); return; }
+  W.step=2; saveDraft(); sheetQuiz();   // 학습지 2장 끝 → 이야기 문제 (중간에 나가도 학습지는 남아 있어요)
+}
+function sheetQuiz(){
+  const m=MISSIONS[W.mi], rp=W.replay, c=W.c, n=W.n; W=null;
+  Q={mode:'mission',m,list:[0,1,2].map(()=>storyQ(m.gen)),i:0,c:0,res:[],replay:rp,hp:7,buf:'',sheetC:c,sheetN:n};
+  drawQuiz();
+}
+function quitSheet(){
+  if(!confirm(W.replay?'다시 풀기를 그만할까요?':'학습지를 잠깐 덮을까요?\n푼 데까지 저장해 두고, 다음에 이어서 풀 수 있어요.')) return;
+  saveDraft(); W=null; $('layer').innerHTML=''; render();
 }
 
 /* 잠수 연출 */
@@ -899,7 +1199,7 @@ function drawAdmin(){
    <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin:10px 0"><input type="checkbox" id="grant" checked style="width:22px;height:22px"> 앞으로 옮길 때 건너뛴 미션의 생물 카드도 주기</label>
    <button class="btn wide" onclick="setMission(+$('jump').value)">이 미션으로 옮기기</button></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>날짜별 기록</b>
-   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th></tr>${keys.map(k=>{const L=S.log[k];return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td></tr>${(L.m||[]).length?`<tr><td colspan="4" style="text-align:left;font-size:14px;color:var(--sub)">${L.m.map(x=>'✔ '+x).join('<br>')}</td></tr>`:''}`;}).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
+   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th></tr>${keys.map(k=>{const L=S.log[k];return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td></tr>${(L.m||[]).length||L.z||L.d?`<tr><td colspan="4" style="text-align:left;font-size:14px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+x).join('<br>')}${L.z||L.d?`<div style="color:#d0412f">✏️ 끝자리 0 남김 ${L.z||0}번 · 소수점 빠뜨림 ${L.d||0}번</div>`:''}</td></tr>`:''}`;}).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>오답 소용돌이</b> <span style="color:var(--sub)">${S.wrong.length}문제</span>
    <div class="row" style="margin-top:8px"><button class="btn red" onclick="if(confirm('오답 소용돌이를 비울까요?')){S.wrong=[];save();drawAdmin();}">비우기</button></div></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>엄마 비밀번호 바꾸기</b> <span style="color:var(--sub);font-size:15px">${S.pinH?'(정해져 있어요)':'(아직 0000 이에요)'}</span>
