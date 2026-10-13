@@ -1462,6 +1462,7 @@ function drawAdmin(){
    <div class="row" style="margin-top:8px"><input id="startD" type="date" value="${S.start||START_DEF}" style="flex:1;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setStart()">바꾸기</button></div>
    <p style="margin:8px 0 0;font-size:15px;color:var(--sub)">1번째 미션 ${dLabel(planDate(0))} · 지금 미션 ${m?dLabel(planDate(m.i)):'-'} · 마지막 ${dLabel(planDate(MISSIONS.length-1))}</p></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
+   <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e9eef5'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${S.momMsgAt?` · ${new Date(S.momMsgAt).getMonth()+1}/${new Date(S.momMsgAt).getDate()} ${String(new Date(S.momMsgAt).getHours()).padStart(2,'0')}:${String(new Date(S.momMsgAt).getMinutes()).padStart(2,'0')} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
    <textarea id="momMsg" maxlength="200" rows="3" placeholder="예) 도윤아, 오늘도 차근차근! 다 풀면 엄마한테 보내 줘 💚" style="width:100%;margin-top:8px;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit;resize:vertical">${esc(S.momMsg||'')}</textarea>
    <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div></div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장 (온라인에 올리지 않아요)</span>
@@ -1482,7 +1483,7 @@ function setPin(){
   if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; }
   S.pinH=hashPin(v,'atlan'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒');
 }
-function setMomMsg(){ S.momMsg=($('momMsg').value||'').trim().slice(0,200); save(); render(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
+function setMomMsg(){ S.momMsg=($('momMsg').value||'').trim().slice(0,200); S.momMsgAt=Date.now(); save(); render(); drawAdmin(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
 function setMom(){
   const name=($('momName').value||'').trim().slice(0,10), phone=($('momPhone').value||'').trim();
   if(phone&&!/^[0-9+\-\s]{8,15}$/.test(phone)){ toast('전화번호를 확인해 주세요'); return; }
