@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>봉인된 아틀란티스와 크라켄 던전 정복기</title>
 <meta name="theme-color" content="#0b2a55">
+<meta name="description" content="도윤 선장님의 수학 잠수 모험! 매일 학습지 한 장 풀고 더 깊은 바다로 내려가 바다 생물을 만나요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="아틀란티스 수학 잠수">
+<meta property="og:title" content="봉인된 아틀란티스와 크라켄 던전 정복기">
+<meta property="og:description" content="도윤 선장님의 수학 잠수 모험! 매일 학습지 한 장 풀고, 더 깊은 바다로 🌊">
+<meta property="og:image" content="https://jsun.site/atlan/og.png?v=20261014">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="노란 잠수함과 크라켄이 있는 깊은 바다 - 봉인된 아틀란티스와 크라켄 던전 정복기">
+<meta property="og:url" content="https://jsun.site/atlan/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://jsun.site/atlan/og.png?v=20261014">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
@@ -1064,7 +1076,7 @@ function hProb(p,i,sh){
     :`<b class="ab inl" data-id="${aid}" onclick="focusBox('${aid}')">${ansShow(sh,i)}</b><button class="scr" onclick="toggleScr(${i})" title="연습칸">✏️</button>`}</div>
     ${ex?'':resNote(r,p)}${sh.open[i]&&!ex?`<div class="scrbox"><small>연습칸 · 세로로 써서 풀어 봐요 (채점 안 해요)</small>${vGrid(p,i,sh,'s',false)}</div>`:''}</div>`;
 }
-const keypadHTML=()=>`<div class="kp hide" id="kp">${[1,2,3,4,5,6,7,8,9,0].map(k=>`<button onclick="sheetKey('${k}')">${k}</button>`).join('')}<button onclick="sheetKey('.')">.</button><button class="del" onclick="sheetKey('del')">⌫</button><button class="nx" onclick="sheetKey('next')">다음 칸 ▶</button><button class="cl" onclick="sheetKey('close')">닫기</button></div>`;
+const keypadHTML=()=>`<div class="kp hide" id="kp">${[1,2,3,4,5,6,7,8,9,0].map(k=>`<button onclick="sheetKey('${k}')">${k}</button>`).join('')}<button onclick="sheetKey('.')">.</button><button class="del" onclick="sheetKey('del')">⌫</button><button class="nx" onclick="sheetKey('next')">✔ 제출</button><button class="cl" onclick="sheetKey('close')">닫기</button></div>`;
 function sheetFoot(sh){
   const tot=sh.probs.length-1;
   if(!sh.graded||sh.fix) return `<button class="big-btn" style="margin-top:22px" onclick="gradeSheet()">📝 ${sh.fix?'다시 채점하기':'채점하기'}</button>`;
@@ -1100,7 +1112,7 @@ function markFocus(scroll){
 function sheetKey(k){
   if(!W) return;
   if(k==='close'){ W.focus=null; return markFocus(); }
-  if(k==='next') return nextBox();
+  if(k==='next') return submitBox();
   const id=W.focus, sh=W.sheets[W.step]; if(!id||isLocked(sh,id)) return;
   const carry=/c\d+_/.test(id); let v=sh.vals[id]||'';
   if(k==='del') v=v.slice(0,-1);
@@ -1108,6 +1120,16 @@ function sheetKey(k){
   else { if(v.length>=(carry?2:7)) return; v=(v==='0'&&!carry)?k:v+k; }
   sh.vals[id]=v; const el=document.querySelector(`[data-id="${id}"]`); if(el) el.textContent=v;
   saveDraftSoon();
+}
+/* ✔ 제출: 이 칸은 끝 → 아직 빈 답칸으로. 빈 칸이 없으면 숫자판을 닫고 채점하기 단추로 */
+function submitBox(){
+  const sh=W.sheets[W.step], n=sh.probs.length, cq=sh.kind==='q', cur=/^s?a(\d+)$/.exec(W.focus||'')||/^s?c(\d+)_/.exec(W.focus||''), from=cur?+cur[1]:(cq?-1:0);
+  for(let d=1;d<(cq?n+1:n);d++){ const i=(from+d)%n; if(i===0&&!cq) continue; if(cq&&sh.probs[i].t!=='num') continue;
+    if(!isLocked(sh,'a'+i)&&!(sh.vals['a'+i]||'')){ W.focus='a'+i; return markFocus(true); } }
+  W.focus=null; markFocus();
+  const empty=cq?sh.probs.filter((q,i)=>!isLocked(sh,'a'+i)&&!(sh.vals['a'+i]||'')).length:0;
+  const b=document.querySelector('#ws .big-btn'); if(b) b.scrollIntoView({block:'center',behavior:'smooth'});
+  toast(empty?'고르는 문제가 '+empty+'개 남았어요':'다 풀었어요! 맨 아래 채점하기를 눌러요 📝');
 }
 function nextBox(){
   const sh=W.sheets[W.step], n=sh.probs.length, cq=sh.kind==='q', cur=/^s?a(\d+)$/.exec(W.focus||'')||/^s?c(\d+)_/.exec(W.focus||''), from=cur?+cur[1]:(cq?-1:0);
