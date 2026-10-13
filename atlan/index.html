@@ -1,1 +1,928 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>봉인된 아틀란티스와 크라켄 던전 정복기</title>
+<meta name="theme-color" content="#0b2a55">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#8ad8ff;--light:.35;--ink:#16304f;--sub:#5a6f8c;--card:rgba(255,255,255,.94);--accent:#ff8a3d;--ok:#1fae68;--bad:#e95454;--gw:84px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;background-color:var(--bg);transition:background-color 2.4s ease;color:var(--ink);font-size:20px;overflow-x:hidden;-webkit-user-select:none;user-select:none}
+body::before{content:'';position:fixed;inset:0;background:linear-gradient(180deg,rgba(255,255,255,var(--light)),rgba(255,255,255,0) 55%);pointer-events:none;z-index:0}
+button{font-family:inherit;cursor:pointer;border:0;color:inherit}
+.bubbles{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.bubbles span{position:absolute;bottom:-30px;border-radius:50%;border:2px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);animation:rise linear infinite}
+@keyframes rise{to{transform:translateY(-110vh) translateX(20px)}}
 
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:rgba(0,22,55,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff}
+header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-shadow:0 1px 2px rgba(0,0,0,.4);text-align:center}
+.hbtn{background:rgba(255,255,255,.2);border-radius:12px;padding:7px 10px;font-size:14px;color:#fff;text-decoration:none;white-space:nowrap;border:1px solid rgba(255,255,255,.3)}
+.sync{font-size:14px;opacity:.85;min-width:22px;text-align:center}
+
+.wrap{position:relative;z-index:1;display:grid;grid-template-columns:var(--gw) 1fr;gap:10px;padding:10px 10px 30px;max-width:980px;margin:0 auto}
+/* 수심 게이지 */
+.gauge{position:sticky;top:64px;height:calc(100dvh - 84px);min-height:380px;display:flex;flex-direction:column;align-items:center;color:#fff}
+.gnum{text-align:center;background:rgba(0,20,50,.45);border-radius:16px;padding:6px 4px;width:100%;margin-bottom:8px;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+.gnum b{display:block;font-size:26px;font-weight:400;line-height:1.05}
+.gnum small{font-size:13px;opacity:.85}
+.gtrack{position:relative;flex:1;width:34px;margin:22px 0 14px;border-radius:18px;overflow:visible;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.gz{position:absolute;left:0;right:0;height:20%;}
+.gz:first-child{border-radius:18px 18px 0 0}.gz:nth-child(5){border-radius:0 0 18px 18px}
+.gmark{position:absolute;left:40px;font-size:11px;transform:translateY(-50%);white-space:nowrap;opacity:.9;text-shadow:0 1px 2px #000}
+.gzl{display:none}
+.gsub{position:absolute;left:50%;width:58px;transform:translate(-50%,-50%);transition:top 2.4s ease;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5))}
+.gsub svg{display:block;width:100%;animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-3deg)}}
+@media(min-width:700px){:root{--gw:150px} .gnum b{font-size:38px} .gtrack{width:44px} .gmark{left:52px;font-size:13px} .gzl{display:block;position:absolute;left:52px;font-size:13px;opacity:.75;top:50%;transform:translateY(-50%)} .gmark{display:none} .gmark.always{display:block} body{font-size:22px}}
+
+/* 메인 카드 */
+.main{min-width:0}
+.card{background:var(--card);border-radius:22px;padding:16px;box-shadow:0 6px 20px rgba(0,20,60,.25);margin-bottom:12px}
+.zone{display:inline-block;background:#e6f3ff;color:#1d5a99;border-radius:999px;padding:4px 12px;font-size:15px}
+.mlabel{color:var(--sub);font-size:17px;margin:10px 0 2px}
+.mtitle{font-size:30px;margin:0 0 6px;line-height:1.2}
+.mdesc{color:var(--sub);font-size:17px;margin:0 0 12px}
+.big-btn{display:block;width:100%;padding:18px;border-radius:18px;font-size:26px;background:linear-gradient(180deg,#ffa25a,#ff7a2a);color:#fff;box-shadow:0 5px 0 #c85412;margin-top:10px;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #c85412}
+.big-btn.boss{background:linear-gradient(180deg,#9b6cff,#6a3df0);box-shadow:0 5px 0 #4320b0}
+.big-btn[disabled]{background:#b9c4d2;box-shadow:0 5px 0 #8b97a6;cursor:default}
+.week{display:flex;gap:6px;margin:12px 0 4px}
+.week div{flex:1;text-align:center;border-radius:12px;padding:6px 0;background:#eef3f9;color:#8193ab;font-size:16px}
+.week .done{background:#d8f5e6;color:#14814b}.week .now{background:#ffe7d4;color:#c4561a;outline:3px solid #ffb27a}
+.wait{display:flex;align-items:center;gap:12px;background:#f2f6fb;border-radius:16px;padding:10px;margin-top:6px}
+.wait .pic{width:110px;flex:none}
+.wait p{margin:0;font-size:17px;color:var(--sub)}
+.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.menu button{background:var(--card);border-radius:18px;padding:14px 6px;font-size:18px;box-shadow:0 4px 14px rgba(0,20,60,.2);line-height:1.3}
+.menu button .ic{display:block;font-size:34px}
+.menu button small{display:block;color:var(--sub);font-size:14px}
+.foot{text-align:center;margin-top:14px}
+.foot button{background:rgba(255,255,255,.2);color:#fff;border-radius:12px;padding:8px 14px;font-size:14px}
+
+/* 생물 그림 */
+.pic{position:relative;aspect-ratio:200/140;width:100%}
+.pic svg{position:absolute;inset:0;width:100%;height:100%}
+.pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:12px;opacity:0;transition:opacity .4s}
+.pic img.on{opacity:1}
+.sil svg{filter:brightness(0) opacity(.5)}
+
+/* 전체 화면 */
+.screen{position:fixed;inset:0;z-index:50;overflow-y:auto;padding:12px;padding-top:max(12px,env(safe-area-inset-top));background:rgba(4,16,40,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.screen .inner{max-width:720px;margin:0 auto}
+.qtop{display:flex;align-items:center;gap:10px;color:#fff;margin-bottom:10px}
+.qtop .x{background:rgba(255,255,255,.2);color:#fff;border-radius:12px;width:44px;height:44px;font-size:22px;flex:none}
+.dots{flex:1;display:flex;gap:4px}
+.dots i{flex:1;height:10px;border-radius:6px;background:rgba(255,255,255,.25)}
+.dots i.o{background:#4be39a}.dots i.w{background:#ff7b7b}.dots i.c{background:#ffd166}
+.qcount{font-size:18px;min-width:52px;text-align:right}
+.qcard{position:relative;background:#fff;border-radius:24px;padding:18px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.qtext{font-size:25px;line-height:1.45;margin-bottom:10px;word-break:keep-all}
+.qtext .bignum{display:block;text-align:center;font-size:44px;color:#1d4f91;margin:6px 0;letter-spacing:1px}
+.qsvg{text-align:center;margin:6px 0 10px}
+.qsvg svg{max-width:100%;height:auto}
+.disp{font-size:42px;text-align:center;border:3px solid #cfe0f3;border-radius:16px;padding:8px;min-height:72px;margin-bottom:10px;color:#1d4f91;background:#f6faff;letter-spacing:2px}
+.disp.empty{color:#b6c4d6}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pad button{font-size:30px;padding:14px 0;border-radius:16px;background:#eaf2fc;box-shadow:0 4px 0 #c4d4e8;color:var(--ink)}
+.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #c4d4e8}
+.pad .ok{grid-column:4;grid-row:2/span 3;background:linear-gradient(180deg,#46d18c,#1fae68);color:#fff;box-shadow:0 4px 0 #148250;font-size:26px}
+.pad .del{background:#ffe6e6;box-shadow:0 4px 0 #f0bcbc}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices button{font-size:24px;padding:16px 8px;border-radius:16px;background:#eaf2fc;box-shadow:0 4px 0 #c4d4e8;line-height:1.3;word-break:keep-all}
+.choices.three{grid-template-columns:repeat(3,1fr)}
+.choices.three button{font-size:44px;padding:10px 0}
+.choices button:active{transform:translateY(3px);box-shadow:0 1px 0 #c4d4e8}
+.fb{position:absolute;inset:0;border-radius:24px;background:rgba(255,255,255,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;animation:pop .25s ease}
+.fb .mark{font-size:84px;line-height:1}
+.fb h3{margin:8px 0;font-size:30px;font-weight:400}
+.fb p{margin:6px 0;font-size:20px;color:var(--sub);word-break:keep-all;line-height:1.5}
+.fb .ans{font-size:34px;color:var(--ok)}
+.fb button{margin-top:14px;padding:14px 34px;border-radius:16px;font-size:24px;background:#1d6fd1;color:#fff;box-shadow:0 4px 0 #13509a}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;font-size:.8em;margin:0 2px}
+.fr i{font-style:normal;padding:0 3px}.fr i:first-child{border-bottom:2px solid currentColor}
+
+.bossbar{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border-radius:18px;padding:8px;margin-bottom:10px;color:#fff}
+.bossbar .pic{width:120px;flex:none}
+.bossbar .bn{font-size:20px}
+.hp{font-size:22px;letter-spacing:1px}
+.hit{animation:hit .45s}
+@keyframes hit{25%{transform:translateX(-8px) rotate(-4deg);filter:brightness(2)}75%{transform:translateX(8px) rotate(4deg)}}
+.shake{animation:shk .4s}
+@keyframes shk{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* 모달 */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(2,10,28,.7);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px}
+.sheet{background:#fff;border-radius:24px;padding:18px;width:100%;max-width:760px;margin:auto 0;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative}
+.sheet h2{margin:0 0 10px;font-size:26px;font-weight:400;padding-right:44px}
+.close{position:absolute;top:12px;right:12px;width:42px;height:42px;border-radius:12px;background:#eef3f9;font-size:22px}
+.dexgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.dexc{background:#f2f7fd;border-radius:16px;padding:8px;text-align:center;font-size:16px}
+.dexc.got{background:linear-gradient(180deg,#e9f6ff,#d6ecff)}
+.dexc .nm{margin-top:4px}.dexc .dp{font-size:13px;color:var(--sub)}
+.zh{margin:16px 0 8px;font-size:19px;color:#1d5a99}
+.zh small{color:var(--sub);font-size:14px}
+.creature{text-align:center}
+.creature .pic{max-width:420px;margin:0 auto;background:radial-gradient(circle,#e3f3ff,#cfe6fb);border-radius:18px}
+.creature h3{font-size:34px;margin:10px 0 4px;font-weight:400}
+.creature .badge{display:inline-block;background:#1d4f91;color:#fff;border-radius:999px;padding:4px 14px;font-size:16px}
+.creature ul{text-align:left;font-size:20px;line-height:1.55;padding-left:22px;margin:14px 0 4px;word-break:keep-all}
+.flip{animation:flip .7s ease}
+@keyframes flip{from{transform:perspective(800px) rotateY(90deg) scale(.8);opacity:0}}
+.new{display:inline-block;background:#ff5d8f;color:#fff;border-radius:10px;padding:2px 10px;font-size:16px;margin-bottom:6px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.btn{padding:12px 16px;border-radius:14px;font-size:18px;background:#1d6fd1;color:#fff;box-shadow:0 3px 0 #13509a}
+.btn.gray{background:#e3e9f1;color:var(--ink);box-shadow:0 3px 0 #bfc9d6}
+.btn.red{background:#e95454;box-shadow:0 3px 0 #b03636}
+.btn.wide{width:100%;font-size:22px;padding:14px}
+.list{display:flex;flex-direction:column;gap:6px}
+.li{display:flex;align-items:center;gap:10px;background:#f2f7fd;border-radius:14px;padding:10px 12px;font-size:17px}
+.li .t{flex:1}.li small{color:var(--sub)}
+.li.cur{background:#fff0e3;outline:2px solid #ffb27a}
+.li button{padding:8px 12px;border-radius:12px;background:#1d6fd1;color:#fff;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:16px}
+th,td{padding:8px 6px;border-bottom:1px solid #e3e9f1;text-align:center}
+th{color:var(--sub);font-weight:400}
+.pinrow{display:flex;justify-content:center;gap:14px;margin:14px 0}
+.pinrow i{width:22px;height:22px;border-radius:50%;border:3px solid #9fb3cc}
+.pinrow i.on{background:#1d4f91;border-color:#1d4f91}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:0 auto}
+.pinpad button{font-size:28px;padding:12px 0;border-radius:14px;background:#eef3f9}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(10,25,50,.92);color:#fff;padding:12px 20px;border-radius:14px;z-index:99;font-size:18px;animation:pop .2s}
+
+/* 잠수 연출 */
+.dive{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:rgba(0,0,0,.25)}
+.dive .subbig{width:180px;animation:sink 2.6s ease-in-out}
+@keyframes sink{from{transform:translateY(-60px)}to{transform:translateY(40px)}}
+.dive .dn{font-size:64px;text-shadow:0 3px 8px rgba(0,0,0,.5)}
+.dive p{font-size:22px;margin:6px}
+</style>
+</head>
+<body>
+<div class="bubbles" id="bubbles"></div>
+<header>
+  <a class="hbtn" href="../doyun/">🏠 공부방</a>
+  <h1>봉인된 아틀란티스와<br>크라켄 던전 정복기</h1>
+  <span class="sync" id="sync" title="온라인 저장">⏳</span>
+</header>
+<div class="wrap">
+  <aside class="gauge" id="gauge"></aside>
+  <main class="main" id="main"></main>
+</div>
+<div id="layer"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   봉인된 아틀란티스와 크라켄 던전 정복기 — 초4 2학기 수학 (도윤)
+   · 미션 순서로 진행: 한 주 = 월~목 새 진도 4개 + 금 복습 보스전
+   · 저장: Firebase moon-15f88 › e4/doyun-math (공부방 e4/doyun 과 따로)
+   · 생물 사진: images/fish/생물이름.jpg 를 올리면 그림 대신 사진이 나와요
+     (이름은 띄어쓰기 없이. 예: images/fish/흰동가리.jpg, images/fish/머리없는닭괴물.jpg)
+   · 새 구역을 채우려면: WEEKS 의 g(문제 만들기 이름)를 넣고 G 에 문제 만들기를 추가해요
+   ════════════════════════════════════════════════════════════ */
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBHMmNT-TxBAJqarHqLAYtM3VhaUhynzEw",
+  authDomain: "moon-15f88.firebaseapp.com",
+  projectId: "moon-15f88",
+  storageBucket: "moon-15f88.firebasestorage.app",
+  messagingSenderId: "124372121061",
+  appId: "1:124372121061:web:b1596628daae0bb08eab0c",
+  measurementId: "G-NV17H8CTJE"
+};
+const DOC_PATH = ['e4','doyun-math'];
+const LS_KEY = 'atlan-doyun-math';
+
+/* ───── 공통 도구 ───── */
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=arr=>{const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const $=id=>document.getElementById(id);
+const todayKey=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
+const hashPin=(p,salt='')=>{let h=2166136261;for(const ch of salt+'#'+p){h^=ch.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}return h.toString(16);};
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200);}
+/* 정수 n 을 10^dp 로 나눈 소수 문자열 (끝의 0은 빼요). fmt(245,2) → "2.45" */
+function fmt(n,dp){ if(!dp) return String(n); const neg=n<0; let s=String(Math.abs(n)).padStart(dp+1,'0'); let i=s.slice(0,-dp), f=s.slice(-dp).replace(/0+$/,''); return (neg?'-':'')+i+(f?'.'+f:''); }
+const notTen=(a,b)=>{let n;do{n=rnd(a,b);}while(n%10===0);return n;};
+const frac=(a,b)=>`<span class="fr"><i>${a}</i><i>${b}</i></span>`;
+const BIG=s=>`<span class="bignum">${s}</span>`;
+/* 받침에 따라 조사 붙이기. 숫자로 끝나면 0(영)·1(일)·3(삼)·6(육)·7(칠)·8(팔) 이 받침이 있어요 */
+const jo=(s,a,b)=>{ const ch=String(s).trim().slice(-1); let bat=false;
+  if(/[0-9]/.test(ch)) bat='013678'.includes(ch); else { const c=ch.charCodeAt(0); bat=c>=0xAC00&&c<=0xD7A3&&(c-0xAC00)%28!==0; }
+  return s+(bat?a:b); };
+const pp=(s,a,b)=>jo(s,a,b).slice(String(s).length);   // 조사만
+const ye=s=>jo(s,'이에요','예요');
+const DIG=['영','일','이','삼','사','오','육','칠','팔','구'];
+function readInt(n){ if(n===0) return '영'; const u=['','십','백','천'], s=String(n); let r=''; for(let i=0;i<s.length;i++){ const d=+s[i], un=u[s.length-1-i]; if(!d) continue; r+=(d===1&&un?'':DIG[d])+un; } return r; }
+function readDec(str){ const [i,f]=String(str).split('.'); return readInt(+i)+(f?' 점 '+[...f].map(c=>DIG[+c]).join(''):''); }
+function distinctDigits(k){ const d=shuffle([1,2,3,4,5,6,7,8,9]); return d.slice(0,k); }
+
+/* ───── 소리 ───── */
+let AC;
+function tone(f,d,type='sine',t0=0,v=.14){ try{ AC=AC||new (window.AudioContext||window.webkitAudioContext)(); const o=AC.createOscillator(),g=AC.createGain(); o.type=type; o.frequency.value=f; g.gain.setValueAtTime(v,AC.currentTime+t0); g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+t0+d); o.connect(g).connect(AC.destination); o.start(AC.currentTime+t0); o.stop(AC.currentTime+t0+d+.02);}catch(e){} }
+const sOK=()=>{tone(660,.14);tone(880,.22,'sine',.11);};
+const sNO=()=>{tone(240,.28,'triangle');};
+const sWIN=()=>{[523,659,784,1047].forEach((f,i)=>tone(f,.25,'sine',i*.13));};
+
+/* ════════ 생물 그림 (SVG) ════════ */
+const eyeS=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff"/><circle cx="${x+r*.18}" cy="${y}" r="${r*.62}" fill="#1b1b2f"/><circle cx="${x+r*.4}" cy="${y-r*.32}" r="${r*.24}" fill="#fff"/>`;
+const blush=(x,y)=>`<ellipse cx="${x}" cy="${y}" rx="5" ry="3" fill="#ff7aa8" opacity=".45"/>`;
+const smile=(x,y)=>`<path d="M${x-5},${y} q5,4 10,0" stroke="#2a2a3a" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+
+function fishS(o){
+  const L=o.L||56,H=o.H||24,cx=100,cy=70,c1=o.c1||'#5aa9e6',c2=o.c2||'#d8efff',c3=o.c3||c1,hx=cx+L,tx=cx-L; let s='';
+  if(o.tripod) s+=`<path d="M${cx-L*.2},${cy+H*.6} L${cx-L*.4},132 M${cx+L*.15},${cy+H*.7} L${cx+L*.1},132 M${tx+4},${cy+2} Q${tx-16},${cy+24} ${tx-22},132" stroke="${c2}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+  if(o.rattail) s+=`<path d="M${tx+14},${cy-H*.6} Q${tx-24},${cy-2} ${tx-58},${cy+5} Q${tx-24},${cy+7} ${tx+14},${cy+H*.6}Z" fill="${c1}"/>`;
+  else s+=`<path d="M${tx+8},${cy} L${tx-24},${cy-22} Q${tx-14},${cy} ${tx-24},${cy+22}Z" fill="${c3}"/>`;
+  if(o.sail) s+=`<path d="M${cx+L*.55},${cy-H*.8} Q${cx+L*.1},${cy-H-44} ${cx-L*.65},${cy-H*.6}Z" fill="${c3}"/>`;
+  else if(!o.hatchet) s+=`<path d="M${cx+L*.3},${cy-H*.9} Q${cx-L*.05},${cy-H-16} ${cx-L*.45},${cy-H*.7}Z" fill="${c3}"/>`;
+  if(o.spines) for(let i=0;i<8;i++){ const x=cx+L*.55-i*L*.16; s+=`<line x1="${x}" y1="${cy-H*.6}" x2="${x-10}" y2="${cy-H-22-(i%2)*10}" stroke="${c3}" stroke-width="3" stroke-linecap="round"/>`; }
+  s+=`<path d="M${cx-L*.05},${cy+H*.85} Q${cx-L*.3},${cy+H+12} ${cx-L*.55},${cy+H*.6}Z" fill="${c3}"/>`;
+  if(o.lobed) s+=`<ellipse cx="${cx+L*.2}" cy="${cy+H+5}" rx="10" ry="5" fill="${c1}"/><ellipse cx="${cx-L*.3}" cy="${cy+H+3}" rx="10" ry="5" fill="${c1}"/>`;
+  if(o.hatchet) s+=`<path d="M${hx},${cy-6} Q${hx-6},${cy-H} ${cx},${cy-H} L${tx+6},${cy-5} L${tx+6},${cy+5} Q${cx-L*.2},${cy+H*1.4} ${cx+L*.4},${cy+H*1.2} Q${hx},${cy+H*.5} ${hx},${cy-6}Z" fill="${c1}" stroke="${c2}" stroke-width="2"/>`;
+  else s+=`<ellipse cx="${cx}" cy="${cy}" rx="${L}" ry="${H}" fill="${c1}"/><ellipse cx="${cx+L*.05}" cy="${cy+H*.45}" rx="${L*.8}" ry="${H*.42}" fill="${c2}" opacity=".85"/>`;
+  (o.bands||[]).forEach(f=>{ const x=cx+f*L, ry=H*Math.sqrt(Math.max(0,1-f*f))*.96; s+=`<ellipse cx="${x}" cy="${cy}" rx="${o.bandW||6}" ry="${ry}" fill="${o.bandC||'#fff'}" ${o.bandC?'':'stroke="#222" stroke-width="1.5"'}/>`; });
+  if(o.wavy) for(let j=0;j<3;j++){ const y=cy-H*.5+j*6; s+=`<path d="M${cx-L*.65},${y} q6,-6 12,0 t12,0 t12,0 t12,0 t12,0 t12,0 t12,0" stroke="${o.wavy}" stroke-width="2.2" fill="none" opacity=".8"/>`; }
+  if(o.spots) for(let j=0;j<10;j++){ const x=cx-L*.6+j*L*.13, y=cy-H*.4+((j*37)%3)*H*.22; s+=`<circle cx="${x}" cy="${y}" r="2.6" fill="${o.spots}"/>`; }
+  if(o.lights) for(let j=0;j<7;j++){ const x=cx-L*.6+j*L*.2; s+=`<circle cx="${x}" cy="${cy+H*.68}" r="5.5" fill="${o.lights}" opacity=".3"/><circle cx="${x}" cy="${cy+H*.68}" r="2.6" fill="${o.lights}"/>`; }
+  if(o.wing) s+=`<path d="M${cx+L*.35},${cy+2} Q${cx-L*.1},${cy-H-46} ${cx-L*.95},${cy-H-18} Q${cx-L*.35},${cy-H*.1} ${cx+L*.35},${cy+2}Z" fill="${o.wing}" opacity=".85" stroke="${c3}" stroke-width="1.5"/>`;
+  else s+=`<path d="M${cx+L*.32},${cy+H*.15} q-16,4 -24,16 q14,0 26,-8z" fill="${c3}" opacity=".9"/>`;
+  if(o.bill) s+=`<path d="M${hx-6},${cy-4} L${hx+(o.sword?40:34)},${cy-1} L${hx-6},${cy+4}Z" fill="${c1}"/>`;
+  if(o.lure) s+=`<path d="M${cx+L*.35},${cy-H*.9} Q${hx+4},${cy-H-34} ${hx+16},${cy-H-10}" stroke="${c2}" stroke-width="3" fill="none"/><circle cx="${hx+16}" cy="${cy-H-8}" r="15" fill="#fff59d" opacity=".35"/><circle cx="${hx+16}" cy="${cy-H-8}" r="6" fill="#fff59d"/>`;
+  const ex=hx-L*.27, ey=cy-H*.22, er=o.bigEye?Math.max(7,H*.36):Math.max(5,H*.24);
+  if(o.tube){ s+=`<path d="M${hx-L*.62},${cy-H*.7} Q${hx-L*.3},${cy-H-32} ${hx-2},${cy-H*.3}" fill="rgba(190,255,230,.35)" stroke="#c8fff0" stroke-width="2"/><rect x="${hx-L*.42}" y="${cy-H-10}" width="10" height="22" rx="5" fill="#2fd683"/><circle cx="${hx-L*.42+5}" cy="${cy-H-10}" r="5.5" fill="#8dffc0"/><circle cx="${hx-10}" cy="${cy-2}" r="3" fill="#111"/>`; }
+  else s+=eyeS(ex,ey,er);
+  if(o.fangs){ s+=`<path d="M${hx+2},${cy-1} L${hx-L*.38},${cy+H*.28} L${hx+2},${cy+H*.62}Z" fill="#160b12"/>`;
+    for(let t=0;t<3;t++){ const x=hx-4-t*L*.11; s+=`<path d="M${x-3},${cy+1+t*2} l3,${H*.42} l3,${-H*.42}z" fill="#fff"/><path d="M${x-7},${cy+H*.6-t*2} l3,${-H*.36} l3,${H*.36}z" fill="#fff"/>`; } }
+  else s+=smile(hx-8,cy+H*.3);
+  if(!o.scary&&!o.tube) s+=blush(ex-3,ey+er+6);
+  return s;
+}
+function sharkS(o){
+  const c1=o.c1||'#7c93a8',c2=o.c2||'#e9f0f5'; let s='';
+  if(o.frill){ s+=`<path d="M10,74 Q50,56 100,62 Q150,66 186,64 Q192,72 184,80 Q140,86 100,84 Q50,86 10,74Z" fill="${c1}"/><path d="M40,72 L20,60 L22,84Z" fill="${c1}"/>`;
+    for(let i=0;i<5;i++) s+=`<path d="M${150-i*7},64 q-6,9 0,18" stroke="#c0505a" stroke-width="3" fill="none"/>`;
+    return s+eyeS(176,68,5)+smile(182,77);
+  }
+  s+=`<path d="M40,70 L8,30 Q22,68 14,104Z" fill="${c1}"/><path d="M92,48 L110,14 L128,50Z" fill="${c1}"/>`;
+  const nose=o.goblin?172:188;
+  s+=`<path d="M36,70 Q70,40 130,44 Q172,48 ${nose},66 Q170,88 125,92 Q70,96 36,70Z" fill="${c1}"/><path d="M60,80 Q110,98 ${nose-12},74 Q150,92 110,92 Q80,92 60,80Z" fill="${c2}"/><path d="M118,86 L102,118 L138,90Z" fill="${c1}"/>`;
+  if(o.goblin) s+=`<path d="M160,54 L200,58 L168,68Z" fill="${c1}"/>`;
+  for(let i=0;i<3;i++) s+=`<path d="M${142+i*6},62 q-4,9 0,18" stroke="rgba(0,0,0,.25)" stroke-width="2" fill="none"/>`;
+  if(o.spots) for(let i=0;i<16;i++){ s+=`<circle cx="${50+(i%8)*14+(i>7?7:0)}" cy="${i>7?72:58}" r="2.6" fill="#fff" opacity=".9"/>`; }
+  if(o.hammer){ s+=`<path d="M170,40 Q176,36 182,40 L186,92 Q180,96 174,92Z" fill="${c1}"/>`+eyeS(178,42,4.5)+eyeS(181,90,4.5); }
+  else s+=eyeS(o.goblin?160:166,60,5)+blush(160,70);
+  s+=smile(o.goblin?160:172,78);
+  return s;
+}
+function whaleS(o){
+  const c1=o.c1||'#7d93ab',c2=o.c2||'#e3ebf2';
+  if(o.sperm) return `<path d="M26,70 L6,52 Q14,70 6,90Z" fill="${c1}"/><path d="M194,52 Q194,34 160,34 L80,40 Q40,50 22,70 Q40,96 90,96 L160,96 Q194,96 194,82Z" fill="${c1}"/><path d="M110,94 Q150,104 186,90" stroke="${c2}" stroke-width="4" fill="none"/><path d="M110,90 l-8,22 l20,-14z" fill="${c1}"/>`+eyeS(128,72,5)+blush(124,82)+`<path d="M150,90 L188,86" stroke="#2a2a3a" stroke-width="2"/>`;
+  return `<path d="M24,72 L4,54 Q12,72 4,90Z" fill="${c1}"/><path d="M98,48 Q106,24 122,22 Q114,36 118,48Z" fill="${c1}"/><path d="M20,72 Q60,44 120,46 Q160,48 178,64 L196,70 L176,75 Q150,92 100,92 Q50,92 20,72Z" fill="${c1}"/><path d="M60,82 Q110,98 172,76 Q140,92 100,92 Q76,92 60,82Z" fill="${c2}"/><path d="M120,84 l-14,22 l24,-16z" fill="${c1}"/>`+eyeS(158,62,5)+blush(156,72)+smile(176,73);
+}
+function rayS(o){
+  const c1=o.c1||'#26324a',c2=o.c2||'#e8eef7';
+  return `<path d="M100,104 Q102,124 96,138" stroke="${c1}" stroke-width="3" fill="none"/><path d="M100,40 Q140,40 196,78 Q150,80 120,96 L100,106 L80,96 Q50,80 4,78 Q60,40 100,40Z" fill="${c1}"/><path d="M62,58 Q74,50 86,56 Q76,64 62,58Z M138,58 Q126,50 114,56 Q124,64 138,58Z" fill="${c2}" opacity=".9"/><path d="M88,42 Q82,30 90,24 M112,42 Q118,30 110,24" stroke="${c1}" stroke-width="7" fill="none" stroke-linecap="round"/>`+eyeS(86,46,4.5)+eyeS(114,46,4.5)+smile(100,54);
+}
+function turtleS(){
+  let s=`<ellipse cx="128" cy="38" rx="22" ry="9" transform="rotate(-28 128 38)" fill="#9cc25e"/><ellipse cx="128" cy="106" rx="22" ry="9" transform="rotate(28 128 106)" fill="#9cc25e"/><ellipse cx="58" cy="46" rx="12" ry="7" fill="#9cc25e"/><ellipse cx="58" cy="98" rx="12" ry="7" fill="#9cc25e"/><path d="M50,72 L34,68 L36,76Z" fill="#9cc25e"/><circle cx="160" cy="68" r="17" fill="#a9cd6c"/><ellipse cx="98" cy="72" rx="52" ry="38" fill="#5f8a35"/><ellipse cx="98" cy="72" rx="44" ry="31" fill="#7aa548"/>`;
+  [[98,72],[76,58],[120,58],[76,86],[120,86]].forEach(([x,y])=>{ s+=`<path d="M${x-9},${y} l5,-9 h9 l5,9 l-5,9 h-9z" fill="#5f8a35" opacity=".7"/>`; });
+  return s+eyeS(166,62,5)+blush(164,74)+smile(170,74);
+}
+function jellyS(o){
+  const c1=o.c1||'rgba(200,225,255,.8)'; let s='';
+  if(o.phantom){ for(let i=0;i<4;i++){ const x=58+i*28; s+=`<path d="M${x},64 C${x-14},90 ${x+18},104 ${x+2},136 L${x+16},136 C${x+30},104 ${x+2},90 ${x+16},64Z" fill="${c1}" opacity=".85"/>`; }
+    return s+`<path d="M34,70 Q34,14 100,14 Q166,14 166,70 Q133,62 100,70 Q67,62 34,70Z" fill="${c1}"/>`+eyeS(84,46,5)+eyeS(116,46,5)+blush(78,58)+blush(122,58); }
+  if(o.helmet){ for(let i=0;i<8;i++) s+=`<path d="M${66+i*10},76 q6,14 0,28 t0,28" stroke="${c1}" stroke-width="3" fill="none"/>`;
+    return s+`<path d="M60,80 Q66,12 100,6 Q134,12 140,80 Q100,72 60,80Z" fill="${c1}"/><path d="M74,74 Q80,30 100,22" stroke="rgba(255,255,255,.3)" stroke-width="4" fill="none"/>`+eyeS(88,52,5)+eyeS(112,52,5)+blush(84,64)+blush(116,64); }
+  if(o.ring){ s+=`<path d="M150,70 Q180,96 168,136" stroke="${c1}" stroke-width="3" fill="none"/>`;
+    for(let i=0;i<10;i++) s+=`<path d="M${56+i*10},74 q4,8 0,16" stroke="${c1}" stroke-width="2.5" fill="none"/>`;
+    return s+`<ellipse cx="100" cy="64" rx="52" ry="22" fill="${c1}"/><ellipse cx="100" cy="58" rx="30" ry="11" fill="#e4364f"/><ellipse cx="100" cy="64" rx="44" ry="16" fill="none" stroke="#5e0a1a" stroke-width="2"/>`+eyeS(88,58,4.5)+eyeS(112,58,4.5); }
+  for(let i=0;i<7;i++){ const x=58+i*14; s+=`<path d="M${x},68 q6,10 0,20 t0,20 t0,20" stroke="${c1}" stroke-width="3" fill="none"/>`; }
+  s+=`<path d="M46,70 Q46,18 100,18 Q154,18 154,70 Q127,62 100,70 Q73,62 46,70Z" fill="${c1}" stroke="rgba(255,255,255,.7)" stroke-width="2"/>`;
+  if(o.moon) [[80,42],[100,34],[120,42],[100,52]].forEach(([x,y])=>{ s+=`<path d="M${x-7},${y+3} a7,7 0 1,1 14,0" stroke="#c48ad6" stroke-width="3.5" fill="none"/>`; });
+  return s+eyeS(86,52,5)+eyeS(114,52,5)+blush(80,62)+blush(120,62)+smile(100,62);
+}
+function combS(){
+  let s=`<ellipse cx="100" cy="70" rx="40" ry="56" fill="rgba(210,235,255,.55)" stroke="rgba(255,255,255,.8)" stroke-width="2"/>`;
+  const cs=['#ff5d8f','#ffb23f','#ffe55c','#5fe08c','#4fc3ff','#9b7bff','#ff5d8f','#4fc3ff'];
+  for(let i=0;i<8;i++){ const x=68+i*9.2; s+=`<path d="M${x},${26+Math.abs(i-3.5)*5} Q${x+(i-3.5)*2},70 ${x},${114-Math.abs(i-3.5)*5}" stroke="${cs[i]}" stroke-width="3" stroke-dasharray="3 3" fill="none"/>`; }
+  return s+eyeS(90,56,4.5)+eyeS(110,56,4.5)+smile(100,66);
+}
+function siphS(){
+  let s=`<path d="M100,40 Q90,80 104,100 T96,138" stroke="#ffb7d0" stroke-width="3" fill="none"/>`;
+  for(let i=0;i<7;i++) s+=`<path d="M${100+(i%2?8:-6)},${60+i*11} q${i%2?14:-14},6 ${i%2?10:-10},18" stroke="#ff8fb5" stroke-width="2" fill="none"/>`;
+  [[100,22,16],[86,44,12],[114,44,12]].forEach(([x,y,r])=>{ s+=`<ellipse cx="${x}" cy="${y}" rx="${r}" ry="${r*1.1}" fill="rgba(255,190,215,.75)" stroke="#fff" stroke-width="1.5"/>`; });
+  return s+eyeS(95,20,3.5)+eyeS(105,20,3.5);
+}
+function octoS(o){
+  const c1=o.c1||'#f39a7a', clear=o.clear; let s='';
+  const st=clear?`fill="rgba(220,240,255,.45)" stroke="#bfe3ff" stroke-width="2"`:`fill="${c1}"`;
+  if(o.vamp) s+=`<path d="M62,70 Q50,118 70,128 Q100,108 130,128 Q150,118 138,70Z" fill="#4a0f18"/>`;
+  for(let i=0;i<8;i++){ const x=70+i*8.6, dx=(i-3.5)*9; s+=`<path d="M${x},72 Q${x+dx},${108} ${x+dx*1.5},${118} q${dx>0?8:-8},4 ${dx>0?6:-6},-8" stroke="${clear?'rgba(200,230,255,.7)':c1}" stroke-width="8" fill="none" stroke-linecap="round"/>`; }
+  if(o.ears) s+=`<ellipse cx="58" cy="40" rx="18" ry="11" transform="rotate(-25 58 40)" ${st}/><ellipse cx="142" cy="40" rx="18" ry="11" transform="rotate(25 142 40)" ${st}/>`;
+  s+=`<ellipse cx="100" cy="50" rx="36" ry="34" ${st}/>`;
+  if(clear) s+=`<ellipse cx="100" cy="58" rx="10" ry="6" fill="#e9b04c" opacity=".8"/>`;
+  if(o.vamp) return s+`<circle cx="86" cy="56" r="7" fill="#4fc3ff"/><circle cx="114" cy="56" r="7" fill="#4fc3ff"/><circle cx="87" cy="56" r="3" fill="#002"/><circle cx="115" cy="56" r="3" fill="#002"/>`;
+  return s+eyeS(86,54,6)+eyeS(114,54,6)+blush(80,68)+blush(120,68)+smile(100,68);
+}
+function squidS(o){
+  const c1=o.c1||'#d0533f';
+  return `<path d="M140,70 Q172,52 196,58 M140,72 Q170,92 196,86" stroke="${c1}" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="196" cy="58" r="4" fill="${c1}"/><circle cx="196" cy="86" r="4" fill="${c1}"/>`+
+   [0,1,2,3,4].map(i=>`<path d="M138,${62+i*5} Q160,${58+i*8} 176,${60+i*9}" stroke="${c1}" stroke-width="5" fill="none" stroke-linecap="round"/>`).join('')+
+   `<path d="M14,70 L30,44 L44,56 Q80,46 128,56 Q140,70 128,84 Q80,94 44,84 L30,96Z" fill="${c1}"/><ellipse cx="132" cy="70" rx="12" ry="16" fill="${c1}"/>`+eyeS(132,66,9)+blush(122,82);
+}
+function eelS(o){
+  const c1=o.c1||'#cfd9e4';
+  let s=`<path d="M8,74 C40,40 70,104 102,70 S162,40 186,64" stroke="${c1}" stroke-width="20" fill="none" stroke-linecap="round"/>`;
+  if(o.crest) s+=`<path d="M10,62 C40,28 70,92 102,58 S160,28 180,52" stroke="${o.crest}" stroke-width="5" stroke-dasharray="4 3" fill="none"/>`;
+  if(o.plume) s+=`<path d="M176,52 Q170,20 150,14 M180,52 Q186,22 172,8" stroke="${o.crest}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+  return s+eyeS(180,62,5)+smile(190,70);
+}
+function gulperS(){
+  return `<path d="M96,70 C70,60 50,90 30,76 S10,60 6,70" stroke="#2b2433" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="6" cy="70" r="8" fill="#ff6fa3" opacity=".4"/><circle cx="6" cy="70" r="4" fill="#ff6fa3"/><path d="M92,64 L192,28 L194,112 L92,78Z" fill="#3b2f46" opacity=".55"/><path d="M90,66 L194,26 L192,36 L100,70Z" fill="#2b2433"/><path d="M90,76 L194,114 L190,104 L100,72Z" fill="#2b2433"/><ellipse cx="96" cy="71" rx="12" ry="10" fill="#2b2433"/>`+eyeS(98,64,3.5);
+}
+function shellS(){
+  let s=`<path d="M58,66 q-20,-8 -30,-4 M58,72 q-22,2 -30,8 M60,78 q-16,10 -22,18" stroke="#d9a07a" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="104" cy="66" r="44" fill="#fff4e3"/>`;
+  for(let i=0;i<7;i++){ const a=-1.3+i*.42; s+=`<path d="M${104+Math.cos(a)*14},${66+Math.sin(a)*14} Q${104+Math.cos(a+.3)*34},${66+Math.sin(a+.3)*34} ${104+Math.cos(a+.2)*44},${66+Math.sin(a+.2)*44}" stroke="#c2643a" stroke-width="6" fill="none" stroke-linecap="round"/>`; }
+  return s+`<path d="M104,66 m-12,0 a12,12 0 1,1 12,12" stroke="#a3502c" stroke-width="3" fill="none"/><path d="M60,52 Q66,40 80,40 L80,96 Q66,96 60,84Z" fill="#e8c8a8"/>`+eyeS(70,62,5);
+}
+function crinoidS(o){
+  const c1=o.c1||'#f2c14e'; let s=`<path d="M100,136 Q96,110 100,80" stroke="#c99a36" stroke-width="5" fill="none"/>`;
+  for(let i=0;i<5;i++) s+=`<circle cx="${100-(i%2)}" cy="${128-i*11}" r="3.5" fill="#c99a36"/>`;
+  for(let i=0;i<10;i++){ const a=Math.PI*(1.08+i*.084), x2=100+Math.cos(a)*70, y2=76+Math.sin(a)*60; s+=`<path d="M100,76 Q${(100+x2)/2},${y2+30} ${x2},${y2}" stroke="${c1}" stroke-width="9" stroke-dasharray="2 3" fill="none"/><path d="M100,76 Q${(100+x2)/2},${y2+30} ${x2},${y2}" stroke="${c1}" stroke-width="3" fill="none"/>`; }
+  return s+`<ellipse cx="100" cy="78" rx="12" ry="9" fill="#e0a83a"/>`+eyeS(95,77,3.5)+eyeS(105,77,3.5);
+}
+function spongeS(){
+  let s=`<path d="M70,132 Q56,70 74,18 L126,18 Q144,70 130,132Z" fill="rgba(235,245,255,.75)" stroke="#d9ecff" stroke-width="3"/>`;
+  for(let i=1;i<6;i++){ const y=18+i*19; s+=`<path d="M${70-i*.6},${y} Q100,${y+6} ${130+i*.6},${y}" stroke="#a9c8e8" stroke-width="1.5" fill="none"/>`; }
+  for(let i=1;i<5;i++){ const x=74+i*10.4; s+=`<path d="M${x},20 Q${x+(i-2.5)*3},80 ${x+(i-2.5)*4},130" stroke="#a9c8e8" stroke-width="1.5" fill="none"/>`; }
+  return s+`<ellipse cx="100" cy="18" rx="26" ry="6" fill="#cfe4fa"/>`+eyeS(90,70,4.5)+eyeS(110,70,4.5)+smile(100,82);
+}
+function starS(o){
+  const c1=o.c1||'#e07a5f'; let s='';
+  for(let i=0;i<5;i++){ const a=-Math.PI/2+i*2*Math.PI/5, b=a+.5; s+=`<path d="M100,72 Q${100+Math.cos(a)*44},${72+Math.sin(a)*44} ${100+Math.cos(b)*66},${72+Math.sin(b)*58}" stroke="${c1}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="M100,72 Q${100+Math.cos(a)*44},${72+Math.sin(a)*44} ${100+Math.cos(b)*66},${72+Math.sin(b)*58}" stroke="#fff" stroke-width="7" stroke-dasharray="1 6" opacity=".35" fill="none"/>`; }
+  return s+`<circle cx="100" cy="72" r="16" fill="${c1}"/>`+eyeS(94,70,3.5)+eyeS(106,70,3.5)+smile(100,78);
+}
+function cucumberS(o){
+  const c1=o.c1||'#f3a5b8'; let s='';
+  if(o.swim) return `<path d="M150,60 Q176,40 186,64 Q178,92 150,86Z" fill="${c1}" opacity=".7"/><ellipse cx="100" cy="72" rx="58" ry="28" fill="${c1}"/><path d="M50,74 Q100,92 150,70" stroke="#7a1f3a" stroke-width="4" fill="none" opacity=".6"/><path d="M44,60 q-10,-10 -6,-20 M54,52 q-6,-12 2,-20" stroke="${c1}" stroke-width="4" fill="none" stroke-linecap="round"/>`+eyeS(140,64,5)+blush(136,76);
+  for(let i=0;i<6;i++) s+=`<ellipse cx="${62+i*15}" cy="104" rx="5" ry="10" fill="${c1}"/>`;
+  s+=`<path d="M128,56 q4,-26 14,-30 M140,60 q10,-22 22,-22 M116,54 q-2,-22 4,-30" stroke="${c1}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  return s+`<ellipse cx="100" cy="80" rx="58" ry="28" fill="${c1}"/><ellipse cx="96" cy="72" rx="40" ry="10" fill="#fff" opacity=".25"/>`+eyeS(140,76,5)+blush(138,88)+smile(150,86);
+}
+function spiderS(o){
+  const c1=o.c1||'#e8743b'; let s='';
+  for(let i=0;i<4;i++){ const x=78+i*15; s+=`<path d="M${x},70 L${x-30+i*20},${30-i%2*8} L${x-44+i*28},${8}" stroke="${c1}" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/><path d="M${x},74 L${x-30+i*20},${112+i%2*8} L${x-44+i*28},136" stroke="${c1}" stroke-width="4" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`; }
+  return s+`<ellipse cx="102" cy="72" rx="34" ry="8" fill="${c1}"/><ellipse cx="140" cy="72" rx="8" ry="6" fill="${c1}"/>`+eyeS(140,69,3.5);
+}
+function shrimpS(o){
+  const c1=o.c1||'#f1d2c4', sc=o.small?.8:1; let s=`<g transform="translate(${100-100*sc},${70-70*sc}) scale(${sc})">`;
+  s+=`<path d="M150,52 Q176,20 196,26 M150,56 Q182,40 198,50" stroke="${c1}" stroke-width="2.5" fill="none"/>`;
+  for(let i=0;i<6;i++) s+=`<path d="M${70+i*13},${86+Math.abs(i-2.5)*2} l-4,22" stroke="${c1}" stroke-width="3.5" stroke-linecap="round"/>`;
+  for(let i=0;i<7;i++){ const a=Math.PI*(1.1+i*.12); s+=`<ellipse cx="${100+Math.cos(a)*-50}" cy="${100+Math.sin(a)*40}" rx="15" ry="14" fill="${c1}" stroke="rgba(0,0,0,.12)" stroke-width="2"/>`; }
+  return s+eyeS(150,60,5)+blush(144,72)+'</g>';
+}
+function blobS(){
+  let s='';
+  [[100,80,34],[72,72,22],[128,70,24],[86,50,20],[118,48,18],[100,104,22],[64,96,16],[138,96,16]].forEach(([x,y,r])=>{ s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="#c9a77c"/>`; });
+  [[80,64],[116,60],[100,90],[70,92],[132,86],[96,46]].forEach(([x,y])=>{ s+=`<circle cx="${x}" cy="${y}" r="4" fill="#a8845a"/>`; });
+  return s+eyeS(92,74,5)+eyeS(110,74,5)+smile(101,86);
+}
+function molaS(o){
+  const c1=o.c1||'#9aa9b8';
+  return `<path d="M86,34 L74,0 L104,30Z M86,106 L74,140 L104,110Z" fill="${c1}"/><path d="M56,40 q-10,10 -4,15 q-8,8 -2,15 q-8,8 -2,15 q-8,8 2,14" stroke="${c1}" stroke-width="10" fill="none" stroke-linejoin="round"/><ellipse cx="100" cy="70" rx="48" ry="42" fill="${c1}"/><ellipse cx="104" cy="88" rx="36" ry="18" fill="#dfe6ee" opacity=".7"/>`+eyeS(128,62,7)+blush(124,78)+`<circle cx="146" cy="74" r="3" fill="#2a2a3a"/>`;
+}
+function krakenS(){
+  let s='';
+  for(let i=0;i<8;i++){ const a=Math.PI*(.05+i*.128), x=100+Math.cos(a)*92, y=70+Math.sin(a)*64+10; s+=`<path d="M${100+(i-3.5)*7},78 Q${100+Math.cos(a)*46},${y+10} ${x},${y}" stroke="#6a2fb8" stroke-width="12" fill="none" stroke-linecap="round"/><circle cx="${x}" cy="${y}" r="5" fill="#a06cf0"/>`; }
+  s+=`<path d="M44,62 Q20,30 30,10 M156,62 Q180,30 170,10" stroke="#6a2fb8" stroke-width="10" fill="none" stroke-linecap="round"/><ellipse cx="100" cy="50" rx="46" ry="40" fill="#7b3fd0"/><ellipse cx="88" cy="34" rx="16" ry="9" fill="#fff" opacity=".18"/>`;
+  s+=`<path d="M74,14 L80,0 L90,10 L100,-2 L110,10 L120,0 L126,14Z" fill="#ffd34d"/>`;
+  return s+`<path d="M76,48 L94,56 L76,60Z M124,48 L106,56 L124,60Z" fill="#ffe14d"/><circle cx="86" cy="55" r="2.5" fill="#300"/><circle cx="114" cy="55" r="2.5" fill="#300"/><path d="M86,74 q14,-8 28,0" stroke="#2a0b50" stroke-width="3" fill="none"/>`;
+}
+const DRAW={fish:fishS,shark:sharkS,whale:whaleS,ray:rayS,turtle:turtleS,jelly:jellyS,comb:combS,siph:siphS,octo:octoS,squid:squidS,eel:eelS,gulper:gulperS,shell:shellS,crinoid:crinoidS,sponge:spongeS,star:starS,cucumber:cucumberS,spider:spiderS,shrimp:shrimpS,blob:blobS,mola:molaS,kraken:krakenS};
+const creSVG=c=>`<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" overflow="visible">${DRAW[c.k](c.o||{})}</svg>`;
+const PHOTO={};
+function picHTML(c,sil){
+  const file=c.n.replace(/\s/g,'');
+  const img=(!sil && PHOTO[file]!==false)?`<img src="images/fish/${encodeURIComponent(file)}.jpg" alt="${c.n}" onload="this.classList.add('on')" onerror="PHOTO['${file}']=false;this.remove()">`:'';
+  return `<div class="pic${sil?' sil':''}">${creSVG(c)}${img}</div>`;
+}
+const SUB=`<svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg"><rect x="54" y="6" width="22" height="18" rx="5" fill="#ffc93c"/><rect x="66" y="0" width="4" height="10" fill="#e0a520"/><ellipse cx="60" cy="40" rx="46" ry="22" fill="#ffd34d"/><path d="M14,40 L2,26 L2,54Z" fill="#e0a520"/><circle cx="48" cy="38" r="8" fill="#7fd3ff" stroke="#e0a520" stroke-width="3"/><circle cx="72" cy="38" r="8" fill="#7fd3ff" stroke="#e0a520" stroke-width="3"/><circle cx="98" cy="40" r="5" fill="#fff59d"/></svg>`;
+
+/* ════════ 바다 생물 도감 (미션 순서와 같은 순서) ════════
+   d: 만나는 수심(m), r: 실제로 사는 수심, f: 재미있는 사실 */
+const CRE=[
+ // 1구역 표층 0~200m
+ {n:'날치',d:5,r:'0~20m',k:'fish',o:{c1:'#3d7fd1',c2:'#dceeff',c3:'#6fb3ff',wing:'#a9dbff',L:58,H:20},f:['커다란 가슴지느러미를 날개처럼 펴고 물 위를 날아요.','한 번에 수십 m, 길게는 수백 m까지 미끄러지듯 날 수 있어요.']},
+ {n:'흰동가리',d:10,r:'1~15m',k:'fish',o:{c1:'#ff8a2a',c2:'#ffb066',c3:'#ff8a2a',bands:[.55,0,-.62],L:52,H:30},f:['말미잘의 독침 사이에 숨어 살아요. 몸의 끈적한 점액 덕분에 쏘이지 않아요.','무리에서 가장 큰 물고기가 엄마(암컷)가 돼요.']},
+ {n:'고등어',d:20,r:'0~200m',k:'fish',o:{c1:'#2f7f9a',c2:'#eef6f8',c3:'#2f7f9a',wavy:'#123b4d',L:66,H:20},f:['등의 푸른 물결무늬는 위에서 보면 바다색과 비슷해서 숨기 좋아요.','수천 마리가 떼를 지어 헤엄쳐 다녀요.']},
+ {n:'바다거북',d:30,r:'0~40m (더 깊이 잠수하기도)',k:'turtle',f:['태어난 바닷가를 기억했다가 어른이 되면 돌아와 알을 낳아요.','물속에서 숨을 참고 몇 시간 동안 잠을 잘 수도 있어요.']},
+ {n:'만타가오리',d:50,r:'0~120m (가끔 1,000m 넘게 잠수)',k:'ray',boss:1,o:{c1:'#26324a',c2:'#e8eef7'},f:['양쪽 지느러미 끝까지 7m 넘게 자라는 거대한 가오리예요.','몸집에 비해 뇌가 아주 큰 똑똑한 물고기예요.']},
+ {n:'보름달물해파리',d:60,r:'바다 표면 가까이',k:'jelly',o:{c1:'rgba(205,225,255,.85)',moon:1},f:['뇌도 심장도 뼈도 없어요!','몸의 95% 넘게 물로 되어 있어요.']},
+ {n:'병코돌고래',d:70,r:'0~300m',k:'whale',o:{c1:'#7d93ab',c2:'#e3ebf2'},f:['친구마다 자기만의 휘파람 소리가 있어서 이름처럼 서로 불러요.','잘 때도 뇌의 반쪽은 깨어 있어서 숨 쉬러 올라올 수 있어요.']},
+ {n:'정어리',d:80,r:'0~100m',k:'fish',o:{c1:'#5b7fa3',c2:'#eef4fa',spots:'#24405e',L:58,H:16},f:['수백만 마리가 모이면 커다란 공처럼 빙글빙글 돌아요.','작은 플랑크톤을 먹고, 큰 바다 동물들의 중요한 먹이가 돼요.']},
+ {n:'청새치',d:100,r:'0~200m',k:'fish',o:{c1:'#1f4f8f',c2:'#dfe9f5',c3:'#2c63b0',bill:1,sail:1,L:60,H:20,bands:[.3,.1,-.1,-.3,-.5],bandC:'#7fb6ff',bandW:2},f:['창처럼 뾰족한 주둥이로 물고기 떼를 휘저어 사냥해요.','바다에서 가장 빠른 물고기 중 하나예요.']},
+ {n:'고래상어',d:110,r:'0~200m (1,000m 넘게 잠수하기도)',k:'shark',boss:1,o:{c1:'#3b5878',c2:'#dbe4ec',spots:1},f:['세계에서 가장 큰 물고기예요. 버스보다 길게 자라요.','이렇게 큰데도 아주 작은 플랑크톤을 걸러 먹어요.']},
+ {n:'개복치',d:130,r:'0~200m (더 깊이 잠수하기도)',k:'mola',o:{c1:'#9aa9b8'},f:['몸이 납작한 동그라미 모양이고 꼬리지느러미가 거의 없어요.','한 번에 알을 3억 개 가까이 낳을 수 있어요.']},
+ {n:'쏠배감펭',d:140,r:'0~300m',k:'fish',o:{c1:'#f6e6d6',c2:'#fff4ea',c3:'#c4492f',spines:1,bands:[.6,.4,.2,0,-.2,-.4,-.6],bandC:'#c4492f',bandW:3,L:50,H:26},f:['화려한 지느러미 가시에 독이 있으니 절대 만지면 안 돼요!','부채처럼 지느러미를 펴서 작은 물고기를 구석으로 몰아요.']},
+ {n:'참다랑어',d:160,r:'0~500m',k:'fish',o:{c1:'#1d3557',c2:'#e5edf5',c3:'#ffd166',L:66,H:24},f:['몸을 따뜻하게 유지해서 차가운 바다에서도 빠르게 헤엄쳐요.','넓은 바다를 건너 수천 km를 여행해요.']},
+ {n:'귀상어',d:180,r:'0~300m',k:'shark',o:{c1:'#8a9aa8',hammer:1},f:['망치처럼 생긴 머리 양 끝에 눈이 달려서 넓게 볼 수 있어요.','머리로 모래 속에 숨은 가오리의 전기 신호를 찾아내요.']},
+ {n:'백상아리',d:200,r:'0~1,200m',k:'shark',boss:1,o:{c1:'#6f8597'},f:['이빨이 빠져도 뒤에서 새 이빨이 계속 나와요.','아주 멀리서도 피 냄새를 맡는 뛰어난 코를 가졌어요.']},
+ // 2구역 중층 200~1000m
+ {n:'갈치',d:220,r:'100~400m',k:'eel',o:{c1:'#d3dde8',crest:'#9fb3c7'},f:['꼬리를 아래로 하고 몸을 똑바로 세운 채 쉬어요.','반짝이는 은빛 가루는 옛날에 가짜 진주를 만드는 데 쓰였어요.']},
+ {n:'앵무조개',d:280,r:'100~700m',k:'shell',f:['껍데기 속 여러 방의 공기와 물을 조절해서 위아래로 오르내려요.','공룡보다 훨씬 오래전부터 살아온 \'살아 있는 화석\'이에요.']},
+ {n:'샛비늘치',d:330,r:'200~1,000m (밤엔 위로 올라와요)',k:'fish',o:{c1:'#2e3f63',c2:'#9fb0cc',lights:'#7ef9ff',L:50,H:16,bigEye:1},f:['몸에 작은 전등 같은 발광기가 줄지어 있어요.','밤마다 먹이를 먹으러 수백 m를 오르내려요.']},
+ {n:'실러캔스',d:380,r:'150~700m',k:'fish',o:{c1:'#2d4a6b',c2:'#4d6d8f',spots:'#e8f0ff',lobed:1,L:62,H:26},f:['공룡 시대에 사라진 줄 알았는데 1938년에 살아 있는 채로 발견됐어요.','다리처럼 생긴 지느러미를 번갈아 움직이며 헤엄쳐요.']},
+ {n:'산갈치',d:420,r:'0~1,000m',k:'eel',boss:1,o:{c1:'#e5ebf2',crest:'#ff3b5c',plume:1},f:['세계에서 가장 긴 뼈 있는 물고기예요. 8m 넘게 자라기도 해요.','옛날 뱃사람들은 산갈치를 보고 \'바다뱀\'이라고 생각했대요.']},
+ {n:'은도끼고기',d:480,r:'200~1,000m',k:'fish',o:{hatchet:1,c1:'#c9d6e3',c2:'#ffffff',lights:'#7ef9ff',L:40,H:30,bigEye:1},f:['몸이 도끼날처럼 납작하고 은빛으로 반짝여요.','배 쪽에서 빛을 내 그림자를 지워서 아래의 사냥꾼에게 들키지 않아요.']},
+ {n:'빗해파리',d:540,r:'바다 곳곳 (깊은 곳에도 살아요)',k:'comb',f:['빗살 같은 털 줄이 움직일 때 무지갯빛으로 반짝여요.','해파리처럼 생겼지만 쏘는 독침이 없어요.']},
+ {n:'통안어',d:620,r:'600~800m',k:'fish',o:{tube:1,c1:'#3b3f55',c2:'#6b6f88',L:56,H:20},f:['머리가 투명해서 머릿속 초록색 눈이 다 들여다보여요.','통처럼 생긴 눈을 위로 굴려서 머리 위의 먹이를 찾아요.']},
+ {n:'유리문어',d:680,r:'200~1,000m',k:'octo',o:{clear:1},f:['몸이 유리처럼 투명해서 눈과 내장만 보여요.','투명한 몸 덕분에 깊은 바다에서 잘 숨어요.']},
+ {n:'황새치',d:720,r:'0~800m',k:'fish',boss:1,o:{c1:'#4a4f73',c2:'#d8dcef',bill:1,sword:1,L:56,H:22},f:['칼처럼 납작하고 긴 주둥이를 휘둘러 먹이를 잡아요.','눈을 따뜻하게 데우는 특별한 기관이 있어서 차갑고 어두운 물에서도 잘 봐요.']},
+ {n:'흡혈오징어',d:780,r:'600~900m',k:'octo',o:{c1:'#7a1f2b',vamp:1,ears:1},f:['이름은 무섭지만 피를 빨지 않고 바다눈(작은 찌꺼기)을 먹어요.','위험하면 몸을 뒤집어 가시 달린 망토처럼 덮어써요.']},
+ {n:'검목상어',d:840,r:'0~1,000m 이상',k:'shark',o:{c1:'#7a5a4a',c2:'#b89c8a'},f:['큰 물고기나 고래를 물어 쿠키 모양으로 살점을 떼어 먹어요.','배에서 은은한 빛을 내는 작은 상어예요.']},
+ {n:'주름상어',d:880,r:'500~1,000m',k:'shark',o:{c1:'#5a4e44',frill:1},f:['주름진 아가미가 목도리처럼 보여요.','아주 옛날 모습을 거의 그대로 간직한 \'살아 있는 화석\' 상어예요.']},
+ {n:'마귀상어',d:940,r:'270~1,300m',k:'shark',o:{c1:'#e9a6a6',c2:'#f6d3d3',goblin:1},f:['먹이를 잡을 때 턱이 앞으로 \'쑥\' 튀어나와요.','피부가 분홍빛이고 코가 납작한 칼처럼 길어요.']},
+ {n:'향유고래',d:1000,r:'0~2,000m',k:'whale',boss:1,o:{sperm:1,c1:'#55606e',c2:'#8d97a3'},f:['대왕오징어를 잡으러 1,000m보다 더 깊이 잠수해요.','지구에서 가장 큰 뇌를 가진 동물이에요.']},
+ // 3구역 점심해층 1000~4000m
+ {n:'아톨라해파리',d:1050,r:'500~4,000m',k:'jelly',o:{ring:1,c1:'#b3122e'},f:['위험하면 빙글빙글 파란 빛을 번쩍여서 \'경보\'를 울려요.','그래서 \'경보 해파리\'라는 별명이 있어요.']},
+ {n:'독사고기',d:1100,r:'200~2,000m',k:'fish',o:{c1:'#20283a',c2:'#3a4660',fangs:1,lights:'#66ffff',L:58,H:16,scary:1},f:['입 밖으로 튀어나올 만큼 긴 송곳니가 있어요.','몸의 발광기로 빛을 내서 먹이를 꾀어요.']},
+ {n:'초롱아귀',d:1150,r:'200~2,000m 이상',k:'fish',o:{c1:'#3a2f3a',c2:'#5a4a5a',lure:1,fangs:1,L:44,H:36,scary:1},f:['머리 위 낚싯대 끝의 불빛으로 먹이를 유인해요.','수컷은 아주 작아서 암컷 몸에 딱 붙어서 살아요.']},
+ {n:'펠리컨장어',d:1200,r:'500~3,000m',k:'gulper',f:['입이 몸보다 커 보일 만큼 크게 벌어져요.','꼬리 끝에서 분홍빛 빛을 내요.']},
+ {n:'대왕오징어',d:1250,r:'300~1,500m 이상 (아직 수수께끼)',k:'squid',boss:1,o:{c1:'#d0533f'},f:['눈 크기가 축구공만 해서 동물 중 가장 큰 눈을 가졌어요.','몸길이가 12m 넘게 자랄 수 있어요.']},
+ {n:'그린란드상어',d:1600,r:'0~2,200m',k:'shark',o:{c1:'#5c6670'},f:['400살 가까이 살 수 있는, 가장 오래 사는 척추동물이에요.','아주아주 천천히 헤엄치는 차가운 바다의 상어예요.']},
+ {n:'송곳니고기',d:2200,r:'500~5,000m',k:'fish',o:{c1:'#3a2a26',c2:'#5b4038',fangs:1,L:46,H:32,scary:1},f:['몸에 비해 가장 큰 이빨을 가진 물고기 중 하나예요.','이빨이 너무 길어서 입을 다물면 머리 옆 홈에 쏙 들어가요.']},
+ {n:'투구해파리',d:2800,r:'0~7,000m (낮엔 깊은 곳)',k:'jelly',o:{helmet:1,c1:'#a3172b'},f:['빛을 아주 싫어해서 낮에는 깊은 곳에 숨어 있어요.','짙은 붉은색 몸은 깊은 바다에서 까맣게 보여서 숨기 좋아요.']},
+ {n:'관해파리',d:3300,r:'바다 곳곳 (깊은 곳에도 살아요)',k:'siph',f:['작은 동물 여럿이 모여 하나처럼 사는 \'단체 생물\'이에요.','길이가 40m 넘게 늘어나는 종류도 있어요.']},
+ {n:'대왕유령해파리',d:4000,r:'1,000~6,600m',k:'jelly',boss:1,o:{phantom:1,c1:'#7a2c2c'},f:['커튼처럼 생긴 팔 4개가 10m 넘게 늘어나요.','처음 발견된 뒤 100년 넘게 사람이 직접 본 건 100번 남짓뿐이에요.']},
+ // 4구역 심해저층 4000~6000m
+ {n:'바다나리',d:4200,r:'얕은 바다~6,000m 이상',k:'crinoid',o:{c1:'#f2c14e'},f:['식물처럼 생겼지만 불가사리와 친척인 동물이에요.','깃털 같은 팔을 펼쳐 떠다니는 먹이를 잡아요.']},
+ {n:'유령문어',d:4300,r:'4,000m 근처',k:'octo',o:{c1:'#f2f2f7'},f:['2016년 4,290m 바닥에서 처음 발견된 하얀 문어예요.','만화 속 꼬마 유령 \'캐스퍼\'를 닮아서 그런 별명이 붙었어요.']},
+ {n:'트라이포드피시',d:4600,r:'900~4,700m',k:'fish',o:{tripod:1,c1:'#3d3a3f',c2:'#8a8590',L:54,H:14},f:['길쭉한 지느러미 3개로 바닥에 삼각대처럼 서 있어요.','물살을 마주 보고 서서 떠내려오는 먹이를 기다려요.']},
+ {n:'바다돼지',d:4800,r:'1,000~6,000m',k:'cucumber',o:{c1:'#f3a5b8'},f:['다리처럼 생긴 관족으로 바닥을 걸어 다니는 해삼이에요.','여럿이 모여 바닥 진흙 속 먹이를 먹어 치워요.']},
+ {n:'덤보문어',d:5000,r:'3,000~7,000m',k:'octo',boss:1,o:{c1:'#f39a7a',ears:1},f:['귀처럼 생긴 지느러미를 펄럭이며 헤엄쳐요. 아기 코끼리 \'덤보\'를 닮았죠.','가장 깊은 곳에 사는 문어 중 하나예요.']},
+ {n:'쥐꼬리고기',d:5200,r:'1,000~7,000m',k:'fish',o:{rattail:1,c1:'#7d7a86',c2:'#a9a6b2',L:42,H:22,bigEye:1},f:['꼬리가 쥐꼬리처럼 가늘고 길어요.','깊은 바다 바닥에서 아주 흔하게 볼 수 있는 물고기예요.']},
+ {n:'유리해면',d:5400,r:'수백~6,000m',k:'sponge',f:['유리 성분으로 된 그물 같은 뼈대를 가진 동물이에요.','어떤 유리해면은 1만 년 넘게 살았다고 생각돼요.']},
+ {n:'거미불가사리',d:5600,r:'얕은 바다~6,000m 이상',k:'star',o:{c1:'#e07a5f'},f:['가느다란 팔 5개를 뱀처럼 꿈틀거리며 빠르게 움직여요.','팔이 끊어져도 다시 자라나요.']},
+ {n:'머리 없는 닭 괴물',d:5800,r:'500~6,000m',k:'cucumber',o:{swim:1,c1:'rgba(230,90,110,.8)'},f:['헤엄치는 해삼인데, 모습이 털 뽑힌 닭 같아서 이런 별명이 붙었어요.','몸이 투명해서 속에 든 먹이가 다 보여요.']},
+ {n:'대왕바다거미',d:6000,r:'얕은 바다~7,000m',k:'spider',boss:1,o:{c1:'#e8743b'},f:['다리를 펼치면 70cm 가까이 되는 거미 닮은 바다 동물이에요.','몸통이 너무 작아서 내장이 다리 속까지 들어가 있어요.']},
+ // 5구역 초심해 6000m~ · 아틀란티스
+ {n:'제노피오포어',d:6500,r:'500~10,600m',k:'blob',f:['세포 딱 1개로 된 생물인데 크기가 손바닥만 해요.','10,000m가 넘는 해구 바닥에서도 발견돼요.']},
+ {n:'대왕단각류',d:7000,r:'4,000~7,000m',k:'shrimp',o:{c1:'#f1d2c4'},f:['새우를 닮은 단각류 중 가장 커서 30cm 넘게 자라요.','깊은 바닥에 떨어진 먹이 냄새를 맡고 우르르 모여들어요.']},
+ {n:'마리아나스네일피시',d:8000,r:'6,000~8,000m',k:'fish',o:{c1:'rgba(250,200,215,.9)',c2:'rgba(255,232,240,.8)',rattail:1,L:46,H:24},f:['8,000m 아래에서 사는, 가장 깊은 곳의 물고기 중 하나예요.','몸이 말랑말랑해서 엄청난 물의 누르는 힘도 견뎌요.']},
+ {n:'초심해단각류',d:10900,r:'6,000~11,000m',k:'shrimp',o:{c1:'#f5ece6',small:1},f:['지구에서 가장 깊은 마리아나 해구 바닥에서 살아요.','가라앉은 나무 조각도 소화하는 특별한 소화액을 가졌어요.']},
+ {n:'크라켄',d:11000,r:'전설 속 아틀란티스',k:'kraken',boss:1,f:['북유럽 전설에 나오는 거대한 바다 괴물이에요. 배를 통째로 끌어당긴대요.','사람들이 커다란 대왕오징어를 보고 크라켄 이야기를 만들었다는 말도 있어요.']},
+];
+CRE.forEach((c,i)=>c.id='c'+(i+1));
+
+/* ════════ 구역 · 주차 · 미션 ════════ */
+const ZONES=[
+ {n:1,name:'표층',range:'0~200m',top:0,bot:200,unit:'소수의 덧셈과 뺄셈'},
+ {n:2,name:'중층',range:'200~1,000m',top:200,bot:1000,unit:'사각형'},
+ {n:3,name:'점심해층',range:'1,000~4,000m',top:1000,bot:4000,unit:'꺾은선그래프'},
+ {n:4,name:'심해저층',range:'4,000~6,000m',top:4000,bot:6000,unit:'다각형'},
+ {n:5,name:'초심해 · 아틀란티스',range:'6,000m~',top:6000,bot:11000,unit:'전체 복습 + 크라켄 최종전'},
+];
+const DAYS=['월','화','수','목','금'];
+/* g: 월~목 미션의 문제 만들기 이름. g 가 없는 주는 아직 준비 중이에요 */
+const WEEKS=[
+ {z:1,t:['소수 두 자리 수','소수 세 자리 수','소수의 크기 비교','소수 사이의 관계','1주차 복습 보스전'],g:['dec2','dec3','cmp','rel']},
+ {z:1,t:['소수 한 자리 수의 덧셈','소수 한 자리 수의 뺄셈','소수 두 자리 수의 덧셈','소수 두 자리 수의 뺄셈','2주차 복습 보스전']},
+ {z:1,t:['자릿수가 다른 소수의 덧셈','자릿수가 다른 소수의 뺄셈','소수 계산 이야기 문제','소수의 덧셈과 뺄셈 정리','표층 최종 보스전']},
+ {z:2,t:['수직과 수선','평행과 평행선','평행선 사이의 거리','사다리꼴','4주차 복습 보스전']},
+ {z:2,t:['평행사변형','마름모','직사각형과 정사각형','여러 가지 사각형','5주차 복습 보스전']},
+ {z:2,t:['사각형 그리기','사각형 속 각도','사각형 이야기 문제','사각형 정리','중층 최종 보스전']},
+ {z:3,t:['꺾은선그래프 알아보기','물결선이 있는 그래프','꺾은선그래프 읽기','꺾은선그래프 그리기','7주차 복습 보스전']},
+ {z:3,t:['자료를 조사해 그래프 그리기','막대그래프와 비교하기','변화 예상하기','꺾은선그래프 정리','점심해층 최종 보스전']},
+ {z:4,t:['다각형','정다각형','대각선','모양 만들기','9주차 복습 보스전']},
+ {z:4,t:['모양 채우기','정다각형의 각','대각선의 수','다각형 정리','심해저층 최종 보스전']},
+ {z:5,t:['전체 복습 ① 소수','전체 복습 ② 사각형','전체 복습 ③ 꺾은선그래프','전체 복습 ④ 다각형','크라켄 최종전'],kraken:true},
+];
+const MISSIONS=[];
+WEEKS.forEach((w,wi)=>w.t.forEach((t,di)=>{
+  const i=MISSIONS.length;
+  MISSIONS.push({i,id:'m'+(i+1),z:w.z,week:wi+1,day:di,title:t,boss:di===4,
+    kraken:!!(w.kraken&&di===4),legs:(w.kraken&&di===4)?8:0, /* 크라켄: 다리 8개 = 문제 묶음 8개 (이어서 채울 예정) */
+    gen:w.g?(di<4?w.g[di]:null):null,wgens:w.g||null,cre:CRE[i],depth:CRE[i].d,ready:!!w.g});
+}));
+const mLabel=m=>`${m.week}주차 · ${DAYS[m.day]}요일 ${m.boss?(m.kraken?'최종전':'보스전'):'미션'}`;
+
+/* ════════ 문제 만들기 ════════
+   num: 숫자로 답하기 · cho: 골라서 답하기 (fixed: 보기 순서 고정) */
+const num=(q,a,ex,svg)=>({t:'num',q,a:String(a),ex,svg:svg||''});
+const cho=(q,a,ch,ex,svg,fixed)=>({t:'cho',q,a:String(a),ch:fixed?ch.map(String):shuffle(ch.map(String)),ex,svg:svg||''});
+
+/* SVG: 수직선 (왼쪽~오른쪽을 10칸, k번째 눈금에 화살표) */
+function numberLine(left,right,k){
+  let s=`<svg viewBox="0 0 340 100" width="340" xmlns="http://www.w3.org/2000/svg"><line x1="20" y1="60" x2="320" y2="60" stroke="#1d4f91" stroke-width="3"/>`;
+  for(let i=0;i<=10;i++){ const x=20+i*30, big=i===0||i===10||i===5; s+=`<line x1="${x}" y1="${big?46:52}" x2="${x}" y2="${big?74:68}" stroke="#1d4f91" stroke-width="${big?3:2}"/>`; }
+  const ax=20+k*30;
+  s+=`<path d="M${ax},44 l-9,-14 h18z" fill="#ff7a2a"/><text x="${ax}" y="22" text-anchor="middle" font-size="20" fill="#ff7a2a">?</text>`;
+  s+=`<text x="20" y="96" text-anchor="middle" font-size="18" fill="#16304f">${left}</text><text x="320" y="96" text-anchor="middle" font-size="18" fill="#16304f">${right}</text></svg>`;
+  return s;
+}
+/* SVG: 모눈 100칸 중 n칸 색칠 (한 줄 = 0.1) */
+function grid100(n){
+  let s=`<svg viewBox="0 0 204 204" width="204" xmlns="http://www.w3.org/2000/svg">`;
+  for(let c=0;c<10;c++) for(let r=0;r<10;r++){ const idx=c*10+r; s+=`<rect x="${2+c*20}" y="${2+r*20}" width="20" height="20" fill="${idx<n?'#7fc4ff':'#fff'}" stroke="#9fb3cc" stroke-width="1"/>`; }
+  return s+`<rect x="2" y="2" width="200" height="200" fill="none" stroke="#1d4f91" stroke-width="3"/></svg>`;
+}
+/* SVG: 자리표 */
+function placeChart(str,cols){
+  const [ip,fp='']=String(str).split('.'); const heads=['일의 자리','소수 첫째 자리','소수 둘째 자리','소수 셋째 자리'].slice(0,cols);
+  const digits=[ip.slice(-1),...[...fp.padEnd(cols-1,'0')]].slice(0,cols); const w=84;
+  let s=`<svg viewBox="0 0 ${cols*w+4} 96" width="${cols*w+4}" xmlns="http://www.w3.org/2000/svg">`;
+  heads.forEach((h,i)=>{ s+=`<rect x="${2+i*w}" y="2" width="${w}" height="36" fill="#e6f3ff" stroke="#9fb3cc"/><text x="${2+i*w+w/2}" y="26" text-anchor="middle" font-size="14" fill="#1d4f91">${h}</text><rect x="${2+i*w}" y="38" width="${w}" height="56" fill="#fff" stroke="#9fb3cc"/><text x="${2+i*w+w/2}" y="78" text-anchor="middle" font-size="32" fill="#16304f">${digits[i]}</text>`; });
+  return s+'</svg>';
+}
+function readChoices(str){
+  const [i,f]=str.split('.'), right=readDec(str), opts=new Set([right]);
+  if(f&&f.length>1) opts.add(readInt(+i)+' 점 '+readInt(+f));
+  if(f&&f.length>1) opts.add(readInt(+(i+f[0]))+' 점 '+[...f.slice(1)].map(c=>DIG[+c]).join(''));
+  opts.add(readInt(+(i+f)));
+  while(opts.size<4) opts.add(readDec(fmt(rnd(101,999),2)));
+  return [right,[...opts].slice(0,4)];
+}
+const PLACE=['일의 자리','소수 첫째 자리','소수 둘째 자리','소수 셋째 자리'];
+
+const G={};
+/* 1주차 월: 소수 두 자리 수 */
+G.dec2=[
+ ()=>{const n=notTen(11,99);return num(`0.01이 <b>${n}개</b>인 수는 얼마일까요?`,fmt(n,2),`0.01이 ${n}개면 ${ye(fmt(n,2))}.`);},
+ ()=>{const n=notTen(101,499),s=fmt(n,2);return num(`아래 수는 0.01이 몇 개인 수일까요?${BIG(s)}`,n,`${jo(s,'은','는')} 0.01이 ${n}개예요.`);},
+ ()=>{const [a,b,c]=[rnd(1,9),rnd(1,9),rnd(1,9)];return num(`1이 ${a}개, 0.1이 ${b}개, 0.01이 ${c}개인 수는?`,fmt(a*100+b*10+c,2),`일의 자리 ${a}, 소수 첫째 자리 ${b}, 소수 둘째 자리 ${c} → ${fmt(a*100+b*10+c,2)}`);},
+ ()=>{const s=fmt(rnd(1,9)*100+notTen(11,99),2);const [a,ch]=readChoices(s);return cho(`아래 소수를 바르게 읽은 것은?${BIG(s)}`,a,ch,`소수점 아래는 숫자를 하나씩 읽어요. ${s} → ${a}`);},
+ ()=>{const s=fmt(rnd(0,9)*100+notTen(1,99),2);return num(`다음을 소수로 쓰세요.${BIG(readDec(s))}`,s,`'${readDec(s)}' → ${s}`);},
+ ()=>{const d=distinctDigits(3),s=`${d[0]}.${d[1]}${d[2]}`,p=rnd(0,2);return num(`아래 수에서 <b>${PLACE[p]}</b> 숫자는?${BIG(s)}`,d[p],`${s}에서 ${PLACE[p]} 숫자는 ${ye(d[p])}.`);},
+ ()=>{const d=distinctDigits(3),s=`${d[0]}.${d[1]}${d[2]}`,p=rnd(1,2),v=fmt(d[p]*(p===1?10:1),2);return num(`아래 수에서 숫자 ${jo(d[p],'이','가')} 나타내는 수는 얼마일까요?${BIG(s)}`,v,`${jo(d[p],'은','는')} ${PLACE[p]} 숫자라서 ${jo(v,'을','를')} 나타내요.`);},
+ ()=>{const st=rnd(0,29),k=rnd(1,9);return num(`수직선에서 <span style="color:#ff7a2a">?</span>가 가리키는 수는 얼마일까요?`,fmt(st*10+k,2),`${jo(fmt(st,1),'과','와')} ${fmt(st+1,1)} 사이를 10칸으로 나누면 한 칸은 0.01이에요.`,numberLine(fmt(st,1),fmt(st+1,1),k));},
+ ()=>{const n=notTen(11,99);return num(`모눈 100칸 중 색칠한 부분을 소수로 나타내 보세요.`,fmt(n,2),`100칸 중 ${n}칸 → 0.01이 ${n}개 → ${fmt(n,2)}`,grid100(n));},
+ ()=>{const n=notTen(101,399);return num(`1 cm는 0.01 m예요.<br><b>${n} cm</b>는 몇 m일까요?`,fmt(n,2),`${n} cm = 0.01 m가 ${n}개 = ${fmt(n,2)} m`);},
+ ()=>{const s=fmt(rnd(1,9)*100+notTen(11,99),2);return num(`자리표가 나타내는 소수를 쓰세요.`,s,`일의 자리부터 차례로 읽으면 ${ye(s)}.`,placeChart(s,3));},
+];
+/* 1주차 화: 소수 세 자리 수 */
+G.dec3=[
+ ()=>{const n=notTen(11,999);return num(`0.001이 <b>${n}개</b>인 수는 얼마일까요?`,fmt(n,3),`0.001이 ${n}개면 ${ye(fmt(n,3))}.`);},
+ ()=>{const n=notTen(1001,4999),s=fmt(n,3);return num(`아래 수는 0.001이 몇 개인 수일까요?${BIG(s)}`,n,`${jo(s,'은','는')} 0.001이 ${n}개예요.`);},
+ ()=>{const [a,b,c,d]=[rnd(1,9),rnd(0,9),rnd(1,9),rnd(1,9)];const v=fmt(a*1000+b*100+c*10+d,3);return num(`1이 ${a}개, 0.1이 ${b}개, 0.01이 ${c}개, 0.001이 ${d}개인 수는?`,v,`자리마다 숫자를 쓰면 ${ye(v)}.${b?'':' (0.1이 0개면 소수 첫째 자리에 0을 써요)'}`);},
+ ()=>{const s=fmt(rnd(1,9)*1000+notTen(101,999),3);const right=readDec(s),[i,f]=s.split('.');const ch=new Set([right,readInt(+i)+' 점 '+readInt(+f),readInt(+(i+f[0]))+' 점 '+[...f.slice(1)].map(c=>DIG[+c]).join(''),readInt(+(i+f))]);while(ch.size<4)ch.add(readDec(fmt(rnd(1001,9999),3)));return cho(`아래 소수를 바르게 읽은 것은?${BIG(s)}`,right,[...ch].slice(0,4),`소수점 아래는 숫자를 하나씩 읽어요. ${s} → ${right}`);},
+ ()=>{const s=fmt(rnd(0,9)*1000+notTen(1,999),3);return num(`다음을 소수로 쓰세요.${BIG(readDec(s))}`,s,`'${readDec(s)}' → ${s}`);},
+ ()=>{const d=distinctDigits(4),s=`${d[0]}.${d[1]}${d[2]}${d[3]}`,p=rnd(1,3);return num(`아래 수에서 <b>${PLACE[p]}</b> 숫자는?${BIG(s)}`,d[p],`${s}에서 ${PLACE[p]} 숫자는 ${ye(d[p])}.`);},
+ ()=>{const d=distinctDigits(4),s=`${d[0]}.${d[1]}${d[2]}${d[3]}`,p=rnd(2,3),v=fmt(d[p]*(p===2?10:1),3);return num(`아래 수에서 숫자 ${jo(d[p],'이','가')} 나타내는 수는 얼마일까요?${BIG(s)}`,v,`${jo(d[p],'은','는')} ${PLACE[p]} 숫자라서 ${jo(v,'을','를')} 나타내요.`);},
+ ()=>{const st=notTen(101,399),k=rnd(1,9);return num(`수직선에서 <span style="color:#ff7a2a">?</span>가 가리키는 수는 얼마일까요?`,fmt(st*10+k,3),`${jo(fmt(st,2),'과','와')} ${fmt(st+1,2)} 사이를 10칸으로 나누면 한 칸은 0.001이에요.`,numberLine(fmt(st,2),fmt(st+1,2),k));},
+ ()=>{const a=rnd(1,5),b=notTen(101,999);return num(`1 m는 0.001 km예요.<br><b>${a} km ${b} m</b>는 몇 km일까요?`,fmt(a*1000+b,3),`${b} m = ${fmt(b,3)} km → ${a} km + ${fmt(b,3)} km = ${fmt(a*1000+b,3)} km`);},
+ ()=>{const a=rnd(1,5),b=notTen(11,99);return num(`1 g은 0.001 kg이에요.<br><b>${a} kg ${b} g</b>은 몇 kg일까요?`,fmt(a*1000+b,3),`${b} g = ${fmt(b,3)} kg (소수 첫째 자리는 0!) → ${fmt(a*1000+b,3)} kg`);},
+ ()=>{const s=fmt(rnd(1,9)*1000+notTen(101,999),3);return num(`자리표가 나타내는 소수를 쓰세요.`,s,`일의 자리부터 차례로 읽으면 ${ye(s)}.`,placeChart(s,4));},
+];
+/* 1주차 수: 소수의 크기 비교 */
+const mil=s=>Math.round(parseFloat(s)*1000);
+function cmpPair(kinds=[0,1,2,3,4]){
+  const k=pick(kinds),x=rnd(0,5); let a,b;
+  if(k===0){const t=rnd(2,8);a=fmt(x*10+t,1);b=fmt(x*100+(t-1)*10+rnd(1,9),2);}
+  else if(k===1){const t=rnd(1,8);a=fmt(x*10+t,1);b=fmt(x*100+t*10+rnd(1,9),2);}
+  else if(k===2){const t=rnd(1,9);a=fmt(x*10+t,1);b=a+'0';}
+  else if(k===3){const a2=x*100+notTen(11,98);a=fmt(a2,2);b=fmt(a2*10+(Math.random()<.5?-1:1)*rnd(1,9),3);}
+  else {a=fmt((x+1)*100+rnd(1,9),2);b=fmt(x*10+rnd(5,9),1);}
+  return Math.random()<.5?[a,b]:[b,a];
+}
+const sign=(a,b)=>mil(a)>mil(b)?'>':mil(a)<mil(b)?'<':'=';
+function pool4(){
+  const x=rnd(0,4),t=rnd(2,7);
+  const p=[fmt(x*10+t,1),fmt(x*100+(t-1)*10+rnd(1,9),2),fmt(x*1000+t*100+rnd(1,9),3),fmt(x*100+t,2),fmt(x*10+t+1,1),fmt(x*100+t*10+rnd(1,9),2),fmt(x*1000+(t-1)*100+rnd(10,99),3)];
+  const out=[],seen=new Set(); for(const v of shuffle(p)){ if(!seen.has(mil(v))){seen.add(mil(v));out.push(v);} if(out.length===4)break; } return out;
+}
+G.cmp=[
+ ()=>{const [a,b]=cmpPair();return cho(`두 수의 크기를 비교해요.<br>○ 안에 알맞은 것은?${BIG(`${a} ○ ${b}`)}`,sign(a,b),['>','<','='],`자연수 부분 → 소수 첫째 자리 → 둘째 자리 → 셋째 자리 순서로 비교해요. ${a} ${sign(a,b)} ${b}`,'',true);},
+ ()=>{const [a,b]=cmpPair([0,1,3]);return cho(`두 수의 크기를 비교해요.<br>○ 안에 알맞은 것은?${BIG(`${a} ○ ${b}`)}`,sign(a,b),['>','<','='],`자릿수가 많다고 큰 수가 아니에요! 높은 자리부터 비교해요. ${a} ${sign(a,b)} ${b}`,'',true);},
+ ()=>{const [a,b]=cmpPair([2,0,4]);return cho(`두 수의 크기를 비교해요.<br>○ 안에 알맞은 것은?${BIG(`${a} ○ ${b}`)}`,sign(a,b),['>','<','='],`${sign(a,b)==='='?'소수 끝자리의 0은 있어도 없어도 같은 수예요.':'자연수 부분부터 차례로 비교해요.'} ${a} ${sign(a,b)} ${b}`,'',true);},
+ ()=>{const p=pool4(),m=p.reduce((x,y)=>mil(x)>=mil(y)?x:y);return cho(`가장 <b>큰</b> 수를 골라 보세요.`,m,p,`높은 자리부터 차례로 비교하면 가장 큰 수는 ${ye(m)}.`);},
+ ()=>{const p=pool4(),m=p.reduce((x,y)=>mil(x)<=mil(y)?x:y);return cho(`가장 <b>작은</b> 수를 골라 보세요.`,m,p,`높은 자리부터 차례로 비교하면 가장 작은 수는 ${ye(m)}.`);},
+ ()=>{const x=rnd(0,5),t=rnd(1,9),s=fmt(x*10+t,1);return cho(`아래 수와 크기가 <b>같은</b> 수는?${BIG(s)}`,s+'0',[s+'0',`${x}.0${t}`,`${x}.00${t}`,String(x*10+t)],`소수 끝자리에 0을 붙여도 크기는 같아요. ${s} = ${s}0`);},
+ ()=>{const x=rnd(1,9),b=rnd(2,8),c=rnd(1,8);let d;do{d=rnd(1,9);}while(d===c);const ans=d<c?b:b-1;return num(`□ 안에 들어갈 수 있는 숫자 중에서 가장 큰 숫자는?${BIG(`${x}.□${d} &lt; ${x}.${b}${c}`)}`,ans,`□에 ${jo(ans,'을','를')} 넣으면 ${x}.${ans}${d} &lt; ${x}.${b}${c} 이고, ${jo(ans+1,'을','를')} 넣으면 더 커져요.`);},
+ ()=>{const [a,b]=cmpPair([0,1,3,4]);const T=pick([
+    [`도윤이는 ${a} km, 친구는 ${b} km를 걸었어요.`,'누가 더 많이 걸었을까요?'],
+    [`도윤이는 물을 ${a} L, 친구는 ${b} L 마셨어요.`,'누가 물을 더 많이 마셨을까요?'],
+    [`도윤이는 감자를 ${a} kg, 친구는 ${b} kg 캤어요.`,'누가 감자를 더 많이 캤을까요?']]);
+   const big=mil(a)>mil(b)?'도윤':'친구';return cho(`${T[0]}<br>${T[1]}`,big,['도윤','친구'],`${a} ${sign(a,b)} ${b} 이니까 ${ye(big)}.`,'',true);},
+];
+/* 1주차 목: 소수 사이의 관계 (10배, 100배, 1/10, 1/100) */
+function decN(){ const dp=rnd(1,3); const n=dp===1?notTen(11,99):dp===2?notTen(11,999):notTen(101,9999); return [n,dp]; }
+function times(n,dp,k){ return k>=dp?fmt(n*10**(k-dp),0):fmt(n,dp-k); }
+G.rel=[
+ ()=>{const [n,dp]=decN(),k=pick([1,2]),v=fmt(n,dp),a=times(n,dp,k);return num(`아래 수의 <b>${10**k}배</b>는 얼마일까요?${BIG(v)}`,a,`${10**k}배 하면 소수점이 오른쪽으로 ${k}자리 옮겨져요. ${v} → ${a}`);},
+ ()=>{const dp=rnd(0,1),n=dp?notTen(11,99):rnd(2,99),k=pick([1,2]),v=fmt(n,dp),a=fmt(n,dp+k);return num(`아래 수의 ${frac(1,10**k)}은 얼마일까요?${BIG(v)}`,a,`${frac(1,10**k)}을 하면 소수점이 왼쪽으로 ${k}자리 옮겨져요. ${v} → ${a}`);},
+ ()=>{const [n,dp]=[notTen(11,999),rnd(1,2)],y=fmt(n,dp),a=fmt(n,dp+1);return num(`어떤 수의 10배가 <b>${y}</b>${pp(y,'이에요','예요')}.<br>어떤 수는 얼마일까요?`,a,`10배 하기 전의 수는 ${y}의 ${frac(1,10)}이에요. → ${a}`);},
+ ()=>{const n=notTen(11,99),dp=rnd(0,1),k=pick([1,2]),x=fmt(n,dp+k),y=fmt(n,dp);return cho(`<b>${y}</b>${pp(y,'은','는')} <b>${x}</b>의 몇 배일까요?`,`${10**k}배`,['10배','100배','1000배'],`${x}에서 소수점을 오른쪽으로 ${k}자리 옮기면 ${y} → ${10**k}배`,'',true);},
+ ()=>{const n=notTen(11,99),dp=rnd(0,1),k=pick([1,2]),x=fmt(n,dp+k),y=fmt(n,dp);return cho(`<b>${x}</b>${pp(x,'은','는')} <b>${y}</b>의 얼마일까요?`,`1/${10**k}`,['1/10','1/100','1/1000'],`${y}에서 소수점을 왼쪽으로 ${k}자리 옮기면 ${x} → ${frac(1,10**k)}`,'',true);},
+ ()=>{const n=notTen(101,999),s=fmt(n,2),a=times(n,2,1);return num(`자리표의 수를 <b>10배</b> 하면 얼마일까요?`,a,`10배 하면 각 숫자가 한 자리씩 왼쪽(큰 자리)으로 옮겨가요. ${s} → ${a}`,placeChart(s,3));},
+ ()=>{const n=notTen(11,99),a=fmt(n,2);return num(`리본 <b>${n} m</b>를 100도막으로 똑같이 잘랐어요.<br>한 도막은 몇 m일까요?`,a,`${n}의 ${frac(1,100)} = ${a}`);},
+];
+/* 보기 '1/10' 같은 글자를 분수 모양으로 보여 줘요 */
+const choLabel=s=>/^1\/\d+$/.test(s)?frac(1,s.split('/')[1]):s;
+
+/* 미션 문제 세트 만들기 */
+function makeQs(m){
+  const n=m.boss?10:9, out=[], seen=new Set();
+  let order=[], guard=0;
+  while(out.length<n && guard++<300){
+    let f;
+    if(m.boss){ const key=m.wgens[out.length%m.wgens.length]; f=pick(G[key]); }
+    else { if(!order.length) order=shuffle(G[m.gen].slice()); f=order.pop(); }
+    const q=f(); if(seen.has(q.q+q.svg)) continue; seen.add(q.q+q.svg); out.push(q);
+  }
+  return m.boss?shuffle(out):out;
+}
+
+/* ════════ 저장 ════════ */
+const defState=()=>({mission:0,depth:0,dex:[],wrong:[],log:{},done:{},updatedAt:0});
+let S=defState();
+try{ const raw=localStorage.getItem(LS_KEY); if(raw) S=Object.assign(defState(),JSON.parse(raw)); }catch(e){}
+const curDepth=()=>S.mission>0?MISSIONS[Math.min(S.mission,MISSIONS.length)-1].depth:0;
+const cloud={db:null,ok:false,ready:null};
+function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+const timeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
+function cloudInit(){
+  if(cloud.ready) return cloud.ready;
+  const base='https://www.gstatic.com/firebasejs/10.12.2/';
+  cloud.ready=loadScript(base+'firebase-app-compat.js').then(()=>loadScript(base+'firebase-firestore-compat.js')).then(()=>{
+    firebase.initializeApp(FIREBASE_CONFIG); cloud.db=firebase.firestore(); cloud.ok=true; return true;
+  }).catch(e=>{ console.warn('Firebase 불러오기 실패',e); return false; });
+  return cloud.ready;
+}
+const docRef=()=>cloud.db.collection(DOC_PATH[0]).doc(DOC_PATH[1]);
+function setSync(st){ $('sync').textContent={ok:'☁️',off:'📴',wait:'⏳',err:'⚠️'}[st]; $('sync').title={ok:'온라인에 저장돼요',off:'이 기기에만 저장 중',wait:'불러오는 중',err:'저장 실패 (다시 시도해요)'}[st]; }
+async function cloudLoad(){
+  setSync('wait');
+  try{
+    const ok=await timeout(cloudInit(),8000); if(!ok) throw new Error('no firebase');
+    const snap=await timeout(docRef().get(),8000);
+    if(snap.exists){ const d=snap.data(); if((d.updatedAt||0)>(S.updatedAt||0)){ S=Object.assign(defState(),d); saveLocal(); render(); } else if((S.updatedAt||0)>(d.updatedAt||0)) await pushCloud(); }
+    else if(S.updatedAt) await pushCloud();
+    setSync('ok');
+  }catch(e){ console.warn(e); setSync('off'); }
+}
+function saveLocal(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(S)); }catch(e){} }
+let pushT=null;
+function save(){ S.updatedAt=Date.now(); S.depth=curDepth(); saveLocal(); clearTimeout(pushT); pushT=setTimeout(pushCloud,700); }
+async function pushCloud(){
+  if(!cloud.ok) return;
+  try{ await docRef().set(JSON.parse(JSON.stringify(S))); setSync('ok'); }catch(e){ console.warn('저장 실패',e); setSync('err'); }
+}
+function logAnswer(ok){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok) L.c++; }
+function logMission(txt){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); (L.m||(L.m=[])).push(txt); }
+
+/* ════════ 화면: 배경 · 게이지 ════════ */
+const SEG=[[0,200],[200,1000],[1000,4000],[4000,6000],[6000,11000]];
+function depthFrac(d){ for(let i=0;i<SEG.length;i++){ const [a,b]=SEG[i]; if(d<=b) return (i+(d-a)/(b-a))/SEG.length; } return 1; }
+const STOPS=[[0,[138,216,255]],[.2,[44,127,196]],[.4,[22,54,122]],[.6,[11,26,74]],[.8,[6,12,36]],[1,[2,3,9]]];
+function colorAt(f){ for(let i=1;i<STOPS.length;i++){ if(f<=STOPS[i][0]){ const [f0,c0]=STOPS[i-1],[f1,c1]=STOPS[i],t=(f-f0)/(f1-f0); return `rgb(${c0.map((v,j)=>Math.round(v+(c1[j]-v)*t)).join(',')})`; } } return 'rgb(2,3,9)'; }
+function setBg(d){ const f=depthFrac(d); document.documentElement.style.setProperty('--bg',colorAt(f)); document.documentElement.style.setProperty('--light',Math.max(0,.35-f*.6).toFixed(2)); }
+function renderGauge(d){
+  const f=depthFrac(d);
+  let t='';
+  ZONES.forEach((z,i)=>{ t+=`<div class="gz" style="top:${i*20}%;background:${colorAt(i*.2+.1)}"><span class="gzl">${z.n}. ${z.name}</span></div>`; });
+  [[0,'0m'],[200,'200m'],[1000,'1,000m'],[4000,'4,000m'],[6000,'6,000m']].forEach(([v,l])=>{ t+=`<div class="gmark" style="top:${depthFrac(v)*100}%">${l}</div>`; });
+  t+=`<div class="gmark always" style="top:100%">🔱 아틀란티스</div>`;
+  $('gauge').innerHTML=`<div class="gnum"><small>지금 수심</small><b id="gd">${d.toLocaleString()}</b><small>m</small></div><div class="gtrack">${t}<div class="gsub" id="gsub" style="top:${f*100}%">${SUB}</div></div>`;
+}
+
+/* ════════ 화면: 메인 ════════ */
+function render(){
+  const d=curDepth(); setBg(d); renderGauge(d);
+  const m=MISSIONS[S.mission];
+  let h='';
+  if(!m){
+    h+=`<div class="card" style="text-align:center"><div class="zone">🔱 아틀란티스</div><h2 class="mtitle" style="margin-top:12px">크라켄의 봉인을 모두 풀었어요!</h2><div style="max-width:320px;margin:0 auto">${picHTML(CRE[CRE.length-1])}</div><p class="mdesc">도윤 선장님, 아틀란티스 정복 완료! 🎉</p></div>`;
+  } else {
+    const z=ZONES[m.z-1], wk=MISSIONS.filter(x=>x.week===m.week);
+    h+=`<div class="card"><span class="zone">${z.n}구역 ${z.name} (${z.range}) · ${z.unit}</span>
+      <div class="week">${wk.map(x=>`<div class="${x.i<S.mission?'done':x.i===S.mission?'now':''}">${DAYS[x.day]}${x.boss?'⚔️':''}${x.i<S.mission?' ✔':''}</div>`).join('')}</div>
+      <p class="mlabel">${mLabel(m)}</p><h2 class="mtitle">${m.title}</h2>`;
+    if(m.ready){
+      h+=`<p class="mdesc">문제 ${m.boss?10:9}개 · ${m.boss?`7문제를 맞히면 보스를 물리쳐요!`:'다 풀면'} 수심 <b>${m.depth.toLocaleString()}m</b>로 내려가요</p>
+        <div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>${m.boss?`<b>보스</b>가 길을 막고 있어요!<br>정체는… ???`:`${m.depth.toLocaleString()}m 아래에서<br>누군가 기다리고 있어요…`}</p></div>
+        <button class="big-btn ${m.boss?'boss':''}" onclick="startMission(${m.i})">${m.boss?'⚔️ 보스와 대결!':'🚀 잠수 시작!'}</button>`;
+    } else {
+      h+=`<div class="wait"><div class="pic sil">${creSVG(m.cre)}</div><p>🚧 이 바다는 아직 지도를 그리는 중이에요.<br>곧 열려요! 그동안 오답 소용돌이를 탈출해 볼까요?</p></div><button class="big-btn" disabled>🔒 준비 중</button>`;
+    }
+    h+=`</div>`;
+  }
+  h+=`<div class="menu">
+    <button onclick="openDex()"><span class="ic">📖</span>도감<small>${S.dex.length} / ${CRE.length}</small></button>
+    <button onclick="startVortex()"><span class="ic">🌀</span>오답 소용돌이<small>${S.wrong.length}문제</small></button>
+    <button onclick="openVoyage()"><span class="ic">🗺️</span>항해 일지<small>${Math.min(S.mission,MISSIONS.length)} / ${MISSIONS.length}</small></button>
+  </div>
+  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button></div>`;
+  $('main').innerHTML=h;
+}
+
+/* ════════ 문제 풀기 ════════ */
+let Q=null;
+function startMission(i,replay){
+  const m=MISSIONS[i]; if(!m||!m.ready) return;
+  Q={mode:m.boss?'boss':'mission',m,list:makeQs(m),i:0,c:0,res:[],replay:!!replay,hp:7,buf:''};
+  drawQuiz();
+}
+function startVortex(){
+  if(!S.wrong.length){ toast('오답 소용돌이가 텅 비었어요! 👍'); return; }
+  Q={mode:'vortex',list:shuffle(S.wrong).slice(0,10),i:0,c:0,res:[],buf:''};
+  drawQuiz();
+}
+function quizHead(){
+  const n=Q.list.length;
+  return `<div class="qtop"><button class="x" onclick="quitQuiz()">✕</button><div class="dots">${Q.list.map((_,j)=>`<i class="${Q.res[j]===true?'o':Q.res[j]===false?'w':j===Q.i?'c':''}"></i>`).join('')}</div><span class="qcount">${Math.min(Q.i+1,n)}/${n}</span></div>`;
+}
+function drawQuiz(){
+  const q=Q.list[Q.i]; let h=`<div class="screen" id="qs"><div class="inner">${quizHead()}`;
+  if(Q.mode==='boss') h+=`<div class="bossbar"><div class="pic" id="bosspic">${creSVG(Q.m.cre)}</div><div><div class="bn">⚔️ ${Q.m.cre.n}</div><div class="hp" id="hp">${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}</div><small style="opacity:.8">맞힐 때마다 ❤️ 하나씩 줄어요</small></div></div>`;
+  if(Q.mode==='vortex') h+=`<div class="bossbar"><div style="font-size:44px">🌀</div><div><div class="bn">오답 소용돌이</div><small style="opacity:.85">맞히면 소용돌이에서 빠져나와요 (${q.from||''})</small></div></div>`;
+  h+=`<div class="qcard" id="qcard"><div class="qtext">${q.q}</div>${q.svg?`<div class="qsvg">${q.svg}</div>`:''}`;
+  if(q.t==='num'){
+    Q.buf='';
+    h+=`<div class="disp empty" id="disp">답을 눌러요</div><div class="pad">
+      ${[7,8,9].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}<button class="del" onclick="key('del')">⌫</button>
+      ${[4,5,6].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}<button class="ok" onclick="submitNum()">확인</button>
+      ${[1,2,3].map(k=>`<button onclick="key('${k}')">${k}</button>`).join('')}
+      <button onclick="key('0')" style="grid-column:1/span 2">0</button><button onclick="key('.')">.</button></div>`;
+  } else {
+    const three=q.ch.length===3&&q.ch.every(c=>c.length===1);
+    h+=`<div class="choices ${three?'three':''}">${q.ch.map((c,j)=>`<button onclick="choose(${j})">${choLabel(c)}</button>`).join('')}</div>`;
+  }
+  h+=`</div></div></div>`;
+  $('layer').innerHTML=h;
+}
+function key(k){
+  if(k==='del') Q.buf=Q.buf.slice(0,-1);
+  else if(k==='.'){ if(!Q.buf.includes('.')) Q.buf=(Q.buf||'0')+'.'; }
+  else if(Q.buf.length<8) Q.buf=(Q.buf==='0'?'':Q.buf)+k;
+  const d=$('disp'); if(!d) return; d.textContent=Q.buf||'답을 눌러요'; d.classList.toggle('empty',!Q.buf);
+}
+function submitNum(){
+  if(!Q.buf||Q.buf==='.'){ $('disp').classList.add('shake'); setTimeout(()=>$('disp')&&$('disp').classList.remove('shake'),400); return; }
+  const q=Q.list[Q.i]; judge(Math.abs(parseFloat(Q.buf)-parseFloat(q.a))<1e-9);
+}
+function choose(j){ const q=Q.list[Q.i]; judge(q.ch[j]===q.a); }
+function judge(ok){
+  const q=Q.list[Q.i]; Q.res[Q.i]=ok; logAnswer(ok);
+  if(ok){ Q.c++; sOK(); } else sNO();
+  if(Q.mode==='vortex'){ if(ok) S.wrong=S.wrong.filter(w=>w.id!==q.id); }
+  else if(!ok){ S.wrong.push(Object.assign({},q,{id:'w'+Date.now().toString(36)+rnd(100,999),from:Q.m.title})); if(S.wrong.length>80) S.wrong.shift(); }
+  save();
+  if(Q.mode==='boss'&&ok){ Q.hp--; const hp=$('hp'); if(hp) hp.innerHTML=`${'❤️'.repeat(Q.hp)}${'🤍'.repeat(7-Q.hp)}`; const bp=$('bosspic'); if(bp){ bp.classList.remove('hit'); void bp.offsetWidth; bp.classList.add('hit'); } }
+  const fb=document.createElement('div'); fb.className='fb';
+  const ansTxt=q.t==='cho'?choLabel(q.a):q.a;
+  fb.innerHTML=ok?`<div class="mark">⭕</div><h3>${pick(['정답!','멋져요!','훌륭해요!','바로 그거예요!'])}</h3>${Q.mode==='boss'?`<p>${Q.m.cre.n}에게 공격 성공! 💥</p>`:''}`
+    :`<div class="mark">❌</div><h3>아쉬워요!</h3><p>정답은</p><div class="ans">${ansTxt}</div><p>${q.ex||''}</p>${Q.mode!=='vortex'?'<p style="font-size:16px">🌀 오답 소용돌이에 넣어 둘게요</p>':''}<button onclick="nextQ()">알겠어요</button>`;
+  $('qcard').appendChild(fb);
+  if(ok) setTimeout(nextQ,950);
+}
+function nextQ(){
+  if(!Q) return;
+  if(Q.mode==='boss'&&Q.hp<=0) return finishQuiz();
+  Q.i++; if(Q.i>=Q.list.length) return finishQuiz();
+  drawQuiz();
+}
+function quitQuiz(){ if(confirm('잠수를 멈출까요?\n지금까지 푼 문제는 기록돼요.')){ Q=null; $('layer').innerHTML=''; render(); } }
+document.addEventListener('keydown',e=>{
+  if(!Q||!$('disp')||document.querySelector('.fb')) { if(e.key==='Enter'){ const b=document.querySelector('.fb button'); if(b) b.click(); } return; }
+  if(/^[0-9]$/.test(e.key)) key(e.key); else if(e.key==='.') key('.'); else if(e.key==='Backspace') key('del'); else if(e.key==='Enter') submitNum();
+});
+
+function finishQuiz(){
+  const n=Q.list.length, done=Q.res.filter(r=>r!==undefined).length;
+  if(Q.mode==='vortex'){
+    const c=Q.c; Q=null; render(); sWIN();
+    modal(`<h2>🌀 소용돌이 탈출!</h2><p style="font-size:22px;text-align:center">${c}문제를 소용돌이에서 구해 냈어요!<br><small style="color:var(--sub)">남은 문제: ${S.wrong.length}개</small></p><button class="btn wide" onclick="closeModal()">좋아요</button>`);
+    return;
+  }
+  const m=Q.m, win=Q.mode!=='boss'||Q.hp<=0, replay=Q.replay, score=`${Q.c}/${done}`;
+  if(Q.mode==='boss'&&!win){
+    Q=null; $('layer').innerHTML=''; render(); sNO();
+    modal(`<h2>💨 ${jo(m.cre.n,'이','가')} 도망갔어요!</h2><div style="max-width:260px;margin:0 auto">${picHTML(m.cre,true)}</div><p style="font-size:20px;text-align:center">${score} 맞혔어요. 7문제를 맞히면 물리칠 수 있어요!<br>틀린 문제는 오답 소용돌이에서 연습해 봐요.</p><div class="row"><button class="btn gray" style="flex:1" onclick="closeModal()">다음에</button><button class="btn" style="flex:1" onclick="closeModal();startMission(${m.i},${replay})">⚔️ 다시 도전</button></div>`);
+    return;
+  }
+  S.done[m.id]=Math.max(S.done[m.id]||0,Q.c);
+  logMission(`${mLabel(m)} ${m.title} (${score})`);
+  Q=null; $('layer').innerHTML='';
+  if(replay||m.i!==S.mission){ save(); render(); sWIN(); modal(`<h2>✅ 다시 풀기 끝!</h2><p style="font-size:22px;text-align:center">${m.title}<br>${score} 맞혔어요!</p><button class="btn wide" onclick="closeModal()">좋아요</button>`); return; }
+  const from=curDepth(); S.mission++;
+  const c=m.cre, isNew=!S.dex.includes(c.id); if(isNew) S.dex.push(c.id);
+  save(); diveTo(from,m.depth,()=>{ render(); showCreature(c,isNew,`${m.boss?'보스를 물리쳤어요! ':''}${score} 맞혔어요`); });
+}
+
+/* 잠수 연출 */
+function diveTo(from,to,done){
+  setBg(to); const g=$('gsub'); if(g) g.style.top=depthFrac(to)*100+'%';
+  const el=document.createElement('div'); el.className='dive';
+  el.innerHTML=`<div class="subbig">${SUB}</div><div class="dn"><span id="dn">${from.toLocaleString()}</span>m</div><p>더 깊이 내려가는 중… 🫧</p>`;
+  document.body.appendChild(el); sWIN();
+  const t0=performance.now(), dur=2300;
+  (function step(t){ const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3), v=Math.round(from+(to-from)*e); const dn=$('dn'); if(dn) dn.textContent=v.toLocaleString(); const gd=$('gd'); if(gd) gd.textContent=v.toLocaleString(); if(p<1) requestAnimationFrame(step); else setTimeout(()=>{ el.remove(); done(); },500); })(t0);
+}
+
+/* ════════ 모달 · 도감 ════════ */
+function modal(html){ $('layer').innerHTML=`<div class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><button class="close" onclick="closeModal()">✕</button>${html}</div></div>`; }
+function closeModal(){ $('layer').innerHTML=''; }
+function creatureHTML(c){
+  return `<div class="creature">${picHTML(c)}<h3>${c.n}</h3><span class="badge">🌊 사는 곳: ${c.r}</span><ul>${c.f.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+}
+function showCreature(c,isNew,sub){
+  modal(`<div class="flip" style="text-align:center">${isNew?'<span class="new">NEW! 새 친구</span>':'<span class="new" style="background:#8aa">이미 만난 친구</span>'}<p style="margin:4px 0;color:var(--sub);font-size:18px">${c.d.toLocaleString()}m에서 만났어요${sub?' · '+sub:''}</p>${creatureHTML(c)}</div><button class="btn wide" style="margin-top:12px" onclick="closeModal()">📖 도감에 넣기</button>`);
+}
+function openDex(){
+  let h=`<h2>📖 바다 생물 도감 <small style="color:var(--sub);font-size:18px">${S.dex.length} / ${CRE.length}</small></h2>`;
+  ZONES.forEach(z=>{
+    const list=CRE.map((c,i)=>({c,m:MISSIONS[i]})).filter(x=>x.m.z===z.n);
+    const got=list.filter(x=>S.dex.includes(x.c.id)).length;
+    h+=`<div class="zh">${z.n}구역 ${z.name} <small>${z.range} · ${got}/${list.length}</small></div><div class="dexgrid">`;
+    list.forEach(({c})=>{ const has=S.dex.includes(c.id); h+=`<button class="dexc ${has?'got':''}" onclick="dexOne('${c.id}')">${picHTML(c,!has)}<div class="nm">${has?c.n:'???'}</div><div class="dp">${c.d.toLocaleString()}m${c.boss?' · 보스':''}</div></button>`; });
+    h+=`</div>`;
+  });
+  modal(h);
+}
+function dexOne(id){
+  const c=CRE.find(x=>x.id===id), has=S.dex.includes(id);
+  if(has) modal(`${creatureHTML(c)}<button class="btn gray wide" style="margin-top:12px" onclick="openDex()">◀ 도감으로</button>`);
+  else modal(`<div class="creature"><div class="pic sil" style="max-width:360px;margin:0 auto">${creSVG(c)}</div><h3>???</h3><p style="font-size:20px">아직 못 만났어요.<br><b>${c.d.toLocaleString()}m</b> 근처까지 내려가면 만날 수 있어요!</p></div><button class="btn gray wide" onclick="openDex()">◀ 도감으로</button>`);
+}
+
+/* ════════ 항해 일지 ════════ */
+function openVoyage(){
+  let h=`<h2>🗺️ 항해 일지</h2><p style="color:var(--sub);font-size:16px;margin-top:0">지나온 미션은 다시 풀 수 있어요 (카드는 처음 한 번만 받아요)</p>`;
+  WEEKS.forEach((w,wi)=>{
+    const ms=MISSIONS.filter(m=>m.week===wi+1), z=ZONES[w.z-1];
+    if(wi===0||WEEKS[wi-1].z!==w.z) h+=`<div class="zh">${z.n}구역 ${z.name} · ${z.unit}</div>`;
+    h+=`<div class="list" style="margin-bottom:8px">`;
+    ms.forEach(m=>{
+      const st=m.i<S.mission?'✅':m.i===S.mission?'▶️':!m.ready?'🚧':'🔒';
+      h+=`<div class="li ${m.i===S.mission?'cur':''}"><span>${st}</span><span class="t">${m.title}<br><small>${mLabel(m)} · ${m.depth.toLocaleString()}m${S.done[m.id]!==undefined?` · 최고 ${S.done[m.id]}개 맞힘`:''}</small></span>${m.i<S.mission&&m.ready?`<button onclick="closeModal();startMission(${m.i},true)">다시 풀기</button>`:''}</div>`;
+    });
+    h+=`</div>`;
+  });
+  modal(h);
+}
+
+/* ════════ 엄마 모드 (비밀번호는 엄마 모드 안에서 바꿀 수 있어요. 처음은 0000) ════════ */
+let PIN='', SETTINGS=null;
+async function openAdmin(){
+  PIN=''; drawPin('설정을 불러오는 중…');
+  try{ if(await timeout(cloudInit(),6000)){ const s=await timeout(cloud.db.collection('e4').doc('settings').get(),6000); SETTINGS=s.exists?s.data():{}; } }catch(e){ SETTINGS=null; }
+  drawPin();
+}
+const usingDefaultPin=()=>!S.pinH&&!(SETTINGS&&(SETTINGS.momH||SETTINGS.pinH));
+function drawPin(msg){
+  modal(`<h2>🔒 엄마 모드</h2><p style="text-align:center;color:var(--sub);font-size:17px">${msg||'엄마 비밀번호 4자리를 눌러 주세요'}${usingDefaultPin()?'<br><small>처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.</small>':''}</p><div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<PIN.length?'on':''}"></i>`).join('')}</div><div class="pinpad" id="pinpad">${[1,2,3,4,5,6,7,8,9].map(k=>`<button onclick="pinKey('${k}')">${k}</button>`).join('')}<button onclick="pinKey('del')">⌫</button><button onclick="pinKey('0')">0</button><button onclick="closeModal()" style="font-size:18px">닫기</button></div>`);
+}
+function pinKey(k){
+  if(k==='del') PIN=PIN.slice(0,-1); else if(PIN.length<4) PIN+=k;
+  if(PIN.length<4) return drawPin();
+  /* 이 앱에서 정한 비밀번호가 있으면 그것만, 없으면 공부방(e4/settings)의 엄마·관리자 비밀번호, 그것도 없으면 0000 */
+  const st=SETTINGS||{};
+  const ok=S.pinH ? hashPin(PIN,'atlan')===S.pinH
+    : (st.momH&&hashPin(PIN,'mom')===st.momH)||hashPin(PIN,'admin')===(st.pinH||hashPin('0000','admin'));
+  if(ok){ PIN=''; drawAdmin(); } else { PIN=''; sNO(); drawPin('비밀번호가 틀렸어요. 다시 눌러 주세요'); const p=$('pinpad'); if(p) p.classList.add('shake'); }
+}
+function drawAdmin(){
+  const m=MISSIONS[S.mission];
+  const keys=Object.keys(S.log).sort().reverse();
+  let h=`<h2>👩 엄마 모드</h2>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>지금 미션</b><p style="margin:6px 0 10px;font-size:19px">${m?`${m.i+1}번째 · ${mLabel(m)} · ${m.title}<br><small style="color:var(--sub)">${ZONES[m.z-1].n}구역 ${ZONES[m.z-1].name} · 지금 수심 ${curDepth().toLocaleString()}m ${m.ready?'':'· 🚧 아직 준비 중인 미션'}</small>`:'모든 미션 완료'}</p>
+   <div class="row"><button class="btn gray" onclick="moveMission(-1)">◀ 한 칸 뒤로</button><button class="btn" onclick="moveMission(1)">한 칸 앞으로 ▶</button></div>
+   <p style="margin:12px 0 6px;font-size:16px">바로 옮기기</p>
+   <select id="jump" style="width:100%;font-size:17px;padding:10px;border-radius:12px;font-family:inherit">${MISSIONS.map(x=>`<option value="${x.i}" ${x.i===S.mission?'selected':''}>${x.i+1}. ${mLabel(x)} · ${x.title}${x.ready?'':' (준비 중)'}</option>`).join('')}<option value="${MISSIONS.length}" ${S.mission>=MISSIONS.length?'selected':''}>모두 완료</option></select>
+   <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin:10px 0"><input type="checkbox" id="grant" checked style="width:22px;height:22px"> 앞으로 옮길 때 건너뛴 미션의 생물 카드도 주기</label>
+   <button class="btn wide" onclick="setMission(+$('jump').value)">이 미션으로 옮기기</button></div>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>날짜별 기록</b>
+   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th></tr>${keys.map(k=>{const L=S.log[k];return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td></tr>${(L.m||[]).length?`<tr><td colspan="4" style="text-align:left;font-size:14px;color:var(--sub)">${L.m.map(x=>'✔ '+x).join('<br>')}</td></tr>`:''}`;}).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>오답 소용돌이</b> <span style="color:var(--sub)">${S.wrong.length}문제</span>
+   <div class="row" style="margin-top:8px"><button class="btn red" onclick="if(confirm('오답 소용돌이를 비울까요?')){S.wrong=[];save();drawAdmin();}">비우기</button></div></div>
+   <div class="card" style="background:#f2f7fd;box-shadow:none"><b>엄마 비밀번호 바꾸기</b> <span style="color:var(--sub);font-size:15px">${S.pinH?'(정해져 있어요)':'(아직 0000 이에요)'}</span>
+   <div class="row" style="margin-top:8px"><input id="newpin" type="password" inputmode="numeric" maxlength="4" placeholder="숫자 4자리" style="flex:1;font-size:20px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setPin()">바꾸기</button></div></div>
+   <button class="btn gray wide" onclick="closeModal();render()">닫기</button>`;
+  modal(h);
+}
+function setPin(){
+  const v=($('newpin').value||'').trim();
+  if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; }
+  S.pinH=hashPin(v,'atlan'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒');
+}
+function moveMission(d){ setMission(Math.max(0,Math.min(MISSIONS.length,S.mission+d))); }
+function setMission(n){
+  const grant=$('grant')?$('grant').checked:true;
+  if(n>S.mission&&grant) for(let i=S.mission;i<n;i++){ const id=CRE[i].id; if(!S.dex.includes(id)) S.dex.push(id); }
+  S.mission=n; save(); render(); drawAdmin(); toast('미션을 옮겼어요');
+}
+
+/* ════════ 시작 ════════ */
+(function bubbles(){ let h=''; for(let i=0;i<14;i++){ const s=rnd(8,26); h+=`<span style="left:${rnd(0,100)}%;width:${s}px;height:${s}px;animation-duration:${rnd(9,20)}s;animation-delay:-${rnd(0,20)}s"></span>`; } $('bubbles').innerHTML=h; })();
+render();
+cloudLoad();
+</script>
+</body>
+</html>
