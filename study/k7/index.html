@@ -17,40 +17,12 @@
   if(typeof globalThis==='undefined') window.globalThis=window;
 })();
 </script>
-<script>/* 🌱 연꽃 이모지는 2021년에 생긴 글자라 오래된 기기에는 없어요 → 그릴 수 없으면 연꽃 그림으로 바꿔요 (2026-10-04) */
-(function(){
-  var L='\uD83E\uDEB7';
-  /* 이 기기가 🌱을 색깔 있는 그림으로 그리고, '없는 글자' 상자(□)와도 다르게 그릴 때만 그대로 둬요. 애매하면 그림으로 바꿔요 */
-  function px(ch){ var c=document.createElement('canvas'); c.width=c.height=24; var x=c.getContext('2d'); x.textBaseline='top'; x.font='20px sans-serif'; x.fillText(ch,0,0); return x.getImageData(0,0,24,24).data; }
-  function has(){ try{ var a=px(L), t=px('\uDBFF\uDFFD'), col=false, same=true;
-    for(var i=0;i<a.length;i+=4){ if(a[i+3]>40 && (Math.abs(a[i]-a[i+1])>30 || Math.abs(a[i+1]-a[i+2])>30)) col=true; if(a[i]!==t[i]||a[i+3]!==t[i+3]) same=false; }
-    return col && !same; }catch(e){ return false; } }
-  if(has()) return;
-  window.__SIM_NOLOTUS=true;
-  var SRC='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+DQo8ZGVmcz4NCjxsaW5lYXJHcmFkaWVudCBpZD0iYmFjayIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGODZEMiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UyM0M5RSIvPjwvbGluZWFyR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9InNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGNDVDQkEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOTJBODYiLz48L2xpbmVhckdyYWRpZW50Pg0KPGxpbmVhckdyYWRpZW50IGlkPSJtaWQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGODY2QzQiLz48c3RvcCBvZmZzZXQ9Ii43IiBzdG9wLWNvbG9yPSIjRUU0NUFFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDgzNTlDIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0ibG93IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTYzRkE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzQyNDhBIi8+PC9saW5lYXJHcmFkaWVudD4NCjxyYWRpYWxHcmFkaWVudCBpZD0iZnJvbnQiIGN4PSIuNDUiIGN5PSIuNDUiIHI9Ii42NSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkY4REQ2Ii8+PHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0YyNThCQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RFM0FBMiIvPjwvcmFkaWFsR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9ImN1cFNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkIxM0EiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjRkZEMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZBMjJFIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0iY3VwVG9wIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGMjNBIi8+PC9saW5lYXJHcmFkaWVudD4NCjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkRFNkVFIi8+DQo8IS0tIOydtOuqqOyngCDsubgoMzAww5czMDApIOyijO2RnOuhnCDqt7jrpqzqs6Ag7KSE7Jes7JqUIC0tPg0KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgMjIpIHNjYWxlKC40NjY3KSI+DQogIDwhLS0g65KkIOqwgOyatOuNsCDrvrDsobHtlZwg6r2D7J6OIC0tPg0KICA8cGF0aCBkPSJNMTUwIDBDMTg1IDM4IDIxMiA4MCAyMDYgMTI4SDk0Qzg4IDgwIDExNSAzOCAxNTAgMFoiIGZpbGw9InVybCgjYmFjaykiLz4NCiAgPCEtLSDrkqQg7JaR7JiGIOq9g+yejiAo64Gd7J20IOuRpeq4gOqyjCDsnpjrprAg66qo7JaRKSAtLT4NCiAgPHBhdGggZD0iTTIyIDY2QzYyIDU4IDExMiA3MCAxNTAgMTEyTDEyMCAxNzJDNzIgMTYyIDM0IDE0MCAyNCA5MkMyMiA4MiAyMCA3MiAyMiA2NloiIGZpbGw9InVybCgjc2lkZSkiLz4NCiAgPHBhdGggZD0iTTI3OCA2NkMyMzggNTggMTg4IDcwIDE1MCAxMTJMMTgwIDE3MkMyMjggMTYyIDI2NiAxNDAgMjc2IDkyQzI3OCA4MiAyODAgNzIgMjc4IDY2WiIgZmlsbD0idXJsKCNzaWRlKSIvPg0KICA8IS0tIOuFuOuegCDsm5DthrUg6r2D7IigIC0tPg0KICA8cGF0aCBkPSJNOTggOTZMMjAyIDk2TDE5MCAxNjhIMTEwWiIgZmlsbD0idXJsKCNjdXBTaWRlKSIvPg0KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iOTYiIHJ4PSI1MiIgcnk9IjIwIiBmaWxsPSJ1cmwoI2N1cFRvcCkiLz4NCiAgPCEtLSDslYTrnpjroZwg7LKY7KeEIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTIgMTkyQzQyIDIxMCAxMTIgMjMyIDE1NiAyNjJMMTUwIDI5NEMxMDQgMzA0IDUwIDMwMCAyNiAyNzZDMTAgMjYwIDMgMjMwIDIgMTkyWiIgZmlsbD0idXJsKCNsb3cpIi8+DQogIDxwYXRoIGQ9Ik0yOTggMTkyQzI1OCAyMTAgMTg4IDIzMiAxNDQgMjYyTDE1MCAyOTRDMTk2IDMwNCAyNTAgMzAwIDI3NCAyNzZDMjkwIDI2MCAyOTcgMjMwIDI5OCAxOTJaIiBmaWxsPSJ1cmwoI2xvdykiLz4NCiAgPCEtLSDqsIDsmrTrjbAg7JaR7JiGIO2BsCDqvYPsno4gLS0+DQogIDxwYXRoIGQ9Ik0wIDEyOEM1NCAxMTggMTI0IDE0MCAxNTIgMjE0QzEyNCAyNTQgNjIgMjU0IDMwIDIyMkMxMCAyMDIgMCAxNjQgMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPHBhdGggZD0iTTMwMCAxMjhDMjQ2IDExOCAxNzYgMTQwIDE0OCAyMTRDMTc2IDI1NCAyMzggMjU0IDI3MCAyMjJDMjkwIDIwMiAzMDAgMTY0IDMwMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPCEtLSDslZ4g6rCA7Jq0642wIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTE1MCAxMDBDMTg2IDEzNCAyMTQgMTcwIDIxMiAyMTRDMjEwIDI1NCAxODQgMjc4IDE1MCAyNzhDMTE2IDI3OCA5MCAyNTQgODggMjE0Qzg2IDE3MCAxMTQgMTM0IDE1MCAxMDBaIiBmaWxsPSJ1cmwoI2Zyb250KSIvPg0KPC9nPg0KPC9zdmc+DQo=';
-  var esc=function(s){ return s.replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
-  var IMG='<img src="'+SRC+'" alt="새싹" class="lotus-emo" style="height:1.05em;width:1.05em;vertical-align:-0.15em;display:inline-block">';
-  function walk(n){
-    if(!n) return;
-    if(n.nodeType===3){
-      if(n.nodeValue.indexOf(L)<0) return;
-      var p=n.parentNode; if(!p) return;
-      if(p.namespaceURI && p.namespaceURI.indexOf('svg')>=0){ n.nodeValue=n.nodeValue.split(L).join('\uD83C\uDF38'); return; }   // 그림(SVG) 안 글자는 🌸로
-      if(/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(p.nodeName)) return;
-      var s=document.createElement('span'); s.innerHTML=n.nodeValue.split(L).map(esc).join(IMG); p.replaceChild(s,n); return;
-    }
-    if(n.nodeType===1 && !/^(SCRIPT|STYLE|TEXTAREA)$/i.test(n.nodeName)){ for(var c=n.firstChild;c;){ var nx=c.nextSibling; walk(c); c=nx; } }
-  }
-  function start(){ walk(document.body); try{ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.type==='characterData') walk(m.target); for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]); } }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
-  if(document.body) start(); else document.addEventListener('DOMContentLoaded',start);
-})();
-</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icon.png">
-<meta name="apple-mobile-web-app-title" content="새싹 공부방">
+<meta name="apple-mobile-web-app-title" content="AI 공부방">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>새싹 AI 공부방</title>
+<title>AI 공부방</title>
 <style>/* cmix-fb */
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');font-weight:500;font-display:swap}
 @font-face{font-family:'GMarketSans';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansBold.woff') format('woff');font-weight:700;font-display:swap}
@@ -533,7 +505,7 @@ body{background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171p
 </div>
 <div class="modal" id="modal" hidden><div class="sheet" id="sheet"></div></div>
 <div class="bar"><div class="bar-in">
-  <div class="logo" data-act="go" data-v="home" role="button" title="홈으로" style="cursor:pointer"><i>🌱</i><span id="simLogo">새싹 공부방</span></div>
+  <div class="logo" data-act="go" data-v="home" role="button" title="홈으로" style="cursor:pointer"><i>🌱</i><span id="simLogo">AI 공부방</span></div>
   <button class="star" data-act="starInfo" title="별 · 스티커 약속 보기" aria-label="모은 별 · 별과 스티커 약속 보기">⭐ <span id="starCount">0</span> <span class="stk-n">· 🏅 <span id="stkCount">0</span></span></button>
   <button class="home-btn" id="sndBtn" data-act="snd" aria-label="소리 끄기">🔊</button>
   <button class="home-btn" data-act="go" data-v="home" aria-label="처음 화면">🏠</button>
@@ -542,7 +514,7 @@ body{background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171p
 
 <script>
 
-/* ───── 🌱 새싹 AI 공부방: 입구(../)에서 로그인한 아이로 열어요 ─────
+/* ───── 🌱 AI 공부방: 입구(../)에서 로그인한 아이로 열어요 ─────
    이 방은 우리 가족 공부방을 옮겨 온 것이에요. 저장은 study_kids/{아이 번호}/room/… 에만 해요 */
 /* 🤝 협동 모드 모드(?board=1): 모두 한 팀 '우리 팀', 온라인에 저장하지 않아요 */
 const SIM_Q = new URLSearchParams(location.search), SIM_BOARD = SIM_Q.has('board');
@@ -557,9 +529,9 @@ const SIM_LOW = !SIM_BOARD && SIM_RANK(SIM.age)>=0 && SIM_RANK(SIM_ROOM)>=0 && S
 let simLowSaid = false;
 function lowStarNote(){ if(simLowSaid) return; simLowSaid=true; try{ toast('📚 여기는 아래 학년 방이라 별이 모이지 않아요. 복습은 얼마든지 좋아요!'); }catch(e){} }
 if(SIM_LOW) setTimeout(()=>{ simLowSaid=false; lowStarNote(); }, 1800);
-const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 예나야
-const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 예나의
-try{ document.title=SIM_UI+' 공부방 · 새싹 AI 공부방'; const h=document.getElementById('simHello'); if(h) h.textContent=SIM_A+', 안녕!'; const g=document.getElementById('simLogo'); if(g) g.textContent=SIM_UI+' 공부방'; }catch(e){}
+const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 하늘아 · 예나야
+const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 하늘이의 · 예나의
+try{ document.title=SIM_UI+' 공부방 · AI 공부방'; const h=document.getElementById('simHello'); if(h) h.textContent=SIM_A+', 안녕!'; const g=document.getElementById('simLogo'); if(g) g.textContent=SIM_UI+' 공부방'; }catch(e){}
 /* ───── 저장 (이 기기에 저장해요. 온라인 저장은 나중에 연결) ───── */
 const store = {
   get(k, d){ try{ const v=localStorage.getItem('sim_'+SIM.id+'_'+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } },
@@ -1579,11 +1551,11 @@ evListen(); setInterval(()=>{ try{ drawEvent(); }catch(e){} }, 1000);
 })();
 </script>
 
-<a class="sim-home" href="../" aria-label="새싹 AI 공부방 처음 화면으로">🌱 <span class="sh-l">새싹 공부방 </span>처음으로</a>
+<a class="sim-home" href="../" aria-label="AI 공부방 처음 화면으로">🌱 <span class="sh-l">AI 공부방 </span>처음으로</a>
 <script>/* 처음 화면 단추: 화면 위 방 이름 바로 옆으로 (잘 보이게) */ (function(){ const b=document.querySelector('.sim-home'), t=document.querySelector('header .tabs'), h=document.querySelector('.bar .logo'); if(b&&t){ t.appendChild(b); b.classList.add('in-top','in-tabs'); } else if(b&&h){ h.insertAdjacentElement('afterend', b); b.classList.add('in-top'); } })();</script>
 <button class="sim-adm" data-act="openAdmin" aria-label="관리자 모드">🔒 관리자</button>
 <style>
-/* 🌱 새싹 공부방: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
+/* 🌱 AI 공부방: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
 .sim-home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:inline-flex;align-items:center;gap:4px;padding:.45rem .85rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 10px rgba(221,101,144,.18)}
 [data-act="openAdmin"],[data-act="openMom"],.adm-links,[data-act="typingGame"],[data-act="openAllAdmin"]{display:none!important}
 /* 처음 화면 단추가 위쪽 방 이름 옆에 있을 때 */

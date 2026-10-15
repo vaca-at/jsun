@@ -1,6 +1,6 @@
 {
-  "name": "새싹 AI 공부방",
-  "short_name": "새싹 공부방",
+  "name": "AI 공부방",
+  "short_name": "AI 공부방",
   "description": "아이들이 집에서 한 명씩, 형제자매와 함께 공부하는 AI 공부방",
   "start_url": "/study/",
   "scope": "/study/",

@@ -17,40 +17,12 @@
   if(typeof globalThis==='undefined') window.globalThis=window;
 })();
 </script>
-<script>/* 🌱 연꽃 이모지는 2021년에 생긴 글자라 오래된 기기에는 없어요 → 그릴 수 없으면 연꽃 그림으로 바꿔요 (2026-10-04) */
-(function(){
-  var L='\uD83E\uDEB7';
-  /* 이 기기가 🌱을 색깔 있는 그림으로 그리고, '없는 글자' 상자(□)와도 다르게 그릴 때만 그대로 둬요. 애매하면 그림으로 바꿔요 */
-  function px(ch){ var c=document.createElement('canvas'); c.width=c.height=24; var x=c.getContext('2d'); x.textBaseline='top'; x.font='20px sans-serif'; x.fillText(ch,0,0); return x.getImageData(0,0,24,24).data; }
-  function has(){ try{ var a=px(L), t=px('\uDBFF\uDFFD'), col=false, same=true;
-    for(var i=0;i<a.length;i+=4){ if(a[i+3]>40 && (Math.abs(a[i]-a[i+1])>30 || Math.abs(a[i+1]-a[i+2])>30)) col=true; if(a[i]!==t[i]||a[i+3]!==t[i+3]) same=false; }
-    return col && !same; }catch(e){ return false; } }
-  if(has()) return;
-  window.__SIM_NOLOTUS=true;
-  var SRC='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+DQo8ZGVmcz4NCjxsaW5lYXJHcmFkaWVudCBpZD0iYmFjayIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGODZEMiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UyM0M5RSIvPjwvbGluZWFyR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9InNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGNDVDQkEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOTJBODYiLz48L2xpbmVhckdyYWRpZW50Pg0KPGxpbmVhckdyYWRpZW50IGlkPSJtaWQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGODY2QzQiLz48c3RvcCBvZmZzZXQ9Ii43IiBzdG9wLWNvbG9yPSIjRUU0NUFFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDgzNTlDIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0ibG93IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTYzRkE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzQyNDhBIi8+PC9saW5lYXJHcmFkaWVudD4NCjxyYWRpYWxHcmFkaWVudCBpZD0iZnJvbnQiIGN4PSIuNDUiIGN5PSIuNDUiIHI9Ii42NSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkY4REQ2Ii8+PHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0YyNThCQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RFM0FBMiIvPjwvcmFkaWFsR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9ImN1cFNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkIxM0EiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjRkZEMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZBMjJFIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0iY3VwVG9wIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGMjNBIi8+PC9saW5lYXJHcmFkaWVudD4NCjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkRFNkVFIi8+DQo8IS0tIOydtOuqqOyngCDsubgoMzAww5czMDApIOyijO2RnOuhnCDqt7jrpqzqs6Ag7KSE7Jes7JqUIC0tPg0KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgMjIpIHNjYWxlKC40NjY3KSI+DQogIDwhLS0g65KkIOqwgOyatOuNsCDrvrDsobHtlZwg6r2D7J6OIC0tPg0KICA8cGF0aCBkPSJNMTUwIDBDMTg1IDM4IDIxMiA4MCAyMDYgMTI4SDk0Qzg4IDgwIDExNSAzOCAxNTAgMFoiIGZpbGw9InVybCgjYmFjaykiLz4NCiAgPCEtLSDrkqQg7JaR7JiGIOq9g+yejiAo64Gd7J20IOuRpeq4gOqyjCDsnpjrprAg66qo7JaRKSAtLT4NCiAgPHBhdGggZD0iTTIyIDY2QzYyIDU4IDExMiA3MCAxNTAgMTEyTDEyMCAxNzJDNzIgMTYyIDM0IDE0MCAyNCA5MkMyMiA4MiAyMCA3MiAyMiA2NloiIGZpbGw9InVybCgjc2lkZSkiLz4NCiAgPHBhdGggZD0iTTI3OCA2NkMyMzggNTggMTg4IDcwIDE1MCAxMTJMMTgwIDE3MkMyMjggMTYyIDI2NiAxNDAgMjc2IDkyQzI3OCA4MiAyODAgNzIgMjc4IDY2WiIgZmlsbD0idXJsKCNzaWRlKSIvPg0KICA8IS0tIOuFuOuegCDsm5DthrUg6r2D7IigIC0tPg0KICA8cGF0aCBkPSJNOTggOTZMMjAyIDk2TDE5MCAxNjhIMTEwWiIgZmlsbD0idXJsKCNjdXBTaWRlKSIvPg0KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iOTYiIHJ4PSI1MiIgcnk9IjIwIiBmaWxsPSJ1cmwoI2N1cFRvcCkiLz4NCiAgPCEtLSDslYTrnpjroZwg7LKY7KeEIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTIgMTkyQzQyIDIxMCAxMTIgMjMyIDE1NiAyNjJMMTUwIDI5NEMxMDQgMzA0IDUwIDMwMCAyNiAyNzZDMTAgMjYwIDMgMjMwIDIgMTkyWiIgZmlsbD0idXJsKCNsb3cpIi8+DQogIDxwYXRoIGQ9Ik0yOTggMTkyQzI1OCAyMTAgMTg4IDIzMiAxNDQgMjYyTDE1MCAyOTRDMTk2IDMwNCAyNTAgMzAwIDI3NCAyNzZDMjkwIDI2MCAyOTcgMjMwIDI5OCAxOTJaIiBmaWxsPSJ1cmwoI2xvdykiLz4NCiAgPCEtLSDqsIDsmrTrjbAg7JaR7JiGIO2BsCDqvYPsno4gLS0+DQogIDxwYXRoIGQ9Ik0wIDEyOEM1NCAxMTggMTI0IDE0MCAxNTIgMjE0QzEyNCAyNTQgNjIgMjU0IDMwIDIyMkMxMCAyMDIgMCAxNjQgMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPHBhdGggZD0iTTMwMCAxMjhDMjQ2IDExOCAxNzYgMTQwIDE0OCAyMTRDMTc2IDI1NCAyMzggMjU0IDI3MCAyMjJDMjkwIDIwMiAzMDAgMTY0IDMwMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPCEtLSDslZ4g6rCA7Jq0642wIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTE1MCAxMDBDMTg2IDEzNCAyMTQgMTcwIDIxMiAyMTRDMjEwIDI1NCAxODQgMjc4IDE1MCAyNzhDMTE2IDI3OCA5MCAyNTQgODggMjE0Qzg2IDE3MCAxMTQgMTM0IDE1MCAxMDBaIiBmaWxsPSJ1cmwoI2Zyb250KSIvPg0KPC9nPg0KPC9zdmc+DQo=';
-  var esc=function(s){ return s.replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
-  var IMG='<img src="'+SRC+'" alt="새싹" class="lotus-emo" style="height:1.05em;width:1.05em;vertical-align:-0.15em;display:inline-block">';
-  function walk(n){
-    if(!n) return;
-    if(n.nodeType===3){
-      if(n.nodeValue.indexOf(L)<0) return;
-      var p=n.parentNode; if(!p) return;
-      if(p.namespaceURI && p.namespaceURI.indexOf('svg')>=0){ n.nodeValue=n.nodeValue.split(L).join('\uD83C\uDF38'); return; }   // 그림(SVG) 안 글자는 🌸로
-      if(/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(p.nodeName)) return;
-      var s=document.createElement('span'); s.innerHTML=n.nodeValue.split(L).map(esc).join(IMG); p.replaceChild(s,n); return;
-    }
-    if(n.nodeType===1 && !/^(SCRIPT|STYLE|TEXTAREA)$/i.test(n.nodeName)){ for(var c=n.firstChild;c;){ var nx=c.nextSibling; walk(c); c=nx; } }
-  }
-  function start(){ walk(document.body); try{ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.type==='characterData') walk(m.target); for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]); } }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
-  if(document.body) start(); else document.addEventListener('DOMContentLoaded',start);
-})();
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="apple-touch-icon" href="../icon.png">
-<meta name="apple-mobile-web-app-title" content="새싹 공부방">
-<title>새싹 AI 공부방</title>
+<meta name="apple-mobile-web-app-title" content="AI 공부방">
+<title>AI 공부방</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Jua&display=swap" rel="stylesheet">
@@ -1141,18 +1113,18 @@ button.starbox,button.star{border:0;cursor:pointer;font-family:inherit}
 .sp-today em{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .sp-chips span{background:var(--soft,rgba(127,127,127,.12));border-radius:999px;padding:3px 10px;font-size:.85rem}
 /* ───── 🌱 새싹 테마 (기본): 협동 모드 · 입구와 같은 연분홍 · 연두 · 금빛, 어린 아이를 위한 부드럽고 둥근 모양 ───── */
-body[data-theme="lotus"]{--bg:#FFF7F0;--paper:#FFFFFF;--card:#FFFFFF;--ink:#4A3B36;--sub:#8C7A72;--line:#F1DED3;--accent:#DD6590;--accent-ink:#FFFFFF;--soft:#FDE3EC;--hi:#F2C35B;--ok:#4E9E70;--no:#E35D5D;--carry:#E35D5D;--shadow:0 5px 0 #F6E6DC;--rad:24px;
+body[data-theme="sprout"]{--bg:#FFF7F0;--paper:#FFFFFF;--card:#FFFFFF;--ink:#4A3B36;--sub:#8C7A72;--line:#F1DED3;--accent:#DD6590;--accent-ink:#FFFFFF;--soft:#FDE3EC;--hi:#F2C35B;--ok:#4E9E70;--no:#E35D5D;--carry:#E35D5D;--shadow:0 5px 0 #F6E6DC;--rad:24px;
   background:radial-gradient(circle at 6% 3%,#FDE3EC 0 170px,transparent 171px),radial-gradient(circle at 97% 30%,#E3F4E8 0 150px,transparent 151px),radial-gradient(circle at 92% 98%,#FBF0D9 0 190px,transparent 191px),#FFF7F0;background-attachment:fixed}
-body[data-theme="lotus"] header{background:rgba(255,247,240,.92);backdrop-filter:blur(6px);border-bottom:3px solid var(--line)}
-body[data-theme="lotus"] .logo-m{background:#FDE3EC;border-radius:50%;font-size:0}
-body[data-theme="lotus"] .logo-m .sico{display:none}
-body[data-theme="lotus"] .logo-m::after{content:"🌱";font-size:20px}
-body[data-theme="lotus"] :is(.card,.subj,.dock-t,.wcard,.lvtab,.book,.lib-book,.sent-card,.hs-tile){border:3px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
-body[data-theme="lotus"] .hello{background:linear-gradient(120deg,#FDE3EC,#FFF7F0 55%,#E3F4E8);border-color:#F7D3DF}
-body[data-theme="lotus"] .big-btn{border-radius:26px;box-shadow:0 6px 0 #B94873}
-body[data-theme="lotus"] .big-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #B94873}
-body[data-theme="lotus"] .starbox{background:#FDE3EC;color:#DD6590}
-body[data-theme="lotus"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:#6B5433}
+body[data-theme="sprout"] header{background:rgba(255,247,240,.92);backdrop-filter:blur(6px);border-bottom:3px solid var(--line)}
+body[data-theme="sprout"] .logo-m{background:#FDE3EC;border-radius:50%;font-size:0}
+body[data-theme="sprout"] .logo-m .sico{display:none}
+body[data-theme="sprout"] .logo-m::after{content:"🌱";font-size:20px}
+body[data-theme="sprout"] :is(.card,.subj,.dock-t,.wcard,.lvtab,.book,.lib-book,.sent-card,.hs-tile){border:3px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+body[data-theme="sprout"] .hello{background:linear-gradient(120deg,#FDE3EC,#FFF7F0 55%,#E3F4E8);border-color:#F7D3DF}
+body[data-theme="sprout"] .big-btn{border-radius:26px;box-shadow:0 6px 0 #B94873}
+body[data-theme="sprout"] .big-btn:active{transform:translateY(3px);box-shadow:0 3px 0 #B94873}
+body[data-theme="sprout"] .starbox{background:#FDE3EC;color:#DD6590}
+body[data-theme="sprout"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:#6B5433}
 </style>
 <script src="/room/scenes.js?v=20260927"></script>
 <script>/* 🖐️ 협동 모드 쉬운 누르기 (2026-10-04): 어린아이가 손가락을 조금 움직이거나 오래 눌러도 '누르기'로 알아들어요.
@@ -1196,7 +1168,7 @@ body[data-theme="lotus"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:
 })();
 </script>
 </head>
-<body data-theme="lotus">
+<body data-theme="sprout">
 <header>
   <div class="toprow">
     <h1><span class="logo-m" aria-hidden="true"><svg class="sico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg></span><button id="whoBtn" data-act="tab" data-v="home" aria-label="홈으로" title="홈으로">초4 공부방</button></h1>
@@ -1247,7 +1219,7 @@ body[data-theme="lotus"] .dayrule{background:#FBF0D9;border-color:#EFD9AE;color:
 
 <script>
 
-/* ───── 🌱 새싹 AI 공부방: 입구(../)에서 로그인한 아이로 열어요 ─────
+/* ───── 🌱 AI 공부방: 입구(../)에서 로그인한 아이로 열어요 ─────
    이 방은 우리 가족 공부방을 옮겨 온 것이에요. 저장은 study_kids/{아이 번호}/room/… 에만 해요 */
 /* 🤝 협동 모드 모드(?board=1): 모두 한 팀 '우리 팀', 온라인에 저장하지 않아요 */
 const SIM_Q = new URLSearchParams(location.search), SIM_BOARD = SIM_Q.has('board');
@@ -1262,8 +1234,8 @@ const SIM_LOW = !SIM_BOARD && SIM_RANK(SIM.age)>=0 && SIM_RANK(SIM_ROOM)>=0 && S
 let simLowSaid = false;
 function lowStarNote(){ if(simLowSaid) return; simLowSaid=true; try{ toast('📚 여기는 아래 학년 방이라 별이 모이지 않아요. 복습은 얼마든지 좋아요!'); }catch(e){} }
 if(SIM_LOW) setTimeout(()=>{ simLowSaid=false; lowStarNote(); }, 1800);
-const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 연꽃아 · 예나야
-const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 연꽃이의 · 예나의
+const SIM_A = SIM.name + (SIM_BAT ? '아' : '야');     // 부를 때: 하늘아 · 예나야
+const SIM_UI = SIM.name + (SIM_BAT ? '이의' : '의');  // 누구의: 하늘이의 · 예나의
 
 /* ▼▼▼ 온라인 저장(Firebase): 콘솔 > 프로젝트 설정 > 내 앱(웹)의 firebaseConfig 를 붙여 넣으세요 ▼▼▼
    비워 두면(null) 이 기기에만 저장돼요. 규칙: e4/{doyun}, e4/{아이}/daily/{YYYY-MM-DD}, e4/settings
@@ -1288,7 +1260,7 @@ let who = null;
 const GLOBAL_KEYS = ['admin','profiles','kidpins','lastWho','seaPick'];
 const PROFILE_KEYS = ['starsPend','estarsPend','spentPend','buys','buysPend','estars','estarsAt','stk','stkDay','deco','csbest','lib','stat','wrongs','wrongsAt','studysec','books','booksAt','hwrongAt','hmock','hwrong','starsAt','stars','log','visits','unit','hlv','hslv','elv','settings','today','starDay','kread','hstory','mbest'];
 /* 하람이 공부방(e2_)과 같은 주소(jsun.site)를 쓰니까, 섞이지 않게 e4_ 로 따로 저장해요 */
-const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'sim_'+SIM.id+'_'+k : 'sim_'+SIM.id+'_p_'+k;   // 새싹 공부방: 아이마다 따로
+const skey = (k, name=who) => GLOBAL_KEYS.includes(k) || !name ? 'sim_'+SIM.id+'_'+k : 'sim_'+SIM.id+'_p_'+k;   // AI 공부방: 아이마다 따로
 const store = {
   get(k, d, name){ try{ const v = localStorage.getItem(skey(k,name)); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
   set(k, v, name){ try{ localStorage.setItem(skey(k,name), JSON.stringify(v)); }catch(e){} },
@@ -2081,7 +2053,7 @@ engUse(1);
 const App = { view:'home', roomv:'room', lockPick:null, emode:'abc', cat:'animal', qcat:'all', letter:'A', elv: store.get('elv','e4'), e4type:'word', e4mode:'wcard', e4cat:'school', e4qcat:'all', e4top:'all',
   unit: store.get('unit','frac'), hmode:'card', hgrp:'all', hchar:'一', hlv: store.get('hlv',9), ph:0, hsmode:'story', hslv: store.get('hslv',9), story:null, spage:0, kact:'read', kgenre:'all', pid:null, phv:'a', smode:'learn', hera:'pre', hitem:0, hqera:'all', exv:'menu',
   prov: 0, provOpen:false };
-let settings = Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🌱 연꽃 디자인으로 한 번 바꿔요
+let settings = Object.assign({theme:'sprout',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!['sprout','clean','bright'].includes(settings.theme)) settings.theme='sprout';   // 🌱 새싹 테마가 기본이에요
 /* 공부는 아이가 하고 싶은 과목을 골라서 해요. goal: 하루 목표 문제 수 (홈 막대 · 공부 잔디 색) */
 const ADMIN_DEF = {pin:'0000', goal:25, subj:{math:true,korean:true,school:true,eng:true,hanja:true,history:true,social:true,science:true}, msg:''};
 const savedAdmin = store.get('admin',{});
@@ -2664,12 +2636,12 @@ function loadProfile(name, guest){
   GUEST=!!guest;
   who=name; if(!guest) store.set('lastWho',name);
   App.unit=store.get('unit','frac'); App.hlv=store.get('hlv',9); App.hslv=store.get('hslv',9); App.elv=ENG_LV[store.get('elv','1')]?String(store.get('elv','1')):'1'; engUse(App.elv);
-  settings=Object.assign({theme:'lotus',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!settings.lotus1){ settings.theme='lotus'; settings.lotus1=1; }   // 🌱 연꽃 디자인으로 한 번 바꿔요
+  settings=Object.assign({theme:'sprout',font:'f3',size:1,sound:true}, store.get('settings',{})); if(!['sprout','clean','bright'].includes(settings.theme)) settings.theme='sprout';   // 🌱 새싹 테마가 기본이에요
   // 기본 글씨가 '또박 조합'으로 바뀌었어요: 예전 기본값(말랑)으로 저장된 경우 한 번만 바꿔 줘요
-  if(settings.fontV!==3){ settings.theme='lotus'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 새싹 · 또박으로
+  if(settings.fontV!==3){ settings.theme='sprout'; settings.font='f1'; settings.fontV=3; } // 새 디자인: 처음 한 번은 새싹 · 또박으로
   if(!(FONTS[settings.font]&&FONTS[settings.font].combo)) settings.font='f1';
-  if(!['lotus','clean','bright'].includes(settings.theme)) settings.theme='lotus';
-  if(!settings.unz1){ settings.theme='lotus'; settings.font='f3'; settings.unz1=1; }   // 🌱 연꽃 + 언즈체가 기본이에요 (2026-10-03, 한 번만 맞춰요)
+  if(!['sprout','clean','bright'].includes(settings.theme)) settings.theme='sprout';
+  if(!settings.unz1){ settings.theme='sprout'; settings.font='f3'; settings.unz1=1; }   // 🌱 새싹 테마 + 언즈체가 기본이에요 (2026-10-03, 한 번만 맞춰요)
   stars=store.get('stars',0);
   Q=S=H=HQ=K=R=G=E=SQ=null; App.view='home'; lastDay=dayKey();
   if(!guest) markVisit(); applySettings(); updateStars();
@@ -2707,12 +2679,12 @@ function diarySticker(info){
   return true;
 }
 /* 📔 일기는 아이아이노트(iinote.co.kr)에서 써요. 공부방 안의 예전 일기장은 없앴어요 */
-const IINOTE_WRITE='';   // 새싹 공부방: 우리 집 일기 링크는 안 써요
+const IINOTE_WRITE='';   // AI 공부방: 우리 집 일기 링크는 안 써요
 function renderDiary(){ App.view='home'; renderHome(); }/* ───── 📔 저녁 8시 전에 일기 쓰기 알림 ─────
    오늘 일기를 안 썼으면 모든 화면 위에 띠가 떠요. 8시가 가까울수록 진해지고, 6시부터는 10분마다 한 번 더 알려 줘요. */
 const DIARY_DUE=20;
 const diary={ done:false, day:null, unsub:null, nudge:'', lastToast:0 };
-function diaryWatch(){ return;   // 새싹 공부방: 우리 집 일기 알림은 안 써요
+function diaryWatch(){ return;   // AI 공부방: 우리 집 일기 알림은 안 써요
 
   cloudInit().then(db=>{
     if(!db) return;
@@ -2872,7 +2844,7 @@ function drawDockExtra(){
   if(Date.now()-wxTry>60000){ wxTry=Date.now(); loadWeather(); }
 }
 setInterval(drawDockExtra, 5000); setTimeout(drawDockExtra, 300);
-const DECO_THEME = {lotus:'새싹', clean:'깔끔', bright:'산뜻'};
+const DECO_THEME = {sprout:'새싹', clean:'깔끔', bright:'산뜻'};
 const DECO_FONT = {f1:'또박', f2:'산들', f3:'언즈'};
 /* 상단: 디자인 2개 · 글씨 2개 고르는 단추 */
 function drawDecoBar(){
@@ -5850,7 +5822,7 @@ document.addEventListener('keydown',e=>{
 
 applySettings();
 updateStars();
-loadProfile(KID);   // 새싹 공부방: 입구에서 이미 로그인했어요
+loadProfile(KID);   // AI 공부방: 입구에서 이미 로그인했어요
 cloudPullSettings().then(ch=>{ if(ch && who && App.view==='home') render(); });
 tick();
 setInterval(tick,1000);
@@ -5879,11 +5851,11 @@ evListen();
 })();
 </script>
 
-<a class="sim-home" href="../" aria-label="새싹 AI 공부방 처음 화면으로">🌱 <span class="sh-l">새싹 공부방 </span>처음으로</a>
+<a class="sim-home" href="../" aria-label="AI 공부방 처음 화면으로">🌱 <span class="sh-l">AI 공부방 </span>처음으로</a>
 <script>/* 처음 화면 단추: 화면 위 방 이름 바로 옆으로 (잘 보이게) */ (function(){ const b=document.querySelector('.sim-home'), t=document.querySelector('header .tabs'), h=document.querySelector('.bar .logo'); if(b&&t){ t.appendChild(b); b.classList.add('in-top','in-tabs'); } else if(b&&h){ h.insertAdjacentElement('afterend', b); b.classList.add('in-top'); } })();</script>
 <button class="sim-adm" data-act="openAdmin" aria-label="관리자 모드">🔒 관리자</button>
 <style>
-/* 🌱 새싹 공부방: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
+/* 🌱 AI 공부방: 입구로 가는 단추 · 방 안의 관리자 · 엄마 모드와 타자 게임은 입구에서 해요 */
 .sim-home{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:40;display:inline-flex;align-items:center;gap:4px;padding:.45rem .85rem;border-radius:999px;background:#FDE3EC;border:2px solid #F7C9D8;color:#B94873;font-weight:700;font-size:.9rem;text-decoration:none;box-shadow:0 4px 10px rgba(221,101,144,.18)}
 [data-act="openAdmin"],[data-act="openMom"],.adm-links,[data-act="typingGame"],[data-act="openAllAdmin"]{display:none!important}
 /* 처음 화면 단추가 위쪽 방 이름 옆에 있을 때 */

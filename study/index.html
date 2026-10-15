@@ -17,66 +17,38 @@
   if(typeof globalThis==='undefined') window.globalThis=window;
 })();
 </script>
-<script>/* 🌱 연꽃 이모지는 2021년에 생긴 글자라 오래된 기기에는 없어요 → 그릴 수 없으면 연꽃 그림으로 바꿔요 (2026-10-04) */
-(function(){
-  var L='\uD83E\uDEB7';
-  /* 이 기기가 🌱을 색깔 있는 그림으로 그리고, '없는 글자' 상자(□)와도 다르게 그릴 때만 그대로 둬요. 애매하면 그림으로 바꿔요 */
-  function px(ch){ var c=document.createElement('canvas'); c.width=c.height=24; var x=c.getContext('2d'); x.textBaseline='top'; x.font='20px sans-serif'; x.fillText(ch,0,0); return x.getImageData(0,0,24,24).data; }
-  function has(){ try{ var a=px(L), t=px('\uDBFF\uDFFD'), col=false, same=true;
-    for(var i=0;i<a.length;i+=4){ if(a[i+3]>40 && (Math.abs(a[i]-a[i+1])>30 || Math.abs(a[i+1]-a[i+2])>30)) col=true; if(a[i]!==t[i]||a[i+3]!==t[i+3]) same=false; }
-    return col && !same; }catch(e){ return false; } }
-  if(has()) return;
-  window.__SIM_NOLOTUS=true;
-  var SRC='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiB2aWV3Qm94PSIwIDAgMTgwIDE4MCI+DQo8ZGVmcz4NCjxsaW5lYXJHcmFkaWVudCBpZD0iYmFjayIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGODZEMiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0UyM0M5RSIvPjwvbGluZWFyR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9InNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGNDVDQkEiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNDOTJBODYiLz48L2xpbmVhckdyYWRpZW50Pg0KPGxpbmVhckdyYWRpZW50IGlkPSJtaWQiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGODY2QzQiLz48c3RvcCBvZmZzZXQ9Ii43IiBzdG9wLWNvbG9yPSIjRUU0NUFFIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRDgzNTlDIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0ibG93IiB4MT0iMCIgeTE9IjAiIHgyPSIwIiB5Mj0iMSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRTYzRkE2Ii8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzQyNDhBIi8+PC9saW5lYXJHcmFkaWVudD4NCjxyYWRpYWxHcmFkaWVudCBpZD0iZnJvbnQiIGN4PSIuNDUiIGN5PSIuNDUiIHI9Ii42NSI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkY4REQ2Ii8+PHN0b3Agb2Zmc2V0PSIuNyIgc3RvcC1jb2xvcj0iI0YyNThCQSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0RFM0FBMiIvPjwvcmFkaWFsR3JhZGllbnQ+DQo8bGluZWFyR3JhZGllbnQgaWQ9ImN1cFNpZGUiIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIwIj48c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNGRkIxM0EiLz48c3RvcCBvZmZzZXQ9Ii41IiBzdG9wLWNvbG9yPSIjRkZEMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZBMjJFIi8+PC9saW5lYXJHcmFkaWVudD4NCjxsaW5lYXJHcmFkaWVudCBpZD0iY3VwVG9wIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZFMjNBIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRkZGMjNBIi8+PC9saW5lYXJHcmFkaWVudD4NCjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjRkRFNkVFIi8+DQo8IS0tIOydtOuqqOyngCDsubgoMzAww5czMDApIOyijO2RnOuhnCDqt7jrpqzqs6Ag7KSE7Jes7JqUIC0tPg0KPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjAgMjIpIHNjYWxlKC40NjY3KSI+DQogIDwhLS0g65KkIOqwgOyatOuNsCDrvrDsobHtlZwg6r2D7J6OIC0tPg0KICA8cGF0aCBkPSJNMTUwIDBDMTg1IDM4IDIxMiA4MCAyMDYgMTI4SDk0Qzg4IDgwIDExNSAzOCAxNTAgMFoiIGZpbGw9InVybCgjYmFjaykiLz4NCiAgPCEtLSDrkqQg7JaR7JiGIOq9g+yejiAo64Gd7J20IOuRpeq4gOqyjCDsnpjrprAg66qo7JaRKSAtLT4NCiAgPHBhdGggZD0iTTIyIDY2QzYyIDU4IDExMiA3MCAxNTAgMTEyTDEyMCAxNzJDNzIgMTYyIDM0IDE0MCAyNCA5MkMyMiA4MiAyMCA3MiAyMiA2NloiIGZpbGw9InVybCgjc2lkZSkiLz4NCiAgPHBhdGggZD0iTTI3OCA2NkMyMzggNTggMTg4IDcwIDE1MCAxMTJMMTgwIDE3MkMyMjggMTYyIDI2NiAxNDAgMjc2IDkyQzI3OCA4MiAyODAgNzIgMjc4IDY2WiIgZmlsbD0idXJsKCNzaWRlKSIvPg0KICA8IS0tIOuFuOuegCDsm5DthrUg6r2D7IigIC0tPg0KICA8cGF0aCBkPSJNOTggOTZMMjAyIDk2TDE5MCAxNjhIMTEwWiIgZmlsbD0idXJsKCNjdXBTaWRlKSIvPg0KICA8ZWxsaXBzZSBjeD0iMTUwIiBjeT0iOTYiIHJ4PSI1MiIgcnk9IjIwIiBmaWxsPSJ1cmwoI2N1cFRvcCkiLz4NCiAgPCEtLSDslYTrnpjroZwg7LKY7KeEIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTIgMTkyQzQyIDIxMCAxMTIgMjMyIDE1NiAyNjJMMTUwIDI5NEMxMDQgMzA0IDUwIDMwMCAyNiAyNzZDMTAgMjYwIDMgMjMwIDIgMTkyWiIgZmlsbD0idXJsKCNsb3cpIi8+DQogIDxwYXRoIGQ9Ik0yOTggMTkyQzI1OCAyMTAgMTg4IDIzMiAxNDQgMjYyTDE1MCAyOTRDMTk2IDMwNCAyNTAgMzAwIDI3NCAyNzZDMjkwIDI2MCAyOTcgMjMwIDI5OCAxOTJaIiBmaWxsPSJ1cmwoI2xvdykiLz4NCiAgPCEtLSDqsIDsmrTrjbAg7JaR7JiGIO2BsCDqvYPsno4gLS0+DQogIDxwYXRoIGQ9Ik0wIDEyOEM1NCAxMTggMTI0IDE0MCAxNTIgMjE0QzEyNCAyNTQgNjIgMjU0IDMwIDIyMkMxMCAyMDIgMCAxNjQgMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPHBhdGggZD0iTTMwMCAxMjhDMjQ2IDExOCAxNzYgMTQwIDE0OCAyMTRDMTc2IDI1NCAyMzggMjU0IDI3MCAyMjJDMjkwIDIwMiAzMDAgMTY0IDMwMCAxMjhaIiBmaWxsPSJ1cmwoI21pZCkiLz4NCiAgPCEtLSDslZ4g6rCA7Jq0642wIOq9g+yejiAtLT4NCiAgPHBhdGggZD0iTTE1MCAxMDBDMTg2IDEzNCAyMTQgMTcwIDIxMiAyMTRDMjEwIDI1NCAxODQgMjc4IDE1MCAyNzhDMTE2IDI3OCA5MCAyNTQgODggMjE0Qzg2IDE3MCAxMTQgMTM0IDE1MCAxMDBaIiBmaWxsPSJ1cmwoI2Zyb250KSIvPg0KPC9nPg0KPC9zdmc+DQo=';
-  var esc=function(s){ return s.replace(/[&<>]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); };
-  var IMG='<img src="'+SRC+'" alt="새싹" class="lotus-emo" style="height:1.05em;width:1.05em;vertical-align:-0.15em;display:inline-block">';
-  function walk(n){
-    if(!n) return;
-    if(n.nodeType===3){
-      if(n.nodeValue.indexOf(L)<0) return;
-      var p=n.parentNode; if(!p) return;
-      if(p.namespaceURI && p.namespaceURI.indexOf('svg')>=0){ n.nodeValue=n.nodeValue.split(L).join('\uD83C\uDF38'); return; }   // 그림(SVG) 안 글자는 🌸로
-      if(/^(SCRIPT|STYLE|TEXTAREA|TITLE|OPTION)$/.test(p.nodeName)) return;
-      var s=document.createElement('span'); s.innerHTML=n.nodeValue.split(L).map(esc).join(IMG); p.replaceChild(s,n); return;
-    }
-    if(n.nodeType===1 && !/^(SCRIPT|STYLE|TEXTAREA)$/i.test(n.nodeName)){ for(var c=n.firstChild;c;){ var nx=c.nextSibling; walk(c); c=nx; } }
-  }
-  function start(){ walk(document.body); try{ new MutationObserver(function(ms){ for(var i=0;i<ms.length;i++){ var m=ms[i]; if(m.type==='characterData') walk(m.target); for(var j=0;j<m.addedNodes.length;j++) walk(m.addedNodes[j]); } }).observe(document.body,{childList:true,subtree:true,characterData:true}); }catch(e){} }
-  if(document.body) start(); else document.addEventListener('DOMContentLoaded',start);
-})();
-</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>새싹 AI 공부방</title>
+<title>AI 공부방</title>
 <meta name="description" content="아이들이 집에서는 한 명씩, 협동 모드에서는 형제자매와 함께 공부하는 AI 공부방">
 <meta name="theme-color" content="#FFF6EE">
 <!-- 카카오톡 · 메신저 미리보기 (og.png 1200×630). 그림을 바꾸면 ?v= 숫자를 바꾸고 카카오 공유 디버거에서 캐시 초기화 -->
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="새싹 AI 공부방">
-<meta property="og:title" content="새싹 AI 공부방">
+<meta property="og:site_name" content="AI 공부방">
+<meta property="og:title" content="AI 공부방">
 <meta property="og:description" content="협동 모드에서는 다 같이, 집에서는 부모님 핸드폰으로 한 명씩. 나이 · 학년에 맞춘 연산 · 국어 · 영어 · 한자 공부방이에요.">
-<meta property="og:image" content="https://jsun.site/study/og.png?v=20261003">
+<meta property="og:image" content="https://jsun.site/study/og.png?v=20261016">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="새싹 AI 공부방 - 협동 모드에서 다 같이, 집에서는 한 명씩">
+<meta property="og:image:alt" content="AI 공부방 - 협동 모드에서 다 같이, 집에서는 한 명씩">
 <meta property="og:url" content="https://jsun.site/study/">
 <meta name="twitter:card" content="summary_large_image">
 <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.8.3/kakao.min.js" integrity="sha384-oroumrnFVE0xtgqyDZJARgERibXg2C28380uaUZz2kHDS5CR7tu20eGiOU6GkTpy" crossorigin="anonymous" defer></script>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%8C%B1%3C/text%3E%3C/svg%3E">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="새싹 공부방">
+<meta name="apple-mobile-web-app-title" content="AI 공부방">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="apple-touch-icon" href="icon.png"><!-- 아이폰 홈 화면 아이콘(180×180): 🌱 이모지를 보고 그린 연꽃 -->
+<link rel="apple-touch-icon" href="icon.png"><!-- 아이폰 홈 화면 아이콘(180×180): 🌱 새싹 그림 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
 <script>/* 고른 글씨체를 화면이 그려지기 전에 먼저 (깜빡임 없게) */ try{ if(!localStorage.getItem("study:unz1")){ localStorage.setItem("study:font","\"unz\""); localStorage.setItem("study:unz1","1"); } const f=JSON.parse(localStorage.getItem("study:font")||"\"unz\""); if(f) document.documentElement.dataset.font=f; }catch(e){}</script>
 <style>
-/* ───── 새싹 AI 공부방 (jsun.site/study) ─────
-   연꽃 · 연분홍 · 연두 · 금빛, 둥글고 귀엽게. 머리말 · 꾸밈은 작게만 */
+/* ───── AI 공부방 (jsun.site/study) ─────
+   새싹 · 연분홍 · 연두 · 금빛, 둥글고 귀엽게. 머리말 · 꾸밈은 작게만 */
 :root{
   --bg:#FFF7F0; --paper:#FFFFFF; --ink:#4A3B36; --sub:#8C7A72; --line:#F1DED3;
-  --lotus:#F291B2; --lotus-d:#DD6590; --lotus-s:#FDE3EC; --leaf:#7FC39A; --leaf-d:#4E9E70; --leaf-s:#E3F4E8;
+  --pink:#F291B2; --pink-d:#DD6590; --pink-s:#FDE3EC; --leaf:#7FC39A; --leaf-d:#4E9E70; --leaf-s:#E3F4E8;
   --gold:#D4A24C; --gold-s:#FBF0D9; --sky:#7FB6E8; --no:#E35D5D;
   --r:26px; --shadow:0 6px 0 rgba(221,101,144,.12), 0 10px 26px rgba(160,110,90,.10);
   --font:'Gowun Dodum',system-ui,sans-serif; --font-t:'Jua','Gowun Dodum',sans-serif;
@@ -122,7 +94,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .font-pick{display:flex;justify-content:center;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0 0}
 .font-pick span{color:var(--sub);font-size:.9rem}
 .font-pick button{padding:.35rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:1.05rem}
-.font-pick button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.font-pick button.on{border-color:var(--pink-d);background:var(--pink-s)}
 h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .wrap{width:min(960px,100%);margin:0 auto;padding:18px 16px 0;flex:1}
 /* 머리 */
@@ -137,7 +109,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .card{background:var(--paper);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
 .center{text-align:center}
 .sub{color:var(--sub)}
-.big-btn{display:block;width:100%;max-width:420px;margin:16px auto 0;padding:.9rem 1rem;border-radius:20px;background:var(--lotus-d);color:#fff;font-family:var(--font-t);font-size:1.25rem;box-shadow:0 5px 0 #B94873}
+.big-btn{display:block;width:100%;max-width:420px;margin:16px auto 0;padding:.9rem 1rem;border-radius:20px;background:var(--pink-d);color:#fff;font-family:var(--font-t);font-size:1.25rem;box-shadow:0 5px 0 #B94873}
 .big-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #B94873}
 /* 구글로 로그인: 흰 동그라미 안에 구글 G */
 .gbtn{display:flex;align-items:center;justify-content:center;gap:10px}
@@ -147,7 +119,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .vgrass{display:grid;grid-template-rows:repeat(7,1fr);grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;margin-top:10px;max-width:520px}
 .vgrass i,.vleg i{display:block;aspect-ratio:1;border-radius:4px;background:#F1ECE4}
 .vgrass i.fut{background:transparent}
-.vgrass i.now{outline:2px solid var(--lotus-d);outline-offset:1px}
+.vgrass i.now{outline:2px solid var(--pink-d);outline-offset:1px}
 .vgrass .l1,.vleg .l1{background:#CFE8D6}.vgrass .l2,.vleg .l2{background:#8FCBA3}.vgrass .l3,.vleg .l3{background:#4FA875}.vgrass .l4,.vleg .l4{background:#2E7D52}
 .vleg{display:flex;align-items:center;flex-wrap:wrap;gap:4px;margin-top:8px;font-size:.8rem;color:var(--sub)}
 .vleg i{width:12px;height:12px}
@@ -173,7 +145,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .vbar span{display:block;height:10px;border-radius:999px;background:#8FCBA3;min-width:0}
 .big-btn.leaf{background:var(--leaf-d);box-shadow:0 5px 0 #3B7C57}
 .big-btn.ghost{background:var(--paper);color:var(--ink);border:2px solid var(--line);box-shadow:none}
-.link{color:var(--lotus-d);text-decoration:underline;text-underline-offset:3px;font-size:.92rem}
+.link{color:var(--pink-d);text-decoration:underline;text-underline-offset:3px;font-size:.92rem}
 .hello{display:flex;align-items:center;gap:14px;margin:4px 0 18px}
 .hello .bub{flex:1;background:var(--paper);border:2px solid var(--line);border-radius:22px 22px 22px 6px;padding:12px 16px;font-family:var(--font-t);font-size:1.15rem}
 .dongi{font-size:3.2rem;line-height:1}
@@ -186,7 +158,7 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .door small{color:var(--sub)}
 .door-note{margin-top:6px;font-size:.88rem;line-height:1.5;color:var(--ink);opacity:.8}
 .door div{display:flex;flex-direction:column;align-items:inherit;gap:2px}   /* 제목 아래 줄에 설명 (넓은 화면 · 협동 모드에서도) */
-.door.board{border-color:#F7C9D8;background:linear-gradient(180deg,#FFF 55%,var(--lotus-s))}
+.door.board{border-color:#F7C9D8;background:linear-gradient(180deg,#FFF 55%,var(--pink-s))}
 .door.phone{border-color:#BFE3CB;background:linear-gradient(180deg,#FFF 55%,var(--leaf-s))}
 .side-links{display:flex;justify-content:center;gap:10px;margin:18px 0 0;flex-wrap:wrap}
 .side-links button{padding:.5rem 1rem;border-radius:999px;background:var(--paper);border:2px solid var(--line);font-size:.95rem}
@@ -204,33 +176,33 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .grades{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}   /* 5세 ~ 초6 아홉 칸: 3줄 3칸 */
 .grade{padding:18px 6px;border-radius:24px;background:var(--paper);border:3px solid var(--line);font-family:var(--font-t);font-size:1.4rem;box-shadow:var(--shadow)}
 .grade small{display:block;font-family:var(--font);font-size:.78rem;color:var(--sub)}
-.grade.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.grade.on{border-color:var(--pink-d);background:var(--pink-s)}
 .grade:nth-child(-n+3){background:linear-gradient(180deg,#FFF,var(--gold-s))}
 /* 입력 · 비밀번호 */
 .field{display:block;width:100%;max-width:360px;margin:10px auto 0;padding:.8rem 1rem;border-radius:18px;border:2px solid var(--line);font:inherit;font-size:1.25rem;text-align:center;background:#FFFDFB;color:var(--ink)}
-.field:focus{outline:none;border-color:var(--lotus)}
+.field:focus{outline:none;border-color:var(--pink)}
 .pinrow{display:flex;justify-content:center;gap:14px;margin:16px 0 8px}
-.pinrow i{width:22px;height:22px;border-radius:50%;border:3px solid var(--lotus);background:#fff}
-.pinrow i.f{background:var(--lotus)}
+.pinrow i{width:22px;height:22px;border-radius:50%;border:3px solid var(--pink);background:#fff}
+.pinrow i.f{background:var(--pink)}
 .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:8px auto 0}
 .key{height:62px;border-radius:20px;background:var(--paper);border:2px solid var(--line);font-family:var(--font-t);font-size:1.6rem;box-shadow:0 4px 0 var(--line)}
 .key:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
 .key.fn{font-size:1rem;font-family:var(--font)}
 .steps{display:flex;justify-content:center;gap:6px;margin-bottom:10px}
 .steps i{width:30px;height:6px;border-radius:99px;background:var(--line)}
-.steps i.on{background:var(--lotus)}
+.steps i.on{background:var(--pink)}
 .msg{min-height:1.6em;margin-top:8px;color:var(--no);text-align:center;font-size:.95rem}
 .msg.ok{color:var(--leaf-d)}
 /* 아이 목록 · 아이 홈 */
 .kids{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:6px 0 4px}
-.kid{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;border-radius:999px;background:var(--lotus-s);border:2px solid #F7C9D8;font-family:var(--font-t);font-size:1.1rem}
+.kid{display:flex;align-items:center;gap:8px;padding:.6rem 1rem;border-radius:999px;background:var(--pink-s);border:2px solid #F7C9D8;font-family:var(--font-t);font-size:1.1rem}
 .kid small{font-family:var(--font);font-size:.8rem;color:var(--sub)}
-.room-card{display:flex;align-items:center;gap:16px;padding:20px;border-radius:28px;background:linear-gradient(135deg,var(--lotus-s),var(--gold-s));border:3px solid #F7C9D8;box-shadow:var(--shadow);width:100%;text-align:left}
+.room-card{display:flex;align-items:center;gap:16px;padding:20px;border-radius:28px;background:linear-gradient(135deg,var(--pink-s),var(--gold-s));border:3px solid #F7C9D8;box-shadow:var(--shadow);width:100%;text-align:left}
 .room-card .ico{font-size:3.4rem}
 .room-card b{font-family:var(--font-t);font-size:1.45rem;display:block}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
 .stat{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:12px 8px;text-align:center}
-.stat b{display:block;font-family:var(--font-t);font-size:1.6rem;color:var(--lotus-d)}
+.stat b{display:block;font-family:var(--font-t);font-size:1.6rem;color:var(--pink-d)}
 .stat small{color:var(--sub);font-size:.82rem}
 .soon{margin-top:14px;padding:14px 16px;border-radius:20px;background:var(--gold-s);border:2px dashed var(--gold);color:#7A5A1E;font-size:.95rem}
 .row-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
@@ -243,20 +215,20 @@ h1,h2,h3,.jua{font-family:var(--font-t);font-weight:normal;margin:0}
 .pd h3{margin:18px 0 4px}
 .pd .tbl td.sj{text-align:left;font-size:.85rem;color:var(--sub)}
 .pd .tbl tr.off td{color:var(--sub);opacity:.6}
-.pd .tbl td b{color:var(--lotus-d)}
+.pd .tbl td b{color:var(--pink-d)}
 .pd-seg{display:flex;gap:6px;margin:6px 0 2px}
 .pd-seg button{padding:.25rem .8rem;border-radius:999px;border:2px solid var(--line);background:var(--paper);font-size:.9rem}
-.pd-seg button.on{border-color:var(--lotus-d);background:var(--lotus-s)}
+.pd-seg button.on{border-color:var(--pink-d);background:var(--pink-s)}
 .pbar{display:grid;grid-template-columns:5.2em 1fr auto;align-items:center;gap:8px;margin:7px 0;font-size:.95rem}
-.pbar i{display:block;height:14px;border-radius:999px;background:var(--lotus-s);overflow:hidden}
-.pbar i span{display:block;height:100%;border-radius:999px;background:var(--lotus)}
+.pbar i{display:block;height:14px;border-radius:999px;background:var(--pink-s);overflow:hidden}
+.pbar i span{display:block;height:100%;border-radius:999px;background:var(--pink)}
 .pbar small{color:var(--sub);white-space:nowrap}
 /* 아래: 이용 방법 · 개인정보처리방침 (늘 보여요) */
 .foot{width:min(960px,100%);margin:26px auto 0;padding:0 16px calc(18px + env(safe-area-inset-bottom,0px))}
 .foot details{background:var(--paper);border:2px solid var(--line);border-radius:20px;margin-top:10px;overflow:hidden}
 .foot summary{list-style:none;cursor:pointer;padding:12px 16px;font-family:var(--font-t);font-size:1.05rem;display:flex;justify-content:space-between;align-items:center}
 .foot summary::-webkit-details-marker{display:none}
-.foot summary::after{content:'＋';color:var(--lotus-d)}
+.foot summary::after{content:'＋';color:var(--pink-d)}
 .foot details[open] summary::after{content:'－'}
 .foot .doc{padding:0 18px 16px;font-size:.93rem;color:#5E4E48}
 .foot .doc h4{margin:14px 0 4px;font-family:var(--font-t);font-weight:normal;font-size:1rem;color:var(--ink)}
@@ -272,7 +244,7 @@ body.board{font-size:20px}
 body.board .grade{font-size:2rem;padding:26px 6px}
 .busy{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(255,247,240,.72);backdrop-filter:blur(2px)}
 .busy[hidden]{display:none}
-.busy div{padding:22px 30px;border-radius:24px;background:var(--paper);border:3px solid var(--lotus-s);box-shadow:var(--shadow);font-family:var(--font-t);font-size:1.25rem;color:var(--lotus-d);text-align:center}
+.busy div{padding:22px 30px;border-radius:24px;background:var(--paper);border:3px solid var(--pink-s);box-shadow:var(--shadow);font-family:var(--font-t);font-size:1.25rem;color:var(--pink-d);text-align:center}
 .busy i{display:block;font-style:normal;font-size:2.4rem;animation:busy 1.2s ease-in-out infinite}
 @keyframes busy{50%{transform:scale(1.15) rotate(8deg)}}
 @media (prefers-reduced-motion:reduce){.busy i{animation:none}}
@@ -291,7 +263,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
       <path d="M34 30C39 23 45 18 52 16" stroke="#2E8A48" stroke-width="1.6" fill="none" stroke-linecap="round"/>
     </svg>
     <div class="brand">
-      <h1>새싹 AI 공부방</h1>
+      <h1>AI 공부방</h1>
       <div class="mantra">즐겁게 · 꾸준히</div>
     </div>
     <button class="homebtn" id="homeBtn" hidden>🏠 처음으로</button>
@@ -322,7 +294,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
   <details id="privacy">
     <summary>🔒 개인정보처리방침</summary>
     <div class="doc">
-      <p>새싹 AI 공부방(이하 “공부방”)은 친구들이 즐겁게 공부할 수 있도록 운영자가 비영리로 만든 학습 웹앱이에요. 아이의 개인정보는 꼭 필요한 만큼만 다루고, 광고나 판매에 쓰지 않아요.</p>
+      <p>AI 공부방(이하 “공부방”)은 친구들이 즐겁게 공부할 수 있도록 운영자가 비영리로 만든 학습 웹앱이에요. 아이의 개인정보는 꼭 필요한 만큼만 다루고, 광고나 판매에 쓰지 않아요.</p>
       <h4>1. 모으는 정보</h4>
       <ul><li><b>아이 이름 두 글자와 나이 · 학년</b>: 아이를 구분하고 나이에 맞는 공부를 보여 주려고 써요.</li>
         <li><b>아이 비밀번호 · 엄마아빠 비밀번호</b>: 번호 그대로 저장하지 않아요. 이름 · 나이와 함께 되돌릴 수 없게 암호화한 값(해시)만 ‘열쇠’로 저장해요.</li>
@@ -343,7 +315,7 @@ body.board .grade{font-size:2rem;padding:26px 6px}
       <p class="sub">시행일 2026년 9월 30일</p>
     </div>
   </details>
-  <p class="copy">새싹 AI 공부방</p>
+  <p class="copy">AI 공부방</p>
 </footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
@@ -736,7 +708,7 @@ const SHARE_URL = "https://jsun.site/study/";
 function kakaoShare(){
   const K=window.Kakao;
   if(KAKAO_JS_KEY && K){ try{ if(!K.isInitialized()) K.init(KAKAO_JS_KEY); K.Share.sendScrap({requestUrl:SHARE_URL}); return; }catch(e){} }
-  if(navigator.share){ navigator.share({title:'새싹 AI 공부방', url:SHARE_URL}).catch(()=>{}); return; }
+  if(navigator.share){ navigator.share({title:'AI 공부방', url:SHARE_URL}).catch(()=>{}); return; }
   (navigator.clipboard?navigator.clipboard.writeText(SHARE_URL):Promise.reject()).then(()=>toast('주소를 복사했어요. 카카오톡에 붙여 넣어 보내 주세요')).catch(()=>toast(SHARE_URL));
 }
 /* 카카오톡 · 네이버 · 인스타그램 같은 앱 안 브라우저에서는 구글이 로그인을 막아요 (disallowed_useragent) → 기본 브라우저로 열기 안내 */
