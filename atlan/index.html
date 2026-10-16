@@ -79,7 +79,7 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .tb-date{font-size:22px;color:#1d4f91}
 .tb-todo{font-size:18px;margin-top:4px;line-height:1.45;word-break:keep-all}
 .tb-stat{font-size:15px;color:var(--sub);margin-top:4px}
-/* 오늘 푼 문제 (큰 숫자) · 최근 7일 · 🐬 AI 응원 */
+/* 오늘 푼 문제 (큰 숫자) · 최근 7일 · 🤖 AI 응원 */
 .tb-nums{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;margin-top:10px}
 .tb-n{background:#eef6ff;border-radius:16px;padding:8px 6px;text-align:center;font-size:15px;color:var(--sub);line-height:1.2}
 .tb-n b{display:block;font-size:40px;font-weight:400;line-height:1.1;color:#1d4f91}
@@ -93,12 +93,10 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .tb-week i.no{background:#dde6f0}
 .tb-week .tdy{color:#c4561a}.tb-week .tdy i{background:#ff8a3d}
 .tb-week b{font-weight:400;font-size:13px;color:var(--ink)}
-.cheer{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(135deg,#e3f4ff,#f0f9ff);border:2px solid #bfe3ff;border-radius:16px;padding:10px 12px;margin-top:10px}
-.cheer .ch-ic{font-size:34px;line-height:1.1}
-.cheer small{font-size:13px;color:var(--sub)}
-.cheer small em{font-style:normal;background:#2b7bd6;color:#fff;border-radius:6px;padding:0 5px;margin-left:4px;font-size:11px}
-.cheer p{margin:2px 0 0;font-size:19px;line-height:1.45;word-break:keep-all}
-.cheer.wait p{opacity:.6}
+/* 엄마의 한마디 아래 🤖 AI 응원 (같은 초록 띠 안) */
+.mm-ai.sep{margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.45)}
+.mm-ai p{font-size:18px}
+.mm-ai.loading p{opacity:.65}
 .tb-send{margin-top:10px;width:100%;font-size:19px;padding:10px;border-radius:14px;background:linear-gradient(180deg,#46d18c,#1fae68);color:#fff;box-shadow:0 4px 0 #168a52}
 .today.late{background:#ffe1dc;color:#b3261e}.today.ahead{background:#e4ecff;color:#2b4ea8}
 .pv-q{background:#f4f8fd;border-radius:14px;padding:10px 12px;margin:8px 0;font-size:18px;line-height:1.45}
@@ -964,15 +962,15 @@ function previewMission(i){
     ${ex.length?`<p style="margin:10px 0 0;font-size:16px;color:var(--sub)">이런 문제를 풀어요 👀</p>${ex.slice(0,2).map(q=>`<div class="pv-q">${q.q}${q.svg||''}</div>`).join('')}`:''}
     ${btn}`);
 }
-/* 🐬 AI 응원: 오늘 기록(숫자만)을 family-spell 워커에 보내 돌고래 선생님의 한마디를 받아요.
+/* 🤖 AI 응원: 오늘 기록(숫자만)을 family-spell 워커에 보내 AI 선생님의 한마디를 받아요.
    하루에 한 번만 받아요 (그날 처음 열 때). 받은 말은 이 기기에 저장해 두고 하루 종일 보여 줘요 */
 const CHEER_API='https://family-spell.bellachord.workers.dev';
 const cheer={busy:''};
 function cheerLocal(c){
   const q=c.L.q;
-  if(!q) return c.rest?'도윤아, 오늘은 쉬는 날이야! 그래도 한 문제 잠수해 볼까? 🐬':'도윤아, 오늘 첫 문제부터 같이 잠수해 볼까? 🐬';
+  if(!q) return c.rest?'도윤아, 오늘은 쉬는 날이야! 그래도 한 문제 잠수해 볼까? 🌊':'도윤아, 오늘 첫 문제부터 같이 잠수해 볼까? 🌊';
   if(c.doneToday&&!c.left) return `오늘 ${q}문제나 풀었구나! 오늘 할 일 끝, 정말 멋져 🌊`;
-  return `벌써 ${q}문제 풀었어! 조금만 더 깊이 내려가 보자 🐬`;
+  return `벌써 ${q}문제 풀었어! 조금만 더 깊이 내려가 보자 🌊`;
 }
 function cheerHTML(c){
   const key=todayKey();
@@ -980,7 +978,7 @@ function cheerHTML(c){
   const fresh=saved&&saved.k===key;
   if(!fresh&&cheer.busy!==key&&navigator.onLine!==false) loadCheer(key,c);
   const msg=fresh?saved.msg:cheerLocal(c);
-  return `<div class="cheer${fresh?'':' wait'}" id="cheerBox"><span class="ch-ic">🐬</span><div><small>돌돌이 선생님<em>AI</em></small><p id="cheerMsg">${esc(msg)}</p></div></div>`;
+  return `<div class="mm-ai${fresh?'':' loading'}${S.momMsg?' sep':''}" id="cheerBox"><b>${S.momMsg?'🤖 ':''}AI 선생님</b><p id="cheerMsg">${esc(msg)}</p></div>`;
 }
 async function loadCheer(key,c){
   cheer.busy=key;
@@ -993,15 +991,15 @@ async function loadCheer(key,c){
     if(!j.msg) throw new Error(j.error||'no msg');
     try{ localStorage.setItem('atlan:cheer',JSON.stringify({k:key,msg:j.msg})); }catch(e){}
     const p=document.getElementById('cheerMsg'), b=document.getElementById('cheerBox');
-    if(p){ p.textContent=j.msg; b.classList.remove('wait'); }
-  }catch(e){ const b=document.getElementById('cheerBox'); if(b) b.classList.remove('wait'); }   // 안 되면 미리 써 둔 말을 그대로 보여 줘요
+    if(p){ p.textContent=j.msg; b.classList.remove('loading'); }
+  }catch(e){ const b=document.getElementById('cheerBox'); if(b) b.classList.remove('loading'); }   // 안 되면 미리 써 둔 말을 그대로 보여 줘요
 }
 function render(){
   const d=curDepth(); setBg(d); renderGauge(d);
   const m=MISSIONS[S.mission];
   let h='';
   /* 💚 엄마의 한마디 (관리자 모드에서 쓰고 고쳐요) */
-  if(S.momMsg) h+=`<div class="mommsg"><span class="mm-ic">💚</span><div><b>엄마의 한마디</b><p>${esc(S.momMsg)}</p></div></div>`;
+  /*    + 그 아래 🤖 AI 응원 (하루 한 번, 그날 처음 열 때 새 말) → 아래 '오늘' 계산 뒤에 같이 그려요 */
   /* 📅 오늘: 날짜 · 오늘 할 일 · 밀린 것 · 다 했으면 엄마한테 보내기 */
   { const now=new Date(), tk=todayKey(), L=S.log[tk]||{q:0,c:0};
     const ymd=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`;
@@ -1021,10 +1019,11 @@ function render(){
     let streak=0; for(let j=0;;j++){ const x=new Date(now); x.setDate(x.getDate()-j); const q=(S.log[ymd(x)]||{}).q||0; if(q) streak++; else if(j) break; }
     const ahead=MISSIONS.filter(x=>x.i<S.mission&&ymd(planDate(x.i))>tk).length;   // 미리 풀어 둔 미션
     const pct=L.q?Math.round(L.c/L.q*100):0;
+    h+=`<div class="mommsg"><span class="mm-ic">${S.momMsg?'💚':'🤖'}</span><div style="flex:1;min-width:0">${S.momMsg?`<b>엄마의 한마디</b><p>${esc(S.momMsg)}</p>`:''}
+      ${cheerHTML({L,doneToday,left:left.length,rest:!todayMs.length,late,ahead,streak,days,m})}</div></div>`;
     h+=`<div class="todaybox"><div class="tb-date">📅 ${now.getMonth()+1}월 ${now.getDate()}일 ${WDK[now.getDay()]}요일</div>
       <div class="tb-nums"><div class="tb-n main${L.q?'':' zero'}"><b>${L.q}</b>오늘 푼 문제</div><div class="tb-n${L.q?'':' zero'}"><b>${L.c}${L.q?`<small> (${pct}%)</small>`:''}</b>맞힘</div><div class="tb-n${doneToday?'':' zero'}"><b>${doneToday}</b>끝낸 미션</div></div>
       <div class="tb-week" aria-label="최근 7일 푼 문제">${days.map(x=>`<div class="${x.k===tk?'tdy':''}"><b>${x.q||''}</b><i class="${x.q?'':'no'}" style="height:${x.q?Math.max(8,Math.round(x.q/top*54)):5}px"></i>${x.k===tk?'오늘':WDK[x.x.getDay()]}</div>`).join('')}</div>
-      ${cheerHTML({L,doneToday,left:left.length,rest:!todayMs.length,late,ahead,streak,days,m})}
       <div class="tb-todo">${todo}</div>
       ${doneToday?`<button class="tb-send" onclick="sendMom()">📩 엄마한테 보내기</button>`:''}</div>`;
   }
