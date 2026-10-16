@@ -1083,13 +1083,23 @@ function qSubmit(){
   const z=QZ; if(!z||z.lock) return;
   if(!z.inp){ const qc=$('qc'); qc.classList.remove('shake'); void qc.offsetWidth; qc.classList.add('shake'); return; }
   const q=z.list[z.i], ok=z.inp===q.a; z.lock=true;
-  logAnswer(ok,q,z.inp);
   const qc=$('qc');
+  /* 처음 틀리면 답은 안 알려 주고 한 번 더 기회 (실수로 누른 것일 수 있어요) */
+  if(!ok&&!z.tries){
+    z.tries=1; if(z.mode==='mission'){ const L=dayLog(todayKey()); L.r=(L.r||0)+1; }
+    tone(330,.12,'triangle',0,.09); tone(262,.18,'triangle',.1,.09);
+    qc.classList.remove('shake'); void qc.offsetWidth; qc.classList.add('shake');
+    $('qfb').innerHTML='🤔 앗, 다시 한 번 해 볼까요? <small style="font-size:16px">(기회 1번 더)</small>';
+    setTimeout(()=>{ if(QZ!==z) return; z.inp=''; z.lock=false; qc.classList.remove('shake'); $('qe').innerHTML=qExpr(q,''); fitExpr(); },650);
+    return;
+  }
+  logAnswer(ok,q,z.inp);
   if(ok){
+    if(z.tries) z.combo=0;
     z.c++; z.combo++; z.best=Math.max(z.best,z.combo); sOK(z.combo);
     if(z.mode==='wrong') S.wrong=S.wrong.filter(w=>w.q!==q.q);
     qc.classList.add('ok'); $('qe').innerHTML=qExpr(q,z.inp);
-    $('qfb').innerHTML=pick(['딩동댕! 🎉','정답! 👍','좋아요! ✨','최고예요! 🌟','맞았어요! 💯']);
+    $('qfb').innerHTML=z.tries?'두 번 만에 맞혔어요! 👍':pick(['딩동댕! 🎉','정답! 👍','좋아요! ✨','최고예요! 🌟','맞았어요! 💯']);
     const cf=document.createElement('div'); cf.className='coinfly'; cf.textContent='+1 🪙'; qc.appendChild(cf);
     $('combo').textContent=z.combo>=3?`🔥 ${z.combo}연속!`:'';
     const be=$('be'); if(be){ sHit(); be.classList.remove('hit'); void be.offsetWidth; be.classList.add('hit'); const n=z.list.length; $('hp').style.width=((n-z.c)/n*100)+'%'; }
@@ -1103,7 +1113,7 @@ function qSubmit(){
     const t=setTimeout(qNext,1700); qc.onclick=()=>{ clearTimeout(t); qNext(); };
   }
 }
-function qNext(){ const z=QZ; if(!z) return; z.inp=''; z.lock=false; if(z.i>=z.list.length) return qFinish(); qDraw(); }
+function qNext(){ const z=QZ; if(!z) return; z.inp=''; z.lock=false; z.tries=0; if(z.i>=z.list.length) return qFinish(); qDraw(); }
 function qQuit(){
   const z=QZ; if(!z) return;
   if(z.mode==='mission'&&z.i>0&&!confirm(`미션을 잠깐 멈출까요?\n지금까지 푼 ${z.i}문제는 저장돼요. 다음에 이어서 풀어요.`)) return;
@@ -1158,7 +1168,7 @@ const MOM_KEY='leader-mom';
 const getMom=()=>{ try{ return JSON.parse(localStorage.getItem(MOM_KEY)||'null')||{}; }catch(e){ return {}; } };
 function momText(){
   const tk=todayKey(), d=new Date(), L=S.log[tk]||{q:0,c:0,ms:0}, st=stageOf(S.mission);
-  let t=`[도진이의 수학 연산 대모험] ${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]}) 🧭\n오늘 푼 문제 ${L.q}개 · 맞힘 ${L.c}개 · 미션 ${L.ms||0}개${(L.ms||0)>=perDay()?' (목표 달성!)':''}\n`;
+  let t=`[도진이의 수학 연산 대모험] ${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]}) 🧭\n오늘 푼 문제 ${L.q}개 · 맞힘 ${L.c}개 · 미션 ${L.ms||0}개${(L.ms||0)>=perDay()?' (목표 달성!)':''}\n${L.r?`(처음에 틀려서 다시 푼 문제 ${L.r}개)\n`:''}`;
   (L.m||[]).forEach(x=>{ t+=`✔ ${x}\n`; });
   if(L.w&&L.w.length){ t+=`\n틀린 문제:\n`; L.w.slice(-15).forEach((w,k)=>{ t+=`${k+1}) ${w.q} → 내 답 ${w.a} / 정답 ${w.c}\n`; }); }
   t+=`\n지금: ${REG[st.r].name} · 아이템 ${itemsGot()}/${ITEMS.length} · 이번 주 ${weekCount()}/5일\nhttps://jsun.site/leader/`;
