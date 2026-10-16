@@ -693,12 +693,31 @@ function cloudInit(){
 }
 const docRef=()=>cloud.db.collection(DOC_PATH[0]).doc(DOC_PATH[1]);
 function setSync(st){ $('sync').textContent={ok:'☁️',off:'📴',wait:'⏳',err:'⚠️'}[st]; $('sync').title={ok:'온라인에 저장돼요',off:'이 기기에만 저장 중',wait:'불러오는 중',err:'저장 실패 (다시 시도해요)'}[st]; }
+function mergeState(a,b){
+  const nb=(b.updatedAt||0)>=(a.updatedAt||0), n=nb?b:a, o=nb?a:b;   // n: 더 최근에 저장한 쪽 (설정 · 엄마 메시지 등은 이쪽)
+  const r=Object.assign(defState(),o,n), un=(x,y)=>[...new Set([...(x||[]),...(y||[])])];
+  r.mission=Math.max(a.mission||0,b.mission||0);
+  r.coins=Math.max(a.coins||0,b.coins||0);
+  r.own=un(a.own,b.own); r.pets=un(a.pets,b.pets);
+  if(r.pet<0&&r.pets.length) r.pet=r.pets[0];
+  r.log=Object.assign({},o.log); Object.entries(n.log||{}).forEach(([k,v])=>{ const w=(o.log||{})[k]; r.log[k]=!w||(v.q||0)>=(w.q||0)?v:w; });
+  r.best=Object.assign({},o.best); Object.entries(n.best||{}).forEach(([k,v])=>{ r.best[k]=Math.max(v,(o.best||{})[k]||0); });
+  r.weeks=Object.assign({},o.weeks,n.weeks); r.spin=Object.assign({},o.spin,n.spin);
+  const seen=new Set(); r.momHist=[...(o.momHist||[]),...(n.momHist||[])].filter(x=>{ const k=x.t+'|'+x.msg; if(seen.has(k)) return false; seen.add(k); return true; }).sort((x,y)=>x.t-y.t);
+  r.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
+  return r;
+}
 async function cloudLoad(){
   setSync('wait');
   try{
     const ok=await timeout(cloudInit(),8000); if(!ok) throw new Error('no firebase');
     const snap=await timeout(docRef().get(),8000);
-    if(snap.exists){ const d=snap.data(); if((d.updatedAt||0)>(S.updatedAt||0)){ S=Object.assign(defState(),d); saveLocal(); if(!OB&&!QZ) render(); } else if((S.updatedAt||0)>(d.updatedAt||0)) await pushCloud(); }
+    if(snap.exists){ const d=snap.data();
+      if((d.updatedAt||0)!==(S.updatedAt||0)){
+        /* 이 기기 기록과 온라인 기록이 다르면 합쳐요 (진도 · 코인 · 날짜별 푼 문제는 큰 쪽, 친구 · 옷은 둘 다) → 어느 기기가 먼저 저장해도 기록이 안 사라져요 */
+        const had=!!S.updatedAt; S=mergeState(S,d); saveLocal(); if(!OB&&!QZ) render();
+        if(had){ S.updatedAt=Date.now(); saveLocal(); await pushCloud(); }
+      } }
     else if(S.updatedAt) await pushCloud();
     setSync('ok');
   }catch(e){ console.warn(e); setSync('off'); }
