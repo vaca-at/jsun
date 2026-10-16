@@ -119,7 +119,8 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .wait{display:flex;align-items:center;gap:12px;background:#f2f6fb;border-radius:16px;padding:10px;margin-top:6px}
 .wait .pic{width:110px;flex:none}
 .wait p{margin:0;font-size:17px;color:var(--sub)}
-.menu{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.menu{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(min-width:700px){.menu{grid-template-columns:repeat(4,1fr)}}
 .menu button{background:var(--card);border-radius:18px;padding:14px 6px;font-size:18px;box-shadow:0 4px 14px rgba(0,20,60,.2);line-height:1.3}
 .menu button .ic{display:block;font-size:34px}
 .menu button small{display:block;color:var(--sub);font-size:14px}
@@ -189,6 +190,16 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .lb-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .lb-b{pointer-events:auto;width:70px;height:70px;border-radius:50%;background:rgba(0,20,50,.3);border:3px solid rgba(255,255,255,.8);touch-action:none;display:flex;align-items:center;justify-content:center;padding:0}
 .lb-b svg{width:34px;height:34px}.lb-b.on{background:rgba(255,255,255,.45);transform:scale(.93)}
+/* 🛒 상점 */
+.shopgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.sh{background:#f3f5f9;border-radius:14px;padding:8px;text-align:center;font-size:15px}
+.sh canvas{width:80px;height:92px;display:block;margin:0 auto}
+.sh .pr{color:#b07800;font-size:15px;margin:2px 0 6px}
+.sh button{width:100%;padding:7px 4px;border-radius:10px;font-size:15px;background:#1d6fd1;color:#fff}
+.sh.wear{background:#d6f7e6;outline:3px solid #00b06f}
+.sh.wear button{background:#00b06f}
+.sh button.buy{background:#ffb000;color:#3a2500}
+.sh button[disabled]{background:#c9cfd9;color:#fff}
 /* 모달 */
 .modal{position:fixed;inset:0;z-index:60;background:rgba(2,10,28,.7);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px}
 .sheet{background:#fff;border-radius:24px;padding:18px;width:100%;max-width:760px;margin:auto 0;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative}
@@ -1037,7 +1048,7 @@ async function pushCloud(){
   if(!cloud.ok) return;
   try{ await docRef().set(JSON.parse(JSON.stringify(S))); setSync('ok'); }catch(e){ console.warn('저장 실패',e); setSync('err'); }
 }
-function logAnswer(ok,note){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok) L.c++; if(note==='zero') L.z=(L.z||0)+1; if(note==='dot') L.d=(L.d||0)+1; }
+function logAnswer(ok,note){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok){ L.c++; S.coins=(S.coins||0)+1; } if(note==='zero') L.z=(L.z||0)+1; if(note==='dot') L.d=(L.d||0)+1; }
 function logMission(txt){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); (L.m||(L.m=[])).push(txt); }
 
 /* ════════ 화면: 배경 · 게이지 ════════ */
@@ -1161,14 +1172,33 @@ function emoji(ch,size){
 function drawEmoji(c,ch,x,y,size,flip){ const e=emoji(ch,size*(window.devicePixelRatio||1)), w=e.width/(window.devicePixelRatio||1); c.save(); c.translate(x,y); if(flip) c.scale(-1,1); c.drawImage(e,-w/2,-w/2,w,w); c.restore(); }
 function fitCanvas(cv){ const dpr=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight; if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){ cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr); } const c=cv.getContext('2d'); c.setTransform(dpr,0,0,dpr,0,0); return {c,w,h}; }
 /* ════════ 🤿 바닷속 로비 (도진이 대모험과 같은 조이스틱 · 점프) ════════ */
-const DIVER={shirt:'s:blue',pants:'p:jeans',hat:'h:none'};
-const SHOPI={'s:blue':{c:'#ffb000'},'p:jeans':{c:'#2c4f8a'},'p:green':{c:'#2c4f8a'}};
+/* 🪙 코인 · 🛒 상점 (도진이 대모험과 같은 옷 · 모자) */
+const SHOP=[
+  {id:'s:diver',t:'shirt',n:'주황 잠수복',c:'#ffb000',p:0},
+  {id:'s:blue',t:'shirt',n:'파란 티셔츠',c:'#2f7de1',p:30}, {id:'s:red',t:'shirt',n:'빨간 티셔츠',c:'#e5484d',p:40},
+  {id:'s:green',t:'shirt',n:'초록 티셔츠',c:'#22a35a',p:40}, {id:'s:pink',t:'shirt',n:'분홍 티셔츠',c:'#ff7eb6',p:60},
+  {id:'s:purple',t:'shirt',n:'보라 티셔츠',c:'#8b5cf6',p:60}, {id:'s:black',t:'shirt',n:'검은 티셔츠',c:'#2b2f3a',p:60},
+  {id:'s:gold',t:'shirt',n:'황금 티셔츠',c:'#f5c518',p:200}, {id:'s:rainbow',t:'shirt',n:'무지개 티셔츠',c:'#ff5a5a',p:400},
+  {id:'p:jeans',t:'pants',n:'청바지',c:'#2c4f8a',p:0}, {id:'p:green',t:'pants',n:'초록 바지',c:'#3fae4a',p:30},
+  {id:'p:black',t:'pants',n:'검은 바지',c:'#2b2f3a',p:30}, {id:'p:white',t:'pants',n:'하얀 바지',c:'#e9edf2',p:40},
+  {id:'p:red',t:'pants',n:'빨간 바지',c:'#b4232a',p:40},
+  {id:'h:none',t:'hat',n:'모자 없음',p:0}, {id:'h:cap',t:'hat',n:'야구 모자',p:60}, {id:'h:beanie',t:'hat',n:'털모자',p:80},
+  {id:'h:explorer',t:'hat',n:'탐험가 모자',p:100}, {id:'h:crown',t:'hat',n:'황금 왕관',p:300}, {id:'h:domino',t:'hat',n:'도미노 크라운',p:800},
+];
+const SHOPI=Object.fromEntries(SHOP.map(x=>[x.id,x]));
+/* 처음 한 번: 지금까지 맞힌 문제 수만큼 코인, 기본 옷 (저장은 다음에 저장할 때 같이) */
+function ensureKit(){
+  if(!S.coinInit){ S.coins=Object.values(S.log||{}).reduce((a,x)=>a+(x.c||0),0)+(S.coins||0); S.coinInit=1; }
+  if(!S.wear) S.wear={shirt:'s:diver',pants:'p:jeans',hat:'h:none'};
+  if(!Array.isArray(S.own)) S.own=['s:diver','p:jeans','h:none'];
+}
+
 let LOBBY=null;
 const LB={x:.5,y:.6,face:1,vx:0,vy:0,kx:0,ky:0,jt:0,phase:0,px:.36,py:.55,stepT:0,last:0,jid:null,bub:[],fish:null};
 function lbJump(){ if(LB.jt>0) return; LB.jt=.9; sJump(); for(let i=0;i<6;i++) LB.bub.push({x:LB.x+(Math.random()-.5)*.03,y:LB.y,ox:0,oy:0,r:2+Math.random()*4,v:30+Math.random()*30,t:0}); }
 function lobbyHTML(){
   const z=ZONES[Math.max(0,Math.min(ZONES.length-1,(MISSIONS[S.mission]||{z:ZONES.length}).z-1))];
-  return `<div class="lobby"><canvas id="lobby"></canvas><div class="lb-tag">🌊 ${z.n}구역 ${z.name} · 수심 ${curDepth().toLocaleString()}m</div>
+  return `<div class="lobby"><canvas id="lobby"></canvas><div class="lb-tag">🌊 ${z.n}구역 ${z.name} · 수심 ${curDepth().toLocaleString()}m</div><div class="lb-tag" style="left:auto;right:10px">🪙 <b style="font-weight:400;color:#ffd84d">${(S.coins||0).toLocaleString()}</b></div>
     <div class="lb-ctl"><div class="lb-joy" id="lbjoy" aria-label="조이스틱"><div class="lb-knob" id="lbknob"></div></div><span style="flex:1"></span><button class="lb-b" id="lbjump" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff"/></svg></button></div></div>`;
 }
 /* 고글 · 숨대롱 (잠수부) */
@@ -1217,10 +1247,12 @@ function startLobby(){
     LB.bub=LB.bub.filter(b=>{ b.t+=dt; const by=y0+(y1-y0)*b.y-s*1.05-b.t*b.v, bx=b.x*w+Math.sin(b.t*5)*4; if(by<-10) return false; c.strokeStyle='rgba(255,255,255,.75)'; c.lineWidth=1.5; c.beginPath(); c.arc(bx,by,b.r,0,7); c.stroke(); return true; });
     if(LB.bub.length>40) LB.bub.splice(0,LB.bub.length-40);
     /* 🐬 돌돌이 친구 */
-    const drawPet=()=>{ const px=LB.px*w, py=y0+(y1-y0)*Math.max(0,LB.py)-s*.45+Math.sin(sec*2.5)*6; drawEmoji(c,'🐬',px,py,s*.5,LB.face>0); };
+    const drawPet=()=>{ const px=LB.px*w, py=y0+(y1-y0)*Math.max(0,LB.py)-s*.45+Math.sin(sec*2.5)*6, pc=S.pet&&S.pet!=='dol'&&CRE.find(x=>x.id===S.pet);
+      if(!pc){ drawEmoji(c,'🐬',px,py,s*.5,LB.face>0); return; }
+      const im=creImg(pc); if(!im.complete||!im.naturalWidth) return; const pw=s*(pc.boss?1.05:.85), ph=pw*.7; c.save(); c.translate(px,py); if(LB.face<0) c.scale(-1,1); c.drawImage(im,-pw/2,-ph/2,pw,ph); c.restore(); };
     const drawMe=()=>{ c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(ax,ay,s*.26*(1-jp*.4),s*.07*(1-jp*.4),0,0,7); c.fill();
       const by=ay-lift-(moving?Math.sin(sec*4)*2:Math.sin(sec*2)*3);
-      drawAvatar(c,ax,by,s,{moving:moving&&LB.jt===0,phase:LB.phase,face:LB.face,wear:DIVER}); drawMask(c,ax,by,s,LB.face);
+      drawAvatar(c,ax,by,s,{moving:moving&&LB.jt===0,phase:LB.phase,face:LB.face,wear:S.wear}); drawMask(c,ax,by,s,LB.face);
       nameTag(c,ax,Math.max(20,by-s*1.18),15,`[수심 ${dep.toLocaleString()}m] 도윤`); };
     if(LB.py<LB.y){ drawPet(); drawMe(); } else { drawMe(); drawPet(); }
     LOBBY=requestAnimationFrame(step);
@@ -1234,6 +1266,7 @@ window.addEventListener('keydown',e=>{ if($('layer').innerHTML||!$('lobby')||/IN
 window.addEventListener('keyup',e=>{ const k=e.key.toLowerCase(); if(lbHeld.delete(k)) lbKeys(); });
 window.addEventListener('blur',()=>{ lbHeld.clear(); lbKeys(); });
 function render(){
+  ensureKit();
   const d=curDepth(); setBg(d); renderGauge(d);
   const m=MISSIONS[S.mission];
   let h='';
@@ -1292,6 +1325,7 @@ function render(){
   h+=`<div class="menu">
     <button onclick="openDex()"><span class="ic">📖</span>도감<small>${S.dex.length} / ${CRE.length}</small></button>
     <button onclick="startVortex()"><span class="ic">🌀</span>오답 소용돌이<small>${S.wrong.length}문제</small></button>
+    <button onclick="openShop()"><span class="ic">🛒</span>상점<small>🪙 ${(S.coins||0).toLocaleString()}</small></button>
     <button onclick="openVoyage()"><span class="ic">🗺️</span>항해 일지<small>${Math.min(S.mission,MISSIONS.length)} / ${MISSIONS.length}</small></button>
   </div>
   <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div><p class="legal"><a href="terms.html">이용약관</a> · <a href="privacy.html"><b>개인정보처리방침</b></a></p>`;
@@ -1362,7 +1396,7 @@ function judge(ok,note){
   const fb=document.createElement('div'); fb.className='fb';
   const ansTxt=q.t==='cho'?choLabel(q.a):q.a;
   const zero=ok&&note==='zero';
-  fb.innerHTML=ok?`<div class="mark">⭕</div><h3>${pick(['정답!','멋져요!','훌륭해요!','바로 그거예요!'])}</h3>${zero?`<p class="znote">${NOTE.zero} → ${strikeZero(Q.buf)}</p><button onclick="nextQ()">알겠어요</button>`:''}${Q.mode==='boss'?`<p>${Q.m.cre.n}에게 공격 성공! 💥</p>`:''}`
+  fb.innerHTML=ok?`<div class="mark">⭕</div><h3>${pick(['정답!','멋져요!','훌륭해요!','바로 그거예요!'])} <span style="color:#e3a400;font-size:22px">+1 🪙</span></h3>${zero?`<p class="znote">${NOTE.zero} → ${strikeZero(Q.buf)}</p><button onclick="nextQ()">알겠어요</button>`:''}${Q.mode==='boss'?`<p>${Q.m.cre.n}에게 공격 성공! 💥</p>`:''}`
     :note==='dot'?`<div class="mark">🔍</div><h3>소수점을 빠뜨렸어요!</h3><p>정답은</p><div class="ans">${ansTxt}</div><p>숫자는 맞았어요. 소수점을 꼭 찍어요.</p><button onclick="nextQ()">알겠어요</button>`
     :`<div class="mark">❌</div><h3>아쉬워요!</h3><p>정답은</p><div class="ans">${ansTxt}</div><p>${q.ex||''}</p>${Q.mode!=='vortex'?'<p style="font-size:16px">🌀 오답 소용돌이에 넣어 둘게요</p>':''}<button onclick="nextQ()">알겠어요</button>`;
   $('qcard').appendChild(fb);
@@ -1671,6 +1705,38 @@ function showCreature(c,isNew,sub,send){
   modal(`<div class="flip" style="text-align:center">${isNew?'<span class="new">NEW! 새 친구</span>':'<span class="new" style="background:#8aa">이미 만난 친구</span>'}<p style="margin:4px 0;color:var(--sub);font-size:18px">${c.d.toLocaleString()}m에서 만났어요${sub?' · '+sub:''}</p>${creatureHTML(c)}</div>
     ${send?`<div class="row" style="margin-top:12px"><button class="btn gray" style="flex:1" onclick="closeModal()">📖 도감에 넣기</button><button class="btn" style="flex:1" onclick="sendMom()">📩 엄마한테 보내기</button></div>`:`<button class="btn wide" style="margin-top:12px" onclick="closeModal()">📖 도감에 넣기</button>`}`);
 }
+/* 🛒 상점 */
+let SHOPTAB='shirt';
+function openShop(){
+  const tabs=[['shirt','👕 셔츠'],['pants','👖 바지'],['hat','🎩 모자'],['pet','🐠 친구']];
+  let h=`<h2>🛒 상점 <small style="color:#b07800;font-size:18px">🪙 ${S.coins.toLocaleString()}</small></h2>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:90px;height:110px;background:#f3f5f9;border-radius:14px"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞힐 때마다 🪙 1코인!<br>모은 코인으로 잠수부 옷 · 모자, 도감에서 만난 바다 친구를 사요</p></div>
+    <div class="row" style="margin-bottom:10px">${tabs.map(([k,l])=>`<button class="btn ${SHOPTAB===k?'':'gray'}" style="flex:1;padding:10px 4px" onclick="SHOPTAB='${k}';openShop()">${l}</button>`).join('')}</div><div class="shopgrid">`;
+  if(SHOPTAB==='pet') h+=petShopHTML();
+  else SHOP.filter(x=>x.t===SHOPTAB).forEach(x=>{ const own=S.own.includes(x.id), wear=S.wear[x.t]===x.id;
+    h+=`<div class="sh ${wear?'wear':''}"><canvas data-sid="${x.id}"></canvas>${esc(x.n)}<div class="pr">${x.p?`🪙 ${x.p}`:'기본'}</div>${wear?`<button>입고 있어요</button>`:own?`<button onclick="wearIt('${x.id}')">입기</button>`:`<button class="buy" ${S.coins<x.p?'disabled':''} onclick="buyIt('${x.id}')">사기</button>`}</div>`; });
+  modal(h+`</div>`);
+  const me=$('shopme'); { const {c,w,h:hh}=fitCanvas(me); drawAvatar(c,w/2,hh-10,hh*.78,{}); }
+  document.querySelectorAll('canvas[data-sid]').forEach(cv=>{ const x=SHOPI[cv.dataset.sid], wr=Object.assign({},S.wear,{[x.t]:x.id}); const {c,w,h:hh}=fitCanvas(cv); drawAvatar(c,w/2,hh-6,hh*(x.t==='hat'?.74:.8),{wear:wr}); });
+}
+/* 🐠 동행 친구: 도감에서 만난 바다 생물을 코인으로 사서 함께 헤엄쳐요 (🐬 돌돌이는 처음부터 친구) */
+const petPrice=c=>30+Math.round(Math.sqrt(c.d))*5+(c.boss?50:0);   // 깊이 사는 생물 · 보스일수록 비싸요
+const CREIMG={};
+function creImg(c){ if(CREIMG[c.id]) return CREIMG[c.id]; const im=new Image(); im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(creSVG(c)); return CREIMG[c.id]=im; }
+function petShopHTML(){
+  const pets=S.pets||[], cur=S.pet||'dol';
+  let h=`<div class="sh ${cur==='dol'?'wear':''}"><div style="font-size:56px;line-height:92px">🐬</div>돌돌이<div class="pr">처음 친구</div>${cur==='dol'?'<button>함께 다녀요</button>':`<button onclick="setPet('dol')">함께 다니기</button>`}</div>`;
+  CRE.forEach(c=>{ const met=S.dex.includes(c.id), own=pets.includes(c.id), p=petPrice(c);
+    if(!met){ h+=`<div class="sh" style="opacity:.6"><div class="pic sil" style="width:92px;margin:6px auto">${creSVG(c)}</div>???<div class="pr" style="color:var(--sub)">${c.d.toLocaleString()}m</div><button disabled>도감에서 먼저 만나요</button></div>`; return; }
+    h+=`<div class="sh ${cur===c.id?'wear':''}"><div class="pic" style="width:92px;margin:6px auto">${creSVG(c)}</div>${esc(c.n)}<div class="pr">${own?'내 친구':`🪙 ${p}`}</div>${cur===c.id?'<button>함께 다녀요</button>':own?`<button onclick="setPet('${c.id}')">함께 다니기</button>`:`<button class="buy" ${S.coins<p?'disabled':''} onclick="buyPet('${c.id}')">사기</button>`}</div>`; });
+  return h;
+}
+function buyPet(id){ const c=CRE.find(x=>x.id===id); if(!c||!S.dex.includes(id)) return; const p=petPrice(c); S.pets=S.pets||[]; if(S.pets.includes(id)||S.coins<p) return;
+  if(!confirm(`${c.n}${jo(c.n,'을','를')} 🪙 ${p}코인에 동행 친구로 데려갈까요?`)) return;
+  S.coins-=p; S.pets.push(id); S.pet=id; save(); sBig(); openShop(); render(); toast(`${c.n}${jo(c.n,'이','가')} 함께 헤엄쳐요! 🫧`); }
+function setPet(id){ S.pet=id; save(); openShop(); render(); }
+function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${x.n}${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
+function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
 /* ════════ 엄마한테 보내기 (문자) ════════
    엄마 이름 · 전화번호는 관리자 모드에서 정하고, 이 기기에만 저장해요 (온라인에는 올리지 않아요) */
 const MOM_KEY='atlan-mom';
