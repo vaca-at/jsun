@@ -100,6 +100,7 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 /* 여행 지도 */
 .journey svg{display:block;width:100%;height:auto}
 .journey h3{margin:0 0 6px;font-size:19px;font-weight:400}
+.legal{text-align:center;font-size:13px;margin:10px 0 0;opacity:.8}.legal a{color:inherit}
 .foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px}
 .foot button{background:rgba(27,31,42,.75);color:#fff;border-radius:10px;padding:8px 14px;font-size:14px}
 
@@ -841,7 +842,7 @@ function render(){
     <button class="ib b" onclick="openMap()"><span class="c">🗺️</span>여행 지도</button>
   </div>`;
   h+=`<div class="card journey"><h3>🗺️ 탐험 경로</h3>${journeySVG()}</div>
-  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div>`;
+  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div><p class="legal"><a href="terms.html">이용약관</a> · <a href="privacy.html"><b>개인정보처리방침</b></a></p>`;
   $('main').innerHTML=h;
   setMusic('home');
   startLobby();
@@ -1262,9 +1263,9 @@ function openSpin(){
   let svg=`<svg viewBox="-110 -110 220 220" id="wheel"><circle r="106" fill="#1b1f2a"/>`;
   SPIN.forEach((v,i)=>{ const a0=(i*seg-90-seg/2)*Math.PI/180, a1=((i+1)*seg-90-seg/2)*Math.PI/180, am=(i*seg-90)*Math.PI/180;
     svg+=`<path d="M0,0 L${(100*Math.cos(a0)).toFixed(2)},${(100*Math.sin(a0)).toFixed(2)} A100,100 0 0 1 ${(100*Math.cos(a1)).toFixed(2)},${(100*Math.sin(a1)).toFixed(2)} Z" fill="${cols[i]}" stroke="#fff" stroke-width="2"/>
-      <text x="${(66*Math.cos(am)).toFixed(1)}" y="${(66*Math.sin(am)).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${v>=100?16:19}" font-family="Jua" fill="#1b1f2a" transform="rotate(${i*seg} ${(66*Math.cos(am)).toFixed(1)} ${(66*Math.sin(am)).toFixed(1)})">${v}</text>`; });
+      ${[[86,13,`🪙`],[66,v>=100?17:20,v],[46,10,`코인`]].map(([r,fs,t])=>{ const x=(r*Math.cos(am)).toFixed(1), y=(r*Math.sin(am)).toFixed(1); return `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" font-family="Jua" fill="#1b1f2a" transform="rotate(${i*seg} ${x} ${y})">${t}</text>`; }).join(``)}`; });
   svg+=`<circle r="16" fill="#fff" stroke="#1b1f2a" stroke-width="4"/></svg>`;
-  modal(`<h2>🎡 행운 룰렛</h2><p style="margin:0 0 6px;color:var(--sub);font-size:16px">오늘 목표(미션 ${goal}개)를 채우면 하루에 한 번 돌릴 수 있어요</p>
+  modal(`<h2>🎡 행운 룰렛</h2><p style="margin:0 0 6px;color:var(--sub);font-size:16px">오늘 목표(미션 ${goal}개)를 채우면 하루에 한 번 돌릴 수 있어요<br><b style="color:#b07800">멈춘 칸의 숫자만큼 🪙 코인을 받아요!</b></p>
     <div class="wheelwrap"><div class="ptr">🔻</div>${svg}</div>
     <p id="spinres" style="text-align:center;font-size:22px;min-height:30px;margin:6px 0">${done?`오늘은 🪙 ${S.spin[tk]}코인을 받았어요!`:''}</p>
     <button class="btn wide ${can?'green':''}" id="spinbtn" ${can?'':'disabled'} onclick="doSpin()">${done?'내일 또 만나요!':can?'🎡 돌리기!':`미션 ${goal-ms}개 더 하면 돌릴 수 있어요`}</button>`);
@@ -1276,7 +1277,7 @@ function doSpin(){
   $('spinbtn').disabled=true; $('spinbtn').textContent='돌아가는 중…';
   const w=$('wheel'); w.style.transform=`rotate(${360*6-i*seg+rnd(-12,12)}deg)`;
   let tt=0, gap=.05; while(tt<3.4){ tone(1800,.025,'square',tt,.05); tt+=gap; gap*=1.11; }
-  setTimeout(()=>{ $('spinres').textContent=`🎉 🪙 ${v}코인 당첨!`; $('spinbtn').textContent='내일 또 만나요!'; sWin(); if(v>=50) confetti(40); render(); },3700);
+  setTimeout(()=>{ $('spinres').textContent=`🎉 🪙 ${v}코인 받았어요!`; $('spinbtn').textContent='내일 또 만나요!'; sWin(); if(v>=50) confetti(40); render(); },3700);
 }
 function openItems(){
   let h=`<h2>🎒 탐험 아이템 도감 <small style="color:var(--sub);font-size:17px">${itemsGot()} / ${ITEMS.length}</small></h2><p style="margin:0;color:var(--sub);font-size:16px">미션을 하나 끝낼 때마다 하나씩 모여요. 눌러 보세요!</p>`;

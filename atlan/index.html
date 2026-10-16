@@ -123,6 +123,7 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .menu button{background:var(--card);border-radius:18px;padding:14px 6px;font-size:18px;box-shadow:0 4px 14px rgba(0,20,60,.2);line-height:1.3}
 .menu button .ic{display:block;font-size:34px}
 .menu button small{display:block;color:var(--sub);font-size:14px}
+.legal{text-align:center;font-size:13px;margin:10px 0 0;opacity:.8}.legal a{color:inherit}
 .foot{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px}
 .foot button{background:rgba(255,255,255,.2);color:#fff;border-radius:12px;padding:8px 14px;font-size:14px}
 
@@ -1158,7 +1159,7 @@ function render(){
     <button onclick="startVortex()"><span class="ic">🌀</span>오답 소용돌이<small>${S.wrong.length}문제</small></button>
     <button onclick="openVoyage()"><span class="ic">🗺️</span>항해 일지<small>${Math.min(S.mission,MISSIONS.length)} / ${MISSIONS.length}</small></button>
   </div>
-  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div>`;
+  <div class="foot"><button onclick="openAdmin()">🔒 엄마 모드</button><button onclick="adminOpen()">🔐 관리자</button></div><p class="legal"><a href="terms.html">이용약관</a> · <a href="privacy.html"><b>개인정보처리방침</b></a></p>`;
   $('main').innerHTML=h;
   if(!document.querySelector('#layer .screen')) setMusic('home',[0,-2,-4,-5,-7][m?Math.max(0,Math.min(4,m.z-1)):4]);
 }
