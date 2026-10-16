@@ -29,6 +29,8 @@ button{font-family:inherit;cursor:pointer;border:0;color:inherit}
 header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));background:var(--dark);color:#fff}
 header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-height:1.2}
 .hbtn{background:rgba(255,255,255,.14);border-radius:10px;padding:7px 10px;font-size:14px;color:#fff;text-decoration:none;white-space:nowrap}
+.hbtn.dia{display:inline-flex;align-items:center;gap:6px}
+.hbtn.dia img{width:20px;height:20px;border-radius:5px;display:block}
 .sync{font-size:14px;min-width:22px;text-align:center}
 .wrap{max-width:720px;margin:0 auto;padding:12px 12px 40px}
 
@@ -244,8 +246,10 @@ th{color:var(--sub);font-weight:400}
 <body>
 <header>
   <a class="hbtn" href="../dojin/">🏠 공부방</a>
-  <h1>⚔️ 도진이의 수학 연산 대모험</h1>
-  <button class="hbtn" id="sndbtn" onclick="toggleSound()" aria-label="소리">🔊</button>`n  <span class="sync" id="sync" title="온라인 저장">⏳</span>
+  <a class="hbtn dia" href="https://iinote.co.kr/?k=7K8SVF-xfPTGtW1ciI14IiiAjsU&amp;n=%EB%8F%84%EC%A7%84&amp;write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기"><img src="../iinote/icon.png" alt="">일기</a>
+  <h1>⚔️ 도진이의<br>수학 연산 대모험</h1>
+  <button class="hbtn" id="sndbtn" onclick="toggleSound()" aria-label="소리">🔊</button>
+  <span class="sync" id="sync" title="온라인 저장">⏳</span>
 </header>
 <div class="wrap" id="main"></div>
 <div class="screen" id="game"></div>
