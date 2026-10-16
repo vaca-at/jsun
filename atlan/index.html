@@ -74,6 +74,11 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .week .tdy{box-shadow:0 0 0 3px #ffd34d inset}
 /* 엄마의 한마디 (초록 띠) · 오늘 상자 */
 .mommsg{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(135deg,#2fbf71,#1f9e5c);color:#fff;border-radius:18px;padding:12px 16px;margin-bottom:12px;box-shadow:0 6px 16px rgba(20,90,50,.25)}
+.mbtn{margin-top:8px;background:rgba(255,255,255,.22);color:#fff;border:1.5px solid rgba(255,255,255,.55);border-radius:999px;padding:5px 14px;font-size:15px;font-family:inherit;cursor:pointer}
+.mbox{background:#effaf3;border-left:5px solid #2fbf71;border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.mbox .mb-d{font-size:14px;color:#1f9e5c}.mbox p{margin:4px 0 0;font-size:19px;line-height:1.45;white-space:pre-wrap;word-break:keep-all}
+.mhist{margin-top:10px;max-height:260px;overflow-y:auto}.mhist .mbox{display:flex;gap:8px;align-items:flex-start}.mhist .mbox>div{flex:1;min-width:0}.mhist .mbox p{font-size:16px}
+.mhist .mbox button{border:0;background:#fff;border-radius:8px;width:32px;height:32px;font-size:15px;cursor:pointer;flex:none}
 .mommsg .mm-ic{font-size:26px;line-height:1.2}
 .mommsg b{font-size:15px;opacity:.9;font-weight:400}
 .mommsg p{margin:2px 0 0;font-size:20px;line-height:1.45;white-space:pre-wrap;word-break:keep-all}
@@ -188,6 +193,7 @@ header h1{flex:1;margin:0;font-size:17px;font-weight:400;line-height:1.2;text-sh
 .creature .pic{max-width:420px;margin:0 auto;background:radial-gradient(circle,#e3f3ff,#cfe6fb);border-radius:18px}
 .creature h3{font-size:34px;margin:10px 0 4px;font-weight:400}
 .creature .badge{display:inline-block;background:#1d4f91;color:#fff;border-radius:999px;padding:4px 14px;font-size:16px}
+.creature .credit{font-size:12px;color:var(--sub);margin:8px 0 0;word-break:break-all}.creature .credit a{color:inherit}
 .creature ul{text-align:left;font-size:20px;line-height:1.55;padding-left:22px;margin:14px 0 4px;word-break:keep-all}
 .flip{animation:flip .7s ease}
 @keyframes flip{from{transform:perspective(800px) rotateY(90deg) scale(.8);opacity:0}}
@@ -301,7 +307,7 @@ th{color:var(--sub);font-weight:400}
 <div class="bubbles" id="bubbles"></div>
 <header>
   <a class="hbtn" href="../doyun/">🏠 공부방</a>
-  <a class="hbtn dia" href="https://iinote.co.kr/?k=7K8SVF-TaYge7m4jSU6xRKZlhQr&amp;n=%EB%8F%84%EC%9C%A4&amp;write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기"><img src="../iinote/icon.png" alt="">일기</a>
+  <a class="hbtn dia" onclick="pauseSound()" href="https://iinote.co.kr/?k=7K8SVF-TaYge7m4jSU6xRKZlhQr&amp;n=%EB%8F%84%EC%9C%A4&amp;write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기"><img src="../iinote/icon.png" alt="">일기</a>
   <h1>봉인된 아틀란티스와<br>크라켄 던전 정복기</h1>
   <button class="hbtn" id="sndbtn" onclick="toggleSound()" aria-label="소리">🔊</button>
   <span class="sync" id="sync" title="온라인 저장">⏳</span>
@@ -440,6 +446,11 @@ function toggleSound(){
   SND.mode={all:'sfx',sfx:'off',off:'all'}[SND.mode]; try{ localStorage.setItem('atlan-sound',SND.mode); }catch(e){}
   audio(); applySound(); soundBtn(); toast({all:'🔊 음악 + 효과음',sfx:'🔉 효과음만',off:'🔇 소리 끔'}[SND.mode],1200); if(SND.mode!=='off') sClick();
 }
+
+/* 일기장(아이아이노트)으로 가거나 다른 앱 · 탭으로 넘어가면 소리 멈춤, 돌아오면 다시 */
+function pauseSound(){ try{ if(SND.ctx&&SND.ctx.state==='running') SND.ctx.suspend(); }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(!SND.ctx) return; try{ document.hidden?SND.ctx.suspend():SND.ctx.resume(); }catch(e){} });
+window.addEventListener('pagehide',pauseSound);
 const sWIN=sWin;
 const sDive=()=>{ tone(900,1.9,'sine',0,.06,110); noise(1.7,0,.05,500,'lowpass'); for(let i=0;i<10;i++) tone(rnd(500,1300),.08,'sine',.15+i*.19,.05,rnd(1500,2400)); };
 
@@ -1113,7 +1124,7 @@ function render(){
     let streak=0; for(let j=0;;j++){ const x=new Date(now); x.setDate(x.getDate()-j); const q=(S.log[ymd(x)]||{}).q||0; if(q) streak++; else if(j) break; }
     const ahead=MISSIONS.filter(x=>x.i<S.mission&&ymd(planDate(x.i))>tk).length;   // 미리 풀어 둔 미션
     const pct=L.q?Math.round(L.c/L.q*100):0;
-    h+=`<div class="mommsg"><span class="mm-ic">${S.momMsg?'💚':'🤖'}</span><div style="flex:1;min-width:0">${S.momMsg?`<b>엄마의 한마디</b><p>${esc(S.momMsg)}</p>`:''}
+    h+=`<div class="mommsg"><span class="mm-ic">${S.momMsg?'💚':'🤖'}</span><div style="flex:1;min-width:0">${S.momMsg?`<b>엄마의 한마디</b><p>${esc(S.momMsg)}</p>`:''}${momHist().length?`<button class="mbtn" onclick="openMomBox()">💌 지난 편지 보기 (${momHist().length})</button>`:''}
       ${cheerHTML({L,doneToday,left:left.length,rest:!todayMs.length,late,ahead,streak,days,m})}</div></div>`;
     h+=`<div class="todaybox"><div class="tb-date">📅 ${now.getMonth()+1}월 ${now.getDate()}일 ${WDK[now.getDay()]}요일</div>
       <div class="tb-nums"><div class="tb-n main${L.q?'':' zero'}"><b>${L.q}</b>오늘 푼 문제</div><div class="tb-n${L.q?'':' zero'}"><b>${L.c}${L.q?`<small> (${pct}%)</small>`:''}</b>맞힘</div><div class="tb-n${doneToday?'':' zero'}"><b>${doneToday}</b>끝낸 미션</div></div>
@@ -1512,8 +1523,11 @@ function diveTo(from,to,done){
 /* ════════ 모달 · 도감 ════════ */
 function modal(html){ $('layer').innerHTML=`<div class="modal" onclick="if(event.target===this)closeModal()"><div class="sheet"><button class="close" onclick="closeModal()">✕</button>${html}</div></div>`; }
 function closeModal(){ $('layer').innerHTML=''; }
+/* 사진 출처 (Wikimedia Commons · 사진마다 라이선스가 달라서 작가 · 라이선스를 함께 적어요) */
+let CREDIT={}; fetch('images/fish/credits.json').then(r=>r.json()).then(j=>CREDIT=j).catch(()=>{});
+const creditHTML=c=>{ const k=CREDIT[c.n.replace(/\s/g,'')]; return k?`<p class="credit">📷 ${esc(k.artist||'작가 미상')} · ${esc(k.license||'')} · <a href="${esc(k.page)}" target="_blank" rel="noopener">Wikimedia Commons</a></p>`:''; };
 function creatureHTML(c){
-  return `<div class="creature">${picHTML(c)}<h3>${c.n}</h3><span class="badge">🌊 사는 곳: ${c.r}</span><ul>${c.f.map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+  return `<div class="creature">${picHTML(c)}<h3>${c.n}</h3><span class="badge">🌊 사는 곳: ${c.r}</span><ul>${c.f.map(x=>`<li>${x}</li>`).join('')}</ul>${creditHTML(c)}</div>`;
 }
 function showCreature(c,isNew,sub,send){
   isNew?sBig():sItem();
@@ -1659,7 +1673,7 @@ function drawAdmin(){
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
    <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e9eef5'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${S.momMsgAt?` · ${new Date(S.momMsgAt).getMonth()+1}/${new Date(S.momMsgAt).getDate()} ${String(new Date(S.momMsgAt).getHours()).padStart(2,'0')}:${String(new Date(S.momMsgAt).getMinutes()).padStart(2,'0')} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
    <textarea id="momMsg" maxlength="200" rows="3" placeholder="예) 도윤아, 오늘도 차근차근! 다 풀면 엄마한테 보내 줘 💚" style="width:100%;margin-top:8px;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit;resize:vertical">${esc(S.momMsg||'')}</textarea>
-   <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div></div>
+   <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div>${momHistAdmin()}</div>
    <div class="card" style="background:#f2f7fd;box-shadow:none"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장 (온라인에 올리지 않아요)</span>
    <div class="row" style="margin-top:8px"><input id="momName" type="text" maxlength="10" placeholder="부르는 이름 (예: 엄마)" value="${esc(getMom().name||'')}" style="flex:1;min-width:0;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"></div>
    <div class="row" style="margin-top:8px"><input id="momPhone" type="tel" inputmode="tel" maxlength="15" placeholder="010-0000-0000" value="${esc(getMom().phone||'')}" style="flex:1;min-width:0;font-size:18px;padding:10px;border-radius:12px;border:2px solid #cfe0f3;font-family:inherit"><button class="btn" onclick="setMom()">저장</button></div>
@@ -1678,7 +1692,13 @@ function setPin(){
   if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; }
   S.pinH=hashPin(v,'atlan'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒');
 }
-function setMomMsg(){ S.momMsg=($('momMsg').value||'').trim().slice(0,200); S.momMsgAt=Date.now(); save(); render(); drawAdmin(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
+/* 💌 엄마의 한마디 기록: 저장할 때마다 날짜와 함께 쌓아요 (아이는 편지함, 엄마는 엄마 모드에서 봐요) */
+const momHist=()=>{ if(!Array.isArray(S.momHist)) S.momHist=S.momMsg?[{t:S.momMsgAt||Date.now(),msg:S.momMsg}]:[]; return S.momHist; };
+const fmtAt=t=>{ const d=new Date(t); return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDK[d.getDay()]}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+function openMomBox(){ const L=momHist().slice().reverse(); modal(`<h2>💌 엄마 편지함 <small style="color:var(--sub);font-size:17px">${L.length}개</small></h2>${L.length?L.map(x=>`<div class="mbox"><div class="mb-d">${fmtAt(x.t)}</div><p>${esc(x.msg)}</p></div>`).join(''):'<p style="color:var(--sub)">아직 엄마 편지가 없어요</p>'}`); }
+function momHistAdmin(){ const H=momHist(); return H.length?`<p style="margin:12px 0 0;font-size:16px"><b>📜 지난 한마디</b> <span style="color:var(--sub);font-size:14px">${H.length}개 · 아이는 '💌 지난 편지 보기'로 봐요</span></p><div class="mhist">${H.map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="mbox"><div><div class="mb-d">${fmtAt(x.t)}</div><p>${esc(x.msg)}</p></div><button onclick="delMomHist(${i})" aria-label="지우기">✕</button></div>`).join('')}</div>`:''; }
+function delMomHist(i){ if(!confirm('이 한마디를 기록에서 지울까요?')) return; momHist().splice(i,1); save(); drawAdmin(); }
+function setMomMsg(){ const H=momHist(); S.momMsg=($('momMsg').value||'').trim().slice(0,200); S.momMsgAt=Date.now(); if(S.momMsg&&(!H.length||H[H.length-1].msg!==S.momMsg)){ H.push({t:S.momMsgAt,msg:S.momMsg}); if(H.length>200) H.shift(); } save(); render(); drawAdmin(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
 function setMom(){
   const name=($('momName').value||'').trim().slice(0,10), phone=($('momPhone').value||'').trim();
   if(phone&&!/^[0-9+\-\s]{8,15}$/.test(phone)){ toast('전화번호를 확인해 주세요'); return; }

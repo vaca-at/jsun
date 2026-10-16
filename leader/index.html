@@ -36,6 +36,11 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 
 /* 엄마의 한마디 (초록 띠) */
 .mommsg{display:flex;gap:10px;align-items:flex-start;background:linear-gradient(135deg,#2fbf71,#1f9e5c);color:#fff;border-radius:16px;padding:12px 16px;margin-bottom:12px;box-shadow:0 6px 16px rgba(20,90,50,.25)}
+.mbtn{margin-top:8px;background:rgba(255,255,255,.22);color:#fff;border:1.5px solid rgba(255,255,255,.55);border-radius:999px;padding:5px 14px;font-size:15px;font-family:inherit;cursor:pointer}
+.mbox{background:#effaf3;border-left:5px solid #2fbf71;border-radius:12px;padding:10px 14px;margin-bottom:8px}
+.mbox .mb-d{font-size:14px;color:#1f9e5c}.mbox p{margin:4px 0 0;font-size:19px;line-height:1.45;white-space:pre-wrap;word-break:keep-all}
+.mhist{margin-top:10px;max-height:260px;overflow-y:auto}.mhist .mbox{display:flex;gap:8px;align-items:flex-start}.mhist .mbox>div{flex:1;min-width:0}.mhist .mbox p{font-size:16px}
+.mhist .mbox button{border:0;background:#fff;border-radius:8px;width:32px;height:32px;font-size:15px;cursor:pointer;flex:none}
 .mommsg .mm-ic{font-size:26px;line-height:1.2}
 .mommsg b{font-size:15px;opacity:.9;font-weight:400}
 .mommsg p{margin:2px 0 0;font-size:20px;line-height:1.45;white-space:pre-wrap;word-break:keep-all}
@@ -246,7 +251,7 @@ th{color:var(--sub);font-weight:400}
 <body>
 <header>
   <a class="hbtn" href="../dojin/">🏠 공부방</a>
-  <a class="hbtn dia" href="https://iinote.co.kr/?k=7K8SVF-xfPTGtW1ciI14IiiAjsU&amp;n=%EB%8F%84%EC%A7%84&amp;write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기"><img src="../iinote/icon.png" alt="">일기</a>
+  <a class="hbtn dia" onclick="pauseSound()" href="https://iinote.co.kr/?k=7K8SVF-xfPTGtW1ciI14IiiAjsU&amp;n=%EB%8F%84%EC%A7%84&amp;write" target="_blank" rel="noopener" title="아이아이노트에서 오늘 일기 쓰기"><img src="../iinote/icon.png" alt="">일기</a>
   <h1>⚔️ 도진이의<br>수학 연산 대모험</h1>
   <button class="hbtn" id="sndbtn" onclick="toggleSound()" aria-label="소리">🔊</button>
   <span class="sync" id="sync" title="온라인 저장">⏳</span>
@@ -379,6 +384,11 @@ function toggleSound(){
   SND.mode={all:'sfx',sfx:'off',off:'all'}[SND.mode]; try{ localStorage.setItem('leader-sound',SND.mode); }catch(e){}
   audio(); applySound(); soundBtn(); toast({all:'🔊 음악 + 효과음',sfx:'🔉 효과음만',off:'🔇 소리 끔'}[SND.mode],1200); if(SND.mode!=='off') sClick();
 }
+
+/* 일기장(아이아이노트)으로 가거나 다른 앱 · 탭으로 넘어가면 소리 멈춤, 돌아오면 다시 */
+function pauseSound(){ try{ if(SND.ctx&&SND.ctx.state==='running') SND.ctx.suspend(); }catch(e){} }
+document.addEventListener('visibilitychange',()=>{ if(!SND.ctx) return; try{ document.hidden?SND.ctx.suspend():SND.ctx.resume(); }catch(e){} });
+window.addEventListener('pagehide',pauseSound);
 
 function confetti(n=40){ const cs=['#ff5a5a','#ffd84d','#3ddc84','#3aa0ff','#b48cff','#ff9a3d']; for(let i=0;i<n;i++){ const d=document.createElement('div'); d.className='confetti'; d.style.left=rnd(0,100)+'vw'; d.style.background=pick(cs); d.style.animationDuration=(1.6+Math.random()*1.6)+'s'; d.style.animationDelay=(Math.random()*.4)+'s'; document.body.appendChild(d); setTimeout(()=>d.remove(),3600); } }
 
@@ -776,7 +786,7 @@ function render(){
   const tk=todayKey(), L=S.log[tk]||{q:0,c:0,ms:0}, goal=perDay(), gq=goal*QN, now=new Date();
   let h='';
   /* 💚 엄마의 한마디 (엄마 모드에서 쓰고 고쳐요) */
-  if(S.momMsg) h+=`<div class="mommsg"><span class="mm-ic">💚</span><div><b>엄마의 한마디</b><p>${esc(S.momMsg)}</p></div></div>`;
+  if(S.momMsg||momHist().length) h+=`<div class="mommsg"><span class="mm-ic">💚</span><div>${S.momMsg?`<b>엄마의 한마디</b><p>${esc(S.momMsg)}</p>`:''}<button class="mbtn" onclick="openMomBox()">💌 지난 편지 보기 (${momHist().length})</button></div></div>`;
   /* 📅 오늘 푼 문제 */
   const ms=L.ms||0, gd=ms>=goal;
   h+=`<div class="card"><div class="tb-top"><div class="tb-date">📅 ${now.getMonth()+1}월 ${now.getDate()}일 ${WDK[now.getDay()]}요일</div><div class="tb-goal ${gd?'done':''}">${gd?'🎉 오늘 목표 달성!':`오늘 목표 미션 ${goal}개 (${gq}문제)`}</div></div>
@@ -1317,7 +1327,7 @@ function drawAdmin(){
    <div class="box"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
    <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e6eaf0'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${at?` · ${at.getMonth()+1}/${at.getDate()} ${pad2(at.getHours())}:${pad2(at.getMinutes())} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
    <textarea id="momMsg" class="inp" maxlength="200" rows="3" placeholder="예) 도진아, 오늘도 사막 건너기 화이팅! 60문제 다 풀면 엄마한테 보내 줘 💚" style="margin-top:8px;resize:vertical">${esc(S.momMsg||'')}</textarea>
-   <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div></div>
+   <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div>${momHistAdmin()}</div>
    <div class="box"><b>🎯 하루 목표</b> <span style="color:var(--sub);font-size:15px">미션 1개 = ${QN}문제 · 목표를 채운 날이 한 주에 5일이면 동행 친구</span>
    <div class="row" style="margin-top:8px">${[1,2,3,4].map(n=>`<button class="btn ${perDay()===n?'':'gray'}" style="flex:1;padding:10px 4px" onclick="setPerDay(${n})">${n}개<br><small>${n*QN}문제</small></button>`).join('')}</div>
    <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin-top:12px"><input type="checkbox" ${S.noMap?'':'checked'} onchange="S.noMap=!this.checked;save();render()" style="width:22px;height:22px"> 미션 사이에 🕹️ 이동 맵 (조이스틱 · 점프) 하기</label></div>
@@ -1340,7 +1350,13 @@ function drawAdmin(){
    <div class="row">${ADMIN_G?'<button class="btn gray" style="flex:1" onclick="adminSignOut()">관리자 로그아웃</button>':''}<button class="btn gray" style="flex:1" onclick="closeModal();render()">닫기</button></div>`;
   modal(h);
 }
-function setMomMsg(){ S.momMsg=($('momMsg').value||'').trim().slice(0,200); S.momMsgAt=Date.now(); save(); render(); drawAdmin(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
+/* 💌 엄마의 한마디 기록: 저장할 때마다 날짜와 함께 쌓아요 (아이는 편지함, 엄마는 엄마 모드에서 봐요) */
+const momHist=()=>{ if(!Array.isArray(S.momHist)) S.momHist=S.momMsg?[{t:S.momMsgAt||Date.now(),msg:S.momMsg}]:[]; return S.momHist; };
+const fmtAt=t=>{ const d=new Date(t); return `${d.getMonth()+1}월 ${d.getDate()}일 (${WDK[d.getDay()]}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+function openMomBox(){ const L=momHist().slice().reverse(); modal(`<h2>💌 엄마 편지함 <small style="color:var(--sub);font-size:17px">${L.length}개</small></h2>${L.length?L.map(x=>`<div class="mbox"><div class="mb-d">${fmtAt(x.t)}</div><p>${esc(x.msg)}</p></div>`).join(''):'<p style="color:var(--sub)">아직 엄마 편지가 없어요</p>'}`); }
+function momHistAdmin(){ const H=momHist(); return H.length?`<p style="margin:12px 0 0;font-size:16px"><b>📜 지난 한마디</b> <span style="color:var(--sub);font-size:14px">${H.length}개 · 아이는 '💌 지난 편지 보기'로 봐요</span></p><div class="mhist">${H.map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="mbox"><div><div class="mb-d">${fmtAt(x.t)}</div><p>${esc(x.msg)}</p></div><button onclick="delMomHist(${i})" aria-label="지우기">✕</button></div>`).join('')}</div>`:''; }
+function delMomHist(i){ if(!confirm('이 한마디를 기록에서 지울까요?')) return; momHist().splice(i,1); save(); drawAdmin(); }
+function setMomMsg(){ const H=momHist(); S.momMsg=($('momMsg').value||'').trim().slice(0,200); S.momMsgAt=Date.now(); if(S.momMsg&&(!H.length||H[H.length-1].msg!==S.momMsg)){ H.push({t:S.momMsgAt,msg:S.momMsg}); if(H.length>200) H.shift(); } save(); render(); drawAdmin(); toast(S.momMsg?'엄마의 한마디를 저장했어요 💚':'엄마의 한마디를 지웠어요'); }
 function setPerDay(n){ S.perDay=n; save(); render(); drawAdmin(); toast(`하루 목표: 미션 ${n}개 (${n*QN}문제)`); }
 function setMission(n){ n=Math.max(0,Math.min(TOTAL,n)); S.mission=n; clearDraft(); save(); render(); drawAdmin(); toast('미션을 옮겼어요'); }
 function setPin(){ const v=($('newpin').value||'').trim(); if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; } S.pinH=hashPin(v,'leader'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒'); }
