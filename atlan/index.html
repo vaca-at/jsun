@@ -965,7 +965,7 @@ function previewMission(i){
     ${btn}`);
 }
 /* 🐬 AI 응원: 오늘 기록(숫자만)을 family-spell 워커에 보내 돌고래 선생님의 한마디를 받아요.
-   미션을 끝내거나 첫 문제를 풀 때만 새로 받고, 그 사이에는 이 기기에 저장한 말을 보여 줘요 (하루 몇 번만 불러요) */
+   하루에 한 번만 받아요 (그날 처음 열 때). 받은 말은 이 기기에 저장해 두고 하루 종일 보여 줘요 */
 const CHEER_API='https://family-spell.bellachord.workers.dev';
 const cheer={busy:''};
 function cheerLocal(c){
@@ -975,11 +975,11 @@ function cheerLocal(c){
   return `벌써 ${q}문제 풀었어! 조금만 더 깊이 내려가 보자 🐬`;
 }
 function cheerHTML(c){
-  const key=`${todayKey()}|${c.doneToday}|${c.L.q?1:0}`;
+  const key=todayKey();
   let saved=null; try{ saved=JSON.parse(localStorage.getItem('atlan:cheer')||'null'); }catch(e){}
   const fresh=saved&&saved.k===key;
   if(!fresh&&cheer.busy!==key&&navigator.onLine!==false) loadCheer(key,c);
-  const msg=fresh?saved.msg:saved&&saved.k.slice(0,10)===todayKey()&&cheer.busy===key?saved.msg:cheerLocal(c);
+  const msg=fresh?saved.msg:cheerLocal(c);
   return `<div class="cheer${fresh?'':' wait'}" id="cheerBox"><span class="ch-ic">🐬</span><div><small>돌돌이 선생님<em>AI</em></small><p id="cheerMsg">${esc(msg)}</p></div></div>`;
 }
 async function loadCheer(key,c){
