@@ -1732,10 +1732,10 @@ function petShopHTML(){
   return h;
 }
 function buyPet(id){ const c=CRE.find(x=>x.id===id); if(!c||!S.dex.includes(id)) return; const p=petPrice(c); S.pets=S.pets||[]; if(S.pets.includes(id)||S.coins<p) return;
-  if(!confirm(`${c.n}${jo(c.n,'을','를')} 🪙 ${p}코인에 동행 친구로 데려갈까요?`)) return;
-  S.coins-=p; S.pets.push(id); S.pet=id; save(); sBig(); openShop(); render(); toast(`${c.n}${jo(c.n,'이','가')} 함께 헤엄쳐요! 🫧`); }
+  if(!confirm(`${jo(c.n,'을','를')} 🪙 ${p}코인에 동행 친구로 데려갈까요?`)) return;
+  S.coins-=p; S.pets.push(id); S.pet=id; save(); sBig(); openShop(); render(); toast(`${jo(c.n,'이','가')} 함께 헤엄쳐요! 🫧`); }
 function setPet(id){ S.pet=id; save(); openShop(); render(); }
-function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${x.n}${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
+function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
 function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
 /* ════════ 엄마한테 보내기 (문자) ════════
    엄마 이름 · 전화번호는 관리자 모드에서 정하고, 이 기기에만 저장해요 (온라인에는 올리지 않아요) */

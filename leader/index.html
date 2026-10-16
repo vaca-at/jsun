@@ -202,6 +202,8 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 .mgcard small{font-size:14px;opacity:.95}
 .mg-time{flex:1;min-width:60px;height:14px;background:rgba(255,255,255,.45);border-radius:8px;overflow:hidden}.mg-time i{display:block;height:100%;background:linear-gradient(90deg,#ff6b6b,#ffd84d,#3ddc84)}
 .mg-q{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 60px);transform:translateX(-50%);background:#fff;border-radius:18px;padding:6px 22px;font-size:40px;color:#1d2433;box-shadow:0 5px 0 rgba(0,0,0,.18);white-space:nowrap;pointer-events:none}
+.mg-q.hc{font-size:22px;white-space:normal;width:min(92%,520px);text-align:center;line-height:1.45;padding:8px 14px;word-break:keep-all;border:3px solid #ffb000}
+.mg-q .hcb{display:block;font-size:14px;color:#b07800;margin-bottom:2px}
 .mg-start{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;z-index:7;background:rgba(255,255,255,.82);overflow-y:auto}
 .mg-start h2{font-size:34px;font-weight:400;margin:6px 0}.mg-start p{margin:6px 0;font-size:17px;color:#33415c;word-break:keep-all;line-height:1.5}
 .mg-dans{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0;width:min(100%,420px)}
@@ -841,7 +843,7 @@ function render(){
   h+=`<div class="card" style="padding:10px">
     <div class="lobby"><canvas id="lobby"></canvas><div class="lb-tag">${reg.ico} ${reg.name}${st.free?'':` · 체크포인트 ${st.s+1}/${st.n}`}</div>
       <div class="lb-ctl"><div class="lb-joy" id="lbjoy" aria-label="조이스틱"><div class="lb-knob" id="lbknob"></div></div><span style="flex:1"></span><button class="lb-b jump" id="lbjump" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff"/></svg></button></div></div>
-    <div class="lb-prog">🧭 여행 완료 ${Math.round(Math.min(S.mission,TOTAL)/TOTAL*1000)/10}%${pet?` · ${pet.e} ${pet.n}${jo(pet.n,'이와','와')} 함께`:''}<div class="bar green"><i style="width:${Math.min(S.mission,TOTAL)/TOTAL*100}%"></i></div></div>
+    <div class="lb-prog">🧭 여행 완료 ${Math.round(Math.min(S.mission,TOTAL)/TOTAL*1000)/10}%${pet?` · ${pet.e} ${jo(pet.n,'이와','와')} 함께`:''}<div class="bar green"><i style="width:${Math.min(S.mission,TOTAL)/TOTAL*100}%"></i></div></div>
     <p class="next ${st.boss?'bossnext':''}">${st.free?'🎉 대모험 완주! 이제부터는 자유 탐험 연습이에요.<br>':''}<small>${S.mission+1}번째 미션 · ${reg.unit}</small><br><b>${esc(st.t)}</b> · ${QN}문제${ex?`<span class="ex">예) ${esc(ex)}</span>`:''}</p>
     <button class="play ${st.boss?'boss':''}" onclick="play()">${hasD?`▶ 이어서 풀기 (${draft.i}/${QN})`:S.noMap?'▶ 미션 시작!':st.boss?'⚔️ 보스에게 가기!':'▶ 플레이! (체크포인트로 이동)'}</button></div>`;
   { const Lg=S.log[tk]||{}; h+=`<button class="mgcard" onclick="openGame()"><span class="ic">👾</span><span style="flex:1"><small>쉬어가는 코너 · 🕹️ 조이스틱 + ⬆ 점프</small><b>곱셈 몬스터 점프!</b><small>${Lg.gc?`오늘 ${Lg.gc}마리 · `:''}맞히면 🪙 코인 (오늘 ${Lg.gcoin||0}/${MG_CAP})</small></span><span style="font-size:26px">▶</span></button>`; }
@@ -1220,11 +1222,11 @@ function qFinish(){
   if(item) setTimeout(sItem,1300); if(pet) setTimeout(sBig,2000);
   const nst=stageOf(S.mission);
   $('quiz').innerHTML=`<div class="qz"><div class="res">
-    <h2>${st.boss?(bossWin?`⚔️ ${esc(st.bn)} 물리쳤다!`:`${esc(st.bn)}${jo(st.bn,'이','가')} 도망갔어요!`):'🎉 미션 클리어!'}</h2>
+    <h2>${st.boss?(bossWin?`⚔️ ${esc(st.bn)} 물리쳤다!`:`${esc(jo(st.bn,'이','가'))} 도망갔어요!`):'🎉 미션 클리어!'}</h2>
     <div class="stars">${[1,2,3].map(i=>`<span class="${i<=stars?'':'off'}">⭐</span>`).join('')}</div>
     <p class="sub">${QN}문제 중 <b style="color:#7dffb0;font-size:22px">${z.c}</b>개 맞힘 · 최고 ${z.best}연속 · 🪙 +${z.c+bonus}</p>
     ${item?`<div class="prize flip"><span class="new">NEW 아이템!</span><div class="em">${item.e}</div><h3>${esc(item.n)}</h3><p>${esc(item.d)}</p><p style="font-size:15px">🎒 아이템 도감 ${itemsGot()} / ${ITEMS.length}</p></div>`:''}
-    ${pet?`<div class="prize pet flip" style="animation-delay:.5s"><span class="new" style="background:#ff9a1f">이번 주 5일 공부 달성!</span><div class="em">${pet.e}</div><h3>동행 친구 <b style="font-weight:400">${esc(pet.n)}</b></h3><p>${esc(pet.k)} · ${esc(pet.d)}</p><p style="font-size:15px">이제 ${KID}${jo(KID,'이','')}랑 같이 다녀요! 🐾</p></div>`:''}
+    ${pet?`<div class="prize pet flip" style="animation-delay:.5s"><span class="new" style="background:#ff9a1f">이번 주 5일 공부 달성!</span><div class="em">${pet.e}</div><h3>동행 친구 <b style="font-weight:400">${esc(pet.n)}</b></h3><p>${esc(pet.k)} · ${esc(pet.d)}</p><p style="font-size:15px">이제 ${jo(KID,'이','')}랑 같이 다녀요! 🐾</p></div>`:''}
     ${petCoins?`<div class="goalbar">🏅 이번 주 5일 공부 달성! 친구를 모두 모아서 🪙 200코인을 받았어요</div>`:''}
     ${goalNow?`<div class="goalbar">🎉 오늘 목표 미션 ${goal}개 (${goal*QN}문제) 달성!<br>🎡 룰렛을 돌릴 수 있어요 · 📅 이번 주 ${weekCount()}/5일</div>`:L.ms<goal?`<div class="goalbar">오늘 미션 ${L.ms}/${goal} · 하나만 더 하면 오늘 목표 달성! 💪</div>`:''}
     <div class="rbtns"><button onclick="closeQuiz()">🏠 홈으로</button><button class="go" onclick="nextMission()">${L.ms<goal?'▶ 다음 미션':'➕ 한 판 더!'}</button></div>
@@ -1247,14 +1249,32 @@ function mgQ(){
   while(ch.length<4){ const v=rnd(4,81); if(!ch.includes(v)) ch.push(v); }
   return {a,b,ans,ch:shuffle(ch)};
 }
+/* ⭐ 하이클래스 (하루 게임 코인 40개를 모은 뒤 마지막 5문제, 맞히면 2코인 · 그동안 시간 멈춤)
+   ① □ 찾기 ② 생활 속 묶음 ③ 같은 값 찾기 ④ 한 묶음 더 · 덜 ⑤ 뛰어 세기 ⑥ 곱셈 + 덧셈 ⑦ 두 곱셈 합치기 */
+const MG_HC=5, HC_THINGS=[['문어','다리',8,'마리'],['거미','다리',8,'마리'],['무당벌레','다리',6,'마리'],['개미','다리',6,'마리'],['강아지','다리',4,'마리'],['오리','다리',2,'마리'],['불가사리','팔',5,'마리'],['자동차','바퀴',4,'대'],['세발자전거','바퀴',3,'대'],['자전거','바퀴',2,'대']];
+const isHC=()=>{ const g=mgCoinsToday(); return g>=MG_CAP-MG_HC*2&&g<MG_CAP; };
+function mgChoices(ans,extra){ const ch=[ans]; shuffle(extra).concat([ans+1,ans-1,ans+2,ans+10,ans-2]).forEach(v=>{ if(ch.length<4&&Number.isInteger(v)&&v>0&&v<100&&!ch.includes(v)) ch.push(v); }); return shuffle(ch); }
+function mgHCQ(){
+  const t=rnd(1,7), D=()=>pick([3,4,6,8,2,5,7,9]);
+  if(t===1){ const a=D(), b=rnd(2,9), p=a*b; return {text:Math.random()<.5?`□ × ${a} = ${p}`:`${a} × □ = ${p}`,ans:b,ch:mgChoices(b,[b+1,b-1,a,p-a])}; }
+  if(t===2){ const [n,part,k,u]=pick(HC_THINGS), c=rnd(2,9), ans=k*c; return {text:`${n} ${c}${u}의 ${jo(part,'은','는')} 모두 몇 개일까요?`,ans,ch:mgChoices(ans,[k+c,k*(c+1),k*(c-1),(k+1)*c])}; }
+  if(t===3){ const P=[]; for(let a=2;a<=9;a++) for(let b=2;b<=9;b++) for(let c=2;c<=9;c++){ if(c===a||c===b||(a*b)%c) continue; const d=a*b/c; if(d>=2&&d<=9&&d!==a&&d!==b) P.push([a,b,c,d]); }
+    const [a,b,c,d]=pick(P); return {text:`${a} × ${b} = ${c} × □`,ans:d,ch:mgChoices(d,[d+1,d-1,b,a*b-c])}; }
+  if(t===4){ const a=D(), b=rnd(3,9); return Math.random()<.5?{text:`${a} × ${jo(b,'은','는')} ${a} × ${b-1}보다 얼마나 클까요?`,ans:a,ch:mgChoices(a,[1,b,a*b,a+1])}
+    :{text:`${a} × ${jo(b-1,'은','는')} ${a} × ${b}보다 얼마나 작을까요?`,ans:a,ch:mgChoices(a,[1,b,a*b,a-1])}; }
+  if(t===5){ const d=D(), k=rnd(1,4), pos=rnd(1,4), seq=[0,1,2,3,4].map(i=>d*(k+i)), ans=seq[pos]; return {text:`${d}씩 뛰어 세었어요: ${seq.map((v,i)=>i===pos?'□':v).join(', ')}`,ans,ch:mgChoices(ans,[ans+1,ans-1,ans+d,ans-d])}; }
+  if(t===6){ const it=pick(['사탕','구슬','딸기','쿠키','젤리']), a=pick([3,4,6,8,5]), b=rnd(2,9), c=rnd(1,5), ans=a*b+c; return {text:`한 봉지에 ${it} ${a}개씩 ${b}봉지, 그리고 ${c}개가 더 있어요. ${jo(it,'은','는')} 모두 몇 개일까요?`,ans,ch:mgChoices(ans,[a*b,a*b-c,a*(b+1),a*b+c+a])}; }
+  const n=D(), a=rnd(2,5); let b=rnd(2,9-a); if(b===a) b=a<5?a+1:2; const ans=(a+b)*n; return {text:`${a} × ${jo(n,'과','와')} ${b} × ${jo(n,'을','를')} 더하면?`,ans,ch:mgChoices(ans,[a*b*n,ans+n,ans-n,a*n+b])};
+}
 function openGame(){
   if(MG) mgStop();
   const best=S.mgBest||{}, left=MG_CAP-mgCoinsToday(), reg=REG[stageOf(S.mission).r];
   $('game').innerHTML=`<canvas id="gc"></canvas>
     <div class="mg-start"><div style="font-size:64px">👾</div><h2>곱셈 몬스터 점프!</h2>
-    <p>몬스터들이 숫자를 들고 돌아다녀요.<br>위에 나온 곱셈의 <b>답을 든 몬스터</b>에게 🕹️ 조이스틱으로 다가가서<br><b>⬆ 점프로 밟으면</b> 🪙 코인! (틀린 몬스터를 밟으면 2초 줄어요)</p>
+    <p>몬스터들이 숫자를 들고 돌아다녀요.<br>위에 나온 곱셈의 <b>답을 든 몬스터</b>에게 🕹️ 조이스틱으로 다가가서<br><b>⬆ 점프로 밟으면</b> 🪙 1코인! (틀린 몬스터를 밟으면 2초 줄어요)</p>
+    <p style="background:#fff3c4;border-radius:12px;padding:8px 12px">⭐ 오늘 게임 코인 <b>${MG_CAP-MG_HC*2}개</b>를 모으면 <b>하이클래스 문제 ${MG_HC}개</b>!<br>조금 생각해야 하는 문제라서 시간이 멈추고, 맞히면 <b>2코인</b>씩이에요</p>
     <p style="font-size:15px">오늘 게임 코인 ${mgCoinsToday()} / ${MG_CAP}${left<=0?' · 오늘 코인은 다 받았어요 (연습은 계속 돼요)':''}</p>
-    <div class="mg-dans">${['mix',2,3,4,5,6,7,8,9].map(d=>`<button class="${String(MGDAN)===String(d)?'on':''}" onclick="MGDAN='${d}';openGame()">${d==='mix'?'섞어서':d+'단'}<small>${best[d]?'최고 '+best[d]:'&nbsp;'}</small></button>`).join('')}</div>
+    ${best.mix?`<p style="font-size:15px">🏆 최고 기록 ${best.mix}마리</p>`:''}
     <div class="row" style="justify-content:center"><button class="btn gray" style="padding:16px 22px;font-size:20px" onclick="closeGame()">🏠 홈</button><button class="mg-go" onclick="mgStart()">▶ 시작!</button></div></div>`;
   showScreen('game',true); setMusic(null);
   const {c,w,h}=fitCanvas($('gc')); for(let r=0;r*48<h;r++) for(let k=0;k*48<w;k++) drawGround(c,reg,k*48,r*48,48,k,r);
@@ -1286,15 +1306,18 @@ function mgStart(){
   setMusic('map',2); sStart(); mgNext();
   MG.raf=requestAnimationFrame(mgLoop);
 }
-function mgResize(){ if(!MG) return; const W=innerWidth, H=innerHeight; MG.T=Math.max(40,Math.min(76,Math.min(W/7,H/11))); MG.W=W/MG.T; MG.H=H/MG.T; MG.top=150/MG.T; if(MG.joyHome&&MG.joy.id===null) MG.joyHome(); }
+function mgResize(){ if(!MG) return; const W=innerWidth, H=innerHeight; MG.T=Math.max(40,Math.min(76,Math.min(W/7,H/11))); MG.W=W/MG.T; MG.H=H/MG.T; mgTop(); if(MG.joyHome&&MG.joy.id===null) MG.joyHome(); }
+function mgTop(){ if(!MG||!MG.T) return; const qe=$('mgq'); MG.top=qe&&qe.textContent?(qe.getBoundingClientRect().bottom+14)/MG.T:150/MG.T; }
 function mgKey(e){ if(!MG) return; const k=e.key.toLowerCase(), down=e.type==='keydown'; const map={arrowleft:'l',a:'l',arrowright:'r',d:'r',arrowup:'u',w:'u',arrowdown:'dn',s:'dn'};
   if(map[k]){ MG.keys[map[k]]=down; e.preventDefault(); } if(k===' '&&down){ mgJump(); e.preventDefault(); } if(k==='escape'&&down) mgEnd(true); }
 const MG_JUMP=.6;
 function mgJump(){ if(!MG||MG.jt>0) return; MG.jt=MG_JUMP; sJump(); }
 function mgNext(){
   if(!MG) return;
-  MG._sp=[]; MG.q=mgQ(); $('mgq').textContent=`${MG.q.a} × ${MG.q.b} = ?`; MG.lock=0;
-  const em=shuffle(MG_MON), sp=1+Math.min(MG.combo,10)*.07;
+  const hc=isHC(); MG._sp=[]; MG.q=hc?Object.assign(mgHCQ(),{hc:true}):(q=>Object.assign(q,{text:`${q.a} × ${q.b} = ?`}))(mgQ()); MG.lock=0;
+  const qe=$('mgq'); qe.classList.toggle('hc',hc); qe.innerHTML=hc?`<span class="hcb">⭐ 하이클래스 ${Math.floor((mgCoinsToday()-(MG_CAP-MG_HC*2))/2)+1}/${MG_HC} · 맞히면 2🪙 · 시간 멈춤</span>${esc(MG.q.text)}`:esc(MG.q.text);
+  mgTop(); if(MG.y<MG.top+.6) MG.y=MG.top+.6; if(hc) mgPop('⭐ 하이클래스!',MG.W/2,MG.top+1.2,'#b07800');
+  const em=shuffle(MG_MON), sp=(1+Math.min(MG.combo,10)*.07)*(hc?.6:1);
   MG.mons=MG.q.ch.map((v,i)=>{ let x,y,t=0; do{ x=1+Math.random()*(MG.W-2); y=MG.top+.8+Math.random()*(MG.H-MG.top-2); }while(t++<60&&(Math.hypot(x-MG.x,y-MG.y)<2.6||(MG._sp||[]).some(([px,py])=>Math.hypot(x-px,y-py)<1.8))); (MG._sp||(MG._sp=[])).push([x,y]);
     const a=Math.random()*Math.PI*2; return {v,e:em[i],x,y,vx:Math.cos(a),vy:Math.sin(a),sp:(.7+Math.random()*.6)*sp,turn:1+Math.random()*2,hit:0,dead:false,born:0}; });
 }
@@ -1307,17 +1330,18 @@ function mgLand(){
   if(best.v===MG.q.ans){
     best.dead=true; MG.score++; MG.combo++; MG.best=Math.max(MG.best,MG.combo); L.gc=(L.gc||0)+1;
     sOK(MG.combo); sHit();
-    let got=0; const room=MG_CAP-mgCoinsToday(); if(room>0){ got=Math.min(room,1+(MG.combo%5===0?2:0)); S.coins+=got; L.gcoin=(L.gcoin||0)+got; MG.coins+=got; }
-    mgPop(got?`+${got} 🪙`:'⭐ 팡!',best.x,best.y-1,'#e3a400'); if(MG.combo>=3) mgPop(`🔥 ${MG.combo}연속!${MG.combo%5===0?' +2🪙':''}`,MG.x,MG.y-2.2,'#ff7a1a');
+    const hc=MG.q.hc; if(hc){ L.gh=(L.gh||0)+1; MG.hc=(MG.hc||0)+1; }
+    let got=0; const room=MG_CAP-mgCoinsToday(); if(room>0){ got=Math.min(room,hc?2:1); S.coins+=got; L.gcoin=(L.gcoin||0)+got; MG.coins+=got; }
+    if(hc) sItem(); mgPop(got?`+${got} 🪙${hc?' 하이클래스!':''}`:'⭐ 팡!',best.x,best.y-1,'#e3a400'); if(MG.combo>=3) mgPop(`🔥 ${MG.combo}연속!`,MG.x,MG.y-2.2,'#ff7a1a');
     $('mgs').textContent=MG.score; $('mgcoin').textContent=S.coins; save();
     MG.lock=1; setTimeout(mgNext,450);
   } else {
-    best.hit=.5; MG.combo=0; MG.t=Math.max(0,MG.t-2); sNO(); mgPop('땡! -2초',best.x,best.y-1,'#e5484d'); save();
+    best.hit=.5; MG.combo=0; sNO(); if(MG.q.hc) mgPop('땡! 다시 생각해 봐요',best.x,best.y-1,'#e5484d'); else { MG.t=Math.max(0,MG.t-2); mgPop('땡! -2초',best.x,best.y-1,'#e5484d'); } save();
   }
 }
 function mgLoop(now){
   if(!MG) return;
-  const O=MG, dt=Math.min(.05,(now-O.last)/1000); O.last=now; O.t-=dt;
+  const O=MG, dt=Math.min(.05,(now-O.last)/1000); O.last=now; if(!(O.q&&O.q.hc)) O.t-=dt;
   const ti=$('mgt'); if(ti) ti.style.width=Math.max(0,O.t/MG_SEC*100)+'%';
   if(O.t<=0) return mgEnd(false);
   /* 이동 */
@@ -1368,7 +1392,7 @@ function mgEnd(quit){
   if(g.score){ nb?sBig():sWin(); if(nb) confetti(50); }
   $('quiz').innerHTML=`<div class="qz"><div class="res"><div class="cpbig">👾</div><h2>${quit?'게임을 멈췄어요':'시간 끝!'}</h2>
     <div class="stars" style="font-size:30px;letter-spacing:0">⭐ ${g.score}마리 밟았어요!</div>
-    <p class="sub">${MGDAN==='mix'?'섞어서':MGDAN+'단'} · 최고 연속 ${g.best}번 · 🪙 +${g.coins}${nb&&g.score?' · 🏆 새 최고 기록!':''}</p>
+    <p class="sub">최고 연속 ${g.best}번${g.hc?` · ⭐ 하이클래스 ${g.hc}개`:''} · 🪙 +${g.coins}${nb&&g.score?' · 🏆 새 최고 기록!':''}</p>
     <p class="sub">오늘 게임 코인 ${mgCoinsToday()} / ${MG_CAP}</p>
     <div class="rbtns"><button onclick="closeGame()">🏠 홈으로</button><button class="go" onclick="closeGame(true);openGame()">👾 한 판 더</button></div></div></div>`;
   showScreen('quiz',true);
@@ -1382,7 +1406,7 @@ function momText(){
   const tk=todayKey(), d=new Date(), L=S.log[tk]||{q:0,c:0,ms:0}, st=stageOf(S.mission);
   let t=`[도진이의 수학 연산 대모험] ${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]}) 🧭\n오늘 푼 문제 ${L.q}개 · 맞힘 ${L.c}개 · 미션 ${L.ms||0}개${(L.ms||0)>=perDay()?' (목표 달성!)':''}\n${L.r?`(처음에 틀려서 다시 푼 문제 ${L.r}개)\n`:''}`;
   (L.m||[]).forEach(x=>{ t+=`✔ ${x}\n`; });
-  if(L.gq) t+=`👾 곱셈 몬스터 게임: ${L.gq}번 눌러 ${L.gc||0}개 맞힘\n`;
+  if(L.gq) t+=`👾 곱셈 몬스터 게임: ${L.gq}번 밟아 ${L.gc||0}개 맞힘${L.gh?` (⭐ 하이클래스 ${L.gh}개)`:''}\n`;
   if(L.w&&L.w.length){ t+=`\n틀린 문제:\n`; L.w.slice(-15).forEach((w,k)=>{ t+=`${k+1}) ${w.q} → 내 답 ${w.a} / 정답 ${w.c}\n`; }); }
   t+=`\n지금: ${REG[st.r].name} · 아이템 ${itemsGot()}/${ITEMS.length} · 이번 주 ${weekCount()}/5일\nhttps://jsun.site/leader/`;
   return t;
@@ -1413,7 +1437,7 @@ function openWeek(){
   let h=`<h2>📅 이번 주 탐험 도장</h2><p style="margin:0;color:var(--sub);font-size:16px">하루 목표(미션 ${perDay()}개)를 채운 날에 도장이 찍혀요. <b style="color:var(--ink)">5일</b>을 채우면 동행 친구가 생겨요!</p>
     <div class="week">${days.map(d=>{ const k=ymd(d), L=S.log[k]||{}, ok=dayDone(k); return `<div class="wd ${ok?'ok':''} ${k===tk?'td':''}">${WDK[d.getDay()]}<span class="s">${ok?'✅':k>tk?'·':(L.ms?'🔸':'⬜')}</span>${L.q?`${L.q}문제`:''}</div>`; }).join('')}</div>
     <div class="bar ${cnt>=5?'green':''}" style="height:20px"><i style="width:${Math.min(100,cnt/5*100)}%"></i></div>
-    <p style="text-align:center;font-size:20px;margin:10px 0">${got?(got>0?`🎉 이번 주 친구 ${PETS[got-1].e} ${esc(PETS[got-1].n)}${jo(PETS[got-1].n,'을','를')} 만났어요!`:'🎉 이번 주 5일 달성!'):`${cnt} / 5일 ${cnt<5?`· ${5-cnt}일 더!`:''}`}</p>
+    <p style="text-align:center;font-size:20px;margin:10px 0">${got?(got>0?`🎉 이번 주 친구 ${PETS[got-1].e} ${esc(jo(PETS[got-1].n,'을','를'))} 만났어요!`:'🎉 이번 주 5일 달성!'):`${cnt} / 5일 ${cnt<5?`· ${5-cnt}일 더!`:''}`}</p>
     ${!got&&next?`<div class="box" style="display:flex;gap:12px;align-items:center"><span style="font-size:46px;filter:brightness(0) opacity(.3)">${next.e}</span><span style="font-size:17px">다음 동행 친구는…<br><b>누굴까요?</b> 5일 채우면 만나요!</span></div>`:''}`;
   modal(h);
 }
@@ -1454,7 +1478,7 @@ function openPets(){
   h+=`</div>${S.pets.length?`<button class="btn gray wide" style="margin-top:12px" onclick="setPet(-1)">혼자 다니기</button>`:''}`;
   modal(h);
 }
-function setPet(i){ S.pet=i; save(); openPets(); render(); if(i>=0) toast(`${PETS[i].e} ${PETS[i].n}${jo(PETS[i].n,'이','가')} 따라다녀요!`); }
+function setPet(i){ S.pet=i; save(); openPets(); render(); if(i>=0) toast(`${PETS[i].e} ${jo(PETS[i].n,'이','가')} 따라다녀요!`); }
 function openMap(){ modal(`<h2>🗺️ 여행 지도</h2>${journeySVG()}<div class="tasks" style="margin-top:8px">${REG.map((g,r)=>{ const st=regStart(r), n=STAGES[r].length, got=Math.max(0,Math.min(n,S.mission-st)); return `<div class="task ${got>=n?'done':''}"><span class="ck">${g.ico}</span><span class="t">${g.name} <small style="color:var(--sub)">· ${g.unit}</small></span><b style="font-weight:400">${got}/${n}</b></div>`; }).join('')}</div>`); }
 /* 상점 */
 let SHOPTAB='shirt';
@@ -1469,7 +1493,7 @@ function openShop(){
   const me=$('shopme'); { const {c,w,h:hh}=fitCanvas(me); drawAvatar(c,w/2,hh-10,hh*.78,{}); }
   document.querySelectorAll('canvas[data-sid]').forEach(cv=>{ const x=SHOPI[cv.dataset.sid], wr=Object.assign({},S.wear,{[x.t]:x.id}); const {c,w,h:hh}=fitCanvas(cv); drawAvatar(c,w/2,hh-6,hh*(x.t==='hat'?.74:.8),{wear:wr}); });
 }
-function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${x.n}${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
+function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
 function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
 
 /* ════════ 엄마 모드 (비밀번호: 이 앱에서 정한 것 → 공부방(e2/settings) 엄마 · 관리자 비밀번호 → 0000) ════════ */
@@ -1536,7 +1560,7 @@ function drawAdmin(){
    <button class="btn wide" style="margin-top:8px" onclick="setMission(+$('jump').value)">이 미션으로 옮기기</button>
    <p style="margin:6px 0 0;font-size:14px;color:var(--sub)">앞으로 옮기면 건너뛴 미션의 아이템도 함께 생겨요</p></div>
    <div class="box"><b>📊 날짜별 기록</b>
-   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th><th>미션</th></tr>${keys.slice(0,40).map(k=>{ const L=S.log[k]; return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td><td>${L.ms||0}${dayDone(k)?' ✅':''}</td></tr>${(L.m||[]).length||L.gq?`<tr><td colspan="5" style="text-align:left;font-size:13px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+esc(x)).join('<br>')}${L.gq?`${(L.m||[]).length?'<br>':''}👾 곱셈 몬스터 게임 ${L.gc||0}/${L.gq} 맞힘`:''}</td></tr>`:''}`; }).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
+   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th><th>미션</th></tr>${keys.slice(0,40).map(k=>{ const L=S.log[k]; return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td><td>${L.ms||0}${dayDone(k)?' ✅':''}</td></tr>${(L.m||[]).length||L.gq?`<tr><td colspan="5" style="text-align:left;font-size:13px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+esc(x)).join('<br>')}${L.gq?`${(L.m||[]).length?'<br>':''}👾 곱셈 몬스터 게임 ${L.gc||0}/${L.gq} 맞힘${L.gh?` · ⭐ 하이클래스 ${L.gh}개`:''}`:''}</td></tr>`:''}`; }).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
    <div class="box"><b>🐾 동행 친구 · 🪙 코인</b><p style="margin:6px 0;font-size:16px">친구 ${S.pets.length}명 ${S.pets.map(i=>PETS[i].e).join(' ')} · 코인 ${S.coins} · 이번 주 ${weekCount()}/5일</p>
    <div class="row"><button class="btn gray" onclick="givePet()">🐾 친구 한 명 주기</button><button class="btn gray" onclick="giveCoins()">🪙 코인 주기</button></div></div>
    <div class="box"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장</span>
@@ -1560,7 +1584,7 @@ function setPerDay(n){ S.perDay=n; save(); render(); drawAdmin(); toast(`하루 
 function setMission(n){ n=Math.max(0,Math.min(TOTAL,n)); S.mission=n; clearDraft(); save(); render(); drawAdmin(); toast('미션을 옮겼어요'); }
 function setPin(){ const v=($('newpin').value||'').trim(); if(!/^\d{4}$/.test(v)){ toast('숫자 4자리를 넣어 주세요'); return; } S.pinH=hashPin(v,'leader'); save(); drawAdmin(); toast('엄마 비밀번호를 바꿨어요 🔒'); }
 function setMom(){ const phone=($('momPhone').value||'').trim(); if(phone&&!/^[0-9+\-\s]{8,15}$/.test(phone)){ toast('전화번호를 확인해 주세요'); return; } try{ localStorage.setItem(MOM_KEY,JSON.stringify({phone})); }catch(e){} toast('저장했어요'); }
-function givePet(){ const i=S.pets.length; if(i>=PETS.length){ toast('친구를 모두 만났어요'); return; } S.pets.push(i); if(S.pet<0) S.pet=i; save(); render(); drawAdmin(); toast(`${PETS[i].e} ${PETS[i].n}${jo(PETS[i].n,'을','를')} 줬어요`); }
+function givePet(){ const i=S.pets.length; if(i>=PETS.length){ toast('친구를 모두 만났어요'); return; } S.pets.push(i); if(S.pet<0) S.pet=i; save(); render(); drawAdmin(); toast(`${PETS[i].e} ${jo(PETS[i].n,'을','를')} 줬어요`); }
 function giveCoins(){ const v=parseInt(prompt('몇 코인을 줄까요? (빼려면 -50 처럼)','50'),10); if(!v) return; S.coins=Math.max(0,S.coins+v); save(); render(); drawAdmin(); }
 
 /* ════════ 시작 ════════ */
