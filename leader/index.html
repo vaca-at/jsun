@@ -69,12 +69,15 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 
 /* 로비 */
 .lobby{position:relative;border-radius:18px;overflow:hidden;background:#000;margin-bottom:10px;box-shadow:0 6px 18px rgba(0,0,0,.25)}
-.lobby canvas{display:block;width:100%;height:240px}
+.lobby canvas{display:block;width:100%;height:260px}
 .lobby .lb-tag{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:10px;padding:5px 10px;font-size:15px}
 .lobby canvas{touch-action:none}
 .lb-ctl{position:absolute;left:10px;right:10px;bottom:10px;display:flex;gap:10px;align-items:flex-end;pointer-events:none}
 .lb-b{pointer-events:auto;width:60px;height:60px;border-radius:50%;background:rgba(30,30,30,.35);border:3px solid rgba(255,255,255,.8);color:#fff;font-size:24px;touch-action:none;display:flex;align-items:center;justify-content:center;padding:0;-webkit-touch-callout:none}
 .lb-b.jump{width:70px;height:70px}.lb-b svg{width:34px;height:34px}
+.lb-joy{pointer-events:auto;position:relative;width:104px;height:104px;border-radius:50%;background:rgba(30,30,30,.28);border:3px solid rgba(255,255,255,.75);touch-action:none;flex:none}
+.lb-joy.act{background:rgba(30,30,30,.4)}
+.lb-knob{position:absolute;left:50%;top:50%;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
 .lb-b.on{background:rgba(255,255,255,.5);transform:scale(.93)}
 .lb-prog{font-size:15px;color:var(--sub);margin:0 2px 8px}
 .lb-prog .bar{height:10px;margin-top:4px}
@@ -802,7 +805,7 @@ function render(){
   let ex=''; try{ ex=qShow(makeQs(S.mission)[0]); }catch(e){}
   h+=`<div class="card" style="padding:10px">
     <div class="lobby"><canvas id="lobby"></canvas><div class="lb-tag">${reg.ico} ${reg.name}${st.free?'':` · 체크포인트 ${st.s+1}/${st.n}`}</div>
-      <div class="lb-ctl"><button class="lb-b" data-d="-1" aria-label="왼쪽">◀</button><button class="lb-b" data-d="1" aria-label="오른쪽">▶</button><span style="flex:1"></span><button class="lb-b jump" data-j="1" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff"/></svg></button></div></div>
+      <div class="lb-ctl"><div class="lb-joy" id="lbjoy" aria-label="조이스틱"><div class="lb-knob" id="lbknob"></div></div><span style="flex:1"></span><button class="lb-b jump" id="lbjump" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff"/></svg></button></div></div>
     <div class="lb-prog">🧭 여행 완료 ${Math.round(Math.min(S.mission,TOTAL)/TOTAL*1000)/10}%${pet?` · ${pet.e} ${pet.n}${jo(pet.n,'이와','와')} 함께`:''}<div class="bar green"><i style="width:${Math.min(S.mission,TOTAL)/TOTAL*100}%"></i></div></div>
     <p class="next ${st.boss?'bossnext':''}">${st.free?'🎉 대모험 완주! 이제부터는 자유 탐험 연습이에요.<br>':''}<small>${S.mission+1}번째 미션 · ${reg.unit}</small><br><b>${esc(st.t)}</b> · ${QN}문제${ex?`<span class="ex">예) ${esc(ex)}</span>`:''}</p>
     <button class="play ${st.boss?'boss':''}" onclick="play()">${hasD?`▶ 이어서 풀기 (${draft.i}/${QN})`:S.noMap?'▶ 미션 시작!':st.boss?'⚔️ 보스에게 가기!':'▶ 플레이! (체크포인트로 이동)'}</button></div>`;
@@ -840,42 +843,58 @@ function journeySVG(){
       ${isCur?`<text x="${x+18}" y="${y-18}" text-anchor="middle" font-size="22">📍</text>`:''}</g>`; });
   return s+`</svg>`;
 }
-/* 로비: 아이가 ◀ ▶ 로 걷고 ⬆ 로 점프 (키보드 ← → · 스페이스도 돼요). 친구는 뒤따라와요 */
-const LB={x:.5,face:1,dir:0,keys:0,jt:0,phase:0,petx:.62,stepT:0,last:0};
+/* 로비: 왼쪽 동그란 조이스틱으로 앞 · 뒤 · 옆 · 대각선 걷기, ⬆ 점프 (키보드 방향키 · WASD · 스페이스도 돼요). 친구는 뒤따라와요 */
+const LB={x:.5,y:.5,face:1,vx:0,vy:0,kx:0,ky:0,jt:0,phase:0,px:.38,py:.5,stepT:0,last:0,jid:null};
 function lbJump(){ if(LB.jt>0) return; LB.jt=.55; sJump(); }
 function startLobby(){
   const cv=$('lobby'); if(!cv) return;
   if(LOBBY) cancelAnimationFrame(LOBBY);
   const st=stageOf(S.mission), reg=REG[st.r];
-  document.querySelectorAll('.lb-b').forEach(b=>{
-    const on=e=>{ e.preventDefault(); try{ b.setPointerCapture(e.pointerId); }catch(_){} b.classList.add('on'); if(b.dataset.j) lbJump(); else LB.dir=+b.dataset.d; };
-    const off=()=>{ b.classList.remove('on'); if(!b.dataset.j&&LB.dir===+b.dataset.d) LB.dir=0; };
-    b.addEventListener('pointerdown',on); ['pointerup','pointercancel','lostpointercapture'].forEach(n=>b.addEventListener(n,off));
-    b.addEventListener('contextmenu',e=>e.preventDefault());
-  });
-  LB.last=performance.now();
+  const joy=$('lbjoy'), knob=$('lbknob'), jb=$('lbjump'), R0=40;
+  if(joy){
+    const setV=e=>{ const b=joy.getBoundingClientRect(); let dx=e.clientX-(b.left+b.width/2), dy=e.clientY-(b.top+b.height/2); const d=Math.hypot(dx,dy); if(d>R0){ dx=dx/d*R0; dy=dy/d*R0; }
+      knob.style.transform=`translate(${dx}px,${dy}px)`; const m=Math.hypot(dx,dy)/R0; LB.vx=m<.15?0:dx/R0; LB.vy=m<.15?0:dy/R0; };
+    joy.addEventListener('pointerdown',e=>{ e.preventDefault(); LB.jid=e.pointerId; try{ joy.setPointerCapture(e.pointerId); }catch(_){} joy.classList.add('act'); setV(e); });
+    joy.addEventListener('pointermove',e=>{ if(e.pointerId!==LB.jid) return; e.preventDefault(); setV(e); });
+    const up=e=>{ if(e.pointerId!==LB.jid) return; LB.jid=null; LB.vx=LB.vy=0; knob.style.transform=''; joy.classList.remove('act'); };
+    ['pointerup','pointercancel','lostpointercapture'].forEach(n=>joy.addEventListener(n,up));
+    joy.addEventListener('contextmenu',e=>e.preventDefault());
+  }
+  if(jb){ jb.addEventListener('pointerdown',e=>{ e.preventDefault(); jb.classList.add('on'); lbJump(); }); ['pointerup','pointercancel','pointerleave'].forEach(n=>jb.addEventListener(n,()=>jb.classList.remove('on'))); jb.addEventListener('contextmenu',e=>e.preventDefault()); }
+  LB.vx=LB.vy=0; LB.last=performance.now();
   const step=t=>{
     if(!document.body.contains(cv)||OB||QZ){ LOBBY=null; return; }
     const {c,w,h}=fitCanvas(cv), T=40, sec=t/1000, dt=Math.min(.05,(t-LB.last)/1000); LB.last=t;
-    const s=Math.min(90,h*.36), dir=LB.dir||LB.keys, lo=(s*.65)/w, hi=1-lo;
-    if(dir){ LB.face=dir; LB.x=Math.max(lo,Math.min(hi,LB.x+dir*dt*.42*Math.min(1,320/w)*1.6)); LB.phase+=dt*13; if(LB.jt===0){ LB.stepT-=dt; if(LB.stepT<=0){ sStep(); LB.stepT=.27; } } }
+    const s0=Math.min(84,h*.3);
+    /* 발 위치 범위: 위쪽 이름표가 안 잘리게 · 아래 끝까지 */
+    const y0=s0*1.15+48, y1=h-12, lo=(s0*.65)/w, hi=1-lo;
+    let vx=LB.vx+LB.kx, vy=LB.vy+LB.ky; const m=Math.hypot(vx,vy); if(m>1){ vx/=m; vy/=m; }
+    const moving=m>.05, spd=Math.min(1,320/w)*.55;
+    if(moving){ LB.x=Math.max(lo,Math.min(hi,LB.x+vx*dt*spd)); LB.y=Math.max(0,Math.min(1,LB.y+vy*dt*spd*w/(y1-y0)*.75));
+      if(Math.abs(vx)>.1) LB.face=vx>0?1:-1; LB.phase+=dt*13*Math.min(1,m);
+      if(LB.jt===0){ LB.stepT-=dt*Math.min(1,m); if(LB.stepT<=0){ sStep(); LB.stepT=.27; } } }
     if(LB.jt>0){ LB.jt-=dt; if(LB.jt<=0){ LB.jt=0; sLand(); } }
-    const want=LB.x-LB.face*s*.75/w; LB.petx+=(want-LB.petx)*Math.min(1,dt*4);
-    for(let r=0;r*T<h;r++) for(let k=0;k*T<w;k++) drawGround(c,reg,k*T,r*T,T,k,r);
+    const s=s0*(.88+.12*LB.y);   // 아래로 올수록 조금 크게 (가까이)
+    const ax=LB.x*w, ay=y0+(y1-y0)*LB.y, jp=LB.jt>0?Math.sin((1-LB.jt/.55)*Math.PI):0, lift=jp*s*.4;
+    /* 친구는 조금 뒤에서 따라와요 */
+    const k=Math.min(1,dt*4); LB.px+=((LB.x-LB.face*s*.75/w)-LB.px)*k; LB.py+=(LB.y-LB.py)*k;
+    for(let r=0;r*T<h;r++) for(let q=0;q*T<w;q++) drawGround(c,reg,q*T,r*T,T,q,r);
     [[.08,.3],[.92,.28]].forEach(([fx,fy])=>drawEmoji(c,reg.wall,w*fx,h*fy,T*1.15));
-    const ax=LB.x*w, ay=h*.66, jp=LB.jt>0?Math.sin((1-LB.jt/.55)*Math.PI):0, lift=jp*s*.4;
-    const pet=PETS[S.pet]; if(pet){ const px=LB.petx*w, py=ay-Math.abs(Math.sin(sec*(dir?7:3.2)))*8; c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(px,ay,s*.18,s*.05,0,0,7); c.fill(); drawEmoji(c,pet.e,px,py-s*.2,s*.42,LB.face>0); }
-    c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(ax,ay,s*.26*(1-jp*.3),s*.07*(1-jp*.3),0,0,7); c.fill();
-    drawAvatar(c,ax,ay-lift-(dir?0:Math.abs(Math.sin(sec*2))*3),s,{moving:!!dir&&LB.jt===0,phase:LB.phase,face:LB.face});
-    nameTag(c,ax,ay-lift-s*1.12,15,tagText());
+    const drawPet=()=>{ const pet=PETS[S.pet]; if(!pet) return; const px=LB.px*w, pyy=y0+(y1-y0)*LB.py, py=pyy-Math.abs(Math.sin(sec*(moving?7:3.2)))*8; c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(px,pyy,s*.18,s*.05,0,0,7); c.fill(); drawEmoji(c,pet.e,px,py-s*.2,s*.42,LB.face>0); };
+    const drawMe=()=>{ c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(ax,ay,s*.26*(1-jp*.3),s*.07*(1-jp*.3),0,0,7); c.fill();
+      drawAvatar(c,ax,ay-lift-(moving?0:Math.abs(Math.sin(sec*2))*3),s,{moving:moving&&LB.jt===0,phase:LB.phase,face:LB.face});
+      nameTag(c,ax,ay-lift-s*1.12,15,tagText()); };
+    if(LB.py<LB.y){ drawPet(); drawMe(); } else { drawMe(); drawPet(); }
     LOBBY=requestAnimationFrame(step);
   };
   LOBBY=requestAnimationFrame(step);
 }
-window.addEventListener('keydown',e=>{ if(OB||QZ||$('layer').innerHTML||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||'')) return; const k=e.key;
-  if(k==='ArrowLeft'||k==='a'){ LB.keys=-1; e.preventDefault(); } else if(k==='ArrowRight'||k==='d'){ LB.keys=1; e.preventDefault(); } else if(k===' '||k==='ArrowUp'){ if($('lobby')){ lbJump(); e.preventDefault(); } } });
-window.addEventListener('keyup',e=>{ if((e.key==='ArrowLeft'||e.key==='a')&&LB.keys<0||(e.key==='ArrowRight'||e.key==='d')&&LB.keys>0) LB.keys=0; });
-/* ════════ 플레이: 체크포인트까지 이동 → 미션 ════════ */
+const LBK={arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0],arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1]}, lbHeld=new Set();
+function lbKeys(){ LB.kx=0; LB.ky=0; lbHeld.forEach(k=>{ LB.kx+=LBK[k][0]; LB.ky+=LBK[k][1]; }); }
+window.addEventListener('keydown',e=>{ if(OB||QZ||$('layer').innerHTML||!$('lobby')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||'')) return; const k=e.key.toLowerCase();
+  if(LBK[k]){ lbHeld.add(k); lbKeys(); e.preventDefault(); } else if(k===' '){ lbJump(); e.preventDefault(); } });
+window.addEventListener('keyup',e=>{ const k=e.key.toLowerCase(); if(lbHeld.delete(k)) lbKeys(); });
+window.addEventListener('blur',()=>{ lbHeld.clear(); lbKeys(); });/* ════════ 플레이: 체크포인트까지 이동 → 미션 ════════ */
 function play(){
   const mi=S.mission, d=getDraft();
   if(d&&d.mi===mi&&d.mode==='mission') return startQuiz(mi);
