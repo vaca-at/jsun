@@ -195,6 +195,20 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 .cpbig{font-size:80px;line-height:1;margin-top:20px}
 .exbox{background:rgba(255,255,255,.1);border-radius:14px;padding:10px;margin:12px auto 0;max-width:360px;font-size:24px}
 
+/* 👾 쉬어가는 코너: 곱셈 몬스터 점프 (이동 맵의 조이스틱 · 점프 그대로) */
+.mgcard{display:flex;align-items:center;gap:12px;width:100%;margin:0 0 12px;padding:12px 14px;border-radius:18px;background:linear-gradient(135deg,#7ad7ff,#b48cff);color:#fff;text-align:left;box-shadow:0 5px 0 #6a4fc0,0 8px 18px rgba(80,40,160,.25)}
+.mgcard:active{transform:translateY(3px);box-shadow:0 2px 0 #6a4fc0}
+.mgcard .ic{font-size:44px;line-height:1}.mgcard b{display:block;font-size:22px;font-weight:400;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.mgcard small{font-size:14px;opacity:.95}
+.mg-time{flex:1;min-width:60px;height:14px;background:rgba(255,255,255,.45);border-radius:8px;overflow:hidden}.mg-time i{display:block;height:100%;background:linear-gradient(90deg,#ff6b6b,#ffd84d,#3ddc84)}
+.mg-q{position:absolute;left:50%;top:calc(max(10px,env(safe-area-inset-top)) + 60px);transform:translateX(-50%);background:#fff;border-radius:18px;padding:6px 22px;font-size:40px;color:#1d2433;box-shadow:0 5px 0 rgba(0,0,0,.18);white-space:nowrap;pointer-events:none}
+.mg-start{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;z-index:7;background:rgba(255,255,255,.82);overflow-y:auto}
+.mg-start h2{font-size:34px;font-weight:400;margin:6px 0}.mg-start p{margin:6px 0;font-size:17px;color:#33415c;word-break:keep-all;line-height:1.5}
+.mg-dans{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0;width:min(100%,420px)}
+.mg-dans button{padding:12px 0;border-radius:14px;font-size:20px;background:#fff;box-shadow:0 3px 0 #c9d3e2}
+.mg-dans button.on{background:#ffb000;color:#3a2500;box-shadow:0 3px 0 #c98600}
+.mg-dans button small{display:block;font-size:12px;color:#8a6a00}
+.mg-go{padding:16px 40px;border-radius:16px;font-size:26px;background:linear-gradient(180deg,#14c97f,#00a564);color:#fff;box-shadow:0 5px 0 #007a4a;margin-top:6px}
 /* 모달 */
 .modal{position:fixed;inset:0;z-index:60;background:rgba(10,12,20,.7);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px}
 .sheet{background:#fff;border-radius:22px;padding:18px;width:100%;max-width:720px;margin:auto 0;box-shadow:0 10px 40px rgba(0,0,0,.4);position:relative}
@@ -703,6 +717,7 @@ function mergeState(a,b){
   if(r.pet<0&&r.pets.length) r.pet=r.pets[0];
   r.log=Object.assign({},o.log); Object.entries(n.log||{}).forEach(([k,v])=>{ const w=(o.log||{})[k]; r.log[k]=!w||(v.q||0)>=(w.q||0)?v:w; });
   r.best=Object.assign({},o.best); Object.entries(n.best||{}).forEach(([k,v])=>{ r.best[k]=Math.max(v,(o.best||{})[k]||0); });
+  r.mgBest=Object.assign({},o.mgBest); Object.entries(n.mgBest||{}).forEach(([k,v])=>{ r.mgBest[k]=Math.max(v,(o.mgBest||{})[k]||0); });
   r.weeks=Object.assign({},o.weeks,n.weeks); r.spin=Object.assign({},o.spin,n.spin);
   const seen=new Set(); r.momHist=[...(o.momHist||[]),...(n.momHist||[])].filter(x=>{ const k=x.t+'|'+x.msg; if(seen.has(k)) return false; seen.add(k); return true; }).sort((x,y)=>x.t-y.t);
   r.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
@@ -829,6 +844,7 @@ function render(){
     <div class="lb-prog">🧭 여행 완료 ${Math.round(Math.min(S.mission,TOTAL)/TOTAL*1000)/10}%${pet?` · ${pet.e} ${pet.n}${jo(pet.n,'이와','와')} 함께`:''}<div class="bar green"><i style="width:${Math.min(S.mission,TOTAL)/TOTAL*100}%"></i></div></div>
     <p class="next ${st.boss?'bossnext':''}">${st.free?'🎉 대모험 완주! 이제부터는 자유 탐험 연습이에요.<br>':''}<small>${S.mission+1}번째 미션 · ${reg.unit}</small><br><b>${esc(st.t)}</b> · ${QN}문제${ex?`<span class="ex">예) ${esc(ex)}</span>`:''}</p>
     <button class="play ${st.boss?'boss':''}" onclick="play()">${hasD?`▶ 이어서 풀기 (${draft.i}/${QN})`:S.noMap?'▶ 미션 시작!':st.boss?'⚔️ 보스에게 가기!':'▶ 플레이! (체크포인트로 이동)'}</button></div>`;
+  { const Lg=S.log[tk]||{}; h+=`<button class="mgcard" onclick="openGame()"><span class="ic">👾</span><span style="flex:1"><small>쉬어가는 코너 · 🕹️ 조이스틱 + ⬆ 점프</small><b>곱셈 몬스터 점프!</b><small>${Lg.gc?`오늘 ${Lg.gc}마리 · `:''}맞히면 🪙 코인 (오늘 ${Lg.gcoin||0}/${MG_CAP})</small></span><span style="font-size:26px">▶</span></button>`; }
   /* 동그란 버튼들 */
   const spinOk=gd&&S.spin[tk]==null;
   h+=`<div class="icons">
@@ -883,7 +899,7 @@ function startLobby(){
   if(jb){ jb.addEventListener('pointerdown',e=>{ e.preventDefault(); jb.classList.add('on'); lbJump(); }); ['pointerup','pointercancel','pointerleave'].forEach(n=>jb.addEventListener(n,()=>jb.classList.remove('on'))); jb.addEventListener('contextmenu',e=>e.preventDefault()); }
   LB.vx=LB.vy=0; LB.last=performance.now();
   const step=t=>{
-    if(!document.body.contains(cv)||OB||QZ){ LOBBY=null; return; }
+    if(!document.body.contains(cv)||OB||QZ||MG){ LOBBY=null; return; }
     const {c,w,h}=fitCanvas(cv), T=40, sec=t/1000, dt=Math.min(.05,(t-LB.last)/1000); LB.last=t;
     const s0=Math.min(84,h*.3);
     /* 발 위치 범위: 위쪽 이름표가 안 잘리게 · 아래 끝까지 */
@@ -911,7 +927,7 @@ function startLobby(){
 }
 const LBK={arrowleft:[-1,0],a:[-1,0],arrowright:[1,0],d:[1,0],arrowup:[0,-1],w:[0,-1],arrowdown:[0,1],s:[0,1]}, lbHeld=new Set();
 function lbKeys(){ LB.kx=0; LB.ky=0; lbHeld.forEach(k=>{ LB.kx+=LBK[k][0]; LB.ky+=LBK[k][1]; }); }
-window.addEventListener('keydown',e=>{ if(OB||QZ||$('layer').innerHTML||!$('lobby')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||'')) return; const k=e.key.toLowerCase();
+window.addEventListener('keydown',e=>{ if(OB||QZ||MG||$('game').classList.contains('on')||$('layer').innerHTML||!$('lobby')||/INPUT|TEXTAREA|SELECT/.test((e.target||{}).tagName||'')) return; const k=e.key.toLowerCase();
   if(LBK[k]){ lbHeld.add(k); lbKeys(); e.preventDefault(); } else if(k===' '){ lbJump(); e.preventDefault(); } });
 window.addEventListener('keyup',e=>{ const k=e.key.toLowerCase(); if(lbHeld.delete(k)) lbKeys(); });
 window.addEventListener('blur',()=>{ lbHeld.clear(); lbKeys(); });/* ════════ 플레이: 체크포인트까지 이동 → 미션 ════════ */
@@ -1216,6 +1232,149 @@ function qFinish(){
 }
 function nextMission(){ QZ=null; $('quiz').innerHTML=''; showScreen('quiz',false); play(); }
 
+/* ════════ 👾 쉬어가는 코너: 곱셈 몬스터 점프! (60초 · 맞히면 코인) ════════
+   위에 나온 곱셈의 답을 들고 있는 몬스터에게 조이스틱으로 다가가 ⬆ 점프로 밟아요.
+   요즘 학교 진도(곱셈구구)라서 덧셈 미션 사이에 쉬면서 해요. 하루 목표(덧셈)에는 안 들어가고, 날짜별 기록에 따로 남아요 */
+const MG_SEC=60, MG_CAP=50;   // 한 판 60초 · 게임 코인은 하루 50개까지
+const MG_MON=['👾','👻','🐙','🦖','🐸','🐷','🐵','🦀','🐌','🐲'];
+let MG=null, MGDAN='mix';
+const mgCoinsToday=()=>((S.log[todayKey()]||{}).gcoin||0);
+function mgPickDan(){ if(MGDAN!=='mix') return +MGDAN; return pick([2,3,3,4,4,5,6,6,6,7,8,8,8,9]); }   // 섞어서: 학교에서 하는 3 · 4 · 6 · 8단을 조금 더 자주
+function mgQ(){
+  const a=mgPickDan(), b=rnd(2,9), ans=a*b;
+  const cand=[a*(b+1),a*(b-1),(a+1)*b,(a-1)*b,ans+10,ans-10,ans+a,ans-a,+String(ans).split('').reverse().join('')];
+  const ch=[ans]; shuffle(cand).forEach(v=>{ if(ch.length<4&&v>0&&v<100&&!ch.includes(v)) ch.push(v); });
+  while(ch.length<4){ const v=rnd(4,81); if(!ch.includes(v)) ch.push(v); }
+  return {a,b,ans,ch:shuffle(ch)};
+}
+function openGame(){
+  if(MG) mgStop();
+  const best=S.mgBest||{}, left=MG_CAP-mgCoinsToday(), reg=REG[stageOf(S.mission).r];
+  $('game').innerHTML=`<canvas id="gc"></canvas>
+    <div class="mg-start"><div style="font-size:64px">👾</div><h2>곱셈 몬스터 점프!</h2>
+    <p>몬스터들이 숫자를 들고 돌아다녀요.<br>위에 나온 곱셈의 <b>답을 든 몬스터</b>에게 🕹️ 조이스틱으로 다가가서<br><b>⬆ 점프로 밟으면</b> 🪙 코인! (틀린 몬스터를 밟으면 2초 줄어요)</p>
+    <p style="font-size:15px">오늘 게임 코인 ${mgCoinsToday()} / ${MG_CAP}${left<=0?' · 오늘 코인은 다 받았어요 (연습은 계속 돼요)':''}</p>
+    <div class="mg-dans">${['mix',2,3,4,5,6,7,8,9].map(d=>`<button class="${String(MGDAN)===String(d)?'on':''}" onclick="MGDAN='${d}';openGame()">${d==='mix'?'섞어서':d+'단'}<small>${best[d]?'최고 '+best[d]:'&nbsp;'}</small></button>`).join('')}</div>
+    <div class="row" style="justify-content:center"><button class="btn gray" style="padding:16px 22px;font-size:20px" onclick="closeGame()">🏠 홈</button><button class="mg-go" onclick="mgStart()">▶ 시작!</button></div></div>`;
+  showScreen('game',true); setMusic(null);
+  const {c,w,h}=fitCanvas($('gc')); for(let r=0;r*48<h;r++) for(let k=0;k*48<w;k++) drawGround(c,reg,k*48,r*48,48,k,r);
+}
+function mgStart(){
+  const st=stageOf(S.mission), reg=REG[st.r], box=$('game');
+  box.innerHTML=`<canvas id="gc"></canvas>
+    <div class="g-top"><button class="g-x" onclick="mgEnd(true)" aria-label="그만하기">✕</button><div class="mg-time"><i id="mgt" style="width:100%"></i></div><div class="g-chip">⭐ <b id="mgs">0</b></div><div class="g-chip">🪙 <b id="mgcoin">${S.coins}</b></div></div>
+    <div class="mg-q" id="mgq"></div>
+    <div class="g-hint" id="ghint" style="top:calc(max(10px,env(safe-area-inset-top)) + 128px)">🕹️ 답을 든 몬스터에게 다가가서 ⬆ 점프로 밟아요!</div>
+    <div class="joyzone" id="jz"><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
+    <button class="jumpbtn" id="jb" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff" stroke="rgba(0,0,0,.25)" stroke-width="2" stroke-linejoin="round"/></svg></button>`;
+  MG={reg,t:MG_SEC,score:0,combo:0,best:0,coins:0,q:null,mons:[],x:0,y:0,face:1,phase:0,jt:0,mv:false,inv:0,stepT:0,last:performance.now(),raf:0,lock:0,msg:'',msgT:0,keys:{},joy:{id:null,vx:0,vy:0,bx:0,by:0},pops:[]};
+  /* 조이스틱 · 점프 (이동 맵과 똑같이) */
+  const jz=$('jz'), joy=$('joy'), knob=$('knob'), jb=$('jb'), R0=55;
+  const home=()=>{ joy.style.left='95px'; joy.style.top=(jz.clientHeight-100)+'px'; knob.style.transform=''; joy.classList.remove('act'); };
+  home(); MG.joyHome=home;
+  jz.addEventListener('pointerdown',e=>{ if(!MG||MG.joy.id!==null) return; e.preventDefault(); MG.joy.id=e.pointerId; try{ jz.setPointerCapture(e.pointerId); }catch(_){}
+    const b=jz.getBoundingClientRect(); MG.joy.bx=e.clientX-b.left; MG.joy.by=e.clientY-b.top; joy.style.left=MG.joy.bx+'px'; joy.style.top=MG.joy.by+'px'; joy.classList.add('act'); });
+  jz.addEventListener('pointermove',e=>{ if(!MG||e.pointerId!==MG.joy.id) return; e.preventDefault(); const b=jz.getBoundingClientRect(); let dx=e.clientX-b.left-MG.joy.bx, dy=e.clientY-b.top-MG.joy.by; const d=Math.hypot(dx,dy); if(d>R0){ dx=dx/d*R0; dy=dy/d*R0; } knob.style.transform=`translate(${dx}px,${dy}px)`; const m=Math.hypot(dx,dy)/R0; MG.joy.vx=m<.15?0:dx/R0; MG.joy.vy=m<.15?0:dy/R0; });
+  const up=e=>{ if(!MG||e.pointerId!==MG.joy.id) return; MG.joy.id=null; MG.joy.vx=MG.joy.vy=0; home(); };
+  jz.addEventListener('pointerup',up); jz.addEventListener('pointercancel',up);
+  jb.addEventListener('pointerdown',e=>{ e.preventDefault(); jb.classList.add('on'); mgJump(); });
+  ['pointerup','pointercancel','pointerleave'].forEach(n=>jb.addEventListener(n,()=>jb.classList.remove('on')));
+  $('gc').addEventListener('contextmenu',e=>e.preventDefault());
+  window.addEventListener('keydown',mgKey); window.addEventListener('keyup',mgKey); window.addEventListener('resize',mgResize);
+  mgResize(); MG.x=MG.W/2; MG.y=MG.H*.6;
+  setTimeout(()=>{ const hn=$('ghint'); if(hn) hn.style.opacity='0'; },4500);
+  setMusic('map',2); sStart(); mgNext();
+  MG.raf=requestAnimationFrame(mgLoop);
+}
+function mgResize(){ if(!MG) return; const W=innerWidth, H=innerHeight; MG.T=Math.max(40,Math.min(76,Math.min(W/7,H/11))); MG.W=W/MG.T; MG.H=H/MG.T; MG.top=150/MG.T; if(MG.joyHome&&MG.joy.id===null) MG.joyHome(); }
+function mgKey(e){ if(!MG) return; const k=e.key.toLowerCase(), down=e.type==='keydown'; const map={arrowleft:'l',a:'l',arrowright:'r',d:'r',arrowup:'u',w:'u',arrowdown:'dn',s:'dn'};
+  if(map[k]){ MG.keys[map[k]]=down; e.preventDefault(); } if(k===' '&&down){ mgJump(); e.preventDefault(); } if(k==='escape'&&down) mgEnd(true); }
+const MG_JUMP=.6;
+function mgJump(){ if(!MG||MG.jt>0) return; MG.jt=MG_JUMP; sJump(); }
+function mgNext(){
+  if(!MG) return;
+  MG._sp=[]; MG.q=mgQ(); $('mgq').textContent=`${MG.q.a} × ${MG.q.b} = ?`; MG.lock=0;
+  const em=shuffle(MG_MON), sp=1+Math.min(MG.combo,10)*.07;
+  MG.mons=MG.q.ch.map((v,i)=>{ let x,y,t=0; do{ x=1+Math.random()*(MG.W-2); y=MG.top+.8+Math.random()*(MG.H-MG.top-2); }while(t++<60&&(Math.hypot(x-MG.x,y-MG.y)<2.6||(MG._sp||[]).some(([px,py])=>Math.hypot(x-px,y-py)<1.8))); (MG._sp||(MG._sp=[])).push([x,y]);
+    const a=Math.random()*Math.PI*2; return {v,e:em[i],x,y,vx:Math.cos(a),vy:Math.sin(a),sp:(.7+Math.random()*.6)*sp,turn:1+Math.random()*2,hit:0,dead:false,born:0}; });
+}
+function mgPop(txt,x,y,col){ MG.pops.push({txt,x,y,t:0,col}); }
+function mgLand(){
+  /* 점프가 끝날 때 몬스터 위면 밟기 */
+  let best=null, bd=.75; MG.mons.forEach(m=>{ if(m.dead) return; const d=Math.hypot(m.x-MG.x,m.y-MG.y); if(d<bd){ bd=d; best=m; } });
+  if(!best){ sLand(); return; }
+  const L=dayLog(todayKey()); L.gq=(L.gq||0)+1;
+  if(best.v===MG.q.ans){
+    best.dead=true; MG.score++; MG.combo++; MG.best=Math.max(MG.best,MG.combo); L.gc=(L.gc||0)+1;
+    sOK(MG.combo); sHit();
+    let got=0; const room=MG_CAP-mgCoinsToday(); if(room>0){ got=Math.min(room,1+(MG.combo%5===0?2:0)); S.coins+=got; L.gcoin=(L.gcoin||0)+got; MG.coins+=got; }
+    mgPop(got?`+${got} 🪙`:'⭐ 팡!',best.x,best.y-1,'#e3a400'); if(MG.combo>=3) mgPop(`🔥 ${MG.combo}연속!${MG.combo%5===0?' +2🪙':''}`,MG.x,MG.y-2.2,'#ff7a1a');
+    $('mgs').textContent=MG.score; $('mgcoin').textContent=S.coins; save();
+    MG.lock=1; setTimeout(mgNext,450);
+  } else {
+    best.hit=.5; MG.combo=0; MG.t=Math.max(0,MG.t-2); sNO(); mgPop('땡! -2초',best.x,best.y-1,'#e5484d'); save();
+  }
+}
+function mgLoop(now){
+  if(!MG) return;
+  const O=MG, dt=Math.min(.05,(now-O.last)/1000); O.last=now; O.t-=dt;
+  const ti=$('mgt'); if(ti) ti.style.width=Math.max(0,O.t/MG_SEC*100)+'%';
+  if(O.t<=0) return mgEnd(false);
+  /* 이동 */
+  let vx=O.joy.vx, vy=O.joy.vy; if(O.keys.l) vx-=1; if(O.keys.r) vx+=1; if(O.keys.u) vy-=1; if(O.keys.dn) vy+=1;
+  const m=Math.hypot(vx,vy); if(m>1){ vx/=m; vy/=m; }
+  const sp=runSpeed(); O.mv=m>.05;
+  O.x=Math.max(.5,Math.min(O.W-.5,O.x+vx*sp*dt)); O.y=Math.max(O.top+.6,Math.min(O.H-.5,O.y+vy*sp*dt));
+  if(Math.abs(vx)>.1) O.face=vx>0?1:-1; O.phase+=O.mv?dt*m*13:0;
+  if(O.mv&&O.jt===0){ O.stepT-=dt*m; if(O.stepT<=0){ sStep(); O.stepT=.27; } }
+  if(O.jt>0){ O.jt-=dt; if(O.jt<=0){ O.jt=0; mgLand(); } }
+  if(O.inv>0) O.inv-=dt;
+  /* 몬스터: 이리저리 돌아다니다가 벽에서 튕겨요 */
+  O.mons.forEach(mo=>{ if(mo.dead){ mo.born+=dt; return; } mo.turn-=dt; if(mo.turn<=0){ const a=Math.random()*Math.PI*2; mo.vx=Math.cos(a); mo.vy=Math.sin(a); mo.turn=1+Math.random()*2; }
+    mo.x+=mo.vx*mo.sp*dt; mo.y+=mo.vy*mo.sp*dt;
+    if(mo.x<.6||mo.x>O.W-.6){ mo.vx*=-1; mo.x=Math.max(.6,Math.min(O.W-.6,mo.x)); }
+    if(mo.y<O.top+.9||mo.y>O.H-.6){ mo.vy*=-1; mo.y=Math.max(O.top+.9,Math.min(O.H-.6,mo.y)); }
+    if(mo.hit>0) mo.hit-=dt;
+    /* 몬스터끼리 겹치지 않게 (숫자가 가려지지 않도록) */
+    O.mons.forEach(o2=>{ if(o2===mo||o2.dead) return; const dx=mo.x-o2.x, dy=mo.y-o2.y, d=Math.hypot(dx,dy); if(d>0&&d<1.3){ mo.x+=dx/d*(1.3-d)*.5; mo.y+=dy/d*(1.3-d)*.5; } });
+    /* 걸어가다 부딪히면 살짝 밀려나요 (벌점 없음) */
+    if(O.jt===0&&O.inv<=0&&Math.hypot(mo.x-O.x,mo.y-O.y)<.6){ const d=Math.hypot(O.x-mo.x,O.y-mo.y)||1; O.x=Math.max(.5,Math.min(O.W-.5,O.x+(O.x-mo.x)/d*.9)); O.y=Math.max(O.top+.6,Math.min(O.H-.5,O.y+(O.y-mo.y)/d*.9)); O.inv=.6; tone(200,.12,'square',0,.05,120); } });
+  O.pops=O.pops.filter(p=>(p.t+=dt)<1);
+  mgDraw();
+  O.raf=requestAnimationFrame(mgLoop);
+}
+function mgDraw(){
+  const O=MG, cv=$('gc'); if(!cv) return; const {c,w,h}=fitCanvas(cv), T=O.T, reg=O.reg, sec=performance.now()/1000;
+  for(let r=0;r*T<h+T;r++) for(let k=0;k*T<w+T;k++) drawGround(c,reg,k*T,r*T,T,k,r);
+  const spr=[];
+  O.mons.forEach(mo=>{ if(mo.dead&&mo.born>.4) return; spr.push({y:mo.y,f:()=>{
+    const x=mo.x*T, y=mo.y*T, sq=mo.dead?Math.max(.05,1-mo.born*2.5):1, sh=mo.hit>0?Math.sin(mo.hit*40)*T*.08:0, bob=Math.abs(Math.sin(sec*6+mo.x))*T*.06;
+    c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(x,y+T*.32,T*.34,T*.1,0,0,7); c.fill();
+    c.save(); c.translate(x+sh,y+T*.3); c.scale(1,sq); drawEmoji(c,mo.e,0,-T*.38-bob,T*.85,mo.vx<0); c.restore();
+    if(!mo.dead){ const lw=T*.95, lh=T*.62, ly=y-T*.95-bob; c.fillStyle=mo.hit>0?'#ffd1d1':'#fff'; rr(c,x-lw/2,ly-lh/2,lw,lh,T*.2); c.fill(); c.strokeStyle='#1d2433'; c.lineWidth=2.5; c.stroke();
+      c.fillStyle='#1d2433'; c.font=`${Math.round(T*.46)}px Jua, sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText(mo.v,x,ly+1); } }}); });
+  spr.push({y:O.y,f:()=>{ const fx=O.x*T, fy=(O.y+.28)*T, jp=O.jt>0?Math.sin((1-O.jt/MG_JUMP)*Math.PI):0, lift=jp*T*1.1, s=T*1.15;
+    c.fillStyle='rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(fx,fy,T*.3*(1-jp*.35),T*.09*(1-jp*.35),0,0,7); c.fill();
+    drawAvatar(c,fx,fy-lift,s,{phase:O.phase,moving:O.mv&&O.jt===0,face:O.face,alpha:O.inv>0&&Math.floor(sec*12)%2?.45:1});
+    const pet=PETS[S.pet]; if(pet) drawEmoji(c,pet.e,fx-O.face*T*.7,fy-T*.25-Math.abs(Math.sin(sec*7))*T*.08,T*.45,O.face>0); }});
+  spr.sort((a,b)=>a.y-b.y).forEach(x=>x.f());
+  O.pops.forEach(p=>{ c.save(); c.globalAlpha=1-p.t; c.font=`${Math.round(T*.5)}px Jua, sans-serif`; c.textAlign='center'; c.lineWidth=5; c.strokeStyle='#fff'; c.strokeText(p.txt,p.x*T,(p.y-p.t*.8)*T); c.fillStyle=p.col; c.fillText(p.txt,p.x*T,(p.y-p.t*.8)*T); c.restore(); });
+}
+function mgStop(){ if(!MG) return; cancelAnimationFrame(MG.raf); window.removeEventListener('keydown',mgKey); window.removeEventListener('keyup',mgKey); window.removeEventListener('resize',mgResize); MG=null; }
+function mgEnd(quit){
+  if(!MG) return; const g=MG; mgStop(); setMusic(null);
+  const k=String(MGDAN), best=S.mgBest||(S.mgBest={}), nb=g.score>(best[k]||0); if(nb) best[k]=g.score;
+  save(); $('game').innerHTML=''; showScreen('game',false);
+  if(g.score){ nb?sBig():sWin(); if(nb) confetti(50); }
+  $('quiz').innerHTML=`<div class="qz"><div class="res"><div class="cpbig">👾</div><h2>${quit?'게임을 멈췄어요':'시간 끝!'}</h2>
+    <div class="stars" style="font-size:30px;letter-spacing:0">⭐ ${g.score}마리 밟았어요!</div>
+    <p class="sub">${MGDAN==='mix'?'섞어서':MGDAN+'단'} · 최고 연속 ${g.best}번 · 🪙 +${g.coins}${nb&&g.score?' · 🏆 새 최고 기록!':''}</p>
+    <p class="sub">오늘 게임 코인 ${mgCoinsToday()} / ${MG_CAP}</p>
+    <div class="rbtns"><button onclick="closeGame()">🏠 홈으로</button><button class="go" onclick="closeGame(true);openGame()">👾 한 판 더</button></div></div></div>`;
+  showScreen('quiz',true);
+}
+function closeGame(again){ mgStop(); $('game').innerHTML=''; showScreen('game',false); $('quiz').innerHTML=''; showScreen('quiz',false); if(!again) render(); }
+
 /* ════════ 엄마한테 보내기 ════════ */
 const MOM_KEY='leader-mom';
 const getMom=()=>{ try{ return JSON.parse(localStorage.getItem(MOM_KEY)||'null')||{}; }catch(e){ return {}; } };
@@ -1223,6 +1382,7 @@ function momText(){
   const tk=todayKey(), d=new Date(), L=S.log[tk]||{q:0,c:0,ms:0}, st=stageOf(S.mission);
   let t=`[도진이의 수학 연산 대모험] ${d.getMonth()+1}/${d.getDate()}(${WDK[d.getDay()]}) 🧭\n오늘 푼 문제 ${L.q}개 · 맞힘 ${L.c}개 · 미션 ${L.ms||0}개${(L.ms||0)>=perDay()?' (목표 달성!)':''}\n${L.r?`(처음에 틀려서 다시 푼 문제 ${L.r}개)\n`:''}`;
   (L.m||[]).forEach(x=>{ t+=`✔ ${x}\n`; });
+  if(L.gq) t+=`👾 곱셈 몬스터 게임: ${L.gq}번 눌러 ${L.gc||0}개 맞힘\n`;
   if(L.w&&L.w.length){ t+=`\n틀린 문제:\n`; L.w.slice(-15).forEach((w,k)=>{ t+=`${k+1}) ${w.q} → 내 답 ${w.a} / 정답 ${w.c}\n`; }); }
   t+=`\n지금: ${REG[st.r].name} · 아이템 ${itemsGot()}/${ITEMS.length} · 이번 주 ${weekCount()}/5일\nhttps://jsun.site/leader/`;
   return t;
@@ -1376,7 +1536,7 @@ function drawAdmin(){
    <button class="btn wide" style="margin-top:8px" onclick="setMission(+$('jump').value)">이 미션으로 옮기기</button>
    <p style="margin:6px 0 0;font-size:14px;color:var(--sub)">앞으로 옮기면 건너뛴 미션의 아이템도 함께 생겨요</p></div>
    <div class="box"><b>📊 날짜별 기록</b>
-   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th><th>미션</th></tr>${keys.slice(0,40).map(k=>{ const L=S.log[k]; return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td><td>${L.ms||0}${dayDone(k)?' ✅':''}</td></tr>${(L.m||[]).length?`<tr><td colspan="5" style="text-align:left;font-size:13px;color:var(--sub)">${L.m.map(x=>'✔ '+esc(x)).join('<br>')}</td></tr>`:''}`; }).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
+   ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th><th>미션</th></tr>${keys.slice(0,40).map(k=>{ const L=S.log[k]; return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td><td>${L.ms||0}${dayDone(k)?' ✅':''}</td></tr>${(L.m||[]).length||L.gq?`<tr><td colspan="5" style="text-align:left;font-size:13px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+esc(x)).join('<br>')}${L.gq?`${(L.m||[]).length?'<br>':''}👾 곱셈 몬스터 게임 ${L.gc||0}/${L.gq} 맞힘`:''}</td></tr>`:''}`; }).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
    <div class="box"><b>🐾 동행 친구 · 🪙 코인</b><p style="margin:6px 0;font-size:16px">친구 ${S.pets.length}명 ${S.pets.map(i=>PETS[i].e).join(' ')} · 코인 ${S.coins} · 이번 주 ${weekCount()}/5일</p>
    <div class="row"><button class="btn gray" onclick="givePet()">🐾 친구 한 명 주기</button><button class="btn gray" onclick="giveCoins()">🪙 코인 주기</button></div></div>
    <div class="box"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장</span>
