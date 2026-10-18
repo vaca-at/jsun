@@ -88,6 +88,9 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 .next small{color:var(--sub);font-size:15px}
 .next .ex{display:inline-block;background:#f2f4f8;border-radius:8px;padding:1px 8px;margin-left:4px;color:#1d4f91}
 .bossnext{color:#8b2bd8}
+.play small{display:block;font-size:16px;opacity:.92;margin-top:4px}
+.howto{margin:6px 2px 8px;padding:10px 12px;border-radius:12px;background:#eafaf1;border:2px dashed #2fbf71;color:#1f6b46;font-size:16px;line-height:1.5;word-break:keep-all}
+.howto b{color:#0b8a55}
 .play{display:block;width:100%;font-size:26px;padding:15px;border-radius:14px;background:linear-gradient(180deg,#14c97f,#00a564);color:#fff;box-shadow:0 5px 0 #007a4a;text-shadow:0 1px 2px rgba(0,0,0,.25)}
 .play:active{transform:translateY(3px);box-shadow:0 2px 0 #007a4a}
 .play.boss{background:linear-gradient(180deg,#a274ff,#7442f0);box-shadow:0 5px 0 #4d22b8}
@@ -934,8 +937,9 @@ function render(){
     <div class="lobby"><canvas id="lobby"></canvas><div class="lb-tag">${reg.ico} ${reg.name}${st.free?'':` · 체크포인트 ${st.s+1}/${st.n}`}</div>
       <div class="lb-ctl"><div class="lb-joy" id="lbjoy" aria-label="조이스틱"><div class="lb-knob" id="lbknob"></div></div><span style="flex:1"></span><button class="lb-b jump" id="lbjump" aria-label="점프"><svg viewBox="0 0 50 50"><path d="M25 8 L42 28 H31 V42 H19 V28 H8 Z" fill="#fff"/></svg></button></div></div>
     <div class="lb-prog">🧭 여행 완료 ${Math.round(Math.min(S.mission,TOTAL)/TOTAL*1000)/10}%${pet?` · ${pet.e} ${jo(pet.n,'이와','와')} 함께`:''}<div class="bar green"><i style="width:${Math.min(S.mission,TOTAL)/TOTAL*100}%"></i></div></div>
+    <p class="howto">📝 <b>수학 문제는 아래 초록 단추로 풀어요!</b> 누르면 맵을 걸어서 🏁 깃발(체크포인트)까지 가고, 도착하면 문제가 나와요. 위 그림은 조이스틱으로 걸어 다니며 노는 곳이에요.</p>
     <p class="next ${st.boss?'bossnext':''}">${st.free?'🎉 대모험 완주! 이제부터는 자유 탐험 연습이에요.<br>':''}<small>${S.mission+1}번째 미션 · ${reg.unit}</small><br><b>${esc(st.t)}</b> · ${QN}문제${ex?`<span class="ex">예) ${esc(ex)}</span>`:''}</p>
-    <button class="play ${st.boss?'boss':''}" onclick="play()">${hasD?`▶ 이어서 풀기 (${draft.i}/${QN})`:S.noMap?'▶ 미션 시작!':st.boss?'⚔️ 보스에게 가기!':'▶ 플레이! (체크포인트로 이동)'}</button></div>`;
+    <button class="play ${st.boss?'boss':''}" onclick="play()">${hasD?`▶ 수학 문제 이어서 풀기 (${draft.i}/${QN})`:S.noMap?`▶ 수학 문제 풀기! <small>${QN}문제 미션 시작</small>`:st.boss?`⚔️ 보스와 수학 대결하러 가기! <small>🏁 깃발까지 가면 ${QN}문제 보스전 시작</small>`:`▶ 수학 문제 풀러 가기! <small>🏁 깃발(체크포인트)까지 가면 ${QN}문제 미션 시작</small>`}</button></div>`;
   { const Lg=S.log[tk]||{}; h+=`<button class="mgcard" onclick="openGame()"><span class="ic">👾</span><span style="flex:1"><small>쉬어가는 코너 · 🕹️ 조이스틱 + ⬆ 점프</small><b>곱셈 몬스터 점프!</b><small>${Lg.gc?`오늘 ${Lg.gc}마리 · `:''}맞히면 🪙 코인 (오늘 ${Lg.gcoin||0}/${MG_CAP})</small></span><span style="font-size:26px">▶</span></button>`; }
   /* 동그란 버튼들 */
   const spinOk=gd&&S.spin[tk]==null;
