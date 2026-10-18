@@ -287,11 +287,37 @@ th{color:var(--sub);font-weight:400}
 .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(20,24,34,.94);color:#fff;padding:12px 20px;border-radius:14px;z-index:99;font-size:18px;animation:pop .2s;max-width:90vw;text-align:center;word-break:keep-all}
 .confetti{position:fixed;top:-20px;z-index:98;pointer-events:none;width:10px;height:14px;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* ── 작은 아이폰 세로 (SE · mini · 13): 머리글 · 상점 탭 · 이동 맵 위쪽 글씨를 줄여요 ── */
+@media(max-width:430px){
+  header{gap:6px;padding-left:8px;padding-right:8px}
+  header h1{font-size:15px}
+  .hbtn{padding:6px 8px;font-size:13px}
+  .hbtn .hl{display:none}
+  .stab{font-size:14px!important;padding:9px 2px!important}
+  #shopme + p{font-size:13.5px!important;line-height:1.45}
+  .g-title{font-size:12.5px}
+  .g-title small{display:none}
+  .g-mode .mt{display:none}
+  .g-hint{font-size:14px;width:calc(100% - 24px);top:calc(max(10px,env(safe-area-inset-top)) + 60px)}
+}
+/* ── 아이폰을 가로로 눕혔을 때: 문제는 왼쪽, 키패드는 오른쪽 (키패드가 화면 아래로 잘리던 것) ── */
+@media(max-height:520px) and (orientation:landscape){
+  .qz{max-width:900px;display:grid;grid-template-columns:1fr minmax(260px,42%);grid-auto-rows:min-content;column-gap:16px;align-content:center;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+  .qz>*{grid-column:1}
+  .qz>.kp2{grid-column:2;grid-row:1 / span 6;margin-top:0;padding-top:0;align-self:center;gap:6px}
+  .kp2 button{height:50px;font-size:26px}
+  .kp2 .cl{font-size:15px;white-space:nowrap}.kp2 .del{font-size:22px}.kp2 .ok{font-size:22px}
+  .qexpr{font-size:38px}
+  .qcard{padding:14px 10px 10px;margin-top:8px}
+  .qfb{font-size:17px;margin-top:6px}
+  .bossbox{margin-top:6px;padding:6px 10px}.bossbox .be{font-size:36px}
+}
 </style>
 </head>
 <body>
 <header>
-  <a class="hbtn" href="../yuna/">🏠 공부방</a>
+  <a class="hbtn" href="../yuna/">🏠<span class="hl"> 공부방</span></a>
   <h1>🌍 윤아의<br>지구마불 세계여행</h1>
   <button class="hbtn" id="sndbtn" onclick="toggleSound()" aria-label="소리">🔊</button>
   <span class="sync" id="sync" title="온라인 저장">⏳</span>
@@ -1123,7 +1149,7 @@ function startObby(mi,onGoal){
   const M=genMap(mi), st=M.st, reg=REG[st.r];
   OB={M,mi,onGoal,x:1.7,y:M.mid+.5,face:1,phase:0,jt:0,fall:0,cp:{x:1.7,y:M.mid+.5},cpi:-1,got:0,inv:0,t:0,done:false,keys:{},joy:{id:null,vx:0,vy:0,bx:0,by:0},trail:[],last:0,raf:0,moved:false};
   $('game').innerHTML=`<canvas id="gc"></canvas>
-    <div class="g-top"><button class="g-x" onclick="exitObby()" aria-label="나가기">✕</button><div class="g-chip">🪙 <b id="gcoin">${S.coins}</b></div><button class="g-chip g-mode ${obHard()?'hard':''}" onclick="toggleObMode()" title="누르면 모드가 바뀌고 맵이 처음부터 다시 시작해요">${obHard()?'🔥 하드 · 🪙×3':'🙂 이지 · 🪙×1'}</button><div class="g-title">${reg.ico} ${reg.name} · ${st.free?'자유 여행':`체크포인트 ${st.s+1}/${st.n}`}<br><small>${st.boss?'⚔️ 보스가 기다려요!':'🏁 깃발까지 가면 미션 시작!'}</small></div></div>
+    <div class="g-top"><button class="g-x" onclick="exitObby()" aria-label="나가기">✕</button><div class="g-chip">🪙 <b id="gcoin">${S.coins}</b></div><button class="g-chip g-mode ${obHard()?'hard':''}" onclick="toggleObMode()" title="누르면 모드가 바뀌고 맵이 처음부터 다시 시작해요">${obHard()?'🔥<span class="mt"> 하드 ·</span> 🪙×3':'🙂<span class="mt"> 이지 ·</span> 🪙×1'}</button><div class="g-title">${reg.ico} ${reg.name} · ${st.free?'자유 여행':`체크포인트 ${st.s+1}/${st.n}`}<br><small>${st.boss?'⚔️ 보스가 기다려요!':'🏁 깃발까지 가면 미션 시작!'}</small></div></div>
     <canvas id="gmini"></canvas>
     <div class="g-hint" id="ghint">🕹️ 왼쪽 아래를 끌면 앞 · 뒤 · 옆 · 대각선으로 움직여요<br>⬆ 점프 버튼으로 <b>${jo(reg.hazN,'을','를')}</b> 뛰어넘어요!${M.enemies.length?` ${reg.enemy}도 점프로 피해요`:''}</div>
     <div class="joyzone" id="jz"><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
@@ -1635,7 +1661,7 @@ function openShop(){
   const tabs=[['shirt','👚 상의'],['pants','👗 하의'],['hat','🎀 모자'],['pet','🐾 동물']];
   let h=`<h2>🛒 상점 <small style="color:#b07800;font-size:18px">🪙 ${S.coins.toLocaleString()}</small></h2>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:130px;height:110px;background:#f3f5f9;border-radius:14px;flex:none"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞히면 1코인, 맵에서 코인을 주우면 1코인 (🔥 하드 모드는 3코인)!<br>별 3개면 보너스 10코인 ⭐ · 새 대륙에 가면 그 대륙 동물 친구가 열려요 🐾</p></div>
-    <div class="row" style="margin-bottom:10px">${tabs.map(([k,l])=>`<button class="btn ${SHOPTAB===k?'':'gray'}" style="flex:1;padding:10px 4px" onclick="SHOPTAB='${k}';openShop()">${l}</button>`).join('')}</div><div class="shopgrid">`;
+    <div class="row" style="margin-bottom:10px">${tabs.map(([k,l])=>`<button class="btn stab ${SHOPTAB===k?'':'gray'}" style="flex:1;padding:10px 4px;white-space:nowrap" onclick="SHOPTAB='${k}';openShop()">${l}</button>`).join('')}</div><div class="shopgrid">`;
   if(SHOPTAB==='pet') h+=petShopHTML();
   else SHOP.filter(x=>x.t===SHOPTAB).forEach(x=>{ const own=S.own.includes(x.id), wear=S.wear[x.t]===x.id;
     h+=`<div class="sh ${wear?'wear':''}"><canvas data-sid="${x.id}"></canvas>${esc(x.n)}<div class="pr">${x.p?`🪙 ${x.p}`:'기본'}</div>${wear?`<button>입고 있어요</button>`:own||!x.p?`<button onclick="wearIt('${x.id}')">입기</button>`:`<button class="buy" ${S.coins<x.p?'disabled':''} onclick="buyIt('${x.id}')">사기</button>`}</div>`; });
