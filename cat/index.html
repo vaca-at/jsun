@@ -815,6 +815,8 @@ function drawAvatar(c,x,y,s,o={}){
     c.fillStyle=bt.c;
     rr(c,-2.15*u,-4.4*u-la,2.05*u,4.4*u,.45*u); c.fill();
     rr(c,.1*u,-4.4*u-lb,2.05*u,4.4*u,.45*u); c.fill();
+    /* 바지 끝에 구두 */
+    c.fillStyle='#7a3e9d'; rr(c,-2.25*u,-.85*u-la,2.35*u,.85*u,.38*u); c.fill(); rr(c,0,-.85*u-lb,2.35*u,.85*u,.38*u); c.fill();
   }
   const aw=mv?sw*u*.8:0;
   c.fillStyle=SKIN; rr(c,-3.45*u,-8.3*u+aw,1.2*u,4.1*u,.55*u); c.fill(); rr(c,2.25*u,-8.3*u-aw,1.2*u,4.1*u,.55*u); c.fill();

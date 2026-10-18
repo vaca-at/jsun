@@ -307,7 +307,8 @@ th{color:var(--sub);font-weight:400}
    · 10 · 11월: 덧셈만 (두 자리 + 두 자리 → 세 자리 + 한 · 두 · 세 자리 → 네 자리 수 → 세 자리 + 세 자리 = 네 자리)
    · 미션 1개 = 30문제. 하루 기본 미션 2개(60문제), 원하면 더 풀어요
    · 미션을 끝낼 때마다 탐험 아이템 1개 (도감 100가지)
-   · 한 주(월~일)에 하루 목표를 5일 채우면 동행 친구 1명
+   · 한 주(월~일)에 하루 목표를 5일 채우면 🪙 100코인 보너스
+   · 하얀 소형견 퍼니가 늘 함께 다니고, 마을을 끝내면 그 마을 동물을 상점에서 코인으로 데려와요
    · 미션과 미션 사이에는 로블록스처럼 조이스틱 · 점프로 체크포인트까지 이동
    · 저장: Firebase moon-15f88 › e2/dojin-leader (공부방 e2/dojin 과 따로)
    ════════════════════════════════════════════════════════════ */
@@ -325,6 +326,7 @@ const DOC_PATH = ['e2','dojin-leader'];
 const LS_KEY = 'leader-dojin';
 const DRAFT_KEY = 'leader-draft';
 const KID = '도진';
+const DOG = '퍼니';   // 늘 함께 다니는 하얀 소형견 이름 (바꾸려면 여기만)
 const QN = 30;   // 미션 1개 문제 수
 
 /* ───── 공통 도구 ───── */
@@ -598,17 +600,24 @@ const IT_SPEED=4, IT_JUMP=36, IT_MAGNET=55;   // 효과 있는 아이템
 const itemsGot=()=>Math.min(S.mission,ITEMS.length);
 const hasItem=i=>S.mission>i;
 
-/* ════════ 동행 친구 (한 주에 5일 공부하면 한 명) ════════ */
+/* ════════ 동물 친구: 마을(지역)을 끝내면 그 마을에서 만난 동물을 상점에서 코인으로 데려와요 ════════ */
+/* r: 몇 번째 마을을 끝내면 열리는지 (6 = 대모험을 모두 끝내면) · p: 코인 */
 const PETS=[
-  ['🦊','사막여우','모래','큰 귀로 멀리 있는 소리도 들어요'], ['🐪','낙타','혹돌이','물 없이도 며칠을 걸어요'],
-  ['🦜','앵무새','알록이','도진이 말을 따라 해요'], ['🐒','원숭이','바나','나무 타기 선수'],
-  ['🐐','산양','뿔뿔이','가파른 절벽도 폴짝폴짝'], ['🦅','독수리','하늘이','하늘 높이서 길을 알려 줘요'],
-  ['🐬','돌고래','퐁당이','바다에서 제일 똑똑한 친구'], ['🐢','바다거북','느림보','느려도 꾸준히, 끝까지!'],
-  ['🦦','해달','통통이','조개를 돌로 톡톡 깨 먹어요'], ['🐧','펭귄','뒤뚱이','미끄럼 타기 대장'],
-  ['🐻‍❄️','북극곰','눈송이','추위도 끄떡없는 힘센 친구'], ['🦭','물범','몽실이','얼음 위에서 낮잠 쿨쿨'],
-  ['🐕','썰매개','바람이','썰매를 끌고 쌩쌩 달려요'], ['🦄','유니콘','반짝이','꾸준히 공부한 탐험가에게만 나타나요'],
-  ['🐉','아기 용','불꽃이','전설의 친구!'],
-].map(([e,k,n,d])=>({e,k,n,d}));
+  ['🦊','사막여우','모래','큰 귀로 멀리 있는 소리도 들어요',0,60], ['🐪','낙타','혹돌이','물 없이도 며칠을 걸어요',0,70],
+  ['🦎','도마뱀','날쌘이','뜨거운 모래 위를 쌩쌩',0,60], ['🦉','사막 부엉이','부엉이','밤에 사막을 지켜요',0,80],
+  ['🦜','앵무새','알록이','도진이 말을 따라 해요',1,90], ['🐒','원숭이','바나','나무 타기 선수',1,90],
+  ['🦥','나무늘보','느릿이','하루 종일 나무에 매달려 쿨쿨',1,100], ['🐸','청개구리','개굴이','비 오는 날 노래해요',1,90],
+  ['🐐','산양','뿔뿔이','가파른 절벽도 폴짝폴짝',2,120], ['🦅','독수리','하늘이','하늘 높이서 길을 알려 줘요',2,130],
+  ['🐻','반달곰','반달이','가슴에 하얀 반달 무늬',2,140], ['🐿️','다람쥐','도토리','볼에 도토리를 가득',2,110],
+  ['🐬','돌고래','퐁당이','바다에서 제일 똑똑한 친구',3,150], ['🐢','바다거북','느림보','느려도 꾸준히, 끝까지!',3,140],
+  ['🦦','해달','통통이','조개를 돌로 톡톡 깨 먹어요',3,150], ['🦈','아기 상어','상어돌이','뚜루루뚜루~',3,160],
+  ['🦀','꽃게','집게','옆으로 옆으로 걸어요',4,160], ['🦩','홍학','핑키','한 다리로 서서 쉬어요',4,170],
+  ['🐠','열대어','니모','알록달록 산호초 친구',4,160], ['🐙','문어','꾸물이','다리가 여덟 개!',4,180],
+  ['🐧','펭귄','뒤뚱이','미끄럼 타기 대장',5,200], ['🐻‍❄️','북극곰','눈송이','추위도 끄떡없는 힘센 친구',5,220],
+  ['🦭','물범','몽실이','얼음 위에서 낮잠 쿨쿨',5,200], ['🐕','썰매개','바람이','썰매를 끌고 쌩쌩 달려요',5,210],
+  ['🦄','유니콘','반짝이','대모험을 끝낸 탐험가에게만',6,500], ['🐉','아기 용','불꽃이','전설의 친구!',6,600],
+].map(([e,k,n,d,r,p])=>({e,k,n,d,r,p}));
+const petOpen=p=>p.r>=6?S.mission>=TOTAL:S.mission>=regStart(p.r)+STAGES[p.r].length;
 
 /* ════════ 상점 (코인으로 옷 · 모자 사기) ════════ */
 const SHOP=[
@@ -717,6 +726,7 @@ function makeQs(mi){
 const defState=()=>({mission:0,coins:0,wear:{shirt:'s:blue',pants:'p:green',hat:'h:none'},own:['s:blue','p:green','h:none'],pets:[],pet:-1,weeks:{},spin:{},log:{},wrong:[],best:{},perDay:2,noMap:false,obMode:'easy',updatedAt:0});
 let S=defState();
 try{ const raw=localStorage.getItem(LS_KEY); if(raw) S=Object.assign(defState(),JSON.parse(raw)); }catch(e){}
+if(S.pet>=PETS.length) S.pet=-1;
 const cloud={db:null,ok:false,ready:null};
 function loadScript(src){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
 const timeout=(p,ms)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')),ms))]);
@@ -791,11 +801,18 @@ function drawAvatar(c,x,y,s,o={}){
   c.fillStyle=(SHOPI[w.pants]||SHOPI['p:green']).c;
   rr(c,-2.15*u,-4.4*u-(mv?Math.max(0,sw)*u*1.1:0),2.05*u,4.4*u,.45*u); c.fill();
   rr(c,.1*u,-4.4*u-(mv?Math.max(0,-sw)*u*1.1:0),2.05*u,4.4*u,.45*u); c.fill();
+  /* 운동화 (바지 끝에 발) */
+  { const la=mv?Math.max(0,sw)*u*1.1:0, lb=mv?Math.max(0,-sw)*u*1.1:0;
+    c.fillStyle='#3b3f4a'; rr(c,-2.25*u,-.9*u-la,2.4*u,.9*u,.4*u); c.fill(); rr(c,0,-.9*u-lb,2.4*u,.9*u,.4*u); c.fill();
+    c.fillStyle='#ffffff'; c.fillRect(-2.15*u,-.3*u-la,2.2*u,.18*u); c.fillRect(.1*u,-.3*u-lb,2.2*u,.18*u); }
   const aw=mv?sw*u*.8:0;
   c.fillStyle=SKIN; rr(c,-3.5*u,-8.3*u+aw,1.25*u,4.1*u,.5*u); c.fill(); rr(c,2.25*u,-8.3*u-aw,1.25*u,4.1*u,.5*u); c.fill();
   c.fillStyle=shirtFill(c,w.shirt,u); rr(c,-2.3*u,-8.6*u,4.6*u,4.5*u,.55*u); c.fill();
   if(w.shirt==='s:gold') drawDiamondShirt(c,u);
   c.fillStyle=SKIN; rr(c,-1.85*u,-12*u,3.7*u,3.4*u,.95*u); c.fill();
+  /* 짧은 갈색 머리 (뾰족뾰족 앞머리 · 뒤쪽 구레나룻) */
+  c.fillStyle='#3a2a20'; c.beginPath(); c.moveTo(-1.97*u,-10.3*u); c.quadraticCurveTo(-2.15*u,-12.7*u,0,-12.6*u); c.quadraticCurveTo(2.15*u,-12.7*u,1.97*u,-10.9*u);
+  [[1.45,-11.3],[.95,-10.95],[.4,-11.35],[-.15,-11.0],[-.7,-11.4],[-1.25,-11.05],[-1.55,-10.3]].forEach(([a,b])=>c.lineTo(a*u,b*u)); c.closePath(); c.fill();
   c.fillStyle='#1d2433';
   c.beginPath(); c.arc(-.45*u,-10.6*u,.32*u,0,7); c.fill();
   c.beginPath(); c.arc(.95*u,-10.6*u,.32*u,0,7); c.fill();
@@ -816,6 +833,41 @@ function drawDiamondShirt(c,u){
   gem(0,-6.5*u,1.05*u); gem(-1.45*u,-7.6*u,.48*u); gem(1.45*u,-7.6*u,.48*u);
   c.fillStyle='#fff';
   [[-1.5,-5.0,.16],[1.6,-5.3,.2],[.9,-7.9,.13]].forEach(([a,b,r])=>{ c.beginPath(); c.arc(a*u,b*u,r*u,0,7); c.fill(); });
+  c.restore();
+}
+/* 🐶 하얀 소형견 퍼니: 복슬복슬 하얀 털, 축 늘어진 크림색 귀, 까만 눈 · 코
+   x, y = 발 가운데 · s = 키 · face = 보는 쪽(1 오른쪽, -1 왼쪽) · t = 시간(초) */
+function drawDog(c,x,y,s,face,t,moving){
+  const u=s/10, b=moving?Math.abs(Math.sin(t*9))*u*.5:0;
+  const W='#fffaf2', C='#ecdcc6', D='#d8c4a8';
+  /* 둥근 털뭉치 여러 개로 복슬복슬하게 */
+  const fluff=(cx,cy,r,n,col)=>{ c.fillStyle=col; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2; c.beginPath(); c.arc(cx+Math.cos(a)*r*.72,cy+Math.sin(a)*r*.72,r*.42,0,7); c.fill(); } c.beginPath(); c.arc(cx,cy,r*.82,0,7); c.fill(); };
+  c.save(); c.translate(x,y); c.scale(face<0?-1:1,1);
+  c.fillStyle='rgba(0,0,0,.14)'; c.beginPath(); c.ellipse(0,0,4*u,1*u,0,0,7); c.fill();
+  c.translate(0,-b);
+  /* 살랑살랑 꼬리 */
+  const tw=Math.sin(t*(moving?14:5))*.5*u;
+  fluff(-3.5*u,-5.2*u+tw,1.15*u,6,D); fluff(-3.5*u,-5.25*u+tw,.95*u,6,W);
+  /* 다리 */
+  [-2.6,-1.3,.9,2.1].forEach((a,i)=>{ const lift=moving?Math.max(0,Math.sin(t*12+i*Math.PI/2))*u*.6:0;
+    c.fillStyle=D; rr(c,a*u-.68*u,-1.9*u-lift,1.36*u,1.95*u,.6*u); c.fill(); c.fillStyle=W; rr(c,a*u-.58*u,-1.85*u-lift,1.16*u,1.8*u,.55*u); c.fill(); });
+  /* 몸통 */
+  fluff(-.5*u,-3.5*u,2.75*u,9,D); fluff(-.5*u,-3.55*u,2.55*u,9,W);
+  /* 머리 */
+  const hx=2.3*u, hy=-6.5*u;
+  fluff(hx,hy,2.55*u,10,D); fluff(hx,hy,2.35*u,10,W);
+  fluff(hx-.2*u,hy-2.2*u,.95*u,6,W);   /* 정수리 털 */
+  /* 축 늘어진 귀 */
+  c.fillStyle=C; c.beginPath(); c.ellipse(hx-2.15*u,hy+.6*u,1*u,1.9*u,.25,0,7); c.fill(); c.beginPath(); c.ellipse(hx+2.15*u,hy+.6*u,1*u,1.9*u,-.25,0,7); c.fill();
+  c.strokeStyle='rgba(255,255,255,.8)'; c.lineWidth=.18*u; [[-2.3,-.2],[-2,.8],[2.3,-.2],[2,.8]].forEach(([a,b2])=>{ c.beginPath(); c.moveTo(hx+a*u-.3*u,hy+b2*u); c.lineTo(hx+a*u+.3*u,hy+b2*u+.6*u); c.stroke(); });
+  /* 주둥이 · 눈 · 코 · 입 */
+  c.fillStyle=W; c.beginPath(); c.ellipse(hx+.15*u,hy+1*u,1.25*u,.95*u,0,0,7); c.fill();
+  c.fillStyle='#1d1d22'; c.beginPath(); c.arc(hx-.95*u,hy-.25*u,.46*u,0,7); c.fill(); c.beginPath(); c.arc(hx+1.15*u,hy-.25*u,.46*u,0,7); c.fill();
+  c.fillStyle='#fff'; c.beginPath(); c.arc(hx-.8*u,hy-.45*u,.16*u,0,7); c.fill(); c.beginPath(); c.arc(hx+1.3*u,hy-.45*u,.16*u,0,7); c.fill();
+  c.fillStyle='#1d1d22'; c.beginPath(); c.ellipse(hx+.15*u,hy+.75*u,.55*u,.42*u,0,0,7); c.fill();
+  c.fillStyle='rgba(255,255,255,.7)'; c.beginPath(); c.arc(hx-.02*u,hy+.62*u,.12*u,0,7); c.fill();
+  c.strokeStyle='#6b5a4a'; c.lineWidth=.16*u; c.beginPath(); c.moveTo(hx+.15*u,hy+1.15*u); c.quadraticCurveTo(hx-.25*u,hy+1.6*u,hx-.6*u,hy+1.35*u); c.moveTo(hx+.15*u,hy+1.15*u); c.quadraticCurveTo(hx+.55*u,hy+1.6*u,hx+.9*u,hy+1.35*u); c.stroke();
+  c.fillStyle='#ff8fa6'; c.beginPath(); c.ellipse(hx+.15*u,hy+1.62*u,.28*u,.22*u,0,0,Math.PI); c.fill();   /* 혀 */
   c.restore();
 }
 function drawHat(c,h,u){
@@ -893,7 +945,7 @@ function render(){
     <button class="ib p" onclick="openSpin()"><span class="c">🎡${spinOk?'<span class="bd">!</span>':''}</span>룰렛</button>
     <button class="ib b" onclick="openShop()"><span class="c">🛒</span>상점</button>
     <button class="ib" onclick="openItems()"><span class="c">🎒</span>아이템 도감</button>
-    <button class="ib g" onclick="openPets()"><span class="c">🐾</span>동행 친구</button>
+    <button class="ib g" onclick="openPets()"><span class="c">🐾</span>동물 친구</button>
     <button class="ib" onclick="startWrong()"><span class="c">🌀${S.wrong.length?`<span class="bd">${S.wrong.length}</span>`:''}</span>오답 탈출</button>
     <button class="ib b" onclick="openMap()"><span class="c">🗺️</span>여행 지도</button>
   </div>`;
@@ -956,7 +1008,8 @@ function startLobby(){
     const k=Math.min(1,dt*4); LB.px+=((LB.x-LB.face*s*.75/w)-LB.px)*k; LB.py+=(LB.y-LB.py)*k;
     for(let r=0;r*T<h;r++) for(let q=0;q*T<w;q++) drawGround(c,reg,q*T,r*T,T,q,r);
     [[.08,.3],[.92,.28]].forEach(([fx,fy])=>drawEmoji(c,reg.wall,w*fx,h*fy,T*1.15));
-    const drawPet=()=>{ const pet=PETS[S.pet]; if(!pet) return; const px=LB.px*w, pyy=y0+(y1-y0)*LB.py, py=pyy-Math.abs(Math.sin(sec*(moving?7:3.2)))*8; c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(px,pyy,s*.18,s*.05,0,0,7); c.fill(); drawEmoji(c,pet.e,px,py-s*.2,s*.42,LB.face>0); };
+    const drawPet=()=>{ const px=LB.px*w, pyy=y0+(y1-y0)*LB.py; drawDog(c,px,pyy,s*.42,LB.face,sec,moving);
+      const pet=PETS[S.pet]; if(!pet) return; const qx=px-LB.face*s*.5, qy=pyy-Math.abs(Math.sin(sec*(moving?7:3.2)))*8; c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(qx,pyy,s*.16,s*.05,0,0,7); c.fill(); drawEmoji(c,pet.e,qx,qy-s*.2,s*.38,LB.face>0); };
     const drawMe=()=>{ c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(ax,ay,s*.26*(1-jp*.3),s*.07*(1-jp*.3),0,0,7); c.fill();
       drawAvatar(c,ax,ay-lift-(moving?0:Math.abs(Math.sin(sec*2))*3),s,{moving:moving&&LB.jt===0,phase:LB.phase,face:LB.face});
       nameTag(c,ax,ay-lift-s*1.12,15,tagText()); };
@@ -1111,7 +1164,8 @@ function obDraw(){
   M.coins.forEach(o=>{ if(!o.got) spr.push({y:o.y+.3,f:()=>drawEmoji(c,'🪙',o.x*T,o.y*T-Math.abs(Math.sin(O.t*3+o.x))*T*.12,T*.5)}); });
   M.enemies.forEach(e=>spr.push({y:e.y+.35,f:()=>{ c.fillStyle='rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(e.x*T,(e.y+.3)*T,T*.3,T*.09,0,0,7); c.fill(); drawEmoji(c,reg.enemy,e.x*T,e.y*T-Math.abs(Math.sin(O.t*6))*T*.06,T*.72,e.f<0); }}));
   const pet=PETS[S.pet];
-  if(pet&&O.trail.length){ const [px,py]=O.trail[0]; spr.push({y:py+.29,f:()=>{ c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(px*T-O.face*T*.45,(py+.3)*T,T*.2,T*.06,0,0,7); c.fill(); drawEmoji(c,pet.e,px*T-O.face*T*.45,(py+.05)*T-Math.abs(Math.sin(O.t*7))*T*.1,T*.5,O.face>0); }}); }
+  if(O.trail.length){ const [px,py]=O.trail[0]; spr.push({y:py+.29,f:()=>{ const cx=px*T-O.face*T*.45; drawDog(c,cx,(py+.3)*T,T*.42,O.face,O.t,true);
+    if(pet){ const qx=cx-O.face*T*.42; c.fillStyle='rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(qx,(py+.3)*T,T*.18,T*.05,0,0,7); c.fill(); drawEmoji(c,pet.e,qx,(py+.05)*T-Math.abs(Math.sin(O.t*7))*T*.1,T*.42,O.face>0); } }}); }
   spr.push({y:O.y+.3,f:()=>{
     const fx=O.x*T, fy=(O.y+.28)*T, jd=jumpDur(), jp=O.jt>0?Math.sin((1-O.jt/jd)*Math.PI):0, lift=jp*T*.85;
     let s=T*1.15, alpha=1;
@@ -1233,7 +1287,7 @@ function qQuit(){
   closeQuiz();
 }
 function closeQuiz(){ QZ=null; $('quiz').innerHTML=''; showScreen('quiz',false); render(); }
-/* 미션 끝! 별 · 코인 · 아이템 · 동행 친구 */
+/* 미션 끝! 별 · 코인 · 아이템 · 동물 친구 */
 function qFinish(){
   const z=QZ, n=z.list.length, tk=todayKey(), L=dayLog(tk);
   if(z.mode==='wrong'){
@@ -1249,14 +1303,12 @@ function qFinish(){
   const item=mi<ITEMS.length&&mi===S.mission?ITEMS[mi]:null;
   if(mi===S.mission) S.mission++;
   clearDraft();
-  /* 하루 목표 · 한 주 5일 → 동행 친구 */
+  /* 하루 목표 · 한 주 5일 → 동물 친구 */
   const goal=perDay(), goalNow=L.ms===goal;
   let pet=null, petCoins=0;
   const wk=ymd(weekDays()[0]);
   if(weekCount()>=5&&!S.weeks[wk]){
-    const idx=S.pets.length;
-    if(idx<PETS.length){ S.pets.push(idx); S.weeks[wk]=idx+1; if(S.pet<0) S.pet=idx; pet=PETS[idx]; }
-    else { S.weeks[wk]=-1; petCoins=200; S.coins+=200; }
+    S.weeks[wk]=-1; petCoins=100; S.coins+=100;   // 동물 친구는 상점에서 데려와요
   }
   save();
   const bossWin=st.boss&&z.c>=Math.ceil(n*2/3);
@@ -1268,8 +1320,8 @@ function qFinish(){
     <div class="stars">${[1,2,3].map(i=>`<span class="${i<=stars?'':'off'}">⭐</span>`).join('')}</div>
     <p class="sub">${QN}문제 중 <b style="color:#7dffb0;font-size:22px">${z.c}</b>개 맞힘 · 최고 ${z.best}연속 · 🪙 +${z.c+bonus}</p>
     ${item?`<div class="prize flip"><span class="new">NEW 아이템!</span><div class="em">${item.e}</div><h3>${esc(item.n)}</h3><p>${esc(item.d)}</p><p style="font-size:15px">🎒 아이템 도감 ${itemsGot()} / ${ITEMS.length}</p></div>`:''}
-    ${pet?`<div class="prize pet flip" style="animation-delay:.5s"><span class="new" style="background:#ff9a1f">이번 주 5일 공부 달성!</span><div class="em">${pet.e}</div><h3>동행 친구 <b style="font-weight:400">${esc(pet.n)}</b></h3><p>${esc(pet.k)} · ${esc(pet.d)}</p><p style="font-size:15px">이제 ${jo(KID,'이','')}랑 같이 다녀요! 🐾</p></div>`:''}
-    ${petCoins?`<div class="goalbar">🏅 이번 주 5일 공부 달성! 친구를 모두 모아서 🪙 200코인을 받았어요</div>`:''}
+    ${pet?`<div class="prize pet flip" style="animation-delay:.5s"><span class="new" style="background:#ff9a1f">이번 주 5일 공부 달성!</span><div class="em">${pet.e}</div><h3>동물 친구 <b style="font-weight:400">${esc(pet.n)}</b></h3><p>${esc(pet.k)} · ${esc(pet.d)}</p><p style="font-size:15px">이제 ${jo(KID,'이','')}랑 같이 다녀요! 🐾</p></div>`:''}
+    ${petCoins?`<div class="goalbar">🏅 이번 주 5일 공부 달성! 🪙 100코인 보너스 · 상점에서 동물 친구를 데려와요</div>`:''}
     ${goalNow?`<div class="goalbar">🎉 오늘 목표 미션 ${goal}개 (${goal*QN}문제) 달성!<br>🎡 룰렛을 돌릴 수 있어요 · 📅 이번 주 ${weekCount()}/5일</div>`:L.ms<goal?`<div class="goalbar">오늘 미션 ${L.ms}/${goal} · 하나만 더 하면 오늘 목표 달성! 💪</div>`:''}
     <div class="rbtns"><button onclick="closeQuiz()">🏠 홈으로</button><button class="go" onclick="nextMission()">${L.ms<goal?'▶ 다음 미션':'➕ 한 판 더!'}</button></div>
     <p class="sub" style="margin-top:0">다음: ${esc(nst.t)}</p></div></div>`;
@@ -1422,7 +1474,8 @@ function mgDraw(){
   spr.push({y:O.y,f:()=>{ const fx=O.x*T, fy=(O.y+.28)*T, jp=O.jt>0?Math.sin((1-O.jt/MG_JUMP)*Math.PI):0, lift=jp*T*1.1, s=T*1.15;
     c.fillStyle='rgba(0,0,0,.22)'; c.beginPath(); c.ellipse(fx,fy,T*.3*(1-jp*.35),T*.09*(1-jp*.35),0,0,7); c.fill();
     drawAvatar(c,fx,fy-lift,s,{phase:O.phase,moving:O.mv&&O.jt===0,face:O.face,alpha:O.inv>0&&Math.floor(sec*12)%2?.45:1});
-    const pet=PETS[S.pet]; if(pet) drawEmoji(c,pet.e,fx-O.face*T*.7,fy-T*.25-Math.abs(Math.sin(sec*7))*T*.08,T*.45,O.face>0); }});
+    drawDog(c,fx-O.face*T*.7,fy,T*.42,O.face,sec,O.mv);
+    const pet=PETS[S.pet]; if(pet) drawEmoji(c,pet.e,fx-O.face*T*1.15,fy-T*.25-Math.abs(Math.sin(sec*7))*T*.08,T*.42,O.face>0); }});
   spr.sort((a,b)=>a.y-b.y).forEach(x=>x.f());
   O.pops.forEach(p=>{ c.save(); c.globalAlpha=1-p.t; c.font=`${Math.round(T*.5)}px Jua, sans-serif`; c.textAlign='center'; c.lineWidth=5; c.strokeStyle='#fff'; c.strokeText(p.txt,p.x*T,(p.y-p.t*.8)*T); c.fillStyle=p.col; c.fillText(p.txt,p.x*T,(p.y-p.t*.8)*T); c.restore(); });
 }
@@ -1475,12 +1528,12 @@ function openTasks(){
 }
 function openWeek(){
   const days=weekDays(), tk=todayKey(), cnt=weekCount(), wk=ymd(days[0]), got=S.weeks[wk];
-  const next=PETS[S.pets.length];
-  let h=`<h2>📅 이번 주 탐험 도장</h2><p style="margin:0;color:var(--sub);font-size:16px">하루 목표(미션 ${perDay()}개)를 채운 날에 도장이 찍혀요. <b style="color:var(--ink)">5일</b>을 채우면 동행 친구가 생겨요!</p>
+  const next=null;   // 동물 친구는 상점에서
+  let h=`<h2>📅 이번 주 탐험 도장</h2><p style="margin:0;color:var(--sub);font-size:16px">하루 목표(미션 ${perDay()}개)를 채운 날에 도장이 찍혀요. <b style="color:var(--ink)">5일</b>을 채우면 🪙 100코인 보너스!</p>
     <div class="week">${days.map(d=>{ const k=ymd(d), L=S.log[k]||{}, ok=dayDone(k); return `<div class="wd ${ok?'ok':''} ${k===tk?'td':''}">${WDK[d.getDay()]}<span class="s">${ok?'✅':k>tk?'·':(L.ms?'🔸':'⬜')}</span>${L.q?`${L.q}문제`:''}</div>`; }).join('')}</div>
     <div class="bar ${cnt>=5?'green':''}" style="height:20px"><i style="width:${Math.min(100,cnt/5*100)}%"></i></div>
     <p style="text-align:center;font-size:20px;margin:10px 0">${got?(got>0?`🎉 이번 주 친구 ${PETS[got-1].e} ${esc(jo(PETS[got-1].n,'을','를'))} 만났어요!`:'🎉 이번 주 5일 달성!'):`${cnt} / 5일 ${cnt<5?`· ${5-cnt}일 더!`:''}`}</p>
-    ${!got&&next?`<div class="box" style="display:flex;gap:12px;align-items:center"><span style="font-size:46px;filter:brightness(0) opacity(.3)">${next.e}</span><span style="font-size:17px">다음 동행 친구는…<br><b>누굴까요?</b> 5일 채우면 만나요!</span></div>`:''}`;
+    ${!got&&next?`<div class="box" style="display:flex;gap:12px;align-items:center"><span style="font-size:46px;filter:brightness(0) opacity(.3)">${next.e}</span><span style="font-size:17px">다음 동물 친구는…<br><b>누굴까요?</b> 5일 채우면 만나요!</span></div>`:''}`;
   modal(h);
 }
 function openSpin(){
@@ -1515,26 +1568,39 @@ function openItems(){
 }
 function itemOne(i){ const it=ITEMS[i], st=stageOf(i); modal(`<div class="prize" style="box-shadow:none;margin:0 auto"><span class="new" style="background:#1d6fd1">${i+1}번 · ${REG[st.r].ico} ${REG[st.r].name}</span><div class="em">${it.e}</div><h3>${esc(it.n)}</h3><p>${esc(it.d)}</p><p style="font-size:15px">${esc(st.t)} 미션에서 얻었어요${S.best[i]!=null?` · ${S.best[i]}/${QN} 맞힘`:''}</p></div><button class="btn gray wide" style="margin-top:12px" onclick="openItems()">← 도감으로</button>`); }
 function openPets(){
-  let h=`<h2>🐾 동행 친구 <small style="color:var(--sub);font-size:17px">${S.pets.length} / ${PETS.length}</small></h2><p style="margin:0 0 10px;color:var(--sub);font-size:16px">한 주에 5일 공부하면 친구가 한 명씩 생겨요. 함께 다닐 친구를 골라요!</p><div class="grid">`;
-  PETS.forEach((p,i)=>{ const got=S.pets.includes(i); h+=`<div class="it ${got?'got':'no'} ${S.pet===i?'sel':''}" onclick="${got?`setPet(${i})`:''}"><span class="e">${p.e}</span>${got?`${esc(p.n)}<br><small style="color:var(--sub)">${esc(p.k)}</small>`:'???'}</div>`; });
-  h+=`</div>${S.pets.length?`<button class="btn gray wide" style="margin-top:12px" onclick="setPet(-1)">혼자 다니기</button>`:''}`;
+  let h=`<h2>🐾 동물 친구 <small style="color:var(--sub);font-size:17px">${S.pets.length} / ${PETS.length}</small></h2><p style="margin:0 0 10px;color:var(--sub);font-size:16px">🐶 하얀 강아지 <b style="color:var(--ink)">${DOG}</b>${jo(DOG,'은','는').slice(DOG.length)} 늘 함께 다녀요! 마을을 끝내면 그 마을에서 만난 동물을 🛒 상점에서 데려올 수 있어요. 데려온 친구를 누르면 함께 다녀요.</p><div class="grid">`;
+  PETS.forEach((p,i)=>{ const got=S.pets.includes(i), open=petOpen(p);
+    h+=`<div class="it ${got?'got':'no'} ${S.pet===i?'sel':''}" onclick="${got?`setPet(${i})`:`SHOPTAB='pet';openShop()`}"><span class="e" ${open||got?'':'style="filter:brightness(0) opacity(.3)"'}>${p.e}</span>${got?`${esc(p.n)}<br><small style="color:var(--sub)">${esc(p.k)}</small>`:open?`🪙 ${p.p}<br><small style="color:var(--sub)">상점에서</small>`:`🔒<br><small style="color:var(--sub)">${p.r>=6?'대모험 완주':esc(REG[p.r].name)}</small>`}</div>`; });
+  h+=`</div>${S.pet>=0?`<button class="btn gray wide" style="margin-top:12px" onclick="setPet(-1)">${jo(DOG,'이랑','랑')}만 다니기</button>`:''}<button class="btn wide" style="margin-top:8px" onclick="SHOPTAB='pet';openShop()">🛒 상점에서 동물 친구 보기</button>`;
   modal(h);
 }
-function setPet(i){ S.pet=i; save(); openPets(); render(); if(i>=0) toast(`${PETS[i].e} ${jo(PETS[i].n,'이','가')} 따라다녀요!`); }
+function setPet(i){ S.pet=i; save(); openPets(); render(); toast(i>=0?`${PETS[i].e} ${jo(PETS[i].n,'이','가')} ${jo(DOG,'이랑','랑')} 같이 따라다녀요!`:`🐶 ${jo(DOG,'이랑','랑')} 둘이 탐험해요`); }
 function openMap(){ modal(`<h2>🗺️ 여행 지도</h2>${journeySVG()}<div class="tasks" style="margin-top:8px">${REG.map((g,r)=>{ const st=regStart(r), n=STAGES[r].length, got=Math.max(0,Math.min(n,S.mission-st)); return `<div class="task ${got>=n?'done':''}"><span class="ck">${g.ico}</span><span class="t">${g.name} <small style="color:var(--sub)">· ${g.unit}</small></span><b style="font-weight:400">${got}/${n}</b></div>`; }).join('')}</div>`); }
 /* 상점 */
 let SHOPTAB='shirt';
 function openShop(){
-  const tabs=[['shirt','👕 셔츠'],['pants','👖 바지'],['hat','🎩 모자']];
+  const tabs=[['shirt','👕 셔츠'],['pants','👖 바지'],['hat','🎩 모자'],['pet','🐾 동물']];
   let h=`<h2>🛒 상점 <small style="color:#b07800;font-size:18px">🪙 ${S.coins.toLocaleString()}</small></h2>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:90px;height:110px;background:#f3f5f9;border-radius:14px"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞히면 1코인, 맵에서 코인을 주우면 1코인 (🔥 하드 모드는 3코인)!<br>별 3개면 보너스 10코인 ⭐</p></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:130px;height:110px;background:#f3f5f9;border-radius:14px;flex:none"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞히면 1코인, 맵에서 코인을 주우면 1코인 (🔥 하드 모드는 3코인)!<br>별 3개면 보너스 10코인 ⭐ · 마을을 끝내면 그 마을 동물 친구가 열려요 🐾</p></div>
     <div class="row" style="margin-bottom:10px">${tabs.map(([k,l])=>`<button class="btn ${SHOPTAB===k?'':'gray'}" style="flex:1;padding:10px 4px" onclick="SHOPTAB='${k}';openShop()">${l}</button>`).join('')}</div><div class="shopgrid">`;
-  SHOP.filter(x=>x.t===SHOPTAB).forEach(x=>{ const own=S.own.includes(x.id), wear=S.wear[x.t]===x.id;
+  if(SHOPTAB==='pet') h+=petShopHTML();
+  else SHOP.filter(x=>x.t===SHOPTAB).forEach(x=>{ const own=S.own.includes(x.id), wear=S.wear[x.t]===x.id;
     h+=`<div class="sh ${wear?'wear':''}"><canvas data-sid="${x.id}"></canvas>${esc(x.n)}<div class="pr">${x.p?`🪙 ${x.p}`:'기본'}</div>${wear?`<button>입고 있어요</button>`:own?`<button onclick="wearIt('${x.id}')">입기</button>`:`<button class="buy" ${S.coins<x.p?'disabled':''} onclick="buyIt('${x.id}')">사기</button>`}</div>`; });
   modal(h+`</div>`);
-  const me=$('shopme'); { const {c,w,h:hh}=fitCanvas(me); drawAvatar(c,w/2,hh-10,hh*.78,{}); }
+  const me=$('shopme'); { const {c,w,h:hh}=fitCanvas(me); drawAvatar(c,w*.38,hh-10,hh*.78,{}); drawDog(c,w*.78,hh-8,hh*.34,-1,0,false); }
   document.querySelectorAll('canvas[data-sid]').forEach(cv=>{ const x=SHOPI[cv.dataset.sid], wr=Object.assign({},S.wear,{[x.t]:x.id}); const {c,w,h:hh}=fitCanvas(cv); drawAvatar(c,w/2,hh-6,hh*(x.t==='hat'?.74:.8),{wear:wr}); });
+  document.querySelectorAll('canvas[data-dog]').forEach(cv=>{ const {c,w,h:hh}=fitCanvas(cv); drawDog(c,w/2,hh-8,hh*.66,1,0,false); });
 }
+/* 🐾 동물 친구: 마을을 끝내면 그 마을 동물이 열리고, 코인으로 데려와요 (🐶 퍼니는 처음부터 늘 함께) */
+function petShopHTML(){
+  let h=`<div class="sh ${S.pet<0?'wear':''}"><canvas data-dog="1"></canvas>${esc(DOG)} <small>(하얀 강아지)</small><div class="pr">늘 함께</div>${S.pet<0?'<button>둘이 탐험 중</button>':`<button onclick="setPetShop(-1)">${jo(DOG,'이랑','랑')}만</button>`}</div>`;
+  PETS.forEach((p,i)=>{ const own=S.pets.includes(i), open=petOpen(p);
+    if(!open&&!own){ h+=`<div class="sh" style="opacity:.7"><div style="font-size:50px;line-height:84px;filter:brightness(0) opacity(.3)">${p.e}</div>???<div class="pr" style="color:var(--sub)">${p.r>=6?'🏆 대모험 완주':`${REG[p.r].ico} ${esc(REG[p.r].name)}`}</div><button disabled>🔒 마을을 끝내면</button></div>`; return; }
+    h+=`<div class="sh ${S.pet===i?'wear':''}"><div style="font-size:50px;line-height:84px">${p.e}</div>${esc(p.n)} <small style="color:var(--sub)">${esc(p.k)}</small><div class="pr">${own?'내 친구':`🪙 ${p.p}`}</div>${own?(S.pet===i?'<button>함께 다녀요</button>':`<button onclick="setPetShop(${i})">함께 다니기</button>`):`<button class="buy" ${S.coins<p.p?'disabled':''} onclick="buyPet(${i})">데려오기</button>`}</div>`; });
+  return h;
+}
+function buyPet(i){ const p=PETS[i]; if(S.pets.includes(i)||S.coins<p.p||!petOpen(p)) return; if(!confirm(`${p.e} ${jo(p.n,'을','를')} 🪙 ${p.p}코인에 데려올까요?`)) return; S.coins-=p.p; S.pets.push(i); S.pet=i; save(); sWin(); openShop(); render(); toast(`${p.e} ${jo(p.n,'이','가')} 친구가 됐어요! ${jo(DOG,'이랑','랑')} 같이 따라다녀요`); }
+function setPetShop(i){ S.pet=i; save(); openShop(); render(); }
 function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
 function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
 
@@ -1593,7 +1659,7 @@ function drawAdmin(){
    <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e6eaf0'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${at?` · ${at.getMonth()+1}/${at.getDate()} ${pad2(at.getHours())}:${pad2(at.getMinutes())} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
    <textarea id="momMsg" class="inp" maxlength="200" rows="3" placeholder="예) 도진아, 오늘도 사막 건너기 화이팅! 60문제 다 풀면 엄마한테 보내 줘 💚" style="margin-top:8px;resize:vertical">${esc(S.momMsg||'')}</textarea>
    <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMomMsg()">저장하기</button><button class="btn gray" onclick="$('momMsg').value='';setMomMsg()">지우기</button></div>${momHistAdmin()}</div>
-   <div class="box"><b>🎯 하루 목표</b> <span style="color:var(--sub);font-size:15px">미션 1개 = ${QN}문제 · 목표를 채운 날이 한 주에 5일이면 동행 친구</span>
+   <div class="box"><b>🎯 하루 목표</b> <span style="color:var(--sub);font-size:15px">미션 1개 = ${QN}문제 · 목표를 채운 날이 한 주에 5일이면 🪙 100코인</span>
    <div class="row" style="margin-top:8px">${[1,2,3,4].map(n=>`<button class="btn ${perDay()===n?'':'gray'}" style="flex:1;padding:10px 4px" onclick="setPerDay(${n})">${n}개<br><small>${n*QN}문제</small></button>`).join('')}</div>
    <label style="display:flex;gap:8px;align-items:center;font-size:16px;margin-top:12px"><input type="checkbox" ${S.noMap?'':'checked'} onchange="S.noMap=!this.checked;save();render()" style="width:22px;height:22px"> 미션 사이에 🕹️ 이동 맵 (조이스틱 · 점프) 하기</label></div>
    <div class="box"><b>📍 지금 미션</b><p style="margin:6px 0 10px;font-size:18px">${S.mission+1}번째 · ${REG[st.r].ico} ${REG[st.r].name} · ${esc(st.t)}</p>
@@ -1603,7 +1669,7 @@ function drawAdmin(){
    <p style="margin:6px 0 0;font-size:14px;color:var(--sub)">앞으로 옮기면 건너뛴 미션의 아이템도 함께 생겨요</p></div>
    <div class="box"><b>📊 날짜별 기록</b>
    ${keys.length?`<table><tr><th>날짜</th><th>푼 문제</th><th>맞힘</th><th>정답률</th><th>미션</th></tr>${keys.slice(0,40).map(k=>{ const L=S.log[k]; return `<tr><td>${k.slice(5).replace('-','/')}</td><td>${L.q}</td><td>${L.c}</td><td>${L.q?Math.round(L.c/L.q*100):0}%</td><td>${L.ms||0}${dayDone(k)?' ✅':''}</td></tr>${(L.m||[]).length||L.gq?`<tr><td colspan="5" style="text-align:left;font-size:13px;color:var(--sub)">${(L.m||[]).map(x=>'✔ '+esc(x)).join('<br>')}${L.gq?`${(L.m||[]).length?'<br>':''}👾 곱셈 몬스터 게임 ${L.gc||0}/${L.gq} 맞힘${L.gh?` · ⭐ 하이클래스 ${L.gh}개`:''}`:''}</td></tr>`:''}`; }).join('')}</table>`:'<p style="color:var(--sub)">아직 기록이 없어요</p>'}</div>
-   <div class="box"><b>🐾 동행 친구 · 🪙 코인</b><p style="margin:6px 0;font-size:16px">친구 ${S.pets.length}명 ${S.pets.map(i=>PETS[i].e).join(' ')} · 코인 ${S.coins} · 이번 주 ${weekCount()}/5일</p>
+   <div class="box"><b>🐾 동물 친구 · 🪙 코인</b><p style="margin:6px 0;font-size:16px">친구 ${S.pets.length}명 ${S.pets.map(i=>PETS[i].e).join(' ')} · 코인 ${S.coins} · 이번 주 ${weekCount()}/5일</p>
    <div class="row"><button class="btn gray" onclick="givePet()">🐾 친구 한 명 주기</button><button class="btn gray" onclick="giveCoins()">🪙 코인 주기</button></div></div>
    <div class="box"><b>👩 엄마 프로필</b> <span style="color:var(--sub);font-size:15px">'📩 엄마한테 보내기'가 이 번호로 문자를 열어요 · 이 기기에만 저장</span>
    <input id="momPhone" class="inp" type="tel" inputmode="tel" maxlength="15" placeholder="010-0000-0000" value="${esc(getMom().phone||'')}" style="margin-top:8px">
