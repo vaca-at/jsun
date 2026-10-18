@@ -325,7 +325,7 @@ const DOC_PATH = ['e2','yuna-cat'];
 const LS_KEY = 'cat-yuna';
 const DRAFT_KEY = 'cat-draft';
 const KID = '윤아';
-const CAT = '솜이';   // 늘 함께 다니는 하얀 아기 랙돌 고양이 이름 (바꾸려면 여기만)
+const CAT = '랙돌';   // 늘 함께 다니는 하얀 아기 랙돌 고양이 이름 (바꾸려면 여기만)
 const QN = 30;   // 미션 1개 문제 수
 
 /* ───── 공통 도구 ───── */
@@ -570,7 +570,7 @@ const ITEMS=`🛂|여권 첫 도장|지구마불 세계여행 시작! 첫 나라
 🍈|이집트 멜론|사막에서 자란 달콤한 멜론
 🧴|향수병|유리로 만든 예쁜 향수병
 🌶️|향신료|카이로 시장의 알록달록 향신료
-🐈|고양이 여신 조각상|이집트에서는 고양이가 귀한 동물! 솜이도 좋아해요
+🐈|고양이 여신 조각상|이집트에서는 고양이가 귀한 동물! 랙돌이도 좋아해요
 🧣|이집트 면 스카프|부드러운 이집트 면
 🗝️|앙크 열쇠고리|옛 이집트의 행운 모양
 ☀️|태양신 엽서|이집트의 태양신 그림
@@ -911,7 +911,7 @@ function drawHat(c,h,u){
     const cols=['#ff6b9a','#ffd43b','#74c0fc','#b197fc','#69db7c'];
     [[-1.9,-11.4],[-1,-12.3],[0,-12.6],[1,-12.3],[1.9,-11.4]].forEach(([a,b],i)=>{ c.fillStyle=cols[i]; for(let k=0;k<5;k++){ const an=k/5*Math.PI*2; c.beginPath(); c.arc(a*u+Math.cos(an)*.32*u,b*u+Math.sin(an)*.32*u,.26*u,0,7); c.fill(); } c.fillStyle='#fff3bf'; c.beginPath(); c.arc(a*u,b*u,.2*u,0,7); c.fill(); });
   }
-  else if(h==='h:catear'){   /* 고양이 귀 머리띠 (솜이랑 커플!) */
+  else if(h==='h:catear'){   /* 고양이 귀 머리띠 (랙돌이랑 커플!) */
     c.strokeStyle='#fffdf8'; c.lineWidth=.4*u; c.beginPath(); c.arc(0,-10.6*u,2*u,1.12*Math.PI,1.88*Math.PI); c.stroke();
     [-1,1].forEach(sx=>{ c.fillStyle='#fffdf8'; c.beginPath(); c.moveTo(sx*.5*u,-12.4*u); c.lineTo(sx*1.4*u,-14*u); c.lineTo(sx*2*u,-11.8*u); c.closePath(); c.fill();
       c.strokeStyle='#d8c3ad'; c.lineWidth=.15*u; c.stroke();
@@ -1615,13 +1615,13 @@ function openItems(){
 }
 function itemOne(i){ const it=ITEMS[i], st=stageOf(i); modal(`<div class="prize" style="box-shadow:none;margin:0 auto"><span class="new" style="background:#1d6fd1">${i+1}번 · ${REG[st.r].ico} ${REG[st.r].name}</span><div class="em">${it.e}</div><h3>${esc(it.n)}</h3><p>${esc(it.d)}</p><p style="font-size:15px">${esc(st.t)} 미션에서 얻었어요${S.best[i]!=null?` · ${S.best[i]}/${QN} 맞힘`:''}</p></div><button class="btn gray wide" style="margin-top:12px" onclick="openItems()">← 도감으로</button>`); }
 function openPets(){
-  let h=`<h2>🐾 동물 친구 <small style="color:var(--sub);font-size:17px">${S.pets.length} / ${PETS.length}</small></h2><p style="margin:0 0 10px;color:var(--sub);font-size:16px">🐈 하얀 아기 랙돌 고양이 <b style="color:var(--ink)">${CAT}</b>는 늘 함께 다녀요! 새 대륙에 도착하면 그 대륙 동물을 🛒 상점에서 데려올 수 있어요. 데려온 친구를 누르면 함께 다녀요.</p><div class="grid">`;
+  let h=`<h2>🐾 동물 친구 <small style="color:var(--sub);font-size:17px">${S.pets.length} / ${PETS.length}</small></h2><p style="margin:0 0 10px;color:var(--sub);font-size:16px">🐈 하얀 아기 랙돌 고양이 <b style="color:var(--ink)">${CAT}</b>${jo(CAT,'은','는').slice(CAT.length)} 늘 함께 다녀요! 새 대륙에 도착하면 그 대륙 동물을 🛒 상점에서 데려올 수 있어요. 데려온 친구를 누르면 함께 다녀요.</p><div class="grid">`;
   PETS.forEach((p,i)=>{ const got=S.pets.includes(i), open=petOpen(p);
     h+=`<div class="it ${got?'got':'no'} ${S.pet===i?'sel':''}" onclick="${got?`setPet(${i})`:`SHOPTAB='pet';openShop()`}"><span class="e" ${open||got?'':'style="filter:brightness(0) opacity(.3)"'}>${p.e}</span>${got?`${esc(p.n)}<br><small style="color:var(--sub)">${esc(p.k)}</small>`:open?`🪙 ${p.p}<br><small style="color:var(--sub)">상점에서</small>`:`🔒<br><small style="color:var(--sub)">${p.r>=6?'세계 일주':esc(REG[p.r].name)}</small>`}</div>`; });
   h+=`</div>${S.pet>=0?`<button class="btn gray wide" style="margin-top:12px" onclick="setPet(-1)">${jo(CAT,'이랑','랑')}만 다니기</button>`:''}<button class="btn wide" style="margin-top:8px" onclick="SHOPTAB='pet';openShop()">🛒 상점에서 동물 친구 보기</button>`;
   modal(h);
 }
-function setPet(i){ S.pet=i; save(); openPets(); render(); toast(i>=0?`${PETS[i].e} ${jo(PETS[i].n,'이','가')} ${CAT}랑 같이 따라다녀요!`:`🐈 ${jo(CAT,'이랑','랑')} 둘이 여행해요`); }
+function setPet(i){ S.pet=i; save(); openPets(); render(); toast(i>=0?`${PETS[i].e} ${jo(PETS[i].n,'이','가')} ${jo(CAT,'이랑','랑')} 같이 따라다녀요!`:`🐈 ${jo(CAT,'이랑','랑')} 둘이 여행해요`); }
 function openMap(){ modal(`<h2>🗺️ 여행 지도</h2>${journeySVG()}<div class="tasks" style="margin-top:8px">${REG.map((g,r)=>{ const st=regStart(r), n=STAGES[r].length, got=Math.max(0,Math.min(n,S.mission-st)); return `<div class="task ${got>=n?'done':''}"><span class="ck">${g.ico}</span><span class="t">${g.name} <small style="color:var(--sub)">· ${g.unit}</small></span><b style="font-weight:400">${got}/${n}</b></div>`; }).join('')}</div>`); }
 /* 상점 */
 let SHOPTAB='shirt';
@@ -1638,15 +1638,15 @@ function openShop(){
   document.querySelectorAll('canvas[data-sid]').forEach(cv=>{ const x=SHOPI[cv.dataset.sid], wr=Object.assign({},S.wear,{[x.t]:x.id}); const {c,w,h:hh}=fitCanvas(cv); drawAvatar(c,w/2,hh-6,hh*(x.t==='hat'?.74:.8),{wear:wr}); });
   document.querySelectorAll('canvas[data-cat]').forEach(cv=>{ const {c,w,h:hh}=fitCanvas(cv); drawCat(c,w/2,hh-8,hh*.62,1,0,false); });
 }
-/* 🐾 동물 친구: 그 대륙에 도착하면 열리고, 코인으로 데려와요 (🐈 솜이는 처음부터 늘 함께) */
+/* 🐾 동물 친구: 그 대륙에 도착하면 열리고, 코인으로 데려와요 (🐈 랙돌이는 처음부터 늘 함께) */
 function petShopHTML(){
-  let h=`<div class="sh ${S.pet<0?'wear':''}"><canvas data-cat="1"></canvas>${esc(CAT)} <small>(랙돌)</small><div class="pr">늘 함께</div>${S.pet<0?'<button>둘이 여행 중</button>':`<button onclick="setPetShop(-1)">${jo(CAT,'이랑','랑')}만</button>`}</div>`;
+  let h=`<div class="sh ${S.pet<0?'wear':''}"><canvas data-cat="1"></canvas>${esc(CAT)} <small>(아기 고양이)</small><div class="pr">늘 함께</div>${S.pet<0?'<button>둘이 여행 중</button>':`<button onclick="setPetShop(-1)">${jo(CAT,'이랑','랑')}만</button>`}</div>`;
   PETS.forEach((p,i)=>{ const own=S.pets.includes(i), open=petOpen(p);
     if(!open&&!own){ h+=`<div class="sh" style="opacity:.7"><div style="font-size:50px;line-height:84px;filter:brightness(0) opacity(.3)">${p.e}</div>???<div class="pr" style="color:var(--sub)">${p.r>=6?'🌍 세계 일주':`${REG[p.r].ico} ${esc(REG[p.r].name)}`}</div><button disabled>🔒 도착하면</button></div>`; return; }
     h+=`<div class="sh ${S.pet===i?'wear':''}"><div style="font-size:50px;line-height:84px">${p.e}</div>${esc(p.n)} <small style="color:var(--sub)">${esc(p.k)}</small><div class="pr">${own?'내 친구':`🪙 ${p.p}`}</div>${own?(S.pet===i?'<button>함께 다녀요</button>':`<button onclick="setPetShop(${i})">함께 다니기</button>`):`<button class="buy" ${S.coins<p.p?'disabled':''} onclick="buyPet(${i})">데려오기</button>`}</div>`; });
   return h;
 }
-function buyPet(i){ const p=PETS[i]; if(S.pets.includes(i)||S.coins<p.p||!petOpen(p)) return; if(!confirm(`${p.e} ${jo(p.n,'을','를')} 🪙 ${p.p}코인에 데려올까요?`)) return; S.coins-=p.p; S.pets.push(i); S.pet=i; save(); sWin(); openShop(); render(); toast(`${p.e} ${jo(p.n,'이','가')} 친구가 됐어요! ${CAT}랑 같이 따라다녀요`); }
+function buyPet(i){ const p=PETS[i]; if(S.pets.includes(i)||S.coins<p.p||!petOpen(p)) return; if(!confirm(`${p.e} ${jo(p.n,'을','를')} 🪙 ${p.p}코인에 데려올까요?`)) return; S.coins-=p.p; S.pets.push(i); S.pet=i; save(); sWin(); openShop(); render(); toast(`${p.e} ${jo(p.n,'이','가')} 친구가 됐어요! ${jo(CAT,'이랑','랑')} 같이 따라다녀요`); }
 function setPetShop(i){ S.pet=i; save(); openShop(); render(); }
 function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
 function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
