@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>도진이의 수학 연산 대모험</title>
 <meta name="theme-color" content="#1b1f2a">
 <meta name="description" content="도진 탐험대장의 수학 연산 모험! 사막 · 정글 · 산 · 바다 · 섬 · 빙하를 지나며 매일 미션 2개(60문제) 덧셈을 풀어요.">
@@ -23,6 +23,9 @@
 :root{--ink:#1d2433;--sub:#667085;--ok:#00b06f;--bad:#e5484d;--gold:#ffd84d;--bg1:#ffe9b0;--bg2:#f4c46a;--dark:#1b1f2a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0}
+/* 아이패드 · 아이폰: 버튼을 빠르게 두 번 누르면 화면이 확대되던 것 막기 (두 번 탭 확대 끔) */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,.kp2,.qcard{touch-action:manipulation}
 body{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);background:linear-gradient(180deg,var(--bg1),var(--bg2)) fixed;background-color:var(--bg2);min-height:100vh;font-size:19px;-webkit-user-select:none;user-select:none;overflow-x:hidden;transition:background .8s}
 body.lock{overflow:hidden}
 button{font-family:inherit;cursor:pointer;border:0;color:inherit}
@@ -116,6 +119,8 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 .g-x{width:44px;height:44px;border-radius:12px;background:rgba(0,0,0,.5);color:#fff;font-size:22px;flex:none}
 .g-chip{background:rgba(0,0,0,.55);color:#fff;border-radius:10px;padding:6px 10px;font-size:16px;white-space:nowrap}
 .g-chip b{font-weight:400;color:var(--gold)}
+.g-mode{font-family:inherit;border:2px solid rgba(255,255,255,.55);cursor:pointer}
+.g-mode.hard{background:rgba(200,40,40,.8);border-color:#ffb3a1}
 .g-title{flex:1;min-width:0;text-align:right;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.7);font-size:15px;line-height:1.25}
 #gmini{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom));opacity:.9;pointer-events:none;border-radius:8px;border:2px solid rgba(255,255,255,.85);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .g-hint{position:absolute;left:50%;transform:translateX(-50%);top:calc(max(10px,env(safe-area-inset-top)) + 64px);background:rgba(0,0,0,.65);color:#fff;border-radius:14px;padding:10px 14px;font-size:16px;text-align:center;width:min(92%,460px);transition:opacity .6s;pointer-events:none;line-height:1.45;word-break:keep-all}
@@ -170,6 +175,19 @@ header h1{flex:1;margin:0;font-size:18px;font-weight:400;text-align:center;line-
 .kp2 .ok{grid-area:ok;height:auto;background:linear-gradient(180deg,#14c97f,#00a564);box-shadow:0 4px 0 #007a4a;font-size:24px}
 .kp2 .k0{grid-area:k0}.kp2 .k1{grid-area:k1}.kp2 .k2{grid-area:k2}.kp2 .k3{grid-area:k3}.kp2 .k4{grid-area:k4}.kp2 .k5{grid-area:k5}.kp2 .k6{grid-area:k6}.kp2 .k7{grid-area:k7}.kp2 .k8{grid-area:k8}.kp2 .k9{grid-area:k9}
 @media(min-width:600px){.qexpr{font-size:54px}.kp2 button{height:68px}}
+/* 아이패드처럼 큰 화면: 문제와 키패드를 가운데로 모으고 크게 (세로 화면에서 가운데가 텅 비던 것) */
+@media(min-width:700px) and (min-height:700px){
+  .qz{max-width:720px;justify-content:center;padding-left:20px;padding-right:20px}
+  .qcard{padding:34px 16px 22px;margin-top:18px}
+  .qexpr{font-size:66px}.qexpr.w{font-size:32px}.qexpr.w .qans{font-size:48px}
+  .qans{min-width:130px}
+  .qfb{font-size:24px}
+  .kp2{margin-top:28px;gap:12px}
+  .kp2 button{height:86px;font-size:40px;border-radius:18px}
+  .kp2 .del{font-size:32px}.kp2 .cl{font-size:22px}.kp2 .ok{font-size:30px}
+}
+/* 가로로 눕힌 아이패드(높이가 낮을 때): 보스 체력 줄까지 한 화면에 들어오게 키패드를 조금 낮게 */
+@media(min-width:700px) and (min-height:700px) and (max-height:900px){ .kp2 button{height:74px} .qcard{padding:26px 16px 18px} }
 
 /* 결과 · 체크포인트 화면 */
 .res{text-align:center;padding-top:10px}
@@ -282,6 +300,8 @@ th{color:var(--sub);font-weight:400}
 <div id="layer"></div>
 
 <script>
+/* 아이패드 사파리: 두 손가락으로 잘못 벌려 화면이 커지는 것 막기 (게임 · 계산기 화면이 갑자기 확대되던 문제) */
+['gesturestart','gesturechange'].forEach(n=>document.addEventListener(n,e=>e.preventDefault(),{passive:false}));
 /* ════════════════════════════════════════════════════════════
    도진이의 수학 연산 대모험 — 초2 연산 (도진) · jsun.site/leader
    · 10 · 11월: 덧셈만 (두 자리 + 두 자리 → 세 자리 + 한 · 두 · 세 자리 → 네 자리 수 → 세 자리 + 세 자리 = 네 자리)
@@ -595,7 +615,7 @@ const SHOP=[
   {id:'s:blue',t:'shirt',n:'파란 티셔츠',c:'#2f7de1',p:0}, {id:'s:red',t:'shirt',n:'빨간 티셔츠',c:'#e5484d',p:40},
   {id:'s:green',t:'shirt',n:'초록 티셔츠',c:'#22a35a',p:40}, {id:'s:pink',t:'shirt',n:'분홍 티셔츠',c:'#ff7eb6',p:60},
   {id:'s:purple',t:'shirt',n:'보라 티셔츠',c:'#8b5cf6',p:60}, {id:'s:black',t:'shirt',n:'검은 티셔츠',c:'#2b2f3a',p:60},
-  {id:'s:gold',t:'shirt',n:'황금 티셔츠',c:'#f5c518',p:200}, {id:'s:rainbow',t:'shirt',n:'무지개 티셔츠',c:'#ff5a5a',p:400},
+  {id:'s:gold',t:'shirt',n:'골든 다이아 티셔츠',c:'#d99a00',p:200}, {id:'s:rainbow',t:'shirt',n:'무지개 티셔츠',c:'#ff5a5a',p:400},
   {id:'p:green',t:'pants',n:'초록 바지',c:'#3fae4a',p:0}, {id:'p:jeans',t:'pants',n:'청바지',c:'#2c4f8a',p:30},
   {id:'p:black',t:'pants',n:'검은 바지',c:'#2b2f3a',p:30}, {id:'p:white',t:'pants',n:'하얀 바지',c:'#e9edf2',p:40},
   {id:'p:red',t:'pants',n:'빨간 바지',c:'#b4232a',p:40},
@@ -694,7 +714,7 @@ function makeQs(mi){
 }
 
 /* ════════ 저장 ════════ */
-const defState=()=>({mission:0,coins:0,wear:{shirt:'s:blue',pants:'p:green',hat:'h:none'},own:['s:blue','p:green','h:none'],pets:[],pet:-1,weeks:{},spin:{},log:{},wrong:[],best:{},perDay:2,noMap:false,updatedAt:0});
+const defState=()=>({mission:0,coins:0,wear:{shirt:'s:blue',pants:'p:green',hat:'h:none'},own:['s:blue','p:green','h:none'],pets:[],pet:-1,weeks:{},spin:{},log:{},wrong:[],best:{},perDay:2,noMap:false,obMode:'easy',updatedAt:0});
 let S=defState();
 try{ const raw=localStorage.getItem(LS_KEY); if(raw) S=Object.assign(defState(),JSON.parse(raw)); }catch(e){}
 const cloud={db:null,ok:false,ready:null};
@@ -758,6 +778,8 @@ const weekCount=()=>weekDays().filter(d=>dayDone(ymd(d))).length;
 const SKIN='#f7d154';
 function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
 function shirtFill(c,id,u){
+  // 골든 다이아: 노란 피부색과 헷갈리지 않게 진한 금색 → 밝은 금색으로 반짝이는 줄무늬
+  if(id==='s:gold'){ const g=c.createLinearGradient(-2.3*u,-8.6*u,2.3*u,-4.1*u); [['#a86a00',0],['#f2b600',.3],['#fff1a8',.5],['#e0a100',.7],['#9a5f00',1]].forEach(([k,p])=>g.addColorStop(p,k)); return g; }
   if(id==='s:rainbow'){ const g=c.createLinearGradient(-2.2*u,-8.5*u,2.2*u,-4.2*u); ['#ff5a5a','#ffb03a','#ffe14d','#4cd964','#3aa0ff','#a46bff'].forEach((k,i)=>g.addColorStop(i/5,k)); return g; }
   return (SHOPI[id]||SHOPI['s:blue']).c;
 }
@@ -772,12 +794,28 @@ function drawAvatar(c,x,y,s,o={}){
   const aw=mv?sw*u*.8:0;
   c.fillStyle=SKIN; rr(c,-3.5*u,-8.3*u+aw,1.25*u,4.1*u,.5*u); c.fill(); rr(c,2.25*u,-8.3*u-aw,1.25*u,4.1*u,.5*u); c.fill();
   c.fillStyle=shirtFill(c,w.shirt,u); rr(c,-2.3*u,-8.6*u,4.6*u,4.5*u,.55*u); c.fill();
+  if(w.shirt==='s:gold') drawDiamondShirt(c,u);
   c.fillStyle=SKIN; rr(c,-1.85*u,-12*u,3.7*u,3.4*u,.95*u); c.fill();
   c.fillStyle='#1d2433';
   c.beginPath(); c.arc(-.45*u,-10.6*u,.32*u,0,7); c.fill();
   c.beginPath(); c.arc(.95*u,-10.6*u,.32*u,0,7); c.fill();
   c.strokeStyle='#1d2433'; c.lineWidth=.3*u; c.lineCap='round'; c.beginPath(); c.arc(.25*u,-10.15*u,.85*u,.2*Math.PI,.8*Math.PI); c.stroke();
   drawHat(c,w.hat,u);
+  c.restore();
+}
+// 골든 다이아 티셔츠: 진한 금 테두리 + 가운데 큰 다이아 + 작은 다이아 두 개 + 반짝이
+function drawDiamondShirt(c,u){
+  c.save();
+  c.strokeStyle='#7a4a00'; c.lineWidth=.28*u; rr(c,-2.3*u,-8.6*u,4.6*u,4.5*u,.55*u); c.stroke();
+  const gem=(x,y,r)=>{
+    c.beginPath(); c.moveTo(x,y-r); c.lineTo(x+r*.8,y-r*.25); c.lineTo(x,y+r); c.lineTo(x-r*.8,y-r*.25); c.closePath();
+    const g=c.createLinearGradient(x-r,y-r,x+r,y+r); g.addColorStop(0,'#ffffff'); g.addColorStop(.45,'#9ff0ff'); g.addColorStop(1,'#3aa7e0');
+    c.fillStyle=g; c.fill(); c.strokeStyle='#1d6fa8'; c.lineWidth=.16*u; c.stroke();
+    c.beginPath(); c.moveTo(x-r*.8,y-r*.25); c.lineTo(x+r*.8,y-r*.25); c.stroke();
+  };
+  gem(0,-6.5*u,1.05*u); gem(-1.45*u,-7.6*u,.48*u); gem(1.45*u,-7.6*u,.48*u);
+  c.fillStyle='#fff';
+  [[-1.5,-5.0,.16],[1.6,-5.3,.2],[.9,-7.9,.13]].forEach(([a,b,r])=>{ c.beginPath(); c.arc(a*u,b*u,r*u,0,7); c.fill(); });
   c.restore();
 }
 function drawHat(c,h,u){
@@ -944,6 +982,10 @@ function showScreen(id,on){ $(id).classList.toggle('on',on); document.body.class
 /* ════════ 이동 맵 (로블록스 오비처럼: 왼쪽 조이스틱 · 오른쪽 점프) ════════ */
 let OB=null;
 function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+/* 이동 맵 모드: 🙂 이지(코인 1개씩) · 🔥 하드(늪 · 적 · 장애물이 더 많고 적이 빨라요, 코인 3개씩) */
+const obHard=()=>S.obMode==='hard';
+const obCoin=()=>obHard()?3:1;
+function toggleObMode(){ if(!OB) return; S.obMode=obHard()?'easy':'hard'; save(); const mi=OB.mi, cb=OB.onGoal; closeObby(); startObby(mi,cb); toast(obHard()?'🔥 하드 모드! 코인 3개씩':'🙂 이지 모드 · 코인 1개씩'); }
 function genMap(mi){
   const st=stageOf(mi), R=mulberry32(mi*7919+101), ri=(a,b)=>a+Math.floor(R()*(b-a+1));
   const COLS=28+Math.min(16,st.s)+st.r*2, ROWS=9, mid=4;
@@ -951,7 +993,7 @@ function genMap(mi){
   for(let c=0;c<COLS;c++){ g[0][c]=1; g[ROWS-1][c]=1; }
   for(let r=0;r<ROWS;r++){ g[r][0]=1; g[r][COLS-1]=1; }
   /* 점프로 넘어야 하는 줄 (모래 늪 · 강물 · 낭떠러지 …) */
-  const nh=Math.min(7,2+Math.floor(st.s/3)+(st.r>=2?1:0)), span=(COLS-11)/nh, haz=[];
+  const nh=Math.min(obHard()?9:7,2+Math.floor(st.s/3)+(st.r>=2?1:0)+(obHard()?2:0)), span=(COLS-11)/nh, haz=[];
   for(let k=0;k<nh;k++){ const h=Math.round(6+k*span+R()*Math.max(0,span-3)); if(h<=COLS-6&&!haz.some(x=>Math.abs(x-h)<3)) haz.push(h); }
   haz.sort((a,b)=>a-b).forEach(h=>{ for(let r=1;r<ROWS-1;r++) g[r][h]=2; });
   /* 꼭 지나갈 수 있는 길 (여기는 장애물을 안 놓아요) */
@@ -959,14 +1001,14 @@ function genMap(mi){
   let r=mid; for(let c=1;c<COLS-1;c++){ keep[r][c]=true; if(R()<.4){ const nr=Math.max(1,Math.min(ROWS-2,r+(R()<.5?-1:1))); keep[nr][c]=true; r=nr; } }
   const near=c=>c<=3||c>=COLS-5||haz.some(h=>Math.abs(c-h)<=1);
   /* 왔다 갔다 하는 적 (점프로 피해요) */
-  const ne=st.r===0&&st.s<3?0:Math.min(3,1+Math.floor(st.s/6)+(st.r>=3?1:0));
+  const ne=obHard()?Math.min(5,3+Math.floor(st.s/6)+(st.r>=3?1:0)):(st.r===0&&st.s<3?0:Math.min(3,1+Math.floor(st.s/6)+(st.r>=3?1:0)));
   const lanes=[]; for(let t=0;t<60&&lanes.length<ne;t++){ const c=ri(5,COLS-6); if(!near(c)&&!lanes.some(x=>Math.abs(x-c)<3)) lanes.push(c); }
-  const dens=.12+st.r*.015;
+  const dens=.12+st.r*.015+(obHard()?.06:0);
   for(let c=1;c<COLS-1;c++) if(!near(c)&&!lanes.includes(c)) for(let rr=1;rr<ROWS-1;rr++) if(!keep[rr][c]&&R()<dens) g[rr][c]=1;
   const gx=COLS-3; for(let rr=mid-1;rr<=mid+1;rr++){ g[rr][gx]=3; }
   const coins=[], nc=10+Math.min(8,st.s);
   for(let t=0;t<600&&coins.length<nc;t++){ const c=ri(2,COLS-5), rr=ri(1,ROWS-2); if(g[rr][c]===0&&!coins.some(o=>o.x===c+.5&&o.y===rr+.5)) coins.push({x:c+.5,y:rr+.5,got:false}); }
-  const enemies=lanes.map(c=>({x:c+.5,y:ri(2,ROWS-3)+.5,d:R()<.5?1:-1,sp:1.2+st.r*.15+R()*.4,f:R()<.5?1:-1}));
+  const enemies=lanes.map(c=>({x:c+.5,y:ri(2,ROWS-3)+.5,d:R()<.5?1:-1,sp:(1.2+st.r*.15+R()*.4)*(obHard()?1.35:1),f:R()<.5?1:-1}));
   return {g,COLS,ROWS,mid,haz,coins,enemies,gx,st};
 }
 const jumpDur=()=>hasItem(IT_JUMP)?.78:.62;
@@ -975,7 +1017,7 @@ function startObby(mi,onGoal){
   const M=genMap(mi), st=M.st, reg=REG[st.r];
   OB={M,mi,onGoal,x:1.7,y:M.mid+.5,face:1,phase:0,jt:0,fall:0,cp:{x:1.7,y:M.mid+.5},cpi:-1,got:0,inv:0,t:0,done:false,keys:{},joy:{id:null,vx:0,vy:0,bx:0,by:0},trail:[],last:0,raf:0,moved:false};
   $('game').innerHTML=`<canvas id="gc"></canvas>
-    <div class="g-top"><button class="g-x" onclick="exitObby()" aria-label="나가기">✕</button><div class="g-chip">🪙 <b id="gcoin">${S.coins}</b></div><div class="g-title">${reg.ico} ${reg.name} · ${st.free?'자유 탐험':`체크포인트 ${st.s+1}/${st.n}`}<br><small>${st.boss?'⚔️ 보스가 기다려요!':'🏁 깃발까지 가면 미션 시작!'}</small></div></div>
+    <div class="g-top"><button class="g-x" onclick="exitObby()" aria-label="나가기">✕</button><div class="g-chip">🪙 <b id="gcoin">${S.coins}</b></div><button class="g-chip g-mode ${obHard()?'hard':''}" onclick="toggleObMode()" title="누르면 모드가 바뀌고 맵이 처음부터 다시 시작해요">${obHard()?'🔥 하드 · 🪙×3':'🙂 이지 · 🪙×1'}</button><div class="g-title">${reg.ico} ${reg.name} · ${st.free?'자유 탐험':`체크포인트 ${st.s+1}/${st.n}`}<br><small>${st.boss?'⚔️ 보스가 기다려요!':'🏁 깃발까지 가면 미션 시작!'}</small></div></div>
     <canvas id="gmini"></canvas>
     <div class="g-hint" id="ghint">🕹️ 왼쪽 아래를 끌면 앞 · 뒤 · 옆 · 대각선으로 움직여요<br>⬆ 점프 버튼으로 <b>${jo(reg.hazN,'을','를')}</b> 뛰어넘어요!${M.enemies.length?` ${reg.enemy}도 점프로 피해요`:''}</div>
     <div class="joyzone" id="jz"><div class="joy" id="joy"><div class="knob" id="knob"></div></div></div>
@@ -1041,7 +1083,7 @@ function obStep(dt){
   const mag=hasItem(IT_MAGNET)?1.8:0;
   M.coins.forEach(o=>{ if(o.got) return; const d=Math.hypot(o.x-O.x,o.y-O.y);
     if(mag&&d<mag){ o.x+=(O.x-o.x)*Math.min(1,dt*6); o.y+=(O.y-o.y)*Math.min(1,dt*6); }
-    if(d<.55){ o.got=true; O.got++; S.coins++; sCoin(); const gc=$('gcoin'); if(gc) gc.textContent=S.coins; } });
+    if(d<.55){ o.got=true; O.got++; S.coins+=obCoin(); sCoin(); const gc=$('gcoin'); if(gc) gc.textContent=S.coins; } });
   /* 적 */
   M.enemies.forEach(e=>{ e.y+=e.d*e.sp*dt; if(e.y<1.5){ e.y=1.5; e.d=1; } if(e.y>M.ROWS-1.5){ e.y=M.ROWS-1.5; e.d=-1; }
     if(O.inv<=0&&O.jt===0&&Math.hypot(e.x-O.x,e.y-O.y)<.62){ O.fall=.6; sOof(); obPop(`앗! ${REG[M.st.r].enemy}에게 부딪혔어요`); } });
@@ -1485,7 +1527,7 @@ let SHOPTAB='shirt';
 function openShop(){
   const tabs=[['shirt','👕 셔츠'],['pants','👖 바지'],['hat','🎩 모자']];
   let h=`<h2>🛒 상점 <small style="color:#b07800;font-size:18px">🪙 ${S.coins.toLocaleString()}</small></h2>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:90px;height:110px;background:#f3f5f9;border-radius:14px"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞히면 1코인, 맵에서 코인을 주우면 1코인!<br>별 3개면 보너스 10코인 ⭐</p></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px"><canvas id="shopme" style="width:90px;height:110px;background:#f3f5f9;border-radius:14px"></canvas><p style="margin:0;font-size:16px;color:var(--sub)">문제를 맞히면 1코인, 맵에서 코인을 주우면 1코인 (🔥 하드 모드는 3코인)!<br>별 3개면 보너스 10코인 ⭐</p></div>
     <div class="row" style="margin-bottom:10px">${tabs.map(([k,l])=>`<button class="btn ${SHOPTAB===k?'':'gray'}" style="flex:1;padding:10px 4px" onclick="SHOPTAB='${k}';openShop()">${l}</button>`).join('')}</div><div class="shopgrid">`;
   SHOP.filter(x=>x.t===SHOPTAB).forEach(x=>{ const own=S.own.includes(x.id), wear=S.wear[x.t]===x.id;
     h+=`<div class="sh ${wear?'wear':''}"><canvas data-sid="${x.id}"></canvas>${esc(x.n)}<div class="pr">${x.p?`🪙 ${x.p}`:'기본'}</div>${wear?`<button>입고 있어요</button>`:own?`<button onclick="wearIt('${x.id}')">입기</button>`:`<button class="buy" ${S.coins<x.p?'disabled':''} onclick="buyIt('${x.id}')">사기</button>`}</div>`; });
