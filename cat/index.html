@@ -1683,14 +1683,18 @@ function setPetShop(i){ S.pet=i; save(); openShop(); render(); }
 function buyIt(id){ const x=SHOPI[id]; if(S.own.includes(id)||S.coins<x.p) return; if(!confirm(`${jo(x.n,'을','를')} 🪙 ${x.p}코인에 살까요?`)) return; S.coins-=x.p; S.own.push(id); S.wear[x.t]=id; save(); sWin(); openShop(); render(); toast(`${x.n} 샀어요! 🛍️`); }
 function wearIt(id){ const x=SHOPI[id]; S.wear[x.t]=id; save(); openShop(); render(); }
 
-/* ════════ 엄마 모드 (비밀번호: 이 앱에서 정한 것 → 공부방(e2/settings) 엄마 · 관리자 비밀번호 → 0000) ════════ */
+/* ════════ 엄마 모드 (보호자 전용) ════════
+   비밀번호: ① 이 앱에서 따로 정한 것(S.pinH)이 있으면 그것만
+            ② 없으면 윤아 공부방(e2/settings_yuna)의 엄마 비밀번호 또는 관리자 비밀번호
+            ③ 공부방에도 비밀번호가 하나도 없을 때만 0000 (설정을 못 불러오면 0000도 안 돼요) */
+const ROOM_SETTINGS = 'settings_yuna';   // 윤아 공부방 설정 문서 (도진이네 settings 와 따로)
 let PIN='', SETTINGS=null;
 async function openAdmin(){
   PIN=''; drawPin('설정을 불러오는 중…');
   try{ if(await timeout(cloudInit(),6000)){
     const u=await timeout(new Promise(res=>{ const off=firebase.auth().onAuthStateChanged(x=>{ off(); res(x); }); }),4000).catch(()=>null);
     if(u&&await isAdminUser(u)){ ADMIN_G=true; return drawAdmin(); }
-    const s=await timeout(cloud.db.collection('e2').doc('settings').get(),6000); SETTINGS=s.exists?s.data():{};
+    const s=await timeout(cloud.db.collection('e2').doc(ROOM_SETTINGS).get(),6000); SETTINGS=s.exists?s.data():{};
   } }catch(e){ SETTINGS=null; }
   drawPin();
 }
@@ -1718,9 +1722,14 @@ function adminOpen(){
   adminGoogle();
 }
 async function adminSignOut(){ try{ await firebase.auth().signOut(); }catch(e){} ADMIN_G=false; closeModal(); render(); toast('관리자에서 나왔어요'); }
-const usingDefaultPin=()=>!S.pinH&&!(SETTINGS&&(SETTINGS.momH||SETTINGS.pinH));
+const usingDefaultPin=()=>!S.pinH&&!!SETTINGS&&!(SETTINGS.momH||SETTINGS.pinH);
 function drawPin(msg){
-  modal(`<h2>🔒 엄마 모드</h2><p style="text-align:center;color:var(--sub);font-size:17px">${msg||'엄마 비밀번호 4자리를 눌러 주세요'}${usingDefaultPin()?'<br><small>처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.</small>':''}</p><div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<PIN.length?'on':''}"></i>`).join('')}</div><div class="pinpad" id="pinpad">${[1,2,3,4,5,6,7,8,9].map(k=>`<button onclick="pinKey('${k}')">${k}</button>`).join('')}<button onclick="pinKey('del')">⌫</button><button onclick="pinKey('0')">0</button><button onclick="closeModal()" style="font-size:18px">닫기</button></div>
+  const hint=msg==='설정을 불러오는 중…'?''
+    :S.pinH?'세계여행에서 정한 엄마 비밀번호예요.'
+    :SETTINGS===null?'설정을 불러오지 못했어요. 인터넷 연결을 확인하고 다시 열어 주세요.'
+    :usingDefaultPin()?'처음 비밀번호는 0000 이에요. 들어가서 꼭 바꿔 주세요.'
+    :'처음에는 <b>윤아 공부방의 엄마 비밀번호</b>와 같아요.';
+  modal(`<h2>🔒 엄마 모드 <small style="font-size:15px;color:var(--sub)">보호자 전용</small></h2><p style="text-align:center;color:var(--sub);font-size:17px">${msg||'엄마 비밀번호 4자리를 눌러 주세요'}<br><small>${hint} <a href="privacy.html#guardian" target="_blank" rel="noopener">보호자 안내</a></small></p><div class="pinrow">${[0,1,2,3].map(i=>`<i class="${i<PIN.length?'on':''}"></i>`).join('')}</div><div class="pinpad" id="pinpad">${[1,2,3,4,5,6,7,8,9].map(k=>`<button onclick="pinKey('${k}')">${k}</button>`).join('')}<button onclick="pinKey('del')">⌫</button><button onclick="pinKey('0')">0</button><button onclick="closeModal()" style="font-size:18px">닫기</button></div>
     <button class="btn gray wide" style="margin-top:14px;font-size:18px" onclick="adminGoogle()">🔐 관리자 (구글 로그인)</button><p id="pinmsg" style="text-align:center;color:var(--sub);font-size:15px;min-height:20px;margin:8px 0 0"></p>`);
 }
 function pinKey(k){
@@ -1728,12 +1737,14 @@ function pinKey(k){
   if(PIN.length<4) return drawPin();
   const st=SETTINGS||{};
   const ok=S.pinH ? hashPin(PIN,'cat')===S.pinH
+    : SETTINGS===null ? false   // 공부방 설정을 못 불러오면 열지 않아요 (0000 으로 열리지 않게)
     : (st.momH&&hashPin(PIN,'mom')===st.momH)||hashPin(PIN,'admin')===(st.pinH||hashPin('0000','admin'));
   if(ok){ PIN=''; drawAdmin(); } else { PIN=''; sNO(); drawPin('비밀번호가 틀렸어요. 다시 눌러 주세요'); const p=$('pinpad'); if(p) p.classList.add('shake'); }
 }
 function drawAdmin(){
   const st=stageOf(S.mission), keys=Object.keys(S.log).sort().reverse(), at=S.momMsgAt?new Date(S.momMsgAt):null;
   let h=`<h2>${ADMIN_G?'🔐 관리자 모드':'👩 엄마 모드'}</h2>
+   <p style="margin:0 0 10px;font-size:15px;color:var(--sub)">보호자 전용 화면이에요. 무엇을 볼 수 있고 무엇이 저장되는지는 <a href="privacy.html#guardian" target="_blank" rel="noopener">보호자 안내</a>에 쉽게 적어 두었어요.</p>
    <div class="box"><b>💚 엄마의 한마디</b> <span style="color:var(--sub);font-size:15px">첫 화면 맨 위 초록 띠에 보여요 (비우면 숨겨요)</span>
    <div style="margin-top:8px;padding:10px 12px;border-radius:12px;background:${S.momMsg?'linear-gradient(135deg,#2fbf71,#1f9e5c)':'#e6eaf0'};color:${S.momMsg?'#fff':'var(--sub)'};font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:keep-all">${S.momMsg?`<small style="opacity:.85;font-size:13px">지금 첫 화면에 보이는 멘트${at?` · ${at.getMonth()+1}/${at.getDate()} ${pad2(at.getHours())}:${pad2(at.getMinutes())} 저장`:''}</small><br>💚 ${esc(S.momMsg)}`:'아직 저장된 멘트가 없어요'}</div>
    <textarea id="momMsg" class="inp" maxlength="200" rows="3" placeholder="예) 윤아야, 오늘도 세계여행 화이팅! 60문제 다 풀면 엄마한테 보내 줘 💚" style="margin-top:8px;resize:vertical">${esc(S.momMsg||'')}</textarea>
@@ -1755,7 +1766,7 @@ function drawAdmin(){
    <div class="row" style="margin-top:6px"><button class="btn" style="flex:1" onclick="setMom()">저장</button><button class="btn gray" onclick="sendMom()">📩 시험해 보기</button></div></div>
    <div class="box"><b>🌀 오답</b> <span style="color:var(--sub)">${S.wrong.length}문제</span>
    <div class="row" style="margin-top:8px"><button class="btn red" onclick="if(confirm('오답을 모두 비울까요?')){S.wrong=[];save();drawAdmin();}">비우기</button></div></div>
-   <div class="box"><b>🔒 엄마 비밀번호 바꾸기</b> <span style="color:var(--sub);font-size:15px">${S.pinH?'(정해져 있어요)':'(공부방 비밀번호 또는 0000)'}</span>
+   <div class="box"><b>🔒 엄마 비밀번호 바꾸기</b> <span style="color:var(--sub);font-size:15px">${S.pinH?'(세계여행 전용 비밀번호가 정해져 있어요)':'(지금은 윤아 공부방 엄마 비밀번호와 같아요 · 바꾸면 세계여행만 따로 써요)'}</span>
    <div class="row" style="margin-top:8px"><input id="newpin" class="inp" type="password" inputmode="numeric" maxlength="4" placeholder="숫자 4자리" style="flex:1"><button class="btn" onclick="setPin()">바꾸기</button></div></div>
    <div class="row">${ADMIN_G?'<button class="btn gray" style="flex:1" onclick="adminSignOut()">관리자 로그아웃</button>':''}<button class="btn gray" style="flex:1" onclick="closeModal();render()">닫기</button></div>`;
   modal(h);
