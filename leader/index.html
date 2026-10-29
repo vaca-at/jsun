@@ -318,6 +318,9 @@ th{color:var(--sub);font-weight:400}
   .qfb{font-size:17px;margin-top:6px}
   .bossbox{margin-top:6px;padding:6px 10px}.bossbox .be{font-size:36px}
 }
+#ptr{position:fixed;left:50%;top:calc(-48px + env(safe-area-inset-top));transform:translate(-50%,0);z-index:9999;display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:999px;background:rgba(255,255,255,.96);color:#16304f;font-family:inherit;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.22);opacity:0;transition:opacity .15s;pointer-events:none}
+#ptr.on{opacity:1}#ptr span{display:inline-block;font-size:18px;transition:transform .2s}#ptr.go span{transform:rotate(180deg)}#ptr.spin span{animation:ptrspin .8s linear infinite}#ptr b{font-weight:400}
+@keyframes ptrspin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -802,8 +805,23 @@ async function cloudLoad(){
         if(had){ S.updatedAt=Date.now(); saveLocal(); await pushCloud(); }
       } }
     else if(S.updatedAt) await pushCloud();
-    setSync('ok');
+    setSync('ok'); listenCloud();
   }catch(e){ console.warn(e); setSync('off'); }
+}
+/* 📡 실시간 반영 (2026-10-29): 온라인 기록이 바뀌면(다른 기기에서 풀면) 몇 초 안에 받아 합쳐요.
+   문제를 푸는 중이면 기록만 합쳐 두고 화면은 다 푼 뒤에 바뀌어요. 이 기기에만 있던 기록이 있으면 합쳐서 다시 올려요 */
+const stable=v=>Array.isArray(v)?'['+(v.every(x=>!x||typeof x!=='object')?v.map(stable).sort():v.map(stable)).join(',')+']':   /* 옷 · 친구처럼 단순한 목록은 순서 무시 (두 기기가 서로 계속 다시 올리지 않게) */(v&&typeof v==='object')?'{'+Object.keys(v).filter(k=>k!=='updatedAt'&&v[k]!==undefined).sort().map(k=>JSON.stringify(k)+':'+stable(v[k])).join(',')+'}':JSON.stringify(v);
+function listenCloud(){
+  if(cloud.listening) return; cloud.listening=true;
+  docRef().onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites||!snap.exists) return;   // 이 기기가 막 올린 것
+    const d=snap.data(); cloud.pulled=true; lastPull=Date.now(); setSync('ok');
+    if((d.updatedAt||0)===(S.updatedAt||0)) return;
+    S=mergeState(S,d);
+    if(stable(JSON.parse(JSON.stringify(S)))===stable(d)) S.updatedAt=d.updatedAt;   // 온라인 쪽이 다 갖고 있으면 받기만
+    else { S.updatedAt=Date.now(); clearTimeout(pushT); pushT=setTimeout(pushCloud,700); }
+    saveLocal(); if(!OB&&!QZ) render();
+  }, e=>{ console.warn('실시간 연결 끊김',e); cloud.listening=false; setSync('off'); });
 }
 /* 다른 기기에서 푼 기록을 바로 보이게 (2026-10-29): 화면이 다시 보이면(앱 전환 · 탭 돌아오기 · 홈 화면 앱 다시 열기) 온라인 기록을 다시 불러와 합쳐요 */
 let lastPull=0;
@@ -1738,6 +1756,20 @@ function giveCoins(){ const v=parseInt(prompt('몇 코인을 줄까요? (빼려�
 /* ════════ 시작 ════════ */
 render(); soundBtn();
 cloudLoad();
+/* ⬇️ 아래로 당겨서 새로고침 (2026-10-29): 맨 위에서 아래로 당겼다 놓으면 저장을 마저 올리고 화면을 새로 불러와요.
+   지도 · 조이스틱(그림판) · 글 칸을 만질 때와 문제를 푸는 중에는 안 돼요 */
+(function pullRefresh(){
+  const TH=80; let y0=null, dy=0;
+  const tip=document.createElement('div'); tip.id='ptr'; tip.setAttribute('aria-hidden','true'); tip.innerHTML='<span>↓</span><b>당겨서 새로고침</b>'; document.body.appendChild(tip);
+  const reset=()=>{ tip.style.transform=''; tip.classList.remove('on','go'); };
+  addEventListener('touchstart',e=>{ y0=null; if(e.touches.length!==1||window.scrollY>0||(OB||QZ)||e.target.closest('canvas,input,textarea,select,.modal,[data-nopull]')) return; y0=e.touches[0].clientY; dy=0; },{passive:true});
+  addEventListener('touchmove',e=>{ if(y0===null) return; dy=e.touches[0].clientY-y0; if(dy<=0||window.scrollY>0){ reset(); return; }
+    tip.style.transform='translate(-50%,'+Math.min(dy,140)*0.6+'px)'; tip.classList.add('on'); tip.classList.toggle('go',dy>TH); tip.querySelector('b').textContent=dy>TH?'놓으면 새로고침':'당겨서 새로고침'; },{passive:true});
+  addEventListener('touchend',async()=>{ if(y0===null) return; const go=dy>TH; y0=null; if(!go){ reset(); return; }
+    tip.querySelector('b').textContent='새로 불러오는 중…'; tip.classList.add('spin');
+    try{ clearTimeout(pushT); await timeout(Promise.resolve(pushCloud()),3000); }catch(e){}
+    location.reload(); });
+})();
 window.addEventListener('keydown',e=>{ if(!QZ||QZ.lock&&e.key!=='Enter') return; if(/^[0-9]$/.test(e.key)) qKey(e.key); else if(e.key==='Backspace') qKey('del'); else if(e.key==='Enter'){ if(QZ.lock){ /* 틀렸을 때 Enter로 넘기기 */ } else qSubmit(); } });
 window.addEventListener('resize',()=>{ if(QZ) fitExpr(); });
 if(/^#admin$/.test(location.hash)||/[?&]admin\b/.test(location.search)) openAdmin();
