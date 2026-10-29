@@ -1036,21 +1036,47 @@ function cloudInit(){
 }
 const docRef=()=>cloud.db.collection(DOC_PATH[0]).doc(DOC_PATH[1]);
 function setSync(st){ $('sync').textContent={ok:'☁️',off:'📴',wait:'⏳',err:'⚠️'}[st]; $('sync').title={ok:'온라인에 저장돼요',off:'이 기기에만 저장 중',wait:'불러오는 중',err:'저장 실패 (다시 시도해요)'}[st]; }
+/* 🔄 두 기기 기록 합치기 (2026-10-29): 예전엔 '더 최근에 저장한 쪽'이 통째로 이겨서, 오래 켜 둔 다른 기기에서 풀면 온라인 기록을 덮어썼어요.
+   진도 · 코인 · 미션 최고 점수 · 날짜별 푼 문제는 큰 쪽, 도감 · 옷 · 친구는 둘 다, 오답은 진도가 더 나간 쪽, 설정은 최근 쪽 */
+function mergeState(a,b){
+  const nb=(b.updatedAt||0)>=(a.updatedAt||0), n=nb?b:a, o=nb?a:b;
+  const r=Object.assign(defState(),o,n), un=(x,y)=>[...new Set([...(x||[]),...(y||[])])];
+  r.mission=Math.max(a.mission||0,b.mission||0);
+  r.coins=Math.max(a.coins||0,b.coins||0);
+  const far=(a.mission||0)===(b.mission||0)?n:((a.mission||0)>(b.mission||0)?a:b); r.wrong=(far.wrong||[]).slice();
+  r.dex=un(a.dex,b.dex); r.own=un(a.own,b.own); r.pets=un(a.pets,b.pets);
+  r.done=Object.assign({},o.done); Object.entries(n.done||{}).forEach(([k,v])=>{ r.done[k]=Math.max(+v||0,+((o.done||{})[k])||0); });
+  r.rep=Object.assign({},o.rep,n.rep);
+  r.log=Object.assign({},o.log); Object.entries(n.log||{}).forEach(([k,v])=>{ const w=(o.log||{})[k]; r.log[k]=!w||(v.q||0)>=(w.q||0)?v:w; });
+  const seen=new Set(); r.momHist=[...(o.momHist||[]),...(n.momHist||[])].filter(x=>{ const k=x.t+'|'+x.msg; if(seen.has(k)) return false; seen.add(k); return true; }).sort((x,y)=>x.t-y.t);
+  r.updatedAt=Math.max(a.updatedAt||0,b.updatedAt||0);
+  return r;
+}
+const busy=()=>!!(Q||W||($('layer')&&$('layer').innerHTML.trim()));   // 문제 · 학습지를 푸는 중이면 화면은 그대로
 async function cloudLoad(){
   setSync('wait');
   try{
     const ok=await timeout(cloudInit(),8000); if(!ok) throw new Error('no firebase');
     const snap=await timeout(docRef().get(),8000);
-    if(snap.exists){ const d=snap.data(); if((d.updatedAt||0)>(S.updatedAt||0)){ S=Object.assign(defState(),d); tidy(); saveLocal(); render(); } else if((S.updatedAt||0)>(d.updatedAt||0)) await pushCloud(); }
+    cloud.pulled=true; lastPull=Date.now();
+    if(snap.exists){ const d=snap.data();
+      if((d.updatedAt||0)!==(S.updatedAt||0)){
+        const had=!!S.updatedAt; S=mergeState(S,d); tidy(); S.depth=curDepth(); saveLocal(); if(!busy()) render();
+        if(had){ S.updatedAt=Date.now(); saveLocal(); await pushCloud(); }
+      } }
     else if(S.updatedAt) await pushCloud();
     setSync('ok');
   }catch(e){ console.warn(e); setSync('off'); }
 }
+/* 다른 기기에서 푼 기록을 바로 보이게: 화면이 다시 보이면(앱 전환 · 탭 돌아오기 · 홈 화면 앱 다시 열기) 온라인 기록을 다시 불러와 합쳐요 */
+let lastPull=0;
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&Date.now()-lastPull>15000) cloudLoad(); });
+window.addEventListener('pageshow',e=>{ if(e.persisted) cloudLoad(); });
 function saveLocal(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(S)); }catch(e){} }
 let pushT=null;
 function save(){ S.updatedAt=Date.now(); S.depth=curDepth(); saveLocal(); clearTimeout(pushT); pushT=setTimeout(pushCloud,700); }
 async function pushCloud(){
-  if(!cloud.ok) return;
+  if(!cloud.ok||!cloud.pulled) return;   // 온라인 기록을 먼저 불러와 합치기 전에는 올리지 않아요 (예전 기록으로 덮어쓰지 않게)
   try{ await docRef().set(JSON.parse(JSON.stringify(S))); setSync('ok'); }catch(e){ console.warn('저장 실패',e); setSync('err'); }
 }
 function logAnswer(ok,note){ const k=todayKey(); const L=S.log[k]||(S.log[k]={q:0,c:0,m:[]}); L.q++; if(ok){ L.c++; S.coins=(S.coins||0)+1; } if(note==='zero') L.z=(L.z||0)+1; if(note==='dot') L.d=(L.d||0)+1; }

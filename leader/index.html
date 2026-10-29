@@ -794,6 +794,7 @@ async function cloudLoad(){
   try{
     const ok=await timeout(cloudInit(),8000); if(!ok) throw new Error('no firebase');
     const snap=await timeout(docRef().get(),8000);
+    cloud.pulled=true; lastPull=Date.now();
     if(snap.exists){ const d=snap.data();
       if((d.updatedAt||0)!==(S.updatedAt||0)){
         /* 이 기기 기록과 온라인 기록이 다르면 합쳐요 (진도 · 코인 · 날짜별 푼 문제는 큰 쪽, 친구 · 옷은 둘 다) → 어느 기기가 먼저 저장해도 기록이 안 사라져요 */
@@ -804,11 +805,15 @@ async function cloudLoad(){
     setSync('ok');
   }catch(e){ console.warn(e); setSync('off'); }
 }
+/* 다른 기기에서 푼 기록을 바로 보이게 (2026-10-29): 화면이 다시 보이면(앱 전환 · 탭 돌아오기 · 홈 화면 앱 다시 열기) 온라인 기록을 다시 불러와 합쳐요 */
+let lastPull=0;
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible'&&Date.now()-lastPull>15000) cloudLoad(); });
+window.addEventListener('pageshow',e=>{ if(e.persisted) cloudLoad(); });
 function saveLocal(){ try{ localStorage.setItem(LS_KEY,JSON.stringify(S)); }catch(e){} }
 let pushT=null;
 function save(){ S.updatedAt=Date.now(); saveLocal(); clearTimeout(pushT); pushT=setTimeout(pushCloud,700); }
 async function pushCloud(){
-  if(!cloud.ok) return;
+  if(!cloud.ok||!cloud.pulled) return;   // 온라인 기록을 먼저 불러와 합치기 전에는 올리지 않아요 (예전 기록으로 덮어쓰지 않게)
   try{ await docRef().set(JSON.parse(JSON.stringify(S))); setSync('ok'); }catch(e){ console.warn('저장 실패',e); setSync('err'); }
 }
 const dayLog=k=>S.log[k]||(S.log[k]={q:0,c:0,ms:0,m:[]});
