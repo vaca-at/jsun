@@ -9,6 +9,22 @@
 - 아이들이 시연 · 테스트하고, 앞으로 많이 접속할 예정
 - 1차 판 결정 그림(아이들에게 보여 줄 한 장): [`docs/1차판.png`](docs/1차판.png)
 
+## 0. 다른 PC에서 이어 하기
+
+- 저장소 `vaca-at/jsun` 을 받아(`git pull`) `snapzoo/` 폴더에서 시작해요.
+- 이 폴더의 자료
+  - `PLAN.md` — 이 문서 (정한 것 전부)
+  - `docs/1차판.png` — 아이들에게 보여 줄 1차 판 결정 그림 한 장
+  - `docs/시안/설계시안.html` — 선생님용 설계 시안 원본 (순서도 · 지도 · 화면 시안 · 상점 · 꾸미기). 브라우저로 열면 돼요 (순서도는 Claude 화면에서만 그림으로 보여요)
+  - `docs/시안/아이용그림.html` — 아이용 그림 원본. 크롬 1080×2440으로 찍으면 `1차판.png`
+  - `docs/web-2d/` — Claude 웹에서 받은 2D 판 (`index.html` · `README.md`). 점수 판정 · 동물 움직임 · 상점 로직의 출발점
+- 빌려 올 3D 뼈대 (같은 계정의 저장소)
+  - 캠핑장 `vaca-at/campingjang` (7ff080c): `js/main.js` 조이스틱 · 카메라 · 사진, `js/album.js` 사진 앨범, `js/fun.js` 도감, `js/avatar.js` · `blocky.js` 블록 캐릭터, `js/net.js` · `server/` 중계 서버, 장소별 동작 · 의자 앉기
+  - 큰법당 `vaca-at/templestay` (1db63f0) · 소호랩 `vaca-at/soho-lab` (0aaa871): 같은 뼈대
+- Claude 시안 링크(소유자만 열림): 설계 시안 https://claude.ai/artifact/SzbaEnsAkhKuvLUyz1zcmn · 아이용 그림 https://claude.ai/artifact/UTRLH3Zjn6MVVuFtnCm12i
+- 아이 손글씨 메모 사진 3장은 이 저장소에 없어요 (해석은 9번에).
+- **다음 할 일: 2단계** — 귀여운 3D 동물 26종 · 정거장 대기실 · 네 구역 모습을 그림 시안으로 먼저 보여 주기.
+
 ## 1. 출발점
 
 - Claude 웹에서 받은 2D 판(캔버스 위에서 본 지도, 이모지 동물 16종, 사진 점수 100점, 코인 · 상점 · 도감)을 바탕으로 시작했어요.
