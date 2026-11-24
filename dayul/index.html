@@ -104,6 +104,8 @@ main{max-width:980px;margin:0 auto;padding:18px 16px 60px}
 .row .cnt i{width:15px;height:15px;border-radius:50%;background:#F59E0B}
 .row .cnt i.b{background:var(--c)}
 .row .cnt i.x{background:#E4DED6;box-shadow:inset 0 0 0 2px #CFC7BC}
+.row .cnt i.rod{width:12px;height:46px;border-radius:6px;background:repeating-linear-gradient(#F59E0B 0 3.6px,#D9860A 3.6px 4.6px)}   /* 10 막대 */
+.row .cnt{align-items:center}
 .wsheet .tray{margin-top:14px;position:sticky;bottom:10px;z-index:5;box-shadow:0 -6px 18px rgba(27,31,46,.06)}
 .sheet-body{display:block}
 @media (min-width:900px){ .sheet-body{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px;align-items:start} .sheet-body .tray{position:sticky;top:90px;bottom:auto;margin-top:6px;box-shadow:none} }
@@ -447,7 +449,7 @@ let stars = store.get('stars', 0);
 /* 별 · 스티커 약속 (다른 방과 같아요): 별 10개 = 스티커 1장 · 하루에 별은 300개, 스티커는 30장까지 (🌈 이벤트 별은 따로) */
 const STICKER_DAY_MAX = 30, STAR_DAY_MAX = 300;
 const stkCount = () => { const v=store.get('stk',null); return v===null ? Math.floor(store.get('stars',0)/10) : v; };
-const App = { view:'home', hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
+const App = { view:'home', hlv:store.get('hlv',0), wlv:store.get('wlv',0), mlv:store.get('mlv',0), slv:store.get('slv',0), mlv2:store.get('mlv2',0), slv2:store.get('slv2',0), elv:store.get('elv',0), ewlv:store.get('ewlv',0),story:null, decoCat:'base', decoPick:null };
 const view = document.getElementById('view');
 const $ = id => document.getElementById(id);
 const rnd = (a,b) => a+Math.floor(Math.random()*(b-a+1));
@@ -839,7 +841,23 @@ const SCHOOLLV = [
 /* ───── 연산: 더하기 +1 ~ +9 · 빼기 −1 ~ −9 학습지 (한 장 5문제 · 단계마다 2장) ───── */
 function mathPage(n, op='+'){ const ks=shuffle([1,2,3,4,5,6,7,8,9]).slice(0,5);
   return op==='+' ? ks.map(a=>({a, b:n, s:a+n})) : ks.map(k=>({a:k+n, b:n, s:k})); }
-const MATH = { math:{op:'+', key:'mlv', done:'mathDone', w:'더하기'}, minus:{op:'−', key:'slv', done:'subDone', w:'빼기'} };
+const MATH = { math:{op:'+', key:'mlv', done:'mathDone', w:'더하기'}, minus:{op:'−', key:'slv', done:'subDone', w:'빼기'},
+  // 두 자리 (2026-11-24): 두 자리 + 한 자리 · 두 자리 − 한 자리, 5단계. 다 한 단계는 mathDone · subDone 에 'd1'~'d5' 로 적어요
+  math2:{op:'+', key:'mlv2', done:'mathDone', w:'더하기', two:true}, minus2:{op:'−', key:'slv2', done:'subDone', w:'빼기', two:true} };
+/* 두 자리 단계: 단추에는 보기 식을 써요 (엄마가 고칠 땐 여기 숫자 범위만) */
+const LV2 = {
+  '+':[{n:'12+5', a:[10,19], carry:false}, {n:'34+3', a:[20,59], carry:false}, {n:'71+6', a:[60,98], carry:false}, {n:'17+5', a:[11,19], carry:true}, {n:'46+8', a:[21,89], carry:true}],
+  '−':[{n:'17−5', a:[11,19], carry:false}, {n:'38−4', a:[21,59], carry:false}, {n:'86−3', a:[61,99], carry:false}, {n:'13−5', a:[11,18], carry:true}, {n:'52−7', a:[21,98], carry:true}] };
+/* 두 자리 + 한 자리 · 두 자리 − 한 자리 한 장(5문제). carry = 받아올림 · 받아내림이 있는 단계 */
+function mathPage2(lv, op='+'){ const L=LV2[op==='+'?'+':'−'][lv]||LV2['+'][0], rows=[], seen=new Set();
+  for(let t=0; rows.length<5 && t<500; t++){
+    const a=L.a[0]+Math.floor(Math.random()*(L.a[1]-L.a[0]+1)), b=1+Math.floor(Math.random()*9), o=a%10;
+    if(seen.has(a+'|'+b)) continue;
+    if(op==='+'){ if(L.carry ? o+b<10 : o+b>9) continue; if(a+b>99) continue; rows.push({a, b, s:a+b}); }
+    else { if(L.carry ? b<=o : b>o) continue; if(a-b<1) continue; rows.push({a, b, s:a-b}); }
+    seen.add(a+'|'+b); }
+  return rows; }
+const mathRows = (M, n) => M.two ? mathPage2(n-1, M.op) : mathPage(n, M.op);
 
 /* ───── 쉬운 동화 ───── */
 const STORIES = [
@@ -878,6 +896,8 @@ const AREAS = {
   word:{n:'한글 낱말', ico:'나비', c:'var(--kor2)', p:'kor', d:'그림 · 받침 · 빈칸'},
   math:{n:'더하기', ico:'1+1', c:'var(--math)', p:'math', d:'+1 ~ +9 학습지'},
   minus:{n:'빼기', ico:'3−1', c:'var(--math2)', p:'math', d:'−1 ~ −9 학습지'},
+  math2:{n:'두 자리 더하기', ico:'12+3', c:'var(--math)', p:'math', d:'12+5 · 받아올림'},
+  minus2:{n:'두 자리 빼기', ico:'15−3', c:'var(--math2)', p:'math', d:'17−5 · 받아내림'},
   eng:{n:'알파벳', ico:'ABC', c:'var(--eng)', p:'eng', d:'이름 · 대소문자 · 순서'},
   engw:{n:'영어 낱말', ico:'🍎', c:'var(--eng2)', p:'eng', d:'첫 소리 · 단어 · 그림'},
   story:{n:'동화', ico:'📖', c:'var(--story)', p:'story', d:'읽고 문제 풀기'},
@@ -950,22 +970,31 @@ function sayQ(){ if(!Q||Q.done||!Q.list) return; const P=Q.list[Q.i]; if(P) spea
 let MS=null; // {n, page, rows}
 function renderMath(area){
   const M=MATH[area], c=AREAS[area].c, done=store.get(M.done,{}), plus=M.op==='+';
-  if(!MS || MS.area!==area || MS.n!==App[M.key]+1) MS={area, n:App[M.key]+1, page:0, rows:mathPage(App[M.key]+1, M.op)};
+  if(!MS || MS.area!==area || MS.n!==App[M.key]+1) MS={area, n:App[M.key]+1, page:0, rows:mathRows(M, App[M.key]+1)};
+  const dk = n => M.two ? 'd'+n : n, lvName = M.two ? `두 자리 ${M.w} ${MS.n}단계` : `${M.w} ${MS.n}`;
   onDrop=(s,t,ok)=>{
     if(!ok){ $('hint').textContent='다시 세어 볼까?'; speak('다시 세어 볼까?'); return; }
     const r=MS.rows[+s.dataset.i]; addStar(1); logToday('math', true, area); speak(`${r.a} ${M.w} ${r.b}는 ${r.s}`);
     if(!document.querySelectorAll('.wsheet .slot:not(.filled)').length){
-      MS.page++; const d=store.get(M.done,{}); d[MS.n]=Math.max(d[MS.n]||0, MS.page); store.set(M.done,d); burst();
+      MS.page++; const d=store.get(M.done,{}); d[dk(MS.n)]=Math.max(d[dk(MS.n)]||0, MS.page); store.set(M.done,d); burst();
       setTimeout(()=>{ $('hint').innerHTML=`<span class="praise">한 장 끝! ${MS.page>=2?'이 단계를 다 했어요 🏅':''}</span>`;
-        $('mathNext').hidden=false; speak(MS.page>=2?`와, ${M.w} ${MS.n} 단계를 다 했어요!`:'한 장 끝! 다음 장도 해 볼까?'); },700);
+        $('mathNext').hidden=false; speak(MS.page>=2?`와, ${lvName} 단계를 다 했어요!`.replace('단계 단계','단계'):'한 장 끝! 다음 장도 해 볼까?'); },700);
     }
   };
-  const tiles=shuffle([...MS.rows.map(r=>r.s), ...pick([...Array(19).keys()].filter(x=>!MS.rows.some(r=>r.s===x)),2)]);
+  // 헷갈리기 쉬운 숫자 두 개를 더 놓아요 (두 자리는 정답 바로 옆 수 · 10 차이 나는 수)
+  const near = M.two ? [...new Set(MS.rows.flatMap(r=>[r.s-1,r.s+1,r.s-10,r.s+10]))].filter(x=>x>=0&&x<=99) : [...Array(19).keys()];
+  const tiles=shuffle([...MS.rows.map(r=>r.s), ...pick(near.filter(x=>!MS.rows.some(r=>r.s===x)),2)]);
   // 구슬: 더하기는 두 색으로, 빼기는 처음 수만큼 놓고 빼는 만큼 빈 구슬로
-  const beads = r => plus ? '<i></i>'.repeat(r.a)+'<i class="b"></i>'.repeat(r.b) : '<i></i>'.repeat(r.s)+'<i class="x"></i>'.repeat(r.b);
+  // 두 자리는 10을 막대 하나로 (빼기에서 낱개가 모자라면 막대 하나를 낱개 10개로 풀어요)
+  const rod = n => '<i class="rod"></i>'.repeat(n);
+  const beads = r => {
+    if(!M.two) return plus ? '<i></i>'.repeat(r.a)+'<i class="b"></i>'.repeat(r.b) : '<i></i>'.repeat(r.s)+'<i class="x"></i>'.repeat(r.b);
+    const t=Math.floor(r.a/10), o=r.a%10;
+    if(plus) return rod(t)+'<i></i>'.repeat(o)+'<i class="b"></i>'.repeat(r.b);
+    return r.b<=o ? rod(t)+'<i></i>'.repeat(o-r.b)+'<i class="x"></i>'.repeat(r.b) : rod(t-1)+'<i></i>'.repeat(10+o-r.b)+'<i class="x"></i>'.repeat(r.b); };
   view.innerHTML=`<div style="--c:${c}">${areaHead(area)}
-    <div class="levels">${[1,2,3,4,5,6,7,8,9].map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="${M.key}" data-v="${n-1}" style="--lc:${LVC[(n-1)%LVC.length]}">${M.op}${n}<span class="m">${(done[n]||0)>=2?'🏅':done[n]?'✔':''}</span></button>`).join('')}</div>
-    <div class="wsheet"><div class="sheet-h"><b>${M.w} ${MS.n} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
+    <div class="levels">${(M.two?[1,2,3,4,5]:[1,2,3,4,5,6,7,8,9]).map(n=>`<button class="lv ${n===MS.n?'on':''}" data-act="lv" data-k="${M.key}" data-v="${n-1}" style="--lc:${LVC[(n-1)%LVC.length]}">${M.two?`<i class="lvn">${n}</i>${LV2[M.op][n-1].n}`:`${M.op}${n}`}<span class="m">${(done[dk(n)]||0)>=2?'🏅':done[dk(n)]?'✔':''}</span></button>`).join('')}</div>
+    <div class="wsheet"><div class="sheet-h"><b>${lvName} · ${MS.page%2+1}장</b><span class="hand" style="font-size:1.3rem;color:var(--sub)">숫자 카드를 끌어다 놓아요</span></div>
       <div class="sheet-body"><div class="rows">${MS.rows.map((r,i)=>`<div class="row"><span class="no">${i+1}</span><div class="ex">${r.a} ${M.op} ${r.b} = <span class="slot small" data-ans="${r.s}" data-i="${i}"></span></div>
         <div class="cnt">${beads(r)}</div></div>`).join('')}</div>
       <div class="tray">${tiles.map(v=>tileHTML(v,v,'small')).join('')}</div></div>
@@ -1395,14 +1424,14 @@ const ACT = {
   admStar: v=>{ if(admRole==='mom') return; { const dv=Math.max(0,stars+ +v)-stars; stars+=dv; ledgerAdd('stars',dv); } store.set('stars',stars); store.set('starsAt',Date.now()); updateStars(); cloudPush(); drawAdm(); },
   admReset: ()=>{ if(admRole==='mom') return; admResetAll(); },
   back: ()=>{ if(App.view==='story' && App.story){ App.story=null; RD=null; try{ speechSynthesis.cancel(); }catch(e){} render(); window.scrollTo(0,0); } else go('home'); },
-  sayHome: ()=>speak('다율아, 오늘도 놀아 볼까? 몇 시야, 숫자 세기, 글 읽기, 학교 가요, 그리고 한글 글자와 낱말, 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
+  sayHome: ()=>speak('다율아, 오늘도 놀아 볼까? 몇 시야, 숫자 세기, 글 읽기, 학교 가요, 그리고 한글 글자와 낱말, 더하기와 빼기, 두 자리 더하기와 빼기, 알파벳과 영어 낱말, 그리고 동화를 차례로 건너 봐요.'),
   lv: (v,el)=>{ App[el.dataset.k]=+v; store.set(el.dataset.k,+v); Q=null; MS=null; render(); },
   sayQ: ()=>sayQ(),
   // ◀ 이전 · 다음 ▶ (넘어간 문제는 별 없이 지나가요)
   qPrev: ()=>{ if(!Q||Q.done||Q.i<=0) return; Q.i--; Q.miss=false; render(); },
   qNext: ()=>{ if(!Q||Q.done) return; Q.i++; Q.miss=false; if(Q.i>=Q.list.length) Q.done=true; render(); },
   again: ()=>{ Q=null; render(); },
-  mathNext: ()=>{ const M=MATH[MS.area], n=MS.n, pg=MS.page; if(pg>=2){ App[M.key]=Math.min(8,App[M.key]+1); store.set(M.key,App[M.key]); MS=null; } else MS={area:MS.area, n, page:pg, rows:mathPage(n, M.op)}; render(); window.scrollTo(0,0); },
+  mathNext: ()=>{ const M=MATH[MS.area], n=MS.n, pg=MS.page; if(pg>=2){ App[M.key]=Math.min((M.two?5:9)-1,App[M.key]+1); store.set(M.key,App[M.key]); MS=null; } else MS={area:MS.area, n, page:pg, rows:mathRows(M, n)}; render(); window.scrollTo(0,0); },
   openStory: v=>{ App.story=v; render(); window.scrollTo(0,0); },
   readAll: ()=>readFrom(0),
   readStop: ()=>{ RD=null; try{ speechSynthesis.cancel(); }catch(e){} document.querySelectorAll('.sec').forEach(e=>e.classList.remove('reading')); },
