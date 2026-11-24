@@ -1991,5 +1991,7 @@ cloudLoad();
 /* 주소 끝이 #admin (또는 ?admin)이면 관리자 로그인부터: moontr.site 관리자 허브에서 바로 열어요 */
 if(/^#admin$/.test(location.hash)||/[?&]admin\b/.test(location.search)) openAdmin();
 </script>
+<!-- 방문 수 세기 (moontr 관리자 허브 '공부방 기기별 방문'에서 같은 기기가 하루 몇 번 들어왔는지 봐요 · 화면에는 안 보여요) -->
+<script type="module" src="https://moontr.site/visit.js?app=atlan&hide=1"></script>
 </body>
 </html>
